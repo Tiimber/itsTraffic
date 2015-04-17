@@ -47,6 +47,13 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Game.cs" />
+     <Compile Include="Assets\Scripts\Map.cs" />
+     <Compile Include="Assets\Scripts\Map\BaseNode.cs" />
+     <Compile Include="Assets\Scripts\Map\IdNode.cs" />
+     <Compile Include="Assets\Scripts\Map\Node.cs" />
+     <Compile Include="Assets\Scripts\Map\NodeWithTags.cs" />
+     <Compile Include="Assets\Scripts\Map\Tag.cs" />
+     <Compile Include="Assets\Scripts\Map\Way.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

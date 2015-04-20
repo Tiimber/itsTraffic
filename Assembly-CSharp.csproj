@@ -50,8 +50,8 @@
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\Map\BaseNode.cs" />
      <Compile Include="Assets\Scripts\Map\IdNode.cs" />
-     <Compile Include="Assets\Scripts\Map\Node.cs" />
      <Compile Include="Assets\Scripts\Map\NodeWithTags.cs" />
+     <Compile Include="Assets\Scripts\Map\Pos.cs" />
      <Compile Include="Assets\Scripts\Map\Tag.cs" />
      <Compile Include="Assets\Scripts\Map\Way.cs" />
  <Reference Include="UnityEngine.UI">

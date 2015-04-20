@@ -5,7 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+// Longitude = x
+// Latitude = y
+
 public class Game : MonoBehaviour {
+
+	public GameObject partOfWay;
+
+	// These are not really rects, just four positions minX, minY, maxX, maxY
+	private Rect cameraBounds;
+	private Rect mapBounds;
+
+	private Vector3 oneVector = new Vector3(1F, 0F, 0F);
+	private float wayLengthFactor = 10f;
 
 	// Use this for initialization
 	void Start () {
@@ -18,7 +30,7 @@ public class Game : MonoBehaviour {
 	}
 
 	private IEnumerator loadXML () {
-		string configFile = "file://" + Application.streamingAssetsPath + "/testmap01.osm"; 
+		string configFile = "file://" + Application.streamingAssetsPath + "/testmap03.osm"; 
 		WWW www = new WWW (configFile);
 		
 		yield return www;
@@ -34,15 +46,21 @@ public class Game : MonoBehaviour {
 		decimal maxlat = Convert.ToDecimal (boundsAttributes.GetNamedItem ("maxlat").Value);
 		decimal minlon = Convert.ToDecimal (boundsAttributes.GetNamedItem ("minlon").Value);
 		decimal maxlon = Convert.ToDecimal (boundsAttributes.GetNamedItem ("maxlon").Value);
+		mapBounds = new Rect ((float)minlon, (float)minlat, (float)(maxlon - minlon), (float)(maxlat - minlat));
 
-		Camera mainCamera = Camera.main;
-		mainCamera.rect = new Rect ((float)minlon, (float)maxlon, (float)minlat, (float)maxlat);
+//		Camera mainCamera = Camera.main;
+		// TODO - Take these out from the camera
+		float cameraMinX = -5F;
+		float cameraMinY = -5F;
+		float cameraMaxX = 5F;
+		float cameraMaxY = 5F;
+		cameraBounds = new Rect (cameraMinX, cameraMinY, cameraMaxX - cameraMinX, cameraMaxY - cameraMinY);
 
 		XmlNodeList nodeNodes = xmlDoc.SelectNodes("/osm/node");
 		foreach (XmlNode xmlNode in nodeNodes) {
 			XmlAttributeCollection attributes = xmlNode.Attributes;
 			long id = Convert.ToInt64(attributes.GetNamedItem("id").Value);
-			Pos node = new Pos(id, Convert.ToDecimal(attributes.GetNamedItem("lon").Value), Convert.ToDecimal(attributes.GetNamedItem("lat").Value));
+			Pos node = new Pos(id, (float)Convert.ToDecimal(attributes.GetNamedItem("lon").Value), (float)Convert.ToDecimal(attributes.GetNamedItem("lat").Value));
 			addTags(node, xmlNode);
 			nodes.Add (id, node);
 		}
@@ -57,6 +75,8 @@ public class Game : MonoBehaviour {
 
 			Map.Ways.Add(way);
 		}
+
+		plotMap ();
 	}
 
 	private void addTags (NodeWithTags node, XmlNode xmlNode)
@@ -74,5 +94,46 @@ public class Game : MonoBehaviour {
 		foreach (XmlAttribute refAttribute in nodeRefs) {
 			way.addPos(nodes[Convert.ToInt64(refAttribute.Value)]);
 		}
+	}
+
+	private void plotMap () {
+		foreach (Way way in Map.Ways) {
+			Pos prev = null;
+			foreach (Pos pos in way.getPoses ()) {
+				if (prev != null) {
+					Vector3 position = getCameraPosition(pos);
+					Vector3 prevPosition = getCameraPosition(prev);
+					createPartOfWay(prevPosition, position, way);
+				}
+				prev = pos;
+			}
+		}
+	}
+
+	private void createPartOfWay (Vector3 position1, Vector3 position2, Way wayObject)
+	{
+		Vector3 wayVector = position2 - position1;
+		Vector3 position = getMidPoint(position1, position2);
+//		float angle = Vector3.Angle (position2 - position1, oneVector);
+		GameObject way = Instantiate(partOfWay, position, Quaternion.FromToRotation(oneVector, wayVector)) as GameObject;
+//		GameObject way = Instantiate(partOfWay, position, Quaternion.Euler(wayVector)) as GameObject;
+		Vector3 originalScale = partOfWay.transform.localScale;
+		way.transform.localScale = new Vector3 (Vector3.Magnitude(wayVector) * wayLengthFactor * originalScale.x, 1f * originalScale.y * wayObject.WayWidthFactor, 1f * originalScale.z);
+	}
+
+	private Vector3 getMidPoint (Vector3 position1, Vector3 position2)
+	{
+		return ((position2 - position1) / 2) + position1;
+	}
+
+	private Vector3 getCameraPosition (Pos pos)
+	{
+		float posX = pos.Lon;
+		float posY = pos.Lat;
+
+		float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width + cameraBounds.x;
+		float cameraPosY = ((posY - mapBounds.y) / mapBounds.height) * cameraBounds.height + cameraBounds.y;
+
+		return new Vector3 (cameraPosX, cameraPosY, 0);
 	}
 }

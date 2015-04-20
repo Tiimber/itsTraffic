@@ -12,7 +12,7 @@ public class NodeWithTags : IdNode {
 		return tags;
 	}
 
-	public void addTag (Tag tag) {
+	virtual public void addTag (Tag tag) {
 		tags.Add (tag);
 	}
 }

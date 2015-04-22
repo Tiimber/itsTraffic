@@ -19,6 +19,8 @@ public class Game : MonoBehaviour {
 	private Vector3 oneVector = new Vector3(1F, 0F, 0F);
 	private float wayLengthFactor = 10f;
 
+	private float currentLevel = WayTypeEnum.HIGHWAY_TERTIARY;
+
 	// Use this for initialization
 	void Start () {
 		StartCoroutine (loadXML ());
@@ -26,7 +28,13 @@ public class Game : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if (Input.GetKeyDown(KeyCode.Minus)) {
+			currentLevel = WayTypeEnum.getLower(currentLevel);
+			filterWays();
+		} else if (Input.GetKeyDown(KeyCode.Plus)) {
+			currentLevel = WayTypeEnum.getHigher(currentLevel);
+			filterWays();
+		}
 	}
 
 	private IEnumerator loadXML () {
@@ -114,9 +122,9 @@ public class Game : MonoBehaviour {
 	{
 		Vector3 wayVector = position2 - position1;
 		Vector3 position = getMidPoint(position1, position2);
-//		float angle = Vector3.Angle (position2 - position1, oneVector);
 		GameObject way = Instantiate(partOfWay, position, Quaternion.FromToRotation(oneVector, wayVector)) as GameObject;
-//		GameObject way = Instantiate(partOfWay, position, Quaternion.Euler(wayVector)) as GameObject;
+		WayReference wayReference = way.GetComponent<WayReference> ();
+		wayReference.way = wayObject;
 		Vector3 originalScale = partOfWay.transform.localScale;
 		way.transform.localScale = new Vector3 (Vector3.Magnitude(wayVector) * wayLengthFactor * originalScale.x, 1f * originalScale.y * wayObject.WayWidthFactor, 1f * originalScale.z);
 	}
@@ -135,5 +143,18 @@ public class Game : MonoBehaviour {
 		float cameraPosY = ((posY - mapBounds.y) / mapBounds.height) * cameraBounds.height + cameraBounds.y;
 
 		return new Vector3 (cameraPosX, cameraPosY, 0);
+	}
+
+	private void filterWays() 
+	{
+		Debug.Log ("Current way width level: " + currentLevel);
+		WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
+		foreach (WayReference wayReference in wayReferences) {
+			if (wayReference.way.WayWidthFactor < currentLevel) {
+				wayReference.GetComponent<Renderer>().enabled = false;
+			} else {
+				wayReference.GetComponent<Renderer>().enabled = true;
+			}
+		}
 	}
 }

@@ -11,6 +11,7 @@ using System.Linq;
 public class Game : MonoBehaviour {
 
 	public GameObject partOfWay;
+	public GameObject partOfNonCarWay;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private Rect cameraBounds;
@@ -19,7 +20,8 @@ public class Game : MonoBehaviour {
 	private Vector3 oneVector = new Vector3(1F, 0F, 0F);
 	private float wayLengthFactor = 10f;
 
-	private float currentLevel = WayTypeEnum.HIGHWAY_TERTIARY;
+	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
+	private bool showOnlyCurrentLevel = false;
 
 	// Use this for initialization
 	void Start () {
@@ -28,12 +30,15 @@ public class Game : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown(KeyCode.Minus)) {
-			currentLevel = WayTypeEnum.getLower(currentLevel);
-			filterWays();
-		} else if (Input.GetKeyDown(KeyCode.Plus)) {
-			currentLevel = WayTypeEnum.getHigher(currentLevel);
-			filterWays();
+		if (Input.GetKeyDown (KeyCode.Plus)) {
+			currentLevel = WayTypeEnum.getLower (currentLevel);
+			filterWays ();
+		} else if (Input.GetKeyDown (KeyCode.Minus)) {
+			currentLevel = WayTypeEnum.getHigher (currentLevel);
+			filterWays ();
+		} else if (Input.GetKeyDown (KeyCode.Space)) {
+			showOnlyCurrentLevel ^= true;
+			filterWays ();
 		}
 	}
 
@@ -122,10 +127,18 @@ public class Game : MonoBehaviour {
 	{
 		Vector3 wayVector = position2 - position1;
 		Vector3 position = getMidPoint(position1, position2);
-		GameObject way = Instantiate(partOfWay, position, Quaternion.FromToRotation(oneVector, wayVector)) as GameObject;
+
+		GameObject way;
+		Vector3 originalScale;
+		if (wayObject.CarWay) {
+			way = Instantiate (partOfWay, position, Quaternion.FromToRotation (oneVector, wayVector)) as GameObject;
+			originalScale = partOfWay.transform.localScale;
+		} else {
+			way = Instantiate (partOfNonCarWay, position, Quaternion.FromToRotation (oneVector, wayVector)) as GameObject;
+			originalScale = partOfNonCarWay.transform.localScale;
+		}
 		WayReference wayReference = way.GetComponent<WayReference> ();
 		wayReference.way = wayObject;
-		Vector3 originalScale = partOfWay.transform.localScale;
 		way.transform.localScale = new Vector3 (Vector3.Magnitude(wayVector) * wayLengthFactor * originalScale.x, 1f * originalScale.y * wayObject.WayWidthFactor, 1f * originalScale.z);
 	}
 
@@ -150,10 +163,13 @@ public class Game : MonoBehaviour {
 		Debug.Log ("Current way width level: " + currentLevel);
 		WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
 		foreach (WayReference wayReference in wayReferences) {
-			if (wayReference.way.WayWidthFactor < currentLevel) {
-				wayReference.GetComponent<Renderer>().enabled = false;
-			} else {
+			float currentWayWidthFactor = wayReference.way.WayWidthFactor;
+			if (showOnlyCurrentLevel && currentWayWidthFactor == currentLevel) {
 				wayReference.GetComponent<Renderer>().enabled = true;
+			} else if (!showOnlyCurrentLevel && currentWayWidthFactor >= currentLevel) {
+				wayReference.GetComponent<Renderer>().enabled = true;
+			} else {
+				wayReference.GetComponent<Renderer>().enabled = false;
 			}
 		}
 	}

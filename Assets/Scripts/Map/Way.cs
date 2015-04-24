@@ -6,6 +6,7 @@ public class Way : NodeWithTags {
 	private List<Pos> nodes = new List<Pos> ();
 	public float WayWidthFactor { set; get; } 
 	public bool CarWay { set; get; }
+	public WayReference WayReference { set; get; }
 	
 	public Way (long id) : base(id) {
 		WayWidthFactor = 0.1F;
@@ -18,6 +19,8 @@ public class Way : NodeWithTags {
 	public void addPos (Pos node) {
 		nodes.Add (node);
 	}
+
+//	override public void processTags () {}
 
 	override public void addTag (Tag tag) {
 		base.addTag(tag);
@@ -34,6 +37,7 @@ public class Way : NodeWithTags {
 				case "motorway": WayWidthFactor = WayTypeEnum.MOTORWAY; CarWay = true; break;
 				case "motorway_link": WayWidthFactor = WayTypeEnum.MOTORWAY_LINK; CarWay = true; break;
 				case "residential": WayWidthFactor = WayTypeEnum.RESIDENTIAL; CarWay = true; break;
+				case "unclassified": WayWidthFactor = WayTypeEnum.UNCLASSIFIED; CarWay = true; break;
 				case "platform": WayWidthFactor = WayTypeEnum.PLATFORM; break;
 				case "footway": WayWidthFactor = WayTypeEnum.FOOTWAY; break;
 				case "pedestrian": WayWidthFactor = WayTypeEnum.PEDESTRIAN; break;
@@ -42,7 +46,6 @@ public class Way : NodeWithTags {
 				case "service": WayWidthFactor = WayTypeEnum.SERVICE; break;
 				case "cycleway": WayWidthFactor = WayTypeEnum.CYCLEWAY; break;
 				case "steps": WayWidthFactor = WayTypeEnum.STEPS; break;
-				case "unclassified": WayWidthFactor = WayTypeEnum.UNCLASSIFIED; break;
 				// 
 				default: Debug.Log("Highway type unknown: " + tag.Value); break;
 			}

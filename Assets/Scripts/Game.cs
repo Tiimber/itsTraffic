@@ -10,6 +10,8 @@ using System.Linq;
 
 public class Game : MonoBehaviour {
 
+	private string mapFile = "/testmap01.osm";
+
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
 
@@ -22,6 +24,11 @@ public class Game : MonoBehaviour {
 
 	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
 	private bool showOnlyCurrentLevel = false;
+
+	private int debugIndex = 0;
+	private List<string> debugIndexNodes = new List<string> () {
+		"none", "endpoint", "straightWay", "intersections"
+	};
 
 	// Use this for initialization
 	void Start () {
@@ -39,11 +46,48 @@ public class Game : MonoBehaviour {
 		} else if (Input.GetKeyDown (KeyCode.Space)) {
 			showOnlyCurrentLevel ^= true;
 			filterWays ();
+		} else if (Input.GetKeyDown (KeyCode.LeftShift)) {
+			debugIndex = ++debugIndex % debugIndexNodes.Count;
+			WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
+			foreach (WayReference wayReference in wayReferences) {
+				if (wayReference.OriginalColor != Color.magenta) {
+					wayReference.gameObject.GetComponent<Renderer>().material.color = wayReference.OriginalColor;
+					wayReference.OriginalColor = Color.magenta;
+				}
+			}
 		}
+
+		// Draw debugIndex stuff
+		Dictionary<long, List<Way>> debugWayIndex;
+		if (debugIndex > 0) {
+			switch (debugIndexNodes[debugIndex]) {
+			case "endpoint": debugWayIndex = NodeIndex.endPointIndex; break;
+			case "straightWay": debugWayIndex = NodeIndex.straightWayIndex; break;
+			case "intersections": debugWayIndex = NodeIndex.intersectionWayIndex; break;
+			default: debugWayIndex = null; break;
+			}
+		} else {
+			debugWayIndex = null;
+		}
+		if (debugWayIndex != null) {
+			foreach (long key in debugWayIndex.Keys.ToList()) {
+				foreach (Way way in debugWayIndex[key]) {
+					WayReference wayReference = way.WayReference;
+					GameObject wayObject = wayReference.gameObject;
+					Debug.DrawLine(wayObject.transform.position - new Vector3(-.2f, -.2f, 0), wayObject.transform.position + new Vector3(-.2f, -.2f, 0), Color.yellow);
+					Debug.DrawLine(wayObject.transform.position - new Vector3(.2f, -.2f, 0), wayObject.transform.position + new Vector3(.2f, -.2f, 0), Color.yellow);
+					if (wayReference.OriginalColor == Color.magenta) {
+						wayReference.OriginalColor = wayObject.GetComponent<Renderer>().material.color;
+					}
+					wayObject.GetComponent<Renderer>().material.color = Color.blue;
+				}
+			}
+		}
+
 	}
 
 	private IEnumerator loadXML () {
-		string configFile = "file://" + Application.streamingAssetsPath + "/testmap03.osm"; 
+		string configFile = "file://" + Application.streamingAssetsPath + mapFile; 
 		WWW www = new WWW (configFile);
 		
 		yield return www;
@@ -90,6 +134,9 @@ public class Game : MonoBehaviour {
 		}
 
 		plotMap ();
+
+		NodeIndex.calculateIndexes ();
+		Debug.Log (NodeIndex.nodeWayIndex);
 	}
 
 	private void addTags (NodeWithTags node, XmlNode xmlNode)
@@ -99,13 +146,16 @@ public class Game : MonoBehaviour {
 			XmlAttributeCollection attributes = tagNode.Attributes;
 			node.addTag(new Tag(attributes.GetNamedItem("k").Value, attributes.GetNamedItem("v").Value));
 		}
+//		node.processTags ();
 	}
 
 	private void addNodes (Way way, XmlNode xmlNode, Dictionary<long, Pos> nodes)
 	{
 		XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
 		foreach (XmlAttribute refAttribute in nodeRefs) {
-			way.addPos(nodes[Convert.ToInt64(refAttribute.Value)]);
+			Pos node = nodes[Convert.ToInt64(refAttribute.Value)];
+			way.addPos (node);
+			NodeIndex.addWayToNode(node.Id, way);
 		}
 	}
 
@@ -139,7 +189,9 @@ public class Game : MonoBehaviour {
 		}
 		WayReference wayReference = way.GetComponent<WayReference> ();
 		wayReference.way = wayObject;
-		way.transform.localScale = new Vector3 (Vector3.Magnitude(wayVector) * wayLengthFactor * originalScale.x, 1f * originalScale.y * wayObject.WayWidthFactor, 1f * originalScale.z);
+		wayObject.WayReference = wayReference;
+		float currentMapWidthFactor = 5f;
+		way.transform.localScale = new Vector3 (Vector3.Magnitude(wayVector) * wayLengthFactor * originalScale.x, 1f * originalScale.y * wayObject.WayWidthFactor * currentMapWidthFactor, 1f * originalScale.z);
 	}
 
 	private Vector3 getMidPoint (Vector3 position1, Vector3 position2)
@@ -156,6 +208,12 @@ public class Game : MonoBehaviour {
 		float cameraPosY = ((posY - mapBounds.y) / mapBounds.height) * cameraBounds.height + cameraBounds.y;
 
 		return new Vector3 (cameraPosX, cameraPosY, 0);
+	}
+
+//	private void getWaysWithLevel(
+
+	public void OnGUI () {
+		GUI.Label(new Rect(0, 0, 100, 20), debugIndexNodes[debugIndex]);
 	}
 
 	private void filterWays() 

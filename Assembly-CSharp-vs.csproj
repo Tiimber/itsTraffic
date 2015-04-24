@@ -50,6 +50,7 @@
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\Map\BaseNode.cs" />
      <Compile Include="Assets\Scripts\Map\IdNode.cs" />
+     <Compile Include="Assets\Scripts\Map\NodeIndex.cs" />
      <Compile Include="Assets\Scripts\Map\NodeWithTags.cs" />
      <Compile Include="Assets\Scripts\Map\Pos.cs" />
      <Compile Include="Assets\Scripts\Map\Tag.cs" />

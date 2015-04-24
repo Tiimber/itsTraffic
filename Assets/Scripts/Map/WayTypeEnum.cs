@@ -19,7 +19,9 @@ public class WayTypeEnum
 	public const float CYCLEWAY = 0.12f;
 	public const float STEPS = 0.41f;
 	public const float RESIDENTIAL = 0.51f;
-	public const float UNCLASSIFIED = 0.05f;
+	public const float UNCLASSIFIED = 1.11f;
+
+	public const float ALL = 0.00f;
 
 	public static List<float> WayTypes = new List<float>() {
 		HIGHWAY_PRIMARY,
@@ -36,7 +38,9 @@ public class WayTypeEnum
 		CYCLEWAY,
 		STEPS,
 		RESIDENTIAL,
-		UNCLASSIFIED
+		UNCLASSIFIED,
+
+		ALL
 	};
 
 	static WayTypeEnum () {

@@ -15,4 +15,6 @@ public class NodeWithTags : IdNode {
 	virtual public void addTag (Tag tag) {
 		tags.Add (tag);
 	}
+
+//	virtual public void processTags () {}
 }

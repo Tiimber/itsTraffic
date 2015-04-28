@@ -3,28 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Way : NodeWithTags {
-//	private List<Pos> nodes = new List<Pos> ();
 	public float WayWidthFactor { set; get; } 
 	public bool CarWay { set; get; }
+	public bool Building { set; get; }
 	public List<WayReference> WayReferences = new List<WayReference> ();
 	
 	public Way (long id) : base(id) {
 		WayWidthFactor = 0.1F;
 	}
 
-//	public List<Pos> getPoses () {
-//		return nodes;
-//	}
-//
-//	public void addPos (Pos node) {
-//		nodes.Add (node);
-//	}
-
 	public void addWayReference (WayReference wayReference) {
 		this.WayReferences.Add (wayReference);
 	}
-
-//	override public void processTags () {}
 
 	override public void addTag (Tag tag) {
 		base.addTag(tag);
@@ -65,6 +55,9 @@ public class Way : NodeWithTags {
 				// 
 //				default: Debug.Log("Landuse type unknown: " + tag.Value); break;
 			}
+			break;
+		case "building":
+			Building = true;
 			break;
 		}
 	}

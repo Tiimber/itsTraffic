@@ -93,26 +93,28 @@ public class Game : MonoBehaviour {
 			if (CurrentWayReference.OriginalColor == Color.magenta) {
 				CurrentWayReference.OriginalColor = wayObject.GetComponent<Renderer>().material.color;
 			}
-			wayObject.GetComponent<Renderer>().material.color = Color.green;
+			wayObject.GetComponent<Renderer>().material.color = Color.gray;
 
-			List<WayReference> node1Connections = NodeIndex.nodeWayIndex[CurrentWayReference.node1.Id];
-			List<WayReference> node2Connections = NodeIndex.nodeWayIndex[CurrentWayReference.node2.Id];
-			foreach (WayReference node1Connection in node1Connections) {
-				if (node1Connection != CurrentWayReference) {
-					GameObject node1WayObject = node1Connection.gameObject;
-					if (node1Connection.OriginalColor == Color.magenta) {
-						node1Connection.OriginalColor = node1WayObject.GetComponent<Renderer>().material.color;
+			if (NodeIndex.nodeWayIndex.ContainsKey(CurrentWayReference.node1.Id)) {
+				List<WayReference> node1Connections = NodeIndex.nodeWayIndex[CurrentWayReference.node1.Id];
+				List<WayReference> node2Connections = NodeIndex.nodeWayIndex[CurrentWayReference.node2.Id];
+				foreach (WayReference node1Connection in node1Connections) {
+					if (node1Connection != CurrentWayReference) {
+						GameObject node1WayObject = node1Connection.gameObject;
+						if (node1Connection.OriginalColor == Color.magenta) {
+							node1Connection.OriginalColor = node1WayObject.GetComponent<Renderer>().material.color;
+						}
+						node1WayObject.GetComponent<Renderer>().material.color = Color.yellow;
 					}
-					node1WayObject.GetComponent<Renderer>().material.color = Color.yellow;
 				}
-			}
-			foreach (WayReference node2Connection in node2Connections) {
-				if (node2Connection != CurrentWayReference) {
-					GameObject node2WayObject = node2Connection.gameObject;
-					if (node2Connection.OriginalColor == Color.magenta) {
-						node2Connection.OriginalColor = node2WayObject.GetComponent<Renderer>().material.color;
+				foreach (WayReference node2Connection in node2Connections) {
+					if (node2Connection != CurrentWayReference) {
+						GameObject node2WayObject = node2Connection.gameObject;
+						if (node2Connection.OriginalColor == Color.magenta) {
+							node2Connection.OriginalColor = node2WayObject.GetComponent<Renderer>().material.color;
+						}
+						node2WayObject.GetComponent<Renderer>().material.color = Color.green;
 					}
-					node2WayObject.GetComponent<Renderer>().material.color = Color.gray;
 				}
 			}
 		}
@@ -179,16 +181,21 @@ public class Game : MonoBehaviour {
 
 	private void addNodes (Way way, XmlNode xmlNode, Dictionary<long, Pos> nodes)
 	{
-		XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
-		Pos prev = null;
-		foreach (XmlAttribute refAttribute in nodeRefs) {
-			Pos pos = nodes[Convert.ToInt64(refAttribute.Value)];
-			if (prev != null) {
-				WayReference wayReference = createPartOfWay(prev, pos, way);
-				NodeIndex.addWayReferenceToNode(prev.Id, wayReference);
-				NodeIndex.addWayReferenceToNode(pos.Id, wayReference);
+		// Only instantiate ways, not landuse
+		if (way.WayWidthFactor != 0) {
+			XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
+			Pos prev = null;
+			foreach (XmlAttribute refAttribute in nodeRefs) {
+				Pos pos = nodes [Convert.ToInt64 (refAttribute.Value)];
+				if (prev != null) {
+					WayReference wayReference = createPartOfWay (prev, pos, way);
+					if (!way.Building) {
+						NodeIndex.addWayReferenceToNode (prev.Id, wayReference);
+						NodeIndex.addWayReferenceToNode (pos.Id, wayReference);
+					}
+				}
+				prev = pos;
 			}
-			prev = pos;
 		}
 	}
 
@@ -241,11 +248,23 @@ public class Game : MonoBehaviour {
 
 		if (CurrentWayReference) {
 			GUI.Label (new Rect(0, 40, 500, 20), "WayReference id: " + CurrentWayReference.Id);
-			GUI.Label (new Rect(0, 60, 500, 20), "Node 1 Connections: " + NodeIndex.nodeWayIndex[CurrentWayReference.node1.Id].Count + ": " + getIdStrings(NodeIndex.nodeWayIndex[CurrentWayReference.node1.Id]));
-			GUI.Label (new Rect(0, 80, 500, 20), "Node 2 Connections: " + NodeIndex.nodeWayIndex[CurrentWayReference.node2.Id].Count + ": " + getIdStrings(NodeIndex.nodeWayIndex[CurrentWayReference.node2.Id]));
+			int y = 40;
+			if (NodeIndex.nodeWayIndex.ContainsKey(CurrentWayReference.node1.Id)) {
+				GUI.Label (new Rect(0, y+=20, 500, 20), "Node 1 Connections: " + NodeIndex.nodeWayIndex[CurrentWayReference.node1.Id].Count + ": " + getIdStrings(NodeIndex.nodeWayIndex[CurrentWayReference.node1.Id]));
+				GUI.Label (new Rect(0, y+=20, 500, 20), "Node 2 Connections: " + NodeIndex.nodeWayIndex[CurrentWayReference.node2.Id].Count + ": " + getIdStrings(NodeIndex.nodeWayIndex[CurrentWayReference.node2.Id]));
+			}
 			Way way = CurrentWayReference.way;
-			GUI.Label (new Rect(0, 100, 500, 20), "Way info: " + (way.CarWay ? "Car way" : "Smaller way") + " - " + way.WayWidthFactor);
+			GUI.Label (new Rect(0, y+=20, 500, 20), "Way info: " + (way.CarWay ? "Car way" : (way.Building ? "Building" : "Smaller way")) + " - " + way.WayWidthFactor);
+			GUI.Label (new Rect(0, y+=20, 500, 200), getTagNames(way));
 		}
+	}
+
+	private string getTagNames(Way way) {
+		string wayTags = "";
+		foreach (Tag tag in way.getTags()) {
+			wayTags += (wayTags.Length > 0 ? "\n" : "") + tag.Key + "=" + tag.Value;
+		}
+		return wayTags;
 	}
 
 	private string getIdStrings(List<WayReference> wayReferences) {

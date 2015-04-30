@@ -10,6 +10,9 @@ public class WayReference : MonoBehaviour {
 	public Pos node1 { set; get; }
 	public Pos node2 { set; get; }
 
+	// TODO - Should know how many fields it has
+	// TODO - Flag if one-way (and if so, in which direction)
+
 	// TODO - Temporary
 	public Color OriginalColor { set; get; }
 	public WayReference () : base() {
@@ -18,6 +21,7 @@ public class WayReference : MonoBehaviour {
 
 	void OnMouseEnter () {
 		Game.CurrentWayReference = this;
+		Game.CurrentPath = null;
 	}
 
 	void OnMouseExit () {
@@ -26,6 +30,7 @@ public class WayReference : MonoBehaviour {
 			OriginalColor = Color.magenta;
 		}
 		Game.CurrentWayReference = null;
+		Game.CurrentPath = null;
 
 		if (NodeIndex.nodeWayIndex.ContainsKey (node1.Id)) {
 			List<WayReference> node1Connections = NodeIndex.nodeWayIndex [node1.Id];
@@ -49,5 +54,9 @@ public class WayReference : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	void OnMouseDown () {
+		Game.CurrentTarget = this;
 	}
 }

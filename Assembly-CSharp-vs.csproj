@@ -56,6 +56,8 @@
      <Compile Include="Assets\Scripts\Map\Tag.cs" />
      <Compile Include="Assets\Scripts\Map\Way.cs" />
      <Compile Include="Assets\Scripts\Map\WayTypeEnum.cs" />
+     <Compile Include="Assets\Scripts\NodeDistance.cs" />
+     <Compile Include="Assets\Scripts\Settings.cs" />
      <Compile Include="Assets\Scripts\WayReference.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

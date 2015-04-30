@@ -4,6 +4,8 @@ using System.Linq;
 
 public class NodeIndex
 {
+	public static Dictionary<long, Pos> nodes = new Dictionary<long, Pos> ();
+
 	public static Dictionary<long, List<WayReference>> nodeWayIndex = new Dictionary<long, List<WayReference>>();
 
 	public static Dictionary<long, List<WayReference>> endPointIndex;
@@ -21,5 +23,21 @@ public class NodeIndex
 		endPointIndex = nodeWayIndex.Where (p => p.Value.Count == 1).ToDictionary (p => p.Key, p => p.Value);
 		straightWayIndex = nodeWayIndex.Where (p => p.Value.Count == 2).ToDictionary (p => p.Key, p => p.Value);
 		intersectionWayIndex = nodeWayIndex.Where (p => p.Value.Count > 2).ToDictionary (p => p.Key, p => p.Value);
+	}
+
+	public static WayReference getWayReference (long id1, long id2) {
+		foreach (WayReference wayReference in nodeWayIndex[id1]) {
+			if (wayReference.node2.Id == id2 || wayReference.node1.Id == id2) {
+				return wayReference;
+			}
+		}
+
+		foreach (WayReference wayReference in nodeWayIndex[id2]) {
+			if (wayReference.node2.Id == id1 || wayReference.node1.Id == id1) {
+				return wayReference;
+			}
+		}
+
+		return null;
 	}
 }

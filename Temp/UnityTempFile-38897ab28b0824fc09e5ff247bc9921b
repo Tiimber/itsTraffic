@@ -65,6 +65,8 @@
 'Assets/Scripts/Map/Tag.cs'
 'Assets/Scripts/Map/Way.cs'
 'Assets/Scripts/Map/WayTypeEnum.cs'
+'Assets/Scripts/NodeDistance.cs'
+'Assets/Scripts/Settings.cs'
 'Assets/Scripts/WayReference.cs'
 -r:'/Applications/Unity/Unity.app/Contents/Frameworks/Mono/lib/mono/unity/System.Runtime.Serialization.dll'
 -r:'/Applications/Unity/Unity.app/Contents/Frameworks/Mono/lib/mono/unity/System.Xml.Linq.dll'

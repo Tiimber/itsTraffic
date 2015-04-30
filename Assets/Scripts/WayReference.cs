@@ -19,9 +19,27 @@ public class WayReference : MonoBehaviour {
 		OriginalColor = Color.magenta;
 	}
 
-	void OnMouseEnter () {
-		Game.CurrentWayReference = this;
+	void OnMouseOver () {
+		Pos selectedPos = getSelectedPos ();
+		Game.CurrentWayReference = new KeyValuePair<Pos, WayReference> (selectedPos, this);
 		Game.CurrentPath = null;
+	}
+
+	void OnMouseEnter () {
+		Pos selectedPos = getSelectedPos ();
+		Game.CurrentWayReference = new KeyValuePair<Pos, WayReference>(selectedPos, this);
+		Game.CurrentPath = null;
+	}
+	
+	private Pos getSelectedPos () {
+		RaycastHit hit = new RaycastHit();
+		bool isLeft = true;
+		Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit, Mathf.Infinity);
+		if (hit.collider != null) {
+			isLeft = hit.collider == gameObject.GetComponents<Collider>()[0];
+			Debug.Log (isLeft);
+		}
+		return isLeft ? node1 : node2;
 	}
 
 	void OnMouseExit () {
@@ -29,7 +47,7 @@ public class WayReference : MonoBehaviour {
 			gameObject.GetComponent<Renderer>().material.color = OriginalColor;
 			OriginalColor = Color.magenta;
 		}
-		Game.CurrentWayReference = null;
+		Game.CurrentWayReference = new KeyValuePair<Pos, WayReference>();
 		Game.CurrentPath = null;
 
 		if (NodeIndex.nodeWayIndex.ContainsKey (node1.Id)) {
@@ -57,6 +75,7 @@ public class WayReference : MonoBehaviour {
 	}
 
 	void OnMouseDown () {
-		Game.CurrentTarget = this;
+		Pos selectedPos = getSelectedPos ();
+		Game.CurrentTarget = new KeyValuePair<Pos, WayReference>(selectedPos, this);
 	}
 }

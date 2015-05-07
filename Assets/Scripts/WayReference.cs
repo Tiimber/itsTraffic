@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class WayReference : MonoBehaviour {
 	public static int WayId = 0;
@@ -36,8 +37,9 @@ public class WayReference : MonoBehaviour {
 		bool isLeft = true;
 		Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit, Mathf.Infinity);
 		if (hit.collider != null) {
-			isLeft = hit.collider == gameObject.GetComponents<Collider>()[0];
-			Debug.Log (isLeft);
+			List<Collider> colliders = gameObject.GetComponents<Collider> ().ToList ();
+			bool hasFour = colliders.Count == 4;
+			isLeft = hit.collider == colliders[0] || (hasFour && hit.collider == colliders[2]);
 		}
 		return isLeft ? node1 : node2;
 	}

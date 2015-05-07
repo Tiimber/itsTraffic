@@ -18,10 +18,11 @@ public class Game : MonoBehaviour {
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
+	public GameObject vehicle;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
-	private Rect cameraBounds;
-	private Rect mapBounds;
+	private static Rect cameraBounds;
+	private static Rect mapBounds;
 
 	private Vector3 oneVector = new Vector3(1F, 0F, 0F);
 	
@@ -54,10 +55,12 @@ public class Game : MonoBehaviour {
 			WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
 			foreach (WayReference wayReference in wayReferences) {
 				if (wayReference.OriginalColor != Color.magenta) {
-					wayReference.gameObject.GetComponent<Renderer>().material.color = wayReference.OriginalColor;
+					wayReference.gameObject.GetComponent<Renderer> ().material.color = wayReference.OriginalColor;
 					wayReference.OriginalColor = Color.magenta;
 				}
 			}
+		} else if (Input.GetKeyDown (KeyCode.N)) {
+			createNewCar ();
 		}
 
 		// Draw debugIndex stuff
@@ -74,7 +77,9 @@ public class Game : MonoBehaviour {
 			debugWayIndex = null;
 		}
 		if (CurrentWayReference.Value != null && CurrentTarget.Value != null && CurrentTarget.Key != CurrentWayReference.Key && CurrentPath == null) {
-				calculateCurrentPath();
+			Pos source = CurrentWayReference.Key;
+			Pos target = CurrentTarget.Key;
+			CurrentPath = calculateCurrentPath(source, target);
 		}
 
 		if (CurrentPath != null) {
@@ -150,11 +155,33 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	private void calculateCurrentPath () {
-		CurrentPath = new List<Pos> ();
+	private void createNewCar () {
+		Pos pos1 = getRandomEndPoint (null);
+		Pos pos2 = getRandomEndPoint (pos1);
+		// Pos -> Vector3
+		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.1f);
+		GameObject vehicleInstance = Instantiate (vehicle, position, Quaternion.identity) as GameObject;
+		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
+		vehicleObj.StartPos = pos1;
+		vehicleObj.CurrentPosition = pos1;
+		vehicleObj.EndPos = pos2;
+		vehicleObj.GetComponent<Renderer> ().material.color = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+	}
 
-		Pos source = CurrentWayReference.Key;
-		Pos target = CurrentTarget.Key;
+	private Pos getRandomEndPoint (Pos notPos)
+	{
+		List<long> endPoints = NodeIndex.endPointIndex.Keys.ToList();
+		Pos chosenEndPoint = null;
+
+		do {
+			chosenEndPoint = NodeIndex.nodes[endPoints[UnityEngine.Random.Range (0, endPoints.Count)]];
+		} while (notPos == chosenEndPoint);
+
+		return chosenEndPoint;
+	}
+
+	public static List<Pos> calculateCurrentPath (Pos source, Pos target) {
+		List<Pos> calculatedPath = new List<Pos> ();
 
 		Dictionary<long, NodeDistance> visitedPaths = new Dictionary<long, NodeDistance> ();
 
@@ -193,16 +220,18 @@ public class Game : MonoBehaviour {
 		if (!impossible) {
 			current = target;
 			while (current != null) {
-				CurrentPath.Insert(0, current);
+				calculatedPath.Insert(0, current);
 				if (current == source) {
 					break;
 				}
 				current = visitedPaths [current.Id].source;
 			}
 		}
+
+		return calculatedPath;
 	}
 
-	private Pos getLowestUnvisitedCostNode (Dictionary<long, NodeDistance> nodes) {
+	private static Pos getLowestUnvisitedCostNode (Dictionary<long, NodeDistance> nodes) {
 		float lowestCost = float.PositiveInfinity;
 		long closestNodeId = -1;
 		foreach (KeyValuePair<long, NodeDistance> nodeEntry in nodes) {
@@ -319,7 +348,22 @@ public class Game : MonoBehaviour {
 		wayReference.node1 = previousPos;
 		wayReference.node2 = currentPos;
 		wayObject.addWayReference (wayReference);
-		way.transform.localScale = new Vector3 (Vector3.Magnitude(wayVector) * Settings.wayLengthFactor * originalScale.x, 1f * originalScale.y * wayObject.WayWidthFactor * Settings.currentMapWidthFactor, 1f * originalScale.z);
+
+		// Target value = wayObject.WayWidthFactor
+		float xStretchFactor = Vector3.Magnitude (wayVector) * Settings.wayLengthFactor;
+		float yStretchFactor = wayObject.WayWidthFactor * Settings.currentMapWidthFactor;
+		way.transform.localScale = new Vector3 (xStretchFactor * originalScale.x, yStretchFactor * originalScale.y, originalScale.z);
+
+		float colliderWidthPct = Mathf.Min (yStretchFactor / (xStretchFactor * 2), 0.5f);
+		List<BoxCollider> colliders = wayReference.GetComponents<BoxCollider> ().ToList ();
+		BoxCollider leftCollider = colliders [colliders.Count - 2];
+		BoxCollider rightCollider = colliders [colliders.Count - 1];
+
+		leftCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
+		leftCollider.center = new Vector3 (-0.5f + colliderWidthPct / 2f, 0f, 0f);
+		rightCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
+		rightCollider.center = new Vector3 (0.5f - colliderWidthPct / 2f, 0f, 0f);
+
 		return wayReference;
 	}
 
@@ -328,7 +372,7 @@ public class Game : MonoBehaviour {
 		return ((position2 - position1) / 2) + position1;
 	}
 
-	private Vector3 getCameraPosition (Pos pos)
+	public static Vector3 getCameraPosition (Pos pos)
 	{
 		float posX = pos.Lon;
 		float posY = pos.Lat;

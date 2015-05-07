@@ -21,4 +21,24 @@ public class Pos : NodeWithTags {
 		}
 		return neighbours;
 	}
+
+	public static bool operator ==(Pos a, Pos b) {
+		return System.Object.ReferenceEquals (a, b); 
+	}
+
+	public static bool operator !=(Pos a, Pos b) {
+		return !(a == b);
+	}
+
+	public override bool Equals (object other) {
+		if (other.GetType () == typeof(Pos)) {
+			Pos otherPos = other as Pos;
+			return this == otherPos || (this != null && otherPos != null && Id == otherPos.Id);
+		}
+		return false;
+	}
+
+	public override int GetHashCode () {
+		return base.GetHashCode();
+	}
 }

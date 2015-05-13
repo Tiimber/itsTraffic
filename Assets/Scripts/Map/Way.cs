@@ -7,7 +7,7 @@ public class Way : NodeWithTags {
 	public bool CarWay { set; get; }
 	public bool Building { set; get; }
 	public List<WayReference> WayReferences = new List<WayReference> ();
-	
+
 	public Way (long id) : base(id) {
 		WayWidthFactor = 0.1F;
 	}

@@ -11,7 +11,16 @@ public class WayReference : MonoBehaviour {
 	public Pos node1 { set; get; }
 	public Pos node2 { set; get; }
 
-	// TODO - Should know how many fields it has
+	private float fieldsFromPos1ToPos2 = 2f;
+	private float fieldsFromPos2ToPos1 = 2f;
+	public float getNumberOfFields () {
+		return fieldsFromPos1ToPos2 + fieldsFromPos2ToPos1;
+	}
+
+	public float getNumberOfFieldsInDirection (Pos fromPosition) {
+		return isNode1 (fromPosition) ? fieldsFromPos1ToPos2 : fieldsFromPos2ToPos1;
+	}
+
 	// TODO - Flag if one-way (and if so, in which direction)
 
 	// TODO - Temporary
@@ -79,5 +88,13 @@ public class WayReference : MonoBehaviour {
 	void OnMouseDown () {
 		Pos selectedPos = getSelectedPos ();
 		Game.CurrentTarget = new KeyValuePair<Pos, WayReference>(selectedPos, this);
+	}
+
+	public bool isNode1 (Pos pos) {
+		return pos.Id == node1.Id;
+	}
+
+	public Pos getOtherNode (Pos pos) {
+		return isNode1(pos) ? node2 : node1;
 	}
 }

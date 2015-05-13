@@ -23,6 +23,8 @@ public class WayTypeEnum
 
 	public const float ALL = 0.00f;
 
+	public const float MINIMUM_DRIVE_WAY = WayTypeEnum.PEDESTRIAN;
+
 	public static List<float> WayTypes = new List<float>() {
 		HIGHWAY_PRIMARY,
 		HIGHWAY_SECONDARY,

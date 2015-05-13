@@ -175,7 +175,20 @@ public class Game : MonoBehaviour {
 
 		do {
 			chosenEndPoint = NodeIndex.nodes[endPoints[UnityEngine.Random.Range (0, endPoints.Count)]];
-		} while (notPos == chosenEndPoint);
+			// Validate endPoint as ok way to end at (certain size)
+		} while (notPos == chosenEndPoint || NodeIndex.endPointIndex[chosenEndPoint.Id][0].way.WayWidthFactor < WayTypeEnum.MINIMUM_DRIVE_WAY);
+
+		// TODO - Temporary - forcing starting point
+		if (notPos == null) {
+			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 331L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
+			List<WayReference> wayRefs = wayRefsDict.Values.ToList()[0];
+			WayReference wayRef = wayRefs[0];
+			if (NodeIndex.endPointIndex.ContainsKey(wayRef.node1.Id)) {
+				chosenEndPoint = wayRef.node1;
+			} else {
+				chosenEndPoint = wayRef.node2;
+			}
+		}
 
 		return chosenEndPoint;
 	}

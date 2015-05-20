@@ -56,6 +56,7 @@
      <Compile Include="Assets\Scripts\Map\Tag.cs" />
      <Compile Include="Assets\Scripts\Map\Way.cs" />
      <Compile Include="Assets\Scripts\Map\WayTypeEnum.cs" />
+     <Compile Include="Assets\Scripts\Math3d.cs" />
      <Compile Include="Assets\Scripts\NodeDistance.cs" />
      <Compile Include="Assets\Scripts\Settings.cs" />
      <Compile Include="Assets\Scripts\Vehicle.cs" />

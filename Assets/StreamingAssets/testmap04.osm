@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="CGImap 0.4.0 (13981 thorn-02.openstreetmap.org)" copyright="OpenStreetMap and contributors" attribution="http://www.openstreetmap.org/copyright" license="http://opendatacommons.org/licenses/odbl/1-0/">
+ <bounds minlat="55.5926600" minlon="13.0491400" maxlat="55.5937600" maxlon="13.0519400"/>
+ <node id="312292569" visible="true" version="1" changeset="752191" timestamp="2008-11-15T17:43:13Z" user="sanna" uid="31450" lat="55.5883404" lon="13.0499697"/>
+ <node id="312462245" visible="true" version="2" changeset="11528215" timestamp="2012-05-07T12:36:56Z" user="Mippzon" uid="58954" lat="55.5932742" lon="13.0389013"/>
+ <node id="312462247" visible="true" version="1" changeset="754681" timestamp="2008-11-16T10:30:52Z" user="sanna" uid="31450" lat="55.5908673" lon="13.0402632"/>
+ <node id="312462253" visible="true" version="1" changeset="754681" timestamp="2008-11-16T10:30:53Z" user="sanna" uid="31450" lat="55.5949369" lon="13.0499587"/>
+ <node id="312462255" visible="true" version="1" changeset="754681" timestamp="2008-11-16T10:30:54Z" user="sanna" uid="31450" lat="55.5951469" lon="13.0496955"/>
+ <node id="312462258" visible="true" version="1" changeset="754681" timestamp="2008-11-16T10:30:54Z" user="sanna" uid="31450" lat="55.5969059" lon="13.0504853"/>
+ <node id="312462260" visible="true" version="1" changeset="754681" timestamp="2008-11-16T10:30:54Z" user="sanna" uid="31450" lat="55.5975097" lon="13.0487817"/>
+ <node id="312462262" visible="true" version="1" changeset="754681" timestamp="2008-11-16T10:30:55Z" user="sanna" uid="31450" lat="55.5947619" lon="13.0420753"/>
+ <node id="312462251" visible="true" version="3" changeset="6900825" timestamp="2011-01-08T08:20:51Z" user="jorchr" uid="89041" lat="55.5927760" lon="13.0507310"/>
+ <node id="312462249" visible="true" version="3" changeset="6900825" timestamp="2011-01-08T08:20:51Z" user="jorchr" uid="89041" lat="55.5911226" lon="13.0471671"/>
+ <node id="312462256" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5966922" lon="13.0510686"/>
+ <node id="312462265" visible="true" version="1" changeset="754681" timestamp="2008-11-16T10:30:55Z" user="sanna" uid="31450" lat="55.5945868" lon="13.0412080"/>
+ <node id="312462315" visible="true" version="1" changeset="754681" timestamp="2008-11-16T10:31:35Z" user="sanna" uid="31450" lat="55.5916550" lon="13.0447393"/>
+ <node id="316271588" visible="true" version="1" changeset="51297" timestamp="2008-12-02T18:47:20Z" user="sanna" uid="31450" lat="55.5915628" lon="13.0505678"/>
+ <node id="316271593" visible="true" version="1" changeset="51297" timestamp="2008-12-02T18:47:20Z" user="sanna" uid="31450" lat="55.5907546" lon="13.0504181"/>
+ <node id="316271597" visible="true" version="2" changeset="2588166" timestamp="2009-09-23T03:50:03Z" user="jorchr" uid="89041" lat="55.5929073" lon="13.0508381">
+  <tag k="highway" v="turning_circle"/>
+ </node>
+ <node id="331131481" visible="true" version="6" changeset="29956480" timestamp="2015-04-03T17:21:28Z" user="MysticRat" uid="551899" lat="55.5944202" lon="13.0508060"/>
+ <node id="512698759" visible="true" version="1" changeset="2670446" timestamp="2009-09-28T21:40:44Z" user="jorchr" uid="89041" lat="55.5910619" lon="13.0413689"/>
+ <node id="506051186" visible="true" version="1" changeset="2588166" timestamp="2009-09-23T03:49:26Z" user="jorchr" uid="89041" lat="55.5943926" lon="13.0511593"/>
+ <node id="506051187" visible="true" version="1" changeset="2588166" timestamp="2009-09-23T03:50:03Z" user="jorchr" uid="89041" lat="55.5942893" lon="13.0510920"/>
+ <node id="506051188" visible="true" version="1" changeset="2588166" timestamp="2009-09-23T03:50:03Z" user="jorchr" uid="89041" lat="55.5938674" lon="13.0509976"/>
+ <node id="1090570097" visible="true" version="1" changeset="6900825" timestamp="2011-01-08T08:20:50Z" user="jorchr" uid="89041" lat="55.5933458" lon="13.0503723"/>
+ <node id="1090570102" visible="true" version="1" changeset="6900825" timestamp="2011-01-08T08:20:50Z" user="jorchr" uid="89041" lat="55.5914303" lon="13.0455725"/>
+ <node id="1090570105" visible="true" version="1" changeset="6900825" timestamp="2011-01-08T08:20:50Z" user="jorchr" uid="89041" lat="55.5921867" lon="13.0506932"/>
+ <node id="1090570121" visible="true" version="1" changeset="6900825" timestamp="2011-01-08T08:20:50Z" user="jorchr" uid="89041" lat="55.5928386" lon="13.0508243"/>
+ <node id="1090570136" visible="true" version="1" changeset="6900825" timestamp="2011-01-08T08:20:50Z" user="jorchr" uid="89041" lat="55.5949221" lon="13.0498788"/>
+ <node id="1090570141" visible="true" version="1" changeset="6900825" timestamp="2011-01-08T08:20:50Z" user="jorchr" uid="89041" lat="55.5914852" lon="13.0505534"/>
+ <node id="676297563" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:51Z" user="jorchr" uid="89041" lat="55.5926857" lon="13.0468479"/>
+ <node id="312462316" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5905612" lon="13.0502618"/>
+ <node id="676297551" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5920762" lon="13.0437324"/>
+ <node id="676297604" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5933401" lon="13.0501559"/>
+ <node id="676297602" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5913573" lon="13.0400837"/>
+ <node id="676297600" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5929649" lon="13.0391124"/>
+ <node id="676297606" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5949899" lon="13.0497581"/>
+ <node id="676297550" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5916164" lon="13.0440060"/>
+ <node id="512698758" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:52Z" user="jorchr" uid="89041" lat="55.5915784" lon="13.0444964"/>
+ <node id="3434673367" visible="true" version="1" changeset="29955868" timestamp="2015-04-03T16:46:43Z" user="MysticRat" uid="551899" lat="55.5949717" lon="13.0508365"/>
+ <node id="3434673368" visible="true" version="1" changeset="29955868" timestamp="2015-04-03T16:46:43Z" user="MysticRat" uid="551899" lat="55.5961673" lon="13.0507362"/>
+ <node id="3434673370" visible="true" version="3" changeset="29956532" timestamp="2015-04-03T17:24:14Z" user="MysticRat" uid="551899" lat="55.5931201" lon="13.0505344"/>
+ <node id="3434876867" visible="true" version="1" changeset="29956532" timestamp="2015-04-03T17:24:14Z" user="MysticRat" uid="551899" lat="55.5926537" lon="13.0487313"/>
+ <node id="676297561" visible="true" version="3" changeset="29956532" timestamp="2015-04-03T17:24:14Z" user="MysticRat" uid="551899" lat="55.5922104" lon="13.0470992"/>
+ <way id="93844319" visible="true" version="1" changeset="6900825" timestamp="2011-01-08T08:20:50Z" user="jorchr" uid="89041">
+  <nd ref="1090570102"/>
+  <nd ref="1090570121"/>
+  <tag k="highway" v="footway"/>
+ </way>
+ <way id="28439219" visible="true" version="5" changeset="6900825" timestamp="2011-01-08T08:20:53Z" user="jorchr" uid="89041">
+  <nd ref="312462245"/>
+  <nd ref="312462247"/>
+  <nd ref="512698759"/>
+  <nd ref="512698758"/>
+  <nd ref="312462315"/>
+  <nd ref="312462249"/>
+  <nd ref="312462316"/>
+  <nd ref="312462251"/>
+  <nd ref="1090570097"/>
+  <nd ref="312462253"/>
+  <nd ref="312462255"/>
+  <nd ref="312462256"/>
+  <nd ref="312462258"/>
+  <nd ref="312462260"/>
+  <nd ref="312462262"/>
+  <nd ref="312462265"/>
+  <nd ref="312462245"/>
+  <tag k="landuse" v="cemetery"/>
+  <tag k="name" v="Östra kyrkogården"/>
+ </way>
+ <way id="28765946" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:53Z" user="jorchr" uid="89041">
+  <nd ref="312292569"/>
+  <nd ref="316271593"/>
+  <nd ref="1090570141"/>
+  <nd ref="316271588"/>
+  <nd ref="1090570105"/>
+  <nd ref="1090570121"/>
+  <nd ref="316271597"/>
+  <tag k="highway" v="cycleway"/>
+ </way>
+ <way id="53533960" visible="true" version="2" changeset="6900825" timestamp="2011-01-08T08:20:53Z" user="jorchr" uid="89041">
+  <nd ref="676297600"/>
+  <nd ref="676297602"/>
+  <nd ref="676297551"/>
+  <nd ref="676297563"/>
+  <nd ref="676297604"/>
+  <nd ref="1090570136"/>
+  <nd ref="676297606"/>
+  <tag k="highway" v="footway"/>
+ </way>
+ <way id="41374725" visible="true" version="1" changeset="2588166" timestamp="2009-09-23T03:50:03Z" user="jorchr" uid="89041">
+  <nd ref="506051186"/>
+  <nd ref="506051187"/>
+  <nd ref="506051188"/>
+  <nd ref="316271597"/>
+  <tag k="highway" v="service"/>
+ </way>
+ <way id="336441291" visible="true" version="2" changeset="29956480" timestamp="2015-04-03T17:21:28Z" user="MysticRat" uid="551899">
+  <nd ref="3434673368"/>
+  <nd ref="3434673367"/>
+  <nd ref="331131481"/>
+  <nd ref="3434673370"/>
+  <tag k="highway" v="service"/>
+ </way>
+ <way id="336452972" visible="true" version="1" changeset="29956532" timestamp="2015-04-03T17:24:14Z" user="MysticRat" uid="551899">
+  <nd ref="3434673370"/>
+  <nd ref="3434876867"/>
+  <nd ref="676297561"/>
+  <nd ref="676297550"/>
+  <tag k="highway" v="footway"/>
+ </way>
+ <way id="336452973" visible="true" version="1" changeset="29956532" timestamp="2015-04-03T17:24:14Z" user="MysticRat" uid="551899">
+  <nd ref="3434673370"/>
+  <nd ref="316271597"/>
+  <tag k="highway" v="service"/>
+ </way>
+</osm>

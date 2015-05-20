@@ -12,18 +12,29 @@ public class Vehicle: MonoBehaviour {
 
 	private Vector3 endVector;
 	private Vector3 startVector;
-	private Vector3 oneVector = new Vector3(1F, 0F, 0F);
 
 	private WayReference CurrentWayReference { set; get; }
 	private float SpeedFactor { set; get; }
 	private float Acceleration { set; get; }
 	private float currentSpeed = 0f;
+	private float currentYOffset = 0f;
 
-
+	private float YAdjustment { set; get; }
+	private const float MaxRotation = 20f;
+	private float DesiredRotation { set; get; }
 	private float BreakFactor { set; get; }
+
+	private Vector3 TargetPoint { set; get; }
 	private WayReference TurnToRoad { set; get; }
-	private Vector3 TurnToRoadEndVector;
-	private Vector3 TurnToRoadStartVector;
+	private TurnState turnState = TurnState.NONE;
+
+	private enum TurnState {
+		NONE,
+		FAC,
+		PC,
+		CAR, 
+		BC
+	}
 
 	// TODO - Carefulness (drunk level, tired, age...)
 
@@ -31,13 +42,15 @@ public class Vehicle: MonoBehaviour {
 	void Start () {
 		initVehicleProfile ();
 		updateCurrentTarget ();
-		transform.rotation = Quaternion.FromToRotation (oneVector, endVector - startVector);
-		transform.position = new Vector3 (transform.position.x, transform.position.y + getCenterYOfField (), transform.position.z);
+		transform.rotation = Quaternion.FromToRotation (Vector3.right, endVector - startVector);
+		currentYOffset = getCenterYOfField (CurrentWayReference, CurrentPosition);
+		transform.position = new Vector3 (transform.position.x, transform.position.y + currentYOffset, transform.position.z);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		breakBeforeCurve ();
+		// Calculate how much in y, we should target at in current way
+		YAdjustment = getCenterYOfField (CurrentWayReference, CurrentPosition);
 
 		// The vehicles desired speed per second on this specific road
 		float wayTargetSpeed = CurrentWayReference.way.WayWidthFactor * Settings.playbackSpeed;
@@ -49,19 +62,61 @@ public class Vehicle: MonoBehaviour {
 		currentSpeed += currentAcceleration * Time.deltaTime;
 		adjustColliders ();
 
-		// Update pos, move closer to EndPos
-		Vector3 positionMovementVector = endVector - startVector;
-		float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
-		Vector3 movementVector = positionMovementVector * movementPct;
-		transform.position += new Vector3 (movementVector.x, movementVector.y, 0);
-	}
+		if (TurnToRoad == null) {
+			// Update pos, move closer to EndPos
+			Vector3 positionMovementVector = endVector - startVector;
+			float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
+			Vector3 movementVector = positionMovementVector * movementPct;
+			
+			Vector3 vehiclePosition = transform.position;
+			vehiclePosition += new Vector3 (movementVector.x, movementVector.y, 0);
+			if (currentYOffset != YAdjustment) {
+				Vector3 frameYOffset = new Vector3 (0, YAdjustment - currentYOffset, 0) * Time.deltaTime;
+				currentYOffset += frameYOffset.y;
+				vehiclePosition += frameYOffset;
+			}
+			transform.position = vehiclePosition;
+			bool isInWayDirection = CurrentWayReference.isNode1 (CurrentPosition);
+			Quaternion turnDirection = isInWayDirection ? CurrentWayReference.transform.rotation : CurrentWayReference.transform.rotation * Quaternion.Euler(0, 0, 180f);
+			transform.rotation = turnDirection;
+		} else {
+			// We have a target point that we want to move towards
+			Vector3 currentPos = new Vector3(transform.position.x, transform.position.y, 0f);
+			Vector3 target = TargetPoint;
 
-	private void breakBeforeCurve ()
-	{
-		if (TurnToRoad != null) {
-			Quaternion newWayRotation = Quaternion.FromToRotation (oneVector, TurnToRoadEndVector - TurnToRoadStartVector);
-			float desiredRotation = newWayRotation.eulerAngles.z - transform.rotation.eulerAngles.z;
-			BreakFactor = getBreakFactorForDegrees (Mathf.Abs (desiredRotation));
+			Vector3 vehicleMovement = transform.rotation * Vector3.right;
+			Vector3 wayDirection = TurnToRoad.gameObject.transform.rotation * Vector3.right;
+
+			Vector3 intersection = Vector3.zero;
+			bool intersects = Math3d.LineLineIntersection(out intersection, currentPos, vehicleMovement, target, wayDirection);
+			if (intersects) {
+				// TODO - Adjust in aspect of how close to target we are
+				float time = 0.1f;
+				Vector3 currentTargetPoint = Math3d.GetPointInBezierAtTime (time, currentPos, intersection, target);
+				Vector3 positionMovementVector = currentTargetPoint - currentPos;
+				float desiredRotation = Mathf.Atan(positionMovementVector.y / positionMovementVector.x) * 180f / Mathf.PI + (positionMovementVector.y < 0 ? 180 : 0);
+				transform.rotation = Quaternion.Euler(new Vector3(0, 0, desiredRotation));
+
+				float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
+				Vector3 movementVector = positionMovementVector * movementPct;
+				transform.position += new Vector3 (movementVector.x, movementVector.y, 0);
+
+				// Calculate how much we need to break in
+				BreakFactor = getBreakFactorForDegrees (Mathf.Abs (desiredRotation));
+
+				// TODO - Fix better logic for determining when target is reached and we should move to next road
+				float thresholdSpeed = 0.01f;
+				Vector3 distanceLeft = TargetPoint - new Vector3(transform.position.x, transform.position.y, 0f);
+				if (distanceLeft.magnitude < thresholdSpeed) {
+					CurrentPosition = CurrentTarget;
+					updateCurrentTarget();
+				}
+//				Debug.Log ("Distance left: " + distanceLeft.magnitude);
+			} else {
+//				Debug.Log ("No intersection!");
+//				Debug.Log ("From: " + currentPos + ", to: " + target);
+//				Debug.Log ("Vehicle direction: " + vehicleMovement + ", road direction: " + wayDirection);
+			}
 		}
 	}
 
@@ -152,38 +207,53 @@ public class Vehicle: MonoBehaviour {
 		if (collisionObj != null && collisionObj.WayReference != null && collisionObj.WayReference == CurrentWayReference && collisionObj.ExtraData == CurrentTarget) {
 			// We know that this is the currentTarget - we want to know our options
 			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayTypeEnum.MINIMUM_DRIVE_WAY).ToList ();
+			if (colliderName == "FAC") {
+				turnState = TurnState.FAC;
+			} else if (colliderName == "PC") {
+				turnState = TurnState.PC;
+			} else if (colliderName == "CAR") {
+				turnState = TurnState.CAR;
+			} else if (colliderName == "BC") {
+				turnState = TurnState.BC;
+			}
+
 			if (possitilities.Count == 1) {
 				TurnToRoad = possitilities[0];
-				TurnToRoadEndVector = Game.getCameraPosition (TurnToRoad.getOtherNode(CurrentTarget));
-				TurnToRoadStartVector = Game.getCameraPosition (CurrentTarget);
-
-				// Straight - without any redlights...
-				if (colliderName == "PC") {
-					// Only interested in straight ways when Panic Collider touches way collider
-
-				}
-
-				// TODO - Temporary only - turn instantly
-				if (colliderName == "CAR") {
-					transform.position = new Vector3(endVector.x, endVector.y, transform.position.z);
-					CurrentPosition = CurrentTarget;
-					updateCurrentTarget ();
-					transform.rotation = Quaternion.FromToRotation (oneVector, endVector - startVector);
-					BreakFactor = 1f;
-				}
+				TargetPoint = getTargetPoint(TurnToRoad);
+//				// Straight - without any redlights...
+//				if (colliderName == "PC") {
+//					// Only interested in straight ways when Panic Collider touches way collider
+//
+//				}
+//
+//				// TODO - Temporary only - turn instantly
+//				if (colliderName == "CAR") {
+//					transform.position = new Vector3(endVector.x, endVector.y, transform.position.z);
+//					CurrentPosition = CurrentTarget;
+//					updateCurrentTarget ();
+//					transform.position += new Vector3(0, getCenterYOfField(CurrentWayReference), 0);
+//					transform.rotation = Quaternion.FromToRotation (Vector3.right, endVector - startVector);
+//					BreakFactor = 1f;
+//				}
 
 			} else if (possitilities.Count > 1) {
-				// TODO - Temporary only - turn instantly
-				// Intersection
-				if (colliderName == "CAR") {
-					transform.position = new Vector3(endVector.x, endVector.y, transform.position.z);
-					CurrentPosition = CurrentTarget;
-					updateCurrentTarget ();
-					transform.rotation = Quaternion.FromToRotation (oneVector, endVector - startVector);
-					BreakFactor = 1f;
-				}
+				List<Pos> path = Game.calculateCurrentPath (CurrentPosition, EndPos);
+				Pos nextTarget = path [2];
+				TurnToRoad = NodeIndex.getWayReference(CurrentTarget.Id, nextTarget.Id);
+				TargetPoint = getTargetPoint(TurnToRoad);
+
+//				// TODO - Temporary only - turn instantly
+//				// Intersection
+//				if (colliderName == "CAR") {
+//					transform.position = new Vector3(endVector.x, endVector.y, transform.position.z);
+//					CurrentPosition = CurrentTarget;
+//					updateCurrentTarget ();
+//					transform.position += new Vector3(0, getCenterYOfField(CurrentWayReference), 0);
+//					transform.rotation = Quaternion.FromToRotation (Vector3.right, endVector - startVector);
+//					BreakFactor = 1f;
+//				}
 			} else {
-				// TODO - Temporary only - turn instantly
+				// TODO - Temporary only - stop on endpoint
 				if (colliderName == "CAR") {
 					// Endpoint
 					currentSpeed = 0;
@@ -191,6 +261,15 @@ public class Vehicle: MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	private Vector3 getTargetPoint (WayReference turnToRoad)
+	{
+		Quaternion turnToRoadQuaternion = turnToRoad.gameObject.transform.rotation;
+		float halfWayWidth = turnToRoad.gameObject.transform.localScale.y / 2f;
+		bool isNode1 = turnToRoad.isNode1 (CurrentTarget);
+
+		return endVector + turnToRoadQuaternion * new Vector3(isNode1 ? halfWayWidth : -halfWayWidth, getCenterYOfField (turnToRoad, CurrentTarget), 0);
 	}
 
 	private CollisionObj<Pos> getColliderType (Collider col, string colliderName)
@@ -211,6 +290,8 @@ public class Vehicle: MonoBehaviour {
 
 	public void updateCurrentTarget () {
 		TurnToRoad = null;
+		TargetPoint = Vector3.zero;
+		BreakFactor = 1f;
 		List<Pos> path = Game.calculateCurrentPath (CurrentPosition, EndPos);
 		if (path.Count > 1) {
 			CurrentTarget = path [1];
@@ -224,28 +305,28 @@ public class Vehicle: MonoBehaviour {
 		}
 	}
 
-	public float getCenterYOfField () {
+	public float getCenterYOfField (WayReference wayReference, Pos fromPosition) {
 		// TODO - this should be a variable
-		int fieldInt = Random.Range(-1, 3);
-		float field = (float) fieldInt;
-		Debug.Log ("field: " + field);
-		float wayNumberOfFields = CurrentWayReference.getNumberOfFields ();
-		Debug.Log ("wayNumberOfFields: " + wayNumberOfFields);
-		float wayNumberOfFieldsOurDirection = CurrentWayReference.getNumberOfFieldsInDirection (CurrentPosition);
-		Debug.Log ("wayNumberOfFieldsOurDirection: " + wayNumberOfFieldsOurDirection);
-		float wayWidth = CurrentWayReference.transform.localScale.y;
-		Debug.Log ("wayWidth: " + wayWidth);
+		bool inWayDirection = wayReference.isNode1 (fromPosition);
+		float wayNumberOfFieldsOurDirection = wayReference.getNumberOfFieldsInDirection (fromPosition);
+		float field = wayNumberOfFieldsOurDirection;
+//		Debug.Log ("field: " + field);
+		float wayNumberOfFields = wayReference.getNumberOfFields ();
+//		Debug.Log ("wayNumberOfFields: " + wayNumberOfFields);
+//		Debug.Log ("wayNumberOfFieldsOurDirection: " + wayNumberOfFieldsOurDirection);
+		float wayWidth = wayReference.transform.localScale.y;
+//		Debug.Log ("wayWidth: " + wayWidth);
 		float absoluteFieldNumber = wayNumberOfFields - wayNumberOfFieldsOurDirection + field;
-		Debug.Log ("absoluteFieldNumber: " + absoluteFieldNumber);
+//		Debug.Log ("absoluteFieldNumber: " + absoluteFieldNumber);
 		float rightPosition = wayWidth / wayNumberOfFields * absoluteFieldNumber;
-		Debug.Log ("rightPosition: " + rightPosition);
+//		Debug.Log ("rightPosition: " + rightPosition);
 		float eachFieldWidth = wayWidth / wayNumberOfFields;
-		Debug.Log ("eachFieldWidth: " + eachFieldWidth);
+//		Debug.Log ("eachFieldWidth: " + eachFieldWidth);
 		float centerPosition = rightPosition - eachFieldWidth / 2;
-		Debug.Log ("centerPosition: " + centerPosition);
+//		Debug.Log ("centerPosition: " + centerPosition);
 		float offsetFromMiddle = centerPosition - wayWidth / 2;
-		Debug.Log ("offsetFromMiddle: " + offsetFromMiddle);
-		return offsetFromMiddle;
+//		Debug.Log ("offsetFromMiddle: " + offsetFromMiddle);
+		return inWayDirection ? -offsetFromMiddle : offsetFromMiddle;
 	}
 
 	private class CollisionObj<T> {

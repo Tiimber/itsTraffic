@@ -1025,8 +1025,11 @@ public class Math3d {
 	}
 
 	// Time 0f-1f
-	public static Vector3 GetPointInBezierAtTime(float time, Vector3 start, Vector3 control, Vector3 end) {
-		return start * Mathf.Pow (time, 2) + control * 2 * time * (1f - time) + end * Mathf.Pow (1f - time, 2f); 
+	public static float GetPointInBezierAtTime(bool isX, float time, Vector3 start, Vector3 control, Vector3 end) {
+		float startVal = isX ? start.x : start.y;
+		float endVal = isX ? end.x : end.y;
+		float controlVal = isX ? control.x : control.y;
+		return startVal * Mathf.Pow (time, 2f) + controlVal * 2f * time * (1f - time) + endVal * Mathf.Pow (1f - time, 2f); 
 //		P(t) = P0*t^2 + P1*2*t*(1-t) + P2*(1-t)^2
 	}
 }

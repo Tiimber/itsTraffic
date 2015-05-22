@@ -9,6 +9,7 @@ public class Vehicle: MonoBehaviour {
 	public Pos EndPos { set; get; }
 	public Pos CurrentPosition { set; get; } 
 	public Pos CurrentTarget { set; get; }
+	private List<Pos> currentPath { set; get; }
 
 	private Vector3 endVector;
 	private Vector3 startVector;
@@ -16,6 +17,7 @@ public class Vehicle: MonoBehaviour {
 	private WayReference CurrentWayReference { set; get; }
 	private float SpeedFactor { set; get; }
 	private float Acceleration { set; get; }
+	private Vector3 PreviousMovementVector { set; get; }
 	private float currentSpeed = 0f;
 	private float currentYOffset = 0f;
 
@@ -62,61 +64,43 @@ public class Vehicle: MonoBehaviour {
 		currentSpeed += currentAcceleration * Time.deltaTime;
 		adjustColliders ();
 
-		if (TurnToRoad == null) {
-			// Update pos, move closer to EndPos
-			Vector3 positionMovementVector = endVector - startVector;
-			float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
-			Vector3 movementVector = positionMovementVector * movementPct;
-			
-			Vector3 vehiclePosition = transform.position;
-			vehiclePosition += new Vector3 (movementVector.x, movementVector.y, 0);
-			if (currentYOffset != YAdjustment) {
-				Vector3 frameYOffset = new Vector3 (0, YAdjustment - currentYOffset, 0) * Time.deltaTime;
-				currentYOffset += frameYOffset.y;
-				vehiclePosition += frameYOffset;
-			}
-			transform.position = vehiclePosition;
-			bool isInWayDirection = CurrentWayReference.isNode1 (CurrentPosition);
-			Quaternion turnDirection = isInWayDirection ? CurrentWayReference.transform.rotation : CurrentWayReference.transform.rotation * Quaternion.Euler(0, 0, 180f);
-			transform.rotation = turnDirection;
+		Vector3 currentPos = new Vector3(transform.position.x, transform.position.y, 0f);
+		Vector3 intersection = Vector3.zero;
+		Vector3 toTarget;
+
+		// We have a target point that we want to move towards - check if we intersect the target point (which means we need to turn)
+		Vector3 vehicleMovement = transform.rotation * Vector3.right;
+		Vector3 wayDirection = TurnToRoad.gameObject.transform.rotation * Vector3.right;
+		bool intersects = Math3d.LineLineIntersection(out intersection, currentPos, vehicleMovement, TargetPoint, wayDirection);
+
+		// TODO - Adjust in aspect of how close to target we are
+		float time = 0.9f;
+		Vector3 currentTargetPoint = new Vector3(
+			Math3d.GetPointInBezierAtTime (true, time, currentPos, intersects ? intersection : TargetPoint, TargetPoint), 
+			Math3d.GetPointInBezierAtTime (false, time, currentPos, intersects ? intersection : TargetPoint, TargetPoint), 
+			0f
+		);
+
+		Vector3 positionMovementVector = currentTargetPoint - currentPos;
+		float desiredRotation = Mathf.Atan(positionMovementVector.y / positionMovementVector.x) * 180f / Mathf.PI + (positionMovementVector.y < 0 ? 180f : 0f);
+		transform.rotation = Quaternion.Euler(new Vector3(0, 0, desiredRotation));
+
+		float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
+		Vector3 movementVector = positionMovementVector * movementPct;
+		transform.position += new Vector3 (movementVector.x, movementVector.y, 0);
+
+		toTarget = TargetPoint - transform.position;
+		// Calculate how much we need to break in
+		// TODO - See if this is still correct
+		BreakFactor = getBreakFactorForDegrees (Mathf.Abs (desiredRotation));
+
+		toTarget.z = 0;
+		if (PreviousMovementVector != Vector3.zero && Vector3.Angle (toTarget, PreviousMovementVector) > 150f) {
+			CurrentPosition = CurrentTarget;
+			updateCurrentTarget ();
+			PreviousMovementVector = Vector3.zero;
 		} else {
-			// We have a target point that we want to move towards
-			Vector3 currentPos = new Vector3(transform.position.x, transform.position.y, 0f);
-			Vector3 target = TargetPoint;
-
-			Vector3 vehicleMovement = transform.rotation * Vector3.right;
-			Vector3 wayDirection = TurnToRoad.gameObject.transform.rotation * Vector3.right;
-
-			Vector3 intersection = Vector3.zero;
-			bool intersects = Math3d.LineLineIntersection(out intersection, currentPos, vehicleMovement, target, wayDirection);
-			if (intersects) {
-				// TODO - Adjust in aspect of how close to target we are
-				float time = 0.1f;
-				Vector3 currentTargetPoint = Math3d.GetPointInBezierAtTime (time, currentPos, intersection, target);
-				Vector3 positionMovementVector = currentTargetPoint - currentPos;
-				float desiredRotation = Mathf.Atan(positionMovementVector.y / positionMovementVector.x) * 180f / Mathf.PI + (positionMovementVector.y < 0 ? 180 : 0);
-				transform.rotation = Quaternion.Euler(new Vector3(0, 0, desiredRotation));
-
-				float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
-				Vector3 movementVector = positionMovementVector * movementPct;
-				transform.position += new Vector3 (movementVector.x, movementVector.y, 0);
-
-				// Calculate how much we need to break in
-				BreakFactor = getBreakFactorForDegrees (Mathf.Abs (desiredRotation));
-
-				// TODO - Fix better logic for determining when target is reached and we should move to next road
-				float thresholdSpeed = 0.01f;
-				Vector3 distanceLeft = TargetPoint - new Vector3(transform.position.x, transform.position.y, 0f);
-				if (distanceLeft.magnitude < thresholdSpeed) {
-					CurrentPosition = CurrentTarget;
-					updateCurrentTarget();
-				}
-//				Debug.Log ("Distance left: " + distanceLeft.magnitude);
-			} else {
-//				Debug.Log ("No intersection!");
-//				Debug.Log ("From: " + currentPos + ", to: " + target);
-//				Debug.Log ("Vehicle direction: " + vehicleMovement + ", road direction: " + wayDirection);
-			}
+			PreviousMovementVector = toTarget;
 		}
 	}
 
@@ -218,6 +202,7 @@ public class Vehicle: MonoBehaviour {
 			}
 
 			if (possitilities.Count == 1) {
+				// TODO - Think this can be removed
 				TurnToRoad = possitilities[0];
 				TargetPoint = getTargetPoint(TurnToRoad);
 //				// Straight - without any redlights...
@@ -237,8 +222,8 @@ public class Vehicle: MonoBehaviour {
 //				}
 
 			} else if (possitilities.Count > 1) {
-				List<Pos> path = Game.calculateCurrentPath (CurrentPosition, EndPos);
-				Pos nextTarget = path [2];
+				currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+				Pos nextTarget = currentPath [2];
 				TurnToRoad = NodeIndex.getWayReference(CurrentTarget.Id, nextTarget.Id);
 				TargetPoint = getTargetPoint(TurnToRoad);
 
@@ -263,13 +248,13 @@ public class Vehicle: MonoBehaviour {
 		}
 	}
 
-	private Vector3 getTargetPoint (WayReference turnToRoad)
+	private Vector3 getTargetPoint (WayReference turnToRoad, Pos endNode = null)
 	{
 		Quaternion turnToRoadQuaternion = turnToRoad.gameObject.transform.rotation;
 		float halfWayWidth = turnToRoad.gameObject.transform.localScale.y / 2f;
-		bool isNode1 = turnToRoad.isNode1 (CurrentTarget);
+		bool isNode1 = endNode == null ? turnToRoad.isNode1 (CurrentTarget) : !turnToRoad.isNode1(endNode);
 
-		return endVector + turnToRoadQuaternion * new Vector3(isNode1 ? halfWayWidth : -halfWayWidth, getCenterYOfField (turnToRoad, CurrentTarget), 0);
+		return endVector + turnToRoadQuaternion * new Vector3(isNode1 ? halfWayWidth : -halfWayWidth, getCenterYOfField (turnToRoad, endNode == null ? CurrentTarget : turnToRoad.getOtherNode(endNode)), 0);
 	}
 
 	private CollisionObj<Pos> getColliderType (Collider col, string colliderName)
@@ -289,19 +274,29 @@ public class Vehicle: MonoBehaviour {
 	}
 
 	public void updateCurrentTarget () {
-		TurnToRoad = null;
-		TargetPoint = Vector3.zero;
 		BreakFactor = 1f;
-		List<Pos> path = Game.calculateCurrentPath (CurrentPosition, EndPos);
-		if (path.Count > 1) {
-			CurrentTarget = path [1];
+		currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+		if (currentPath.Count > 1) {
+			CurrentTarget = currentPath [1];
 			CurrentWayReference = NodeIndex.getWayReference(CurrentPosition.Id, CurrentTarget.Id);
+			// TODO - Can remove?
 			endVector = Game.getCameraPosition (CurrentTarget);
 			startVector = Game.getCameraPosition (CurrentPosition);
+
+			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayTypeEnum.MINIMUM_DRIVE_WAY).ToList ();
+			if (possitilities.Count == 1) {
+				TurnToRoad = possitilities[0];
+				TargetPoint = getTargetPoint(TurnToRoad);
+			} else {
+				TargetPoint = getTargetPoint(CurrentWayReference, CurrentTarget);
+			}
 		} else {
 			CurrentTarget = null;
 			CurrentWayReference = null;
+
 			// TODO - We've reached our destination - drive off map and despawn
+			TurnToRoad = null;
+			TargetPoint = Vector3.zero;
 		}
 	}
 

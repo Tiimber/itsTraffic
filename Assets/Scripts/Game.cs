@@ -185,9 +185,19 @@ public class Game : MonoBehaviour {
 		// TODO - Temporary - forcing starting point
 		if (notPos == null) {
 			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 340L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
-			List<WayReference> wayRefs = wayRefsDict.Values.ToList()[0];
-			WayReference wayRef = wayRefs[0];
-			if (NodeIndex.endPointIndex.ContainsKey(wayRef.node1.Id)) {
+			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
+			WayReference wayRef = wayRefs [0];
+			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
+				chosenEndPoint = wayRef.node1;
+			} else {
+				chosenEndPoint = wayRef.node2;
+			}
+		} else {
+			// TODO - Temporary - forcing ending point
+			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 379L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
+			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
+			WayReference wayRef = wayRefs [0];
+			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
 				chosenEndPoint = wayRef.node1;
 			} else {
 				chosenEndPoint = wayRef.node2;

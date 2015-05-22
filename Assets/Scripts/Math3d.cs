@@ -1029,8 +1029,7 @@ public class Math3d {
 		float startVal = isX ? start.x : start.y;
 		float endVal = isX ? end.x : end.y;
 		float controlVal = isX ? control.x : control.y;
-		return startVal * Mathf.Pow (time, 2f) + controlVal * 2f * time * (1f - time) + endVal * Mathf.Pow (1f - time, 2f); 
-//		P(t) = P0*t^2 + P1*2*t*(1-t) + P2*(1-t)^2
+		return endVal * Mathf.Pow (time, 2f) + controlVal * 2f * time * (1f - time) + startVal * Mathf.Pow (1f - time, 2f); 
 	}
 }
 

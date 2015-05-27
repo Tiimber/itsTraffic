@@ -20,7 +20,7 @@ public class NodeIndex
 		nodeWayIndex [id].Add (partOfWay);
 	}
 	public static void calculateIndexes () {
-		endPointIndex = nodeWayIndex.Where (p => p.Value.Count == 1).ToDictionary (p => p.Key, p => p.Value);
+		endPointIndex = nodeWayIndex.Where (p => p.Value.Count == 1 && !p.Value[0].way.EndPointImpossible).ToDictionary (p => p.Key, p => p.Value);
 		straightWayIndex = nodeWayIndex.Where (p => p.Value.Count == 2).ToDictionary (p => p.Key, p => p.Value);
 		intersectionWayIndex = nodeWayIndex.Where (p => p.Value.Count > 2).ToDictionary (p => p.Key, p => p.Value);
 	}
@@ -39,5 +39,9 @@ public class NodeIndex
 		}
 
 		return null;
+	}
+
+	public static Pos getPosById (long id) {
+		return NodeIndex.nodes[id];
 	}
 }

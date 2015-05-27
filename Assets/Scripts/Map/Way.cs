@@ -4,12 +4,14 @@ using System.Collections.Generic;
 
 public class Way : NodeWithTags {
 	public float WayWidthFactor { set; get; } 
+	public bool EndPointImpossible { set; get; }
 	public bool CarWay { set; get; }
 	public bool Building { set; get; }
 	public List<WayReference> WayReferences = new List<WayReference> ();
-
+	
 	public Way (long id) : base(id) {
 		WayWidthFactor = 0.1F;
+		EndPointImpossible = false;
 	}
 
 	public void addWayReference (WayReference wayReference) {
@@ -32,7 +34,7 @@ public class Way : NodeWithTags {
 				case "motorway_link": WayWidthFactor = WayTypeEnum.MOTORWAY_LINK; CarWay = true; break;
 				case "residential": WayWidthFactor = WayTypeEnum.RESIDENTIAL; CarWay = true; break;
 				case "unclassified": WayWidthFactor = WayTypeEnum.UNCLASSIFIED; CarWay = true; break;
-				case "platform": WayWidthFactor = WayTypeEnum.PLATFORM; break;
+			case "platform": WayWidthFactor = WayTypeEnum.PLATFORM; EndPointImpossible = true; break;
 				case "footway": WayWidthFactor = WayTypeEnum.FOOTWAY; break;
 				case "pedestrian": WayWidthFactor = WayTypeEnum.PEDESTRIAN; break;
 				case "living_street": WayWidthFactor = WayTypeEnum.LIVING_STREET; break;

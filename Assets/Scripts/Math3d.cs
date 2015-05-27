@@ -1025,6 +1025,10 @@ public class Math3d {
 	}
 
 	// Time 0f-1f
+	public static Vector3 GetVectorInBezierAtTime(float time, Vector3 start, Vector3 control, Vector3 end) {
+		return end * Mathf.Pow (time, 2f) + control * 2f * time * (1f - time) + start * Mathf.Pow (1f - time, 2f); 
+	}
+
 	public static float GetPointInBezierAtTime(bool isX, float time, Vector3 start, Vector3 control, Vector3 end) {
 		float startVal = isX ? start.x : start.y;
 		float endVal = isX ? end.x : end.y;

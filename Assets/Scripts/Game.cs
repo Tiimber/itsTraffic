@@ -7,8 +7,11 @@ using System.Linq;
 
 // Longitude = x
 // Latitude = y
+using UnityStandardAssets.Cameras;
 
 public class Game : MonoBehaviour {
+
+	public Camera mainCamera;
 
 	public static KeyValuePair<Pos, WayReference> CurrentWayReference { set; get; }
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }
@@ -28,6 +31,7 @@ public class Game : MonoBehaviour {
 	
 	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
 	private bool showOnlyCurrentLevel = false;
+	private bool followCar = false;
 
 	private int debugIndex = 0;
 	private List<string> debugIndexNodes = new List<string> () {
@@ -37,6 +41,7 @@ public class Game : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		StartCoroutine (loadXML ());
+//		Time.timeScale = 0.1f;
 	}
 	
 	// Update is called once per frame
@@ -61,6 +66,12 @@ public class Game : MonoBehaviour {
 			}
 		} else if (Input.GetKeyDown (KeyCode.N)) {
 			createNewCar ();
+		} else if (Input.GetKeyDown (KeyCode.F)) {
+			followCar ^= true;
+			if (!followCar) {
+				Vehicle.detachCurrentCamera ();
+				mainCamera.enabled = true;
+			}
 		}
 
 		// Draw debugIndex stuff
@@ -166,6 +177,14 @@ public class Game : MonoBehaviour {
 		vehicleObj.CurrentPosition = pos1;
 		vehicleObj.EndPos = pos2;
 		vehicleObj.GetComponent<Renderer> ().material.color = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+
+		if (followCar) {
+			mainCamera.enabled = false;
+			vehicleObj.setDebug ();
+		} else {
+			Vehicle.detachCurrentCamera();
+			mainCamera.enabled = true;
+		}
 	}
 
 	private Pos getRandomEndPoint (Pos notPos)
@@ -184,7 +203,7 @@ public class Game : MonoBehaviour {
 
 //		if (notPos == null) {
 //			// TODO - Temporary - forcing starting point
-//			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 340L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
+//			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 9L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
 //			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
 //			WayReference wayRef = wayRefs [0];
 //			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
@@ -192,6 +211,7 @@ public class Game : MonoBehaviour {
 //			} else {
 //				chosenEndPoint = wayRef.node2;
 //			}
+//		}
 //		} else {
 //			// TODO - Temporary - forcing ending point
 //			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 379L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
@@ -320,7 +340,11 @@ public class Game : MonoBehaviour {
 			Map.Ways.Add(way);
 		}
 
+//		Pos testPos1 = NodeIndex.getPosById (266706407L);
+//		Pos testPos2 = NodeIndex.getPosById (29524373L);
+//		List<Pos> path = calculateCurrentPath (testPos1, testPos2);
 		NodeIndex.calculateIndexes ();
+//		Debug.Log (NodeIndex.endPointIndex.Count);
 	}
 
 	private void addTags (NodeWithTags node, XmlNode xmlNode)
@@ -365,9 +389,11 @@ public class Game : MonoBehaviour {
 		if (wayObject.CarWay) {
 			way = Instantiate (partOfWay, position, Quaternion.FromToRotation (oneVector, wayVector)) as GameObject;
 			originalScale = partOfWay.transform.localScale;
+			way.name = "CarWay (" + previousPos.Id + ", " + currentPos.Id + ")";
 		} else {
 			way = Instantiate (partOfNonCarWay, position, Quaternion.FromToRotation (oneVector, wayVector)) as GameObject;
 			originalScale = partOfNonCarWay.transform.localScale;
+			way.name = "NonCarWay (" + previousPos.Id + ", " + currentPos.Id + ")";
 		}
 		WayReference wayReference = way.GetComponent<WayReference> ();
 		wayReference.Id = ++WayReference.WayId;

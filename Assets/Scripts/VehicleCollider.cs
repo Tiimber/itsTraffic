@@ -8,6 +8,11 @@ public class VehicleCollider: MonoBehaviour {
 		parent.reportCollision (col, name);
 	}
 
+	void OnTriggerExit (Collider col) {
+		Vehicle parent = transform.parent.gameObject.GetComponent<Vehicle>();
+		parent.reportColliderExit (col, name);
+	}
+
 	void OnMouseDown () {
 		if (name == "CAR") {
 			Vehicle parent = transform.parent.gameObject.GetComponent<Vehicle>();

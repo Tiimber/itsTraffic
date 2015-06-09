@@ -1035,6 +1035,18 @@ public class Math3d {
 		float controlVal = isX ? control.x : control.y;
 		return endVal * Mathf.Pow (time, 2f) + controlVal * 2f * time * (1f - time) + startVal * Mathf.Pow (1f - time, 2f); 
 	}
+
+	public static float GetBezierLength(Vector3 start, Vector3 control, Vector3 end) {
+		// TODO - Calculate length of bezier correctly later
+		// Very quick and dirty calculation of the length
+
+		float shortcutLength = (end - start).magnitude;
+		float part1Length = (control - start).magnitude;
+		float part2Length = (end - control).magnitude;
+		float partsLength = part1Length + part2Length;
+
+		return shortcutLength + (partsLength - shortcutLength) * 2f / 3f;
+	}
 }
 
 

@@ -201,28 +201,28 @@ public class Game : MonoBehaviour {
 			(notPos != null && calculateCurrentPath(notPos, chosenEndPoint).Count == 0)
 		);
 
-//		if (notPos == null) {
-//			// TODO - Temporary - forcing starting point
-//			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 9L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
-//			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
-//			WayReference wayRef = wayRefs [0];
-//			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
-//				chosenEndPoint = wayRef.node1;
-//			} else {
-//				chosenEndPoint = wayRef.node2;
-//			}
+		if (notPos == null) {
+			// TODO - Temporary - forcing starting point
+			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 20L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
+			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
+			WayReference wayRef = wayRefs [0];
+			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
+				chosenEndPoint = wayRef.node1;
+			} else {
+				chosenEndPoint = wayRef.node2;
+			}
 //		}
-//		} else {
-//			// TODO - Temporary - forcing ending point
-//			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 379L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
-//			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
-//			WayReference wayRef = wayRefs [0];
-//			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
-//				chosenEndPoint = wayRef.node1;
-//			} else {
-//				chosenEndPoint = wayRef.node2;
-//			}
-//		}
+		} else {
+			// TODO - Temporary - forcing ending point
+			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 340L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
+			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
+			WayReference wayRef = wayRefs [0];
+			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
+				chosenEndPoint = wayRef.node1;
+			} else {
+				chosenEndPoint = wayRef.node2;
+			}
+		}
 
 		return chosenEndPoint;
 	}
@@ -265,12 +265,24 @@ public class Game : MonoBehaviour {
 		}
 
 		if (!impossible) {
+//			float smallestAllowedPath = 0.25f;
+//			bool first = true;
 			current = target;
+//			Pos previous = current;
 			while (current != null) {
-				calculatedPath.Insert(0, current);
+
+//				if (!first && current != source && NodeIndex.getWayReference(previous.Id, current.Id).gameObject.transform.localScale.x < smallestAllowedPath) {
+//					Debug.Log ("Vehicle will skip wayReference: " + NodeIndex.getWayReference(previous.Id, current.Id) + ", length: " + NodeIndex.getWayReference(previous.Id, current.Id).gameObject.transform.localScale.x);
+//				} else {
+					calculatedPath.Insert (0, current);
+//				}
+
 				if (current == source) {
 					break;
 				}
+//				previous = current;
+//				first = false;
+
 				current = visitedPaths [current.Id].source;
 			}
 		}
@@ -406,6 +418,12 @@ public class Game : MonoBehaviour {
 		float xStretchFactor = Vector3.Magnitude (wayVector) * Settings.wayLengthFactor;
 		float yStretchFactor = wayObject.WayWidthFactor * Settings.currentMapWidthFactor;
 		way.transform.localScale = new Vector3 (xStretchFactor * originalScale.x, yStretchFactor * originalScale.y, originalScale.z);
+
+		// Mark up small ways - TODO - Need to handle different scales / zoom
+		float smallestAllowedPath = 0.25f;
+		if (way.transform.localScale.x < smallestAllowedPath) {
+			wayReference.SmallWay = true;
+		}
 
 		float colliderWidthPct = Mathf.Min (yStretchFactor / (xStretchFactor * 2), 0.5f);
 		List<BoxCollider> colliders = wayReference.GetComponents<BoxCollider> ().ToList ();

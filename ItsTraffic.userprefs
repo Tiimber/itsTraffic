@@ -1,23 +1,21 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Math3d.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Vehicle.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game.cs" Line="430" Column="6" />
+      <File FileName="Assets/Scripts/Game.cs" Line="172" Column="1" />
       <File FileName="Assets/Scripts/Map/Pos.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Map/NodeIndex.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Map/Way.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/WayReference.cs" Line="13" Column="36" />
-      <File FileName="Assets/Scripts/Settings.cs" Line="4" Column="37" />
-      <File FileName="Assets/Scripts/VehicleCollider.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/WayReference.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Settings.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/VehicleCollider.cs" Line="11" Column="37" />
       <File FileName="Assets/Scripts/Map/WayTypeEnum.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Math3d.cs" Line="1048" Column="56" />
-      <File FileName="Assets/Scripts/Vehicle.cs" Line="125" Column="79" />
+      <File FileName="Assets/Scripts/Math3d.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Vehicle.cs" Line="143" Column="49" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/Vehicle.cs" line="440" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

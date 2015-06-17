@@ -169,6 +169,22 @@ public class Game : MonoBehaviour {
 	private void createNewCar () {
 		Pos pos1 = getRandomEndPoint (null);
 		Pos pos2 = getRandomEndPoint (pos1);
+
+//		List<Pos> randomEndpointPair = getRandomPredefinedEndPointsPair(
+//			new long[][] {
+////				new long[] {20L, 340L}, // TODO - If heavy traffic, this might get stuck along the way
+////				new long[] {340L, 20L},  // TODO - If heavy traffic, this might get stuck along the way
+////				new long[] {344L, 340L},
+////				new long[] {340L, 344L},
+////				new long[] {325L, 340L},
+////				new long[] {325L, 20L}
+//			}
+//		);
+//		Pos pos1 = randomEndpointPair [0];
+//		Pos pos2 = randomEndpointPair [1];
+
+//		Pos pos1 = getSpecificEndPoint (344L);
+//		Pos pos2 = getSpecificEndPoint (340L);
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.1f);
 		GameObject vehicleInstance = Instantiate (vehicle, position, Quaternion.identity) as GameObject;
@@ -201,27 +217,29 @@ public class Game : MonoBehaviour {
 			(notPos != null && calculateCurrentPath(notPos, chosenEndPoint).Count == 0)
 		);
 
-		if (notPos == null) {
-			// TODO - Temporary - forcing starting point
-			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 20L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
-			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
-			WayReference wayRef = wayRefs [0];
-			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
-				chosenEndPoint = wayRef.node1;
-			} else {
-				chosenEndPoint = wayRef.node2;
-			}
-//		}
+		return chosenEndPoint;
+	}
+
+	private List<Pos> getRandomPredefinedEndPointsPair (long[][] listOfPairs)
+	{
+		List<Pos> pair = new List<Pos> ();
+		int index = UnityEngine.Random.Range (0, listOfPairs.Count());
+		pair.Add (getSpecificEndPoint(listOfPairs[index][0]));
+		pair.Add (getSpecificEndPoint(listOfPairs[index][1]));
+		return pair;
+	}
+
+	private Pos getSpecificEndPoint (long specificPosId)
+	{
+		Pos chosenEndPoint = null;
+
+		Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == specificPosId).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
+		List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
+		WayReference wayRef = wayRefs [0];
+		if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
+			chosenEndPoint = wayRef.node1;
 		} else {
-			// TODO - Temporary - forcing ending point
-			Dictionary<long, List<WayReference>> wayRefsDict = NodeIndex.endPointIndex.Where (p => p.Value.Where (q => q.Id == 340L).ToList ().Count == 1).ToDictionary (p => p.Key, p => p.Value);
-			List<WayReference> wayRefs = wayRefsDict.Values.ToList () [0];
-			WayReference wayRef = wayRefs [0];
-			if (NodeIndex.endPointIndex.ContainsKey (wayRef.node1.Id)) {
-				chosenEndPoint = wayRef.node1;
-			} else {
-				chosenEndPoint = wayRef.node2;
-			}
+			chosenEndPoint = wayRef.node2;
 		}
 
 		return chosenEndPoint;
@@ -425,7 +443,7 @@ public class Game : MonoBehaviour {
 			wayReference.SmallWay = true;
 		}
 
-		float colliderWidthPct = Mathf.Min (yStretchFactor / (xStretchFactor * 2), 0.5f);
+		float colliderWidthPct = Mathf.Min (yStretchFactor / (xStretchFactor * 1.5f), 0.5f);
 		List<BoxCollider> colliders = wayReference.GetComponents<BoxCollider> ().ToList ();
 		BoxCollider leftCollider = colliders [colliders.Count - 2];
 		BoxCollider rightCollider = colliders [colliders.Count - 1];

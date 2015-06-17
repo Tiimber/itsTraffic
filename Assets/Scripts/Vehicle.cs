@@ -135,15 +135,15 @@ public class Vehicle: MonoBehaviour {
 //			Debug.Log ("Time: " + time);
 			Vector3 currentTargetPoint = Math3d.GetVectorInBezierAtTime(time, currentPos, intersects ? intersection : TargetPoint, TargetPoint);
 
-			Vector3 prev = Vector3.zero;
-			for (float t = 0.0f; t <= 1.0f; t+= TurnToRoad.SmallWay && isStraightWay ? 1.0f : 0.05f) {
-				Vector3 curr = Math3d.GetVectorInBezierAtTime(t, currentPos, intersects ? intersection : TargetPoint, TargetPoint);
-				if (prev != Vector3.zero) {
-//					Debug.DrawLine (prev, curr, Color.yellow, float.MaxValue); // Forever
-					Debug.DrawLine (prev, curr, Color.yellow, 10f);
-				}
-				prev = curr;
-			}
+//			Vector3 prev = Vector3.zero;
+//			for (float t = 0.0f; t <= 1.0f; t+= TurnToRoad.SmallWay && isStraightWay ? 1.0f : 0.05f) {
+//				Vector3 curr = Math3d.GetVectorInBezierAtTime(t, currentPos, intersects ? intersection : TargetPoint, TargetPoint);
+//				if (prev != Vector3.zero) {
+////					Debug.DrawLine (prev, curr, Color.yellow, float.MaxValue); // Forever
+//					Debug.DrawLine (prev, curr, Color.yellow, 10f);
+//				}
+//				prev = curr;
+//			}
 
 			Vector3 positionMovementVector = currentTargetPoint - currentPos;
 			if (positionMovementVector.magnitude > 0.0001f) {

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Xml;
 using System;
@@ -17,11 +17,13 @@ public class Game : MonoBehaviour {
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }
 	public static List<Pos> CurrentPath { set; get; }
 
-	private string mapFile = "/testmap01.osm";
+	private string mapFileName = "/testmap01.osm";
+	private string configFileName = "/testmap03-config.xml";
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
 	public GameObject vehicle;
+	public GameObject buildingObject;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;
@@ -32,6 +34,8 @@ public class Game : MonoBehaviour {
 	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
 	private bool showOnlyCurrentLevel = false;
 	private bool followCar = false;
+
+	private Dictionary<long, Dictionary<string, string>> objectProperties = new Dictionary<long, Dictionary<string, string>>();
 
 	private int debugIndex = 0;
 	private List<string> debugIndexNodes = new List<string> () {
@@ -46,14 +50,15 @@ public class Game : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown (KeyCode.Plus)) {
+		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown(KeyCode.P)) {
 			currentLevel = WayTypeEnum.getLower (currentLevel);
 			filterWays ();
-		} else if (Input.GetKeyDown (KeyCode.Minus)) {
+		} else if (Input.GetKeyDown (KeyCode.Minus) || Input.GetKeyDown(KeyCode.M)) {
 			currentLevel = WayTypeEnum.getHigher (currentLevel);
 			filterWays ();
 		} else if (Input.GetKeyDown (KeyCode.Space)) {
 			showOnlyCurrentLevel ^= true;
+			currentLevel = 0.111f;
 			filterWays ();
 		} else if (Input.GetKeyDown (KeyCode.LeftShift)) {
 			debugIndex = ++debugIndex % debugIndexNodes.Count;
@@ -326,8 +331,8 @@ public class Game : MonoBehaviour {
 	}
 
 	private IEnumerator loadXML () {
-		string configFile = "file://" + Application.streamingAssetsPath + mapFile; 
-		WWW www = new WWW (configFile);
+		string mapFile = "file://" + Application.streamingAssetsPath + mapFileName; 
+		WWW www = new WWW (mapFile);
 		
 		yield return www;
 
@@ -375,6 +380,46 @@ public class Game : MonoBehaviour {
 //		List<Pos> path = calculateCurrentPath (testPos1, testPos2);
 		NodeIndex.calculateIndexes ();
 //		Debug.Log (NodeIndex.endPointIndex.Count);
+
+		// Read config
+		string configFile = "file://" + Application.streamingAssetsPath + configFileName; 
+		WWW wwwConfig = new WWW (configFile);
+		
+		yield return wwwConfig;
+
+		XmlDocument xmlDocConfig = new XmlDocument();
+		xmlDocConfig.LoadXml(wwwConfig.text);
+
+		XmlNodeList objectNodes = xmlDocConfig.SelectNodes ("//object");
+		foreach (XmlNode objectNode in objectNodes) {
+			long id = Convert.ToInt64(objectNode.Attributes.GetNamedItem ("id").Value);
+			Dictionary<string, string> properties = new Dictionary<string, string>();
+			foreach (XmlNode propertyNode in objectNode.ChildNodes) {
+				properties.Add(propertyNode.Name, propertyNode.InnerText);
+				switch (propertyNode.Name) {
+				case "material": loadMaterial(propertyNode.InnerText); break;
+				case "height": break;
+				default: break;
+				}
+			}
+			objectProperties.Add(id, properties);
+		}
+		// TODO move this to after all materials have finished loading
+		foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
+			GameObject gameObject =	GameObject.Find ("BuildingRoof (" + objectEntry.Key + ")");
+			Debug.Log("BuildingRoof (" + objectEntry.Key + ")");
+			BuildingRoof buildingRoof = gameObject.GetComponent<BuildingRoof>();
+			buildingRoof.setProperties(objectEntry.Value);
+		}
+	}
+
+	public static Dictionary<string, Material> MaterialIndex = new Dictionary<string, Material>();
+
+	private void loadMaterial(string id) {
+		// TODO fix this
+		Debug.Log ("Implement load material " + id);
+		Material material = Resources.Load ("Roof/Materials/1-Grey", typeof(Material)) as Material;
+		MaterialIndex.Add (id, material);
 	}
 
 	private void addTags (NodeWithTags node, XmlNode xmlNode)
@@ -403,6 +448,11 @@ public class Game : MonoBehaviour {
 				}
 				prev = pos;
 			}
+		}
+		if (way.Building) {
+			GameObject building = Instantiate(buildingObject) as GameObject;
+			BuildingRoof roof = building.GetComponent<BuildingRoof>();
+			roof.createMesh(xmlNode);
 		}
 	}
 

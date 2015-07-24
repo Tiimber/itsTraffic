@@ -12,6 +12,8 @@ public class NodeIndex
 	public static Dictionary<long, List<WayReference>> straightWayIndex;
 	public static Dictionary<long, List<WayReference>> intersectionWayIndex;
 
+	public static Dictionary<long, List<WayReference>> buildingOutlines = new Dictionary<long, List<WayReference>>();
+
 
 	public static void addWayReferenceToNode (long id, WayReference partOfWay) {
 		if (!nodeWayIndex.ContainsKey (id)) {

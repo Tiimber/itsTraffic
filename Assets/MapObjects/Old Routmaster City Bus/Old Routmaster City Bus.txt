@@ -1,0 +1,16 @@
+Here is a old routmaster city bus I recreated in Blender.
+https://3dartdh.wordpress.com
+
+- 23962 Verts
+- 27528 Polygons
+- 37920 Tris
+
+- Textures col and nor 4096px spec 1024px
+
+Demo-Video: https://www.youtube.com/watch?v=2uLgJX6whBk
+https://www.youtube.com/watch?v=2uLgJX6whBk
+
+3D Preview on Sketchfab: https://sketchfab.com/models/xXZRH2wcGZSSOyG279dBRXBnT0W
+
+3D Preview on Verold https://www.verold.com/projects/5321b6c75c7e9002000005a6
+

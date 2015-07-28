@@ -47,7 +47,7 @@ public class Way : NodeWithTags {
 			}
 			break;
 		case "landuse":
-			WayWidthFactor = 0.111f;
+			WayWidthFactor = 0f;
 			switch (tag.Value) {
 //				case "farmland": WayWidthFactor = 0.25f; break;
 				// retail

@@ -7,6 +7,8 @@ Project("{F525DD25-B8BE-CC93-23C3-CC9048DF4F46}") = "itsTraffic", "Assembly-CSha
 EndProject
 Project("{F525DD25-B8BE-CC93-23C3-CC9048DF4F46}") = "itsTraffic", "Assembly-CSharp-Editor.csproj", "{42E1D2E0-57A8-C527-D517-89E9B0895340}"
 EndProject
+Project("{F525DD25-B8BE-CC93-23C3-CC9048DF4F46}") = "itsTraffic", "Assembly-UnityScript.unityproj", "{2F0F939C-49B3-4E65-24D2-E0249B21C9C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,11 +27,15 @@ Global
 		{42E1D2E0-57A8-C527-D517-89E9B0895340}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42E1D2E0-57A8-C527-D517-89E9B0895340}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42E1D2E0-57A8-C527-D517-89E9B0895340}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F0F939C-49B3-4E65-24D2-E0249B21C9C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F0F939C-49B3-4E65-24D2-E0249B21C9C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F0F939C-49B3-4E65-24D2-E0249B21C9C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F0F939C-49B3-4E65-24D2-E0249B21C9C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																																																																																	GlobalSection(MonoDevelopProperties) = preSolution
+																																																																																																									GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1

@@ -51,6 +51,9 @@
      <None Include="Assets\StreamingAssets\testmap03-config.xml" />
      <None Include="Assets\Standard Assets\Cameras\CameraGuidelines.txt" />
      <None Include="Assets\MapObjects\Old Routmaster City Bus\Old Routmaster City Bus.txt" />
+ <Reference Include="Assembly-UnityScript">
+ <HintPath>Z:/home/anders/Programmering/itsTraffic/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEngine.Analytics">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>

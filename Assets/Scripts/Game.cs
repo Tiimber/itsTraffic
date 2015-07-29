@@ -29,7 +29,9 @@ public class Game : MonoBehaviour {
 	private static Rect cameraBounds;
 	private static Rect mapBounds;
 
-	private Vector3 oneVector = new Vector3(1F, 0F, 0F);
+	public static float heightFactor;
+
+	private Vector3 oneVector = Vector3.right;
 	
 	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
 	private bool showOnlyCurrentLevel = false;
@@ -346,6 +348,11 @@ public class Game : MonoBehaviour {
 		decimal minlon = Convert.ToDecimal (boundsAttributes.GetNamedItem ("minlon").Value);
 		decimal maxlon = Convert.ToDecimal (boundsAttributes.GetNamedItem ("maxlon").Value);
 		mapBounds = new Rect ((float)minlon, (float)minlat, (float)(maxlon - minlon), (float)(maxlat - minlat));
+
+		float latDiff = (float)(maxlat - minlat);
+		float refLatDiff = 0.00191f;
+		float x = 0.9f / (20f * refLatDiff);
+		heightFactor = x * (refLatDiff * refLatDiff) / latDiff;
 
 //		Camera mainCamera = Camera.main;
 		// TODO - Take these out from the camera

@@ -4,4 +4,9 @@
 		<material>2</material>
 		<height>20</height>
 	</object>
+	<object id="51743918">
+		<material>1</material>
+		<height>30</height>
+	</object>
+
 </config>

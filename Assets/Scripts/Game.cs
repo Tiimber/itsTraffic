@@ -12,6 +12,7 @@ using UnityStandardAssets.Cameras;
 public class Game : MonoBehaviour {
 
 	public Camera mainCamera;
+	public Camera introCamera;
 
 	public static KeyValuePair<Pos, WayReference> CurrentWayReference { set; get; }
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }

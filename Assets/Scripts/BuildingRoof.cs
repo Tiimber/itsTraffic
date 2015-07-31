@@ -6,7 +6,32 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class BuildingRoof : MonoBehaviour {
-	float height;
+	float height = 0f;
+	float constructionHeight = 0f;
+	float constructionTime = 0f;
+	float constructionTimeEnd = Mathf.PI/2f;
+
+	private void setConstructionHeight() {
+		if (constructionTime > constructionTimeEnd) {
+			constructionTime = constructionTimeEnd;
+			constructionHeight = height;
+		} else {
+			constructionHeight = Mathf.Cos(constructionTime) * height;	
+		}
+	}
+
+	void Start () {
+
+	}
+
+	void Update () {
+		if (height != constructionHeight) {
+			constructionTime += Time.deltaTime/100f;
+			setConstructionHeight ();
+			extrude ();
+			Debug.Log("constructionHeight:"+constructionHeight);
+		}
+	}
 
 	public void createMesh(XmlNode xmlNode) {
 		if (xmlNode != null) {
@@ -52,10 +77,10 @@ public class BuildingRoof : MonoBehaviour {
 	private void extrude() {
 		MeshFilter filter = gameObject.GetComponent<MeshFilter>() as MeshFilter;
 		Mesh msh = filter.mesh;
-		transform.position = transform.position + Vector3.back * height;
+		transform.position = transform.position + Vector3.back * constructionHeight;
 		Matrix4x4 [] extrusionPath = new Matrix4x4 [2];
 		extrusionPath[0] = transform.worldToLocalMatrix * Matrix4x4.TRS(transform.position, Quaternion.identity, Vector3.one);
-		extrusionPath[1] = transform.worldToLocalMatrix * Matrix4x4.TRS(transform.position + new Vector3(0, 0, height), Quaternion.identity, Vector3.one);
+		extrusionPath[1] = transform.worldToLocalMatrix * Matrix4x4.TRS(transform.position + new Vector3(0, 0, constructionHeight), Quaternion.identity, Vector3.one);
 		MeshExtrusion.ExtrudeMesh(msh, GetComponent<MeshFilter>().mesh, extrusionPath, false);
 	}
 	
@@ -68,7 +93,7 @@ public class BuildingRoof : MonoBehaviour {
 
 		long heightProperty = Convert.ToInt64 (properties["height"]);
 		height = heightProperty * Game.heightFactor;
-		extrude();
+		//extrude();
 	}
 }
 	

@@ -1,25 +1,21 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\BuildingRoof.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/MaterialManager.cs">
     <Files>
-      <File FileName="Assets\Scripts\Game.cs" Line="455" Column="19" />
-      <File FileName="Assets\Scripts\PolygonTester.cs" Line="36" Column="19" />
-      <File FileName="Assets\Scripts\BuildingRoof.cs" Line="62" Column="109" />
-      <File FileName="Assets\Scripts\WayReference.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Map\Way.cs" Line="50" Column="22" />
-      <File FileName="Assets\Scripts\Utilities\buildingBaseLayoutGeneration_R01.cs" Line="140" Column="28" />
+      <File FileName="Assets/Scripts/Game.cs" Line="399" Column="1" />
+      <File FileName="Assets/StreamingAssets/testmap03-config.xml" Line="4" Column="25" />
+      <File FileName="Assets/Scripts/BuildingRoof.cs" Line="100" Column="66" />
+      <File FileName="Assets/Scripts/MaterialManager.cs" Line="7" Column="2" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Scripts" expanded="True">
-              <Node name="Utilities" expanded="True" />
-              <Node name="BuildingRoof.cs" selected="True" />
+              <Node name="MaterialManager.cs" selected="True" />
             </Node>
           </Node>
-          <Node name="Assembly-UnityScript" expanded="True">
-            <Node name="Standard Assets" expanded="True" />
+          <Node name="Assembly-CSharp-firstpass" expanded="True">
             <Node name="StreamingAssets" expanded="True" />
           </Node>
         </State>

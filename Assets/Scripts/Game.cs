@@ -401,11 +401,12 @@ public class Game : MonoBehaviour {
 		XmlNodeList objectNodes = xmlDocConfig.SelectNodes ("//object");
 		foreach (XmlNode objectNode in objectNodes) {
 			long id = Convert.ToInt64(objectNode.Attributes.GetNamedItem ("id").Value);
+			string type = objectNode.Attributes.GetNamedItem ("type").Value;
 			Dictionary<string, string> properties = new Dictionary<string, string>();
 			foreach (XmlNode propertyNode in objectNode.ChildNodes) {
 				properties.Add(propertyNode.Name, propertyNode.InnerText);
 				switch (propertyNode.Name) {
-				case "material": loadMaterial(propertyNode.InnerText); break;
+				case "material": MaterialManager.LoadMaterial(propertyNode.InnerText, type); break;
 				case "height": break;
 				default: break;
 				}
@@ -420,16 +421,7 @@ public class Game : MonoBehaviour {
 			buildingRoof.setProperties(objectEntry.Value);
 		}
 	}
-
-	public static Dictionary<string, Material> MaterialIndex = new Dictionary<string, Material>();
-
-	private void loadMaterial(string id) {
-		// TODO fix this
-		Debug.Log ("Implement load material " + id);
-		Material material = Resources.Load ("Roof/Materials/1-Grey", typeof(Material)) as Material;
-		MaterialIndex.Add (id, material);
-	}
-
+	
 	private void addTags (NodeWithTags node, XmlNode xmlNode)
 	{
 		XmlNodeList tagNodes = xmlNode.SelectNodes ("tag");

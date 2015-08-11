@@ -97,16 +97,36 @@ public class BuildingRoof : MonoBehaviour {
 	
 	public void setProperties (Dictionary<string, string> properties) {
 		string materialId = properties["material"];
-		Material material = MaterialManager.MaterialIndex [materialId];
+
+		long heightProperty = Convert.ToInt64 (properties ["height"]);
+		height = heightProperty * Game.heightFactor;
+
+		if (MaterialManager.MaterialIndex.ContainsKey (materialId)) {
+			Material material = MaterialManager.MaterialIndex [materialId];
+			applyMaterial (material);
+
+			extrude ();
+		} else {
+			StartCoroutine (applyMaterialWhenAvailableThenExtrude(materialId));
+			// TODO - If this is downloading, we need to wait, and then apply it
+		}
+	}
+
+	private void applyMaterial (Material material) {
 		MeshRenderer meshRenderer = GetComponent<MeshRenderer> ();
 		Renderer renderer = meshRenderer.GetComponent<Renderer> ();
 		renderer.material = material;
+	}
 
-		long heightProperty = Convert.ToInt64 (properties["height"]);
-		height = heightProperty * Game.heightFactor;
-		extrude();
+	private IEnumerator applyMaterialWhenAvailableThenExtrude (string materialId) {
+		while (!MaterialManager.MaterialIndex.ContainsKey (materialId)) {
+			yield return new WaitForSeconds (0.5f);
+			Debug.Log ("Waiting for material: " + materialId);
+		}
+
+		Debug.Log ("Got material: " + materialId);
+		Material material = MaterialManager.MaterialIndex [materialId];
+		applyMaterial (material);
 	}
 }
 	
-
-

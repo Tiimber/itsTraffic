@@ -47,6 +47,7 @@ public class Game : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		StartCoroutine (MaterialManager.Init ());
 		StartCoroutine (loadXML ());
 //		Time.timeScale = 0.1f;
 	}
@@ -406,7 +407,7 @@ public class Game : MonoBehaviour {
 			foreach (XmlNode propertyNode in objectNode.ChildNodes) {
 				properties.Add(propertyNode.Name, propertyNode.InnerText);
 				switch (propertyNode.Name) {
-				case "material": MaterialManager.LoadMaterial(propertyNode.InnerText, type); break;
+				case "material": StartCoroutine (MaterialManager.LoadMaterial(propertyNode.InnerText, type)); break;
 				case "height": break;
 				default: break;
 				}

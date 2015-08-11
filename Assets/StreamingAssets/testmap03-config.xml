@@ -11,7 +11,7 @@
 
 	<!-- The rest is totally made up, above have some reference -->
 	<object id="34732337" type="Roof">
-		<material>3</material>
+		<material>4</material>
 		<height>15</height>
 	</object>
 	<object id="35876699" type="Roof">

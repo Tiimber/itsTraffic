@@ -37,6 +37,9 @@ public class BuildingRoof : MonoBehaviour {
 				constructionTime += Time.deltaTime;
 				setConstructionHeight ();
 				raiseBuilding ();
+				if (height == constructionHeight) {
+					Game.instance.removeInitAnimationRequest ();
+				}
 			}
 		}
 	}
@@ -101,6 +104,7 @@ public class BuildingRoof : MonoBehaviour {
 		long heightProperty = Convert.ToInt64 (properties ["height"]);
 		height = heightProperty * Game.heightFactor;
 
+		Game.instance.addInitAnimationRequest ();
 		if (MaterialManager.MaterialIndex.ContainsKey (materialId)) {
 			Material material = MaterialManager.MaterialIndex [materialId];
 			applyMaterial (material);
@@ -108,7 +112,6 @@ public class BuildingRoof : MonoBehaviour {
 			extrude ();
 		} else {
 			StartCoroutine (applyMaterialWhenAvailableThenExtrude(materialId));
-			// TODO - If this is downloading, we need to wait, and then apply it
 		}
 	}
 

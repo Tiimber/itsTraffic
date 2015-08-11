@@ -14,6 +14,9 @@ public class Game : MonoBehaviour {
 	public Camera mainCamera;
 	public Camera introCamera;
 
+	public static Game instance;
+	private int animationItemsQueue = 0;
+
 	public static KeyValuePair<Pos, WayReference> CurrentWayReference { set; get; }
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }
 	public static List<Pos> CurrentPath { set; get; }
@@ -47,6 +50,7 @@ public class Game : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		Game.instance = this;
 		StartCoroutine (MaterialManager.Init ());
 		StartCoroutine (loadXML ());
 //		Time.timeScale = 0.1f;
@@ -54,10 +58,10 @@ public class Game : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown(KeyCode.P)) {
+		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
 			currentLevel = WayTypeEnum.getLower (currentLevel);
 			filterWays ();
-		} else if (Input.GetKeyDown (KeyCode.Minus) || Input.GetKeyDown(KeyCode.M)) {
+		} else if (Input.GetKeyDown (KeyCode.Minus) || Input.GetKeyDown (KeyCode.M)) {
 			currentLevel = WayTypeEnum.getHigher (currentLevel);
 			filterWays ();
 		} else if (Input.GetKeyDown (KeyCode.Space)) {
@@ -173,6 +177,25 @@ public class Game : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	public void addInitAnimationRequest () {
+		animationItemsQueue++;
+	}
+
+	public void removeInitAnimationRequest () {
+		animationItemsQueue--;
+		if (animationItemsQueue == 0) {
+			StartCoroutine (fadeToMainCamera());
+		}
+	}
+
+	private IEnumerator fadeToMainCamera () {
+		// Wait half a second
+		yield return new WaitForSeconds (0.5f);
+		// Fade between cameras
+		yield return StartCoroutine( ScreenWipe.use.CrossFadePro (introCamera, mainCamera, 1.0f) );
+		// Now the game starts
 	}
 
 	private void createNewCar () {

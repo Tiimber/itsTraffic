@@ -12,6 +12,17 @@ public class NodeWithTags : IdNode {
 		return tags;
 	}
 
+	public string getTagValue(string key) {
+		string value = null;
+		foreach (Tag tag in tags) {
+			if (tag.Key == key) {
+				value = tag.Value;
+				break;
+			}
+		}
+		return value;
+	}
+
 	virtual public void addTag (Tag tag) {
 		tags.Add (tag);
 	}

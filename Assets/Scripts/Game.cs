@@ -28,6 +28,7 @@ public class Game : MonoBehaviour {
 	public GameObject partOfNonCarWay;
 	public GameObject vehicle;
 	public GameObject buildingObject;
+	public GameObject trafficLight;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;
@@ -413,6 +414,8 @@ public class Game : MonoBehaviour {
 		NodeIndex.calculateIndexes ();
 //		Debug.Log (NodeIndex.endPointIndex.Count);
 
+		TrafficLightIndex.AutosetTrafficLightProperties ();
+
 		// Read config
 		string configFile = "file://" + Application.streamingAssetsPath + configFileName; 
 		WWW wwwConfig = new WWW (configFile);
@@ -440,7 +443,7 @@ public class Game : MonoBehaviour {
 		// TODO move this to after all materials have finished loading
 		foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
 			GameObject gameObject =	GameObject.Find ("BuildingRoof (" + objectEntry.Key + ")");
-			Debug.Log("BuildingRoof (" + objectEntry.Key + ")");
+//			Debug.Log("BuildingRoof (" + objectEntry.Key + ")");
 			BuildingRoof buildingRoof = gameObject.GetComponent<BuildingRoof>();
 			buildingRoof.setProperties(objectEntry.Value);
 		}
@@ -482,20 +485,21 @@ public class Game : MonoBehaviour {
 
 	private WayReference createPartOfWay (Pos previousPos, Pos currentPos, Way wayObject)
 	{
-		Vector3 position1 = getCameraPosition(previousPos);
-		Vector3 position2 = getCameraPosition(currentPos);
+		Vector3 position1 = getCameraPosition (previousPos);
+		Vector3 position2 = getCameraPosition (currentPos);
 
 		Vector3 wayVector = position2 - position1;
-		Vector3 position = getMidPoint(position1, position2);
+		Vector3 position = getMidPoint (position1, position2);
 
 		GameObject way;
 		Vector3 originalScale;
+		Quaternion rotation = Quaternion.FromToRotation (oneVector, wayVector);
 		if (wayObject.CarWay) {
-			way = Instantiate (partOfWay, position, Quaternion.FromToRotation (oneVector, wayVector)) as GameObject;
+			way = Instantiate (partOfWay, position, rotation) as GameObject;
 			originalScale = partOfWay.transform.localScale;
 			way.name = "CarWay (" + previousPos.Id + ", " + currentPos.Id + ")";
 		} else {
-			way = Instantiate (partOfNonCarWay, position, Quaternion.FromToRotation (oneVector, wayVector)) as GameObject;
+			way = Instantiate (partOfNonCarWay, position, rotation) as GameObject;
 			originalScale = partOfNonCarWay.transform.localScale;
 			way.name = "NonCarWay (" + previousPos.Id + ", " + currentPos.Id + ")";
 		}
@@ -526,6 +530,31 @@ public class Game : MonoBehaviour {
 		leftCollider.center = new Vector3 (-0.5f + colliderWidthPct / 2f, 0f, 0f);
 		rightCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
 		rightCollider.center = new Vector3 (0.5f - colliderWidthPct / 2f, 0f, 0f);
+
+		// Check if this way has a traffic light, and add it
+		// TODO - Lift out into method...
+		// TODO - Consider when there are less fields in one direction, y position of traffic light should be adjusted
+		Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, 0, 0);
+		if (previousPos.getTagValue ("crossing") == "traffic_signals") {
+			Vector3 rotatedAdjustPos = rotation * adjustPos;
+			Vector3 lightPosition = new Vector3(position1.x + rotatedAdjustPos.x, position1.y + rotatedAdjustPos.y, -0.01f);
+			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, 15f, 0));
+			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
+			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
+			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z);
+			light.name = "Traffic Light @ Node1 in " + way.name;
+			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
+		}
+		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
+			Vector3 rotatedAdjustPos = rotation * adjustPos;
+			Vector3 lightPosition = new Vector3(position2.x - rotatedAdjustPos.x, position2.y - rotatedAdjustPos.y, -0.01f);
+			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, -15f, 0));
+			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
+			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
+			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z);
+			light.name = "Traffic Light @ Node2 in " + way.name;
+			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
+		}
 
 		return wayReference;
 	}

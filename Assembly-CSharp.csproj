@@ -55,6 +55,8 @@
      <Compile Include="Assets\Scripts\Map\NodeWithTags.cs" />
      <Compile Include="Assets\Scripts\Map\Pos.cs" />
      <Compile Include="Assets\Scripts\Map\Tag.cs" />
+     <Compile Include="Assets\Scripts\Map\TrafficLightIndex.cs" />
+     <Compile Include="Assets\Scripts\Map\TrafficLightLogic.cs" />
      <Compile Include="Assets\Scripts\Map\Way.cs" />
      <Compile Include="Assets\Scripts\Map\WayTypeEnum.cs" />
      <Compile Include="Assets\Scripts\MaterialManager.cs" />

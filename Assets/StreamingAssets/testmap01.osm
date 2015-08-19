@@ -427,7 +427,13 @@
  <node id="3361288251" visible="true" version="1" changeset="28973749" timestamp="2015-02-20T09:44:10Z" user="64738" uid="2680804" lat="55.6056213" lon="13.0045028"/>
  <node id="660445092" visible="true" version="2" changeset="10023010" timestamp="2011-12-03T09:29:02Z" user="jetthe" uid="158153" lat="55.6067296" lon="13.0028013"/>
  <node id="1529263235" visible="true" version="2" changeset="10625466" timestamp="2012-02-08T15:15:11Z" user="joakimfors" uid="306096" lat="55.6065116" lon="13.0041696"/>
- <node id="92777342" visible="true" version="14" changeset="10625466" timestamp="2012-02-08T15:15:39Z" user="joakimfors" uid="306096" lat="55.6046667" lon="13.0045860"/>
+
+<!-- This one was changed by Robbin -->
+<!-- <node id="92777342" visible="true" version="14" changeset="10625466" timestamp="2012-02-08T15:15:39Z" user="joakimfors" uid="306096" lat="55.6046667" lon="13.0045860"/>-->
+ <node id="92777342" visible="true" version="14" changeset="10625466" timestamp="2012-02-08T15:15:39Z" user="joakimfors" uid="306096" lat="55.6046667" lon="13.0045860">
+ 	<tag k="crossing" v="traffic_signals"/>
+ </node>
+
  <node id="660443342" visible="true" version="4" changeset="16000420" timestamp="2013-05-06T17:24:05Z" user="joakimfors" uid="306096" lat="55.6076101" lon="13.0043588"/>
  <node id="1530766479" visible="true" version="3" changeset="21198967" timestamp="2014-03-19T20:10:40Z" user="Essin" uid="438299" lat="55.6075059" lon="13.0043757">
   <tag k="highway" v="crossing"/>

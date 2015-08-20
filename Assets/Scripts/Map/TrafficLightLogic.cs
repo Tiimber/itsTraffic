@@ -9,25 +9,30 @@ public class TrafficLightLogic : MonoBehaviour {
 	private Light lightObj = null;
 
 	private Pos pos = null;
+	private Pos otherPos = null;
 	private float rotation = 0f;
 
 	private Color lightGreen = new Color(0f, 0.45f, 0f);
 	private Color lightYellow = new Color(0.45f, 0.45f, 0f);
 	private Color lightRed = new Color(1f, 0f, 0f);
 
-	public void setProperties (Pos pos, float rotation) {
+	public string Id { set; get; }
+
+	public void setProperties (Pos pos, float rotation, Pos otherPos) {
 		setPos (pos);
 		setRotation (rotation);
+		setOtherPos (otherPos);
+		autosetName ();
 	}
 
 	private void setPos (Pos pos) {
 		this.pos = pos;
 	}
-
+	
 	public Pos getPos () {
 		return pos;
 	}
-
+	
 	public void setRotation (float rotation) {
 		this.rotation = rotation;
 	}
@@ -36,18 +41,38 @@ public class TrafficLightLogic : MonoBehaviour {
 		return rotation;
 	}
 
+	private void setOtherPos (Pos otherPos) {
+		this.otherPos = otherPos;
+	}
+	
+	public Pos getOtherPos () {
+		return otherPos;
+	}
+	
+
 	public void setState (State state) {
 		this.state = state;
+		if (lightObj != null) {
+			lightObj.color = state == State.RED ? lightRed : lightGreen;
+		}
 	}
 
 	public State getState () {
 		return state;
 	}
 
+	public void setTimeBetweenSwitches (float timeBetweenSwitches) {
+		this.timeBetweenSwitches = timeBetweenSwitches;
+	}
+
+	private void autosetName () {
+		name = "Traffic Light @ " + pos.Id + " (other node: " + otherPos.Id + ")";
+		Id = pos.Id + "," + otherPos.Id;
+	}
+
 	// Use this for initialization
 	void Start () {
 		lightObj = GetComponent<Light> ();
-		// TODO - Set this depending on other lights in crossing, and user setting
 		lightObj.color = state == State.RED ? lightRed : lightGreen;
 		timeToSwitch = timeBetweenSwitches;
 	}

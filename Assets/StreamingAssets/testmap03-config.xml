@@ -10,6 +10,11 @@
 	</object>
 
 	<!-- The rest is totally made up, above have some reference -->
+	<object id="92777342,2727535274" type="TrafficLight">
+		<state>GREEN</state>
+		<time>10</time>
+	</object>
+	
 	<object id="34732337" type="Roof">
 		<material>4</material>
 		<height>15</height>

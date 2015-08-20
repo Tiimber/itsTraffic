@@ -414,7 +414,8 @@ public class Game : MonoBehaviour {
 		NodeIndex.calculateIndexes ();
 //		Debug.Log (NodeIndex.endPointIndex.Count);
 
-		TrafficLightIndex.AutosetTrafficLightProperties ();
+		TrafficLightIndex.AutoInitTrafficLights ();
+		//TrafficLightIndex.AutosetTrafficLightProperties ();
 
 		// Read config
 		string configFile = "file://" + Application.streamingAssetsPath + configFileName; 
@@ -427,18 +428,18 @@ public class Game : MonoBehaviour {
 
 		XmlNodeList objectNodes = xmlDocConfig.SelectNodes ("//object");
 		foreach (XmlNode objectNode in objectNodes) {
-			long id = Convert.ToInt64(objectNode.Attributes.GetNamedItem ("id").Value);
 			string type = objectNode.Attributes.GetNamedItem ("type").Value;
-			Dictionary<string, string> properties = new Dictionary<string, string>();
-			foreach (XmlNode propertyNode in objectNode.ChildNodes) {
-				properties.Add(propertyNode.Name, propertyNode.InnerText);
-				switch (propertyNode.Name) {
-				case "material": StartCoroutine (MaterialManager.LoadMaterial(propertyNode.InnerText, type)); break;
-				case "height": break;
-				default: break;
-				}
+			switch (type) {
+				case "TrafficLight":
+					TrafficLightIndex.ApplyConfig (objectNode);
+					break;
+				case "Roof": 
+				case "Street": 
+				case "Outdoors":
+				default: 
+					initRoofStreetOrOutdoors (type, objectNode); 
+					break;
 			}
-			objectProperties.Add(id, properties);
 		}
 		// TODO move this to after all materials have finished loading
 		foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
@@ -447,6 +448,20 @@ public class Game : MonoBehaviour {
 			BuildingRoof buildingRoof = gameObject.GetComponent<BuildingRoof>();
 			buildingRoof.setProperties(objectEntry.Value);
 		}
+	}
+
+	private void initRoofStreetOrOutdoors (string type, XmlNode objectNode) {
+		long id = Convert.ToInt64(objectNode.Attributes.GetNamedItem ("id").Value);
+		Dictionary<string, string> properties = new Dictionary<string, string>();
+		foreach (XmlNode propertyNode in objectNode.ChildNodes) {
+			properties.Add(propertyNode.Name, propertyNode.InnerText);
+			switch (propertyNode.Name) {
+				case "material": StartCoroutine (MaterialManager.LoadMaterial(propertyNode.InnerText, type)); break;
+				case "height": break;
+				default: break;
+			}
+		}
+		objectProperties.Add(id, properties);
 	}
 	
 	private void addTags (NodeWithTags node, XmlNode xmlNode)
@@ -541,8 +556,7 @@ public class Game : MonoBehaviour {
 			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, 15f, 0));
 			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
-			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z);
-			light.name = "Traffic Light @ Node1 in " + way.name;
+			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z, currentPos);
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
 		}
 		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
@@ -551,8 +565,7 @@ public class Game : MonoBehaviour {
 			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, -15f, 0));
 			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
-			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z);
-			light.name = "Traffic Light @ Node2 in " + way.name;
+			trafficLightInstance.setProperties (currentPos, rotation.eulerAngles.z, previousPos);
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
 		}
 

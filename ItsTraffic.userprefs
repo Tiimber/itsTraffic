@@ -1,11 +1,12 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/StreamingAssets/testmap03-config.xml">
     <Files>
       <File FileName="Assets/Scripts/BuildingRoof.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Game.cs" Line="551" Column="1" />
-      <File FileName="Assets/Scripts/Map/TrafficLightLogic.cs" Line="41" Column="1" />
-      <File FileName="Assets/Scripts/Map/TrafficLightIndex.cs" Line="8" Column="2" />
+      <File FileName="Assets/Scripts/Game.cs" Line="454" Column="28" />
+      <File FileName="Assets/Scripts/Map/TrafficLightLogic.cs" Line="78" Column="3" />
+      <File FileName="Assets/Scripts/Map/TrafficLightIndex.cs" Line="108" Column="45" />
+      <File FileName="Assets/StreamingAssets/testmap03-config.xml" Line="7" Column="36" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -13,7 +14,9 @@
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Scripts" expanded="True">
               <Node name="Map" expanded="True" />
-              <Node name="Game.cs" selected="True" />
+            </Node>
+            <Node name="StreamingAssets" expanded="True">
+              <Node name="testmap03-config.xml" selected="True" />
             </Node>
           </Node>
         </State>

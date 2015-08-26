@@ -552,8 +552,8 @@ public class Game : MonoBehaviour {
 		Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, 0, 0);
 		if (previousPos.getTagValue ("crossing") == "traffic_signals") {
 			Vector3 rotatedAdjustPos = rotation * adjustPos;
-			Vector3 lightPosition = new Vector3(position1.x + rotatedAdjustPos.x, position1.y + rotatedAdjustPos.y, -0.01f);
-			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, 15f, 0));
+			Vector3 lightPosition = new Vector3(position1.x + rotatedAdjustPos.x, position1.y + rotatedAdjustPos.y, -0.1f);
+			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, 0, 180f)) * trafficLight.transform.rotation;
 			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
 			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z, currentPos);
@@ -561,8 +561,8 @@ public class Game : MonoBehaviour {
 		}
 		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
 			Vector3 rotatedAdjustPos = rotation * adjustPos;
-			Vector3 lightPosition = new Vector3(position2.x - rotatedAdjustPos.x, position2.y - rotatedAdjustPos.y, -0.01f);
-			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, -15f, 0));
+			Vector3 lightPosition = new Vector3(position2.x - rotatedAdjustPos.x, position2.y - rotatedAdjustPos.y, -0.1f);
+			Quaternion lightRotation = rotation * trafficLight.transform.rotation;
 			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
 			trafficLightInstance.setProperties (currentPos, rotation.eulerAngles.z, previousPos);

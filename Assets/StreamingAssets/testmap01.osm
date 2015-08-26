@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <osm version="0.6" generator="CGImap 0.3.3 (7062 thorn-02.openstreetmap.org)" copyright="OpenStreetMap and contributors" attribution="http://www.openstreetmap.org/copyright" license="http://opendatacommons.org/licenses/odbl/1-0/">
  <bounds minlat="55.6044300" minlon="13.0022200" maxlat="55.6063400" maxlon="13.0080600"/>
+
+ <node id="92777342" visible="true" version="14" changeset="10625466" timestamp="2012-02-08T15:15:39Z" user="joakimfors" uid="306096" lat="55.6046667" lon="13.0045860">
+ 	<tag k="crossing" v="traffic_signals"/>
+ </node>
+ <node id="246553332" visible="true" version="11" changeset="4044580" timestamp="2010-03-05T21:12:40Z" user="jorchr" uid="89041" lat="55.6050310" lon="13.0067218">
+ 	<tag k="crossing" v="traffic_signals"/>
+ </node>
+ <node id="246553334" visible="true" version="33" changeset="4044580" timestamp="2010-03-05T21:12:38Z" user="jorchr" uid="89041" lat="55.6055371" lon="13.0075641">
+ 	<tag k="crossing" v="traffic_signals"/>
+ </node>
+ <node id="304065636" visible="true" version="19" changeset="6643679" timestamp="2010-12-13T00:39:39Z" user="StellanL" uid="28775" lat="55.6060284" lon="13.0061875">
+ 	<tag k="crossing" v="traffic_signals"/>
+ </node>
+
  <node id="29524374" visible="true" version="3" changeset="15999163" timestamp="2013-05-06T15:32:46Z" user="joakimfors" uid="306096" lat="55.6058814" lon="13.0013457"/>
  <node id="29524373" visible="true" version="3" changeset="4083333" timestamp="2010-03-09T18:52:48Z" user="jorchr" uid="89041" lat="55.6061934" lon="13.0012915"/>
  <node id="29524380" visible="true" version="3" changeset="4083626" timestamp="2010-03-09T19:25:50Z" user="jorchr" uid="89041" lat="55.6067257" lon="13.0012845"/>
  <node id="29535209" visible="true" version="4" changeset="15999163" timestamp="2013-05-06T15:32:46Z" user="joakimfors" uid="306096" lat="55.6049160" lon="13.0012436"/>
- <node id="246553334" visible="true" version="33" changeset="4044580" timestamp="2010-03-05T21:12:38Z" user="jorchr" uid="89041" lat="55.6055371" lon="13.0075641"/>
+<!-- <node id="246553334" visible="true" version="33" changeset="4044580" timestamp="2010-03-05T21:12:38Z" user="jorchr" uid="89041" lat="55.6055371" lon="13.0075641"/>-->
  <node id="266706407" visible="true" version="17" changeset="4044580" timestamp="2010-03-05T21:12:41Z" user="jorchr" uid="89041" lat="55.6041764" lon="13.0083902"/>
  <node id="304064369" visible="true" version="11" changeset="4035525" timestamp="2010-03-04T19:40:44Z" user="jorchr" uid="89041" lat="55.6064097" lon="13.0087033"/>
  <node id="304065816" visible="true" version="15" changeset="29669781" timestamp="2015-03-23T02:32:10Z" user="Hjart" uid="207581" lat="55.6059603" lon="13.0064165">
@@ -206,7 +220,9 @@
  <node id="246553330" visible="true" version="8" changeset="4044580" timestamp="2010-03-05T21:12:40Z" user="jorchr" uid="89041" lat="55.6047128" lon="13.0052627"/>
  <node id="660826506" visible="true" version="1" changeset="4044580" timestamp="2010-03-05T21:12:40Z" user="jorchr" uid="89041" lat="55.6047886" lon="13.0057562"/>
  <node id="246553331" visible="true" version="8" changeset="4044580" timestamp="2010-03-05T21:12:40Z" user="jorchr" uid="89041" lat="55.6048795" lon="13.0062176"/>
- <node id="246553332" visible="true" version="11" changeset="4044580" timestamp="2010-03-05T21:12:40Z" user="jorchr" uid="89041" lat="55.6050310" lon="13.0067218"/>
+ 
+<!-- <node id="246553332" visible="true" version="11" changeset="4044580" timestamp="2010-03-05T21:12:40Z" user="jorchr" uid="89041" lat="55.6050310" lon="13.0067218"/>-->
+ 
  <node id="660831072" visible="true" version="1" changeset="4044854" timestamp="2010-03-05T21:27:50Z" user="jorchr" uid="89041" lat="55.6047542" lon="13.0044289"/>
  <node id="660831073" visible="true" version="1" changeset="4044854" timestamp="2010-03-05T21:27:50Z" user="jorchr" uid="89041" lat="55.6047512" lon="13.0043646"/>
  <node id="660831075" visible="true" version="1" changeset="4044854" timestamp="2010-03-05T21:27:51Z" user="jorchr" uid="89041" lat="55.6047148" lon="13.0043699"/>
@@ -301,7 +317,7 @@
  <node id="331001436" visible="true" version="7" changeset="6643679" timestamp="2010-12-13T00:27:02Z" user="StellanL" uid="28775" lat="55.6073122" lon="13.0084533">
   <tag k="highway" v="turning_circle"/>
  </node>
- <node id="304065636" visible="true" version="19" changeset="6643679" timestamp="2010-12-13T00:39:39Z" user="StellanL" uid="28775" lat="55.6060284" lon="13.0061875"/>
+<!-- <node id="304065636" visible="true" version="19" changeset="6643679" timestamp="2010-12-13T00:39:39Z" user="StellanL" uid="28775" lat="55.6060284" lon="13.0061875"/>-->
  <node id="663366848" visible="true" version="2" changeset="6930006" timestamp="2011-01-10T19:38:34Z" user="Snusmumriken" uid="76269" lat="55.6059048" lon="13.0026277"/>
  <node id="663366864" visible="true" version="2" changeset="6930006" timestamp="2011-01-10T19:38:35Z" user="Snusmumriken" uid="76269" lat="55.6058897" lon="13.0016452"/>
  <node id="29524345" visible="true" version="4" changeset="8557393" timestamp="2011-06-26T22:59:39Z" user="StellanL" uid="28775" lat="55.6037501" lon="13.0012925"/>
@@ -428,11 +444,7 @@
  <node id="660445092" visible="true" version="2" changeset="10023010" timestamp="2011-12-03T09:29:02Z" user="jetthe" uid="158153" lat="55.6067296" lon="13.0028013"/>
  <node id="1529263235" visible="true" version="2" changeset="10625466" timestamp="2012-02-08T15:15:11Z" user="joakimfors" uid="306096" lat="55.6065116" lon="13.0041696"/>
 
-<!-- This one was changed by Robbin -->
 <!-- <node id="92777342" visible="true" version="14" changeset="10625466" timestamp="2012-02-08T15:15:39Z" user="joakimfors" uid="306096" lat="55.6046667" lon="13.0045860"/>-->
- <node id="92777342" visible="true" version="14" changeset="10625466" timestamp="2012-02-08T15:15:39Z" user="joakimfors" uid="306096" lat="55.6046667" lon="13.0045860">
- 	<tag k="crossing" v="traffic_signals"/>
- </node>
 
  <node id="660443342" visible="true" version="4" changeset="16000420" timestamp="2013-05-06T17:24:05Z" user="joakimfors" uid="306096" lat="55.6076101" lon="13.0043588"/>
  <node id="1530766479" visible="true" version="3" changeset="21198967" timestamp="2014-03-19T20:10:40Z" user="Essin" uid="438299" lat="55.6075059" lon="13.0043757">

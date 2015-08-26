@@ -41,10 +41,16 @@ public class TrafficLightIndex
 
 	private static void AutosetTrafficLightProperties () {
 		foreach (TrafficLightLogic trafficLight in TrafficLights) {
-			// Get rotation, angles 45-135 & 225-315 should have same color, and the rest the other color
-			float lightRotation = trafficLight.getRotation () % 180f;
-			TrafficLightLogic.State state = lightRotation > 45f && lightRotation <= 135f ? TrafficLightLogic.State.GREEN : TrafficLightLogic.State.RED;
-			trafficLight.setState(state);
+			if (trafficLight.getState () == TrafficLightLogic.State.NOT_INITIALISED) {
+				// Get rotation, angles 45-135 & 225-315 should have same color, and the rest the other color
+				float firstLightRotation = trafficLight.getRotation ();
+				List<TrafficLightLogic> relatedTrafficLights = TrafficLights.Where (p => p.getPos () == trafficLight.getPos ()).ToList ();
+				foreach (TrafficLightLogic relatedTrafficLight in relatedTrafficLights) {
+					float lightRotation = Mathf.Abs((relatedTrafficLight.getRotation () - firstLightRotation) % 180f);
+					TrafficLightLogic.State state = lightRotation > 45f && lightRotation <= 135f ? TrafficLightLogic.State.GREEN : TrafficLightLogic.State.RED;
+					relatedTrafficLight.setState(state);
+				}
+			}
 		}
 	}
 

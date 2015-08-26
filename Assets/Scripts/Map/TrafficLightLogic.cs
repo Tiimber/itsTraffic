@@ -5,8 +5,12 @@ public class TrafficLightLogic : MonoBehaviour {
 	private float timeToSwitch = 0f;
 	private float timeBetweenSwitches = 5f;
 	private bool switching = false;
-	private State state = State.GREEN;
+	private State state = State.NOT_INITIALISED;
 	private Light lightObj = null;
+
+	private GameObject redLightObject = null;
+	private GameObject yellowLightObject = null;
+	private GameObject greenLightObject = null;
 
 	private Pos pos = null;
 	private Pos otherPos = null;
@@ -72,8 +76,18 @@ public class TrafficLightLogic : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		lightObj = GetComponent<Light> ();
-		lightObj.color = state == State.RED ? lightRed : lightGreen;
+		for (int i = 0; i < transform.childCount; i++) {
+			GameObject child = transform.GetChild (i).gameObject;
+			switch (child.name) {
+				case "Red": redLightObject = child; break;
+				case "Yellow": yellowLightObject = child; break;
+				case "Green": greenLightObject = child; break;
+				default: break;
+			}
+		}
+
+		lightObj = GetComponentInChildren<Light> ();
+		setLightState ();
 		timeToSwitch = timeBetweenSwitches;
 	}
 	
@@ -98,17 +112,25 @@ public class TrafficLightLogic : MonoBehaviour {
 	}
 
 	private IEnumerator switchColors (State endState) {
-		lightObj.color = lightYellow;
 		state = State.YELLOW;
+		setLightState ();
 		yield return new WaitForSeconds (2f);
-		lightObj.color = endState == State.RED ? lightRed : lightGreen;
 		state = endState;
+		setLightState ();
 		switching = false;
+	}
+
+	private void setLightState () {
+		lightObj.color = state == State.RED ? lightRed : lightGreen;
+		redLightObject.SetActive (state == State.RED);
+		yellowLightObject.SetActive (state == State.YELLOW);
+		greenLightObject.SetActive (state == State.GREEN);
 	}
 
 	public enum State {
 		GREEN,
 		YELLOW,
-		RED
+		RED,
+		NOT_INITIALISED
 	}
 }

@@ -48,6 +48,9 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\BuildingRoof.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
+     <Compile Include="Assets\Scripts\Interfaces\IPubSub.cs" />
+     <Compile Include="Assets\Scripts\Interfaces\PubSub.cs" />
+     <Compile Include="Assets\Scripts\LanduseSurface.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\Map\BaseNode.cs" />
      <Compile Include="Assets\Scripts\Map\IdNode.cs" />
@@ -59,6 +62,7 @@
      <Compile Include="Assets\Scripts\Map\TrafficLightLogic.cs" />
      <Compile Include="Assets\Scripts\Map\Way.cs" />
      <Compile Include="Assets\Scripts\Map\WayTypeEnum.cs" />
+     <Compile Include="Assets\Scripts\MapSurface.cs" />
      <Compile Include="Assets\Scripts\MaterialManager.cs" />
      <Compile Include="Assets\Scripts\Math3d.cs" />
      <Compile Include="Assets\Scripts\NodeDistance.cs" />

@@ -7,6 +7,7 @@ public class Way : NodeWithTags {
 	public bool EndPointImpossible { set; get; }
 	public bool CarWay { set; get; }
 	public bool Building { set; get; }
+	public bool LandUse { set; get; }
 	public List<WayReference> WayReferences = new List<WayReference> ();
 	
 	public Way (long id) : base(id) {
@@ -34,7 +35,7 @@ public class Way : NodeWithTags {
 				case "motorway_link": WayWidthFactor = WayTypeEnum.MOTORWAY_LINK; CarWay = true; break;
 				case "residential": WayWidthFactor = WayTypeEnum.RESIDENTIAL; CarWay = true; break;
 				case "unclassified": WayWidthFactor = WayTypeEnum.UNCLASSIFIED; CarWay = true; break;
-			case "platform": WayWidthFactor = WayTypeEnum.PLATFORM; EndPointImpossible = true; break;
+				case "platform": WayWidthFactor = WayTypeEnum.PLATFORM; EndPointImpossible = true; break;
 				case "footway": WayWidthFactor = WayTypeEnum.FOOTWAY; break;
 				case "pedestrian": WayWidthFactor = WayTypeEnum.PEDESTRIAN; break;
 				case "living_street": WayWidthFactor = WayTypeEnum.LIVING_STREET; break;
@@ -47,6 +48,7 @@ public class Way : NodeWithTags {
 			}
 			break;
 		case "landuse":
+			LandUse = true;
 			WayWidthFactor = 0f;
 			switch (tag.Value) {
 //				case "farmland": WayWidthFactor = 0.25f; break;

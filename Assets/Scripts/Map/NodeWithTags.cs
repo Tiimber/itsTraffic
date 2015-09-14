@@ -28,4 +28,16 @@ public class NodeWithTags : IdNode {
 	}
 
 //	virtual public void processTags () {}
+
+	public string printTags () {
+		string printValue = "";
+		foreach (Tag tag in tags) {
+			printValue += (printValue.Length > 0 ? ", " : "") + printTag (tag);
+		}
+		return printValue;
+	}
+
+	public string printTag (Tag tag) {
+		return tag.Key + ": " + tag.Value;
+	}
 }

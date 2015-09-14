@@ -14,6 +14,9 @@
  <node id="304065636" visible="true" version="19" changeset="6643679" timestamp="2010-12-13T00:39:39Z" user="StellanL" uid="28775" lat="55.6060284" lon="13.0061875">
  	<tag k="crossing" v="traffic_signals"/>
  </node>
+ <node id="3718006005" visible="true" version="1" changeset="33635850" timestamp="2015-08-28T06:00:18Z" user="Tiimber" uid="3191489" lat="55.6055946" lon="13.0061893">
+  <tag k="natural" v="tree"/>
+ </node>
 
  <node id="29524374" visible="true" version="3" changeset="15999163" timestamp="2013-05-06T15:32:46Z" user="joakimfors" uid="306096" lat="55.6058814" lon="13.0013457"/>
  <node id="29524373" visible="true" version="3" changeset="4083333" timestamp="2010-03-09T18:52:48Z" user="jorchr" uid="89041" lat="55.6061934" lon="13.0012915"/>

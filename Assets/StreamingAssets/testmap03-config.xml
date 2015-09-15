@@ -3,10 +3,12 @@
 	<object id="51789887" type="Roof">
 		<material>2</material>
 		<height>20</height>
+		<wall>1000</wall>
 	</object>
 	<object id="51743918" type="Roof">
 		<material>1</material>
 		<height>30</height>
+		<wall>1001</wall>
 	</object>
 
 	<!-- The rest is totally made up, above have some reference -->
@@ -18,58 +20,72 @@
 	<object id="34732337" type="Roof">
 		<material>4</material>
 		<height>15</height>
+		<wall>1002</wall>
 	</object>
 	<object id="35876699" type="Roof">
 		<material>1</material>
 		<height>25</height>
+		<wall>1003</wall>
 	</object>
 	<object id="51789884" type="Roof">
 		<material>2</material>
 		<height>23</height>
+		<wall>1001</wall>
 	</object>
 	<object id="51789885" type="Roof">
 		<material>3</material>
 		<height>33</height>
+		<wall>1001</wall>
 	</object>
 	<object id="51789886" type="Roof">
 		<material>1</material>
 		<height>12</height>
+		<wall>1001</wall>
 	</object>
 	<object id="51789873" type="Roof">
 		<material>2</material>
 		<height>31</height>
+		<wall>1002</wall>
 	</object>
 	<object id="51789875" type="Roof">
 		<material>3</material>
 		<height>22</height>
+		<wall>1002</wall>
 	</object>
 	<object id="51789877" type="Roof">
 		<material>1</material>
 		<height>30</height>
+		<wall>1002</wall>
 	</object>
 	<object id="51789878" type="Roof">
 		<material>2</material>
 		<height>27</height>
+		<wall>1002</wall>
 	</object>
 	<object id="51790946" type="Roof">
 		<material>3</material>
 		<height>29</height>
+		<wall>1003</wall>
 	</object>
 	<object id="52037561" type="Roof">
 		<material>1</material>
 		<height>26</height>
+		<wall>1003</wall>
 	</object>
 	<object id="52037554" type="Roof">
 		<material>2</material>
 		<height>24</height>
+		<wall>1003</wall>
 	</object>
 	<object id="220245490" type="Roof">
 		<material>3</material>
 		<height>32</height>
+		<wall>1003</wall>
 	</object>
 	<object id="220245481" type="Roof">
 		<material>1</material>
 		<height>32</height>
+		<wall>1003</wall>
 	</object>
 
 </config>

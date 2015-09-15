@@ -28,7 +28,9 @@ public class Game : MonoBehaviour {
 	public GameObject partOfNonCarWay;
 	public GameObject vehicle;
 	public GameObject buildingObject;
+	public GameObject landuseObject;
 	public GameObject trafficLight;
+	public GameObject treeObject;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;
@@ -197,6 +199,7 @@ public class Game : MonoBehaviour {
 		// Fade between cameras
 		yield return StartCoroutine( ScreenWipe.use.CrossFadePro (introCamera, mainCamera, 1.0f) );
 		// Now the game starts
+		PubSub.publish ("mainCameraActivated");
 	}
 
 	private void createNewCar () {
@@ -417,6 +420,17 @@ public class Game : MonoBehaviour {
 		TrafficLightIndex.AutoInitTrafficLights ();
 		//TrafficLightIndex.AutosetTrafficLightProperties ();
 
+		// Place out natural objects (trees, ...)
+		foreach (Pos node in Map.Nodes) {
+			string naturalValue = node.getTagValue ("natural");
+			if (naturalValue != null) {
+				System.Random treeAngle = new System.Random((int)(Math.Floor(node.Lon * node.Lat) * 10e7));
+				float treeRotation = (float)(treeAngle.NextDouble ()) * 360f;
+				Instantiate (treeObject, getCameraPosition(node), Quaternion.Euler(new Vector3(0, 0, treeRotation)));
+			}
+		}
+		         
+
 		// Read config
 		string configFile = "file://" + Application.streamingAssetsPath + configFileName; 
 		WWW wwwConfig = new WWW (configFile);
@@ -457,6 +471,7 @@ public class Game : MonoBehaviour {
 			properties.Add(propertyNode.Name, propertyNode.InnerText);
 			switch (propertyNode.Name) {
 				case "material": StartCoroutine (MaterialManager.LoadMaterial(propertyNode.InnerText, type)); break;
+				case "wall": StartCoroutine (MaterialManager.LoadMaterial(propertyNode.InnerText, "Wall")); break;
 				case "height": break;
 				default: break;
 			}
@@ -494,7 +509,12 @@ public class Game : MonoBehaviour {
 		if (way.Building) {
 			GameObject building = Instantiate(buildingObject) as GameObject;
 			BuildingRoof roof = building.GetComponent<BuildingRoof>();
-			roof.createMesh(xmlNode);
+			roof.createBuildingWithXMLNode(xmlNode);
+		}
+		if (way.LandUse) {
+			GameObject landuse = Instantiate(landuseObject) as GameObject;
+			LanduseSurface surface = landuse.GetComponent<LanduseSurface>();
+			surface.createLanduseWithXMLNode(xmlNode, way);
 		}
 	}
 
@@ -529,6 +549,10 @@ public class Game : MonoBehaviour {
 		float xStretchFactor = Vector3.Magnitude (wayVector) * Settings.wayLengthFactor;
 		float yStretchFactor = wayObject.WayWidthFactor * Settings.currentMapWidthFactor;
 		way.transform.localScale = new Vector3 (xStretchFactor * originalScale.x, yStretchFactor * originalScale.y, originalScale.z);
+
+		// Create gameObject with graphics for middle of way -****-
+		// TODO - Name it, apply material...
+		GameObject middleOfWay = createMiddleOfWay (way);
 
 		// Mark up small ways - TODO - Need to handle different scales / zoom
 		float smallestAllowedPath = 0.25f;
@@ -570,6 +594,19 @@ public class Game : MonoBehaviour {
 		}
 
 		return wayReference;
+	}
+
+	private GameObject createMiddleOfWay (GameObject way) {
+		Vector3 wayPosition = way.transform.position;
+		Vector3 wayScale = way.transform.localScale;
+		// TODO - Shorten the way length
+		Vector3 fromPos = new Vector3 (wayPosition.x - wayScale.x / 2f, wayPosition.y - wayScale.y / 2f, 0);
+		Vector3 toPos = new Vector3 (wayPosition.x + wayScale.x / 2f, wayPosition.y + wayScale.y / 2f, 0);
+		Quaternion rotation = way.transform.rotation;
+		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos, rotation);
+		middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
+//		middleOfWay.SetActive (false);
+		return middleOfWay;
 	}
 
 	private Vector3 getMidPoint (Vector3 position1, Vector3 position2)

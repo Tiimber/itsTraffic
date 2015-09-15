@@ -7,12 +7,13 @@ using System.IO;
 public class MaterialManager {
 
 	private static string materialBaseUrl = "http://samlingar.com/itsTraffic/";
-	private static string[] MaterialTypes = new string[]{"Outdoors", "Roof", "Street"};
+	private static string[] MaterialTypes = new string[]{"Outdoors", "Roof", "Street", "Wall"};
 
 	// Materials that we have available in the app
 	private static Dictionary<string, Material> MaterialResources = new Dictionary<string, Material>();
 
 	// List of materials available to download
+	private static List<string> DownloadingMaterial = new List<string>();
 	private static Dictionary<string, string> MaterialAvailable = new Dictionary<string, string>();
 	private static Dictionary<string, KeyValuePair<int, int>> MaterialAvailableSizes = new Dictionary<string, KeyValuePair<int, int>> ();
 
@@ -38,10 +39,13 @@ public class MaterialManager {
 				yield return null;
 			} else if (MaterialAvailable.ContainsKey (materialKey)) {
 				// Material is available, need to download and construct the material from the texture
-				WWW connection = new WWW (materialBaseUrl + MaterialAvailable[materialKey]);
-				yield return connection;
+				if (!DownloadingMaterial.Contains (materialKey)) {
+					DownloadingMaterial.Add (materialKey);
+					WWW connection = new WWW (materialBaseUrl + MaterialAvailable[materialKey]);
+					yield return connection;
 
-				DownloadAndCreateMaterial (connection, id, type, MaterialAvailable [materialKey], materialKey);
+					DownloadAndCreateMaterial (connection, id, type, MaterialAvailable [materialKey], materialKey);
+				}
 			} else {
 				// Material is missing, what to do?
 				Debug.LogWarning ("Couldn't find material for ID: " + id + " (" + type+ ")");
@@ -95,12 +99,6 @@ public class MaterialManager {
 	}
 
 	private static void DownloadAndCreateMaterial (WWW connection, string id, string type, string filename, string materialKey) {
-//		string savePath = Application.persistentDataPath + "/";
-//		if (!System.IO.Directory.Exists (savePath + type)) {
-//			System.IO.Directory.CreateDirectory (savePath + type);
-//			System.IO.Directory.CreateDirectory (savePath + type + "/Materials");
-//		}
-//		System.IO.File.WriteAllBytes ("Assets/Resources/" + filename, connection.bytes);
 		// Now create the Texture from the image data
 		KeyValuePair<int, int> size = MaterialAvailableSizes [materialKey];
 		Texture2D materialTexture = new Texture2D (size.Key, size.Value);
@@ -108,24 +106,19 @@ public class MaterialManager {
 		byte[] pngData = materialTexture.EncodeToPNG ();
 		string textureFullFilePath = "Assets/Resources/" + filename;
 		File.WriteAllBytes(textureFullFilePath, pngData);
-//		DestroyImmediate(materialTexture);
 		AssetDatabase.Refresh ();
 
 		// Now to create a simple material with the texture
-//		Material material = new Material (Shader.Find ("Custom/PlainShader"));
-//		material.mainTexture = materialTexture;
 		string materialFullFilePath = "Assets/Resources/" + type + "/Materials/" + StripTypeAndExtension (filename) + ".mat";
 		AssetDatabase.CreateAsset (new Material (Shader.Find ("Custom/PlainShader")), materialFullFilePath);
 		Material material = (Material) (AssetDatabase.LoadAssetAtPath (materialFullFilePath, typeof(Material)));
 		material.mainTexture = (Texture2D)(AssetDatabase.LoadAssetAtPath (textureFullFilePath, typeof(Texture2D)));
 
 		// Save the texture and material to files in our resources folder, for quick load next time
-//		Debug.Log (filename);
-//		AssetDatabase.CreateAsset (materialTexture, "Assets/Resources/" + filename);
-//		AssetDatabase.CreateAsset (material, "Assets/Resources/" + type + "/Materials/" + StripTypeAndExtension(filename) + ".mat");
 		AssetDatabase.SaveAssets ();
 
 		// Add it to our index
+		Debug.Log ("Adding to index: " + id);
 		MaterialIndex.Add (id, material);
 		Debug.Log ("Material indexed: " + id);
 	}

@@ -529,6 +529,16 @@ public class Game : MonoBehaviour {
 		GameObject way;
 		Vector3 originalScale;
 		Quaternion rotation = Quaternion.FromToRotation (oneVector, wayVector);
+
+		Vector3 eulerRotation = rotation.eulerAngles;
+		if (eulerRotation.z == 0f) {
+			if (eulerRotation.y != 0f) {
+				rotation = Quaternion.Euler(0f, 0f, eulerRotation.y);
+			} else {
+				rotation = Quaternion.Euler(0f, 0f, eulerRotation.x);
+			}
+		}
+
 		if (wayObject.CarWay) {
 			way = Instantiate (partOfWay, position, rotation) as GameObject;
 			originalScale = partOfWay.transform.localScale;
@@ -605,7 +615,16 @@ public class Game : MonoBehaviour {
 		Quaternion rotation = way.transform.rotation;
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos, rotation);
 		middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
-//		middleOfWay.SetActive (false);
+
+		// TODO - Config for material
+		AutomaticMaterialObject middleOfWayMaterialObject = middleOfWay.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
+		WayReference wayReference = way.GetComponent<WayReference> ();
+		if (wayReference.way.CarWay) {
+			middleOfWayMaterialObject.requestMaterial ("2002-Street", null); // TODO - Default material
+		} else {
+			middleOfWayMaterialObject.requestMaterial ("2003-Street", null); // TODO - Default material
+		}
+
 		return middleOfWay;
 	}
 

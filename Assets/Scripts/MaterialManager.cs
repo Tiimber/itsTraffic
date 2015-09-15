@@ -20,6 +20,11 @@ public class MaterialManager {
 	// Materials that are indexed for use
 	public static Dictionary<string, Material> MaterialIndex = new Dictionary<string, Material>();
 
+	// Material list synced?
+	private static bool isSyncDone = false;
+	// Before list synced, list of requested materials
+	private static List<KeyValuePair<string, string>> queuedMaterialsForAfterSync = new List<KeyValuePair<string, string>> ();
+
 	public static IEnumerator<WWW> Init () {
 		LoadLocalMaterials ();
 
@@ -36,6 +41,8 @@ public class MaterialManager {
 				// Resource found - just add it to our index
 				Material material = MaterialResources [materialKey];
 				MaterialIndex.Add (id, material);
+				Debug.Log ("Publishing Material: " + id);
+				PubSub.publish("Material-" + id);
 				yield return null;
 			} else if (MaterialAvailable.ContainsKey (materialKey)) {
 				// Material is available, need to download and construct the material from the texture
@@ -47,9 +54,13 @@ public class MaterialManager {
 					DownloadAndCreateMaterial (connection, id, type, MaterialAvailable [materialKey], materialKey);
 				}
 			} else {
-				// Material is missing, what to do?
-				Debug.LogWarning ("Couldn't find material for ID: " + id + " (" + type+ ")");
-				yield return null;
+				if (isSyncDone) {
+					// Material is missing, what to do?
+					Debug.LogWarning ("Couldn't find material for ID: " + id + " (" + type+ ")");
+					yield return null;
+				} else {
+					queuedMaterialsForAfterSync.Add (new KeyValuePair<string, string>(id, type));
+				}
 			}
 		} else {
 			yield return null;
@@ -96,6 +107,15 @@ public class MaterialManager {
 				}
 			}
 		}
+		isSyncDone = true;
+		loadQueuedMaterials ();
+	}
+
+	private static void loadQueuedMaterials ()
+	{
+		foreach (KeyValuePair<string, string> materialItem in queuedMaterialsForAfterSync) {
+			Singleton<Game>.Instance.StartCoroutine (LoadMaterial (materialItem.Key, materialItem.Value));
+		}
 	}
 
 	private static void DownloadAndCreateMaterial (WWW connection, string id, string type, string filename, string materialKey) {
@@ -120,6 +140,8 @@ public class MaterialManager {
 		// Add it to our index
 		Debug.Log ("Adding to index: " + id);
 		MaterialIndex.Add (id, material);
+		Debug.Log ("Publishing Material: " + id);
+		PubSub.publish("Material-" + id);
 		Debug.Log ("Material indexed: " + id);
 	}
 

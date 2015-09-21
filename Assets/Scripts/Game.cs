@@ -613,7 +613,7 @@ public class Game : MonoBehaviour {
 		Vector3 fromPos = new Vector3 (wayPosition.x - wayScale.x / 2f, wayPosition.y - wayScale.y / 2f, 0);
 		Vector3 toPos = new Vector3 (wayPosition.x + wayScale.x / 2f, wayPosition.y + wayScale.y / 2f, 0);
 		Quaternion rotation = way.transform.rotation;
-		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos, rotation);
+		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);
 		middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
 
 		// TODO - Config for material
@@ -624,6 +624,10 @@ public class Game : MonoBehaviour {
 		} else {
 			middleOfWayMaterialObject.requestMaterial ("2003-Street", null); // TODO - Default material
 		}
+		WayLine wayLineObject = middleOfWay.AddComponent<WayLine> () as WayLine;
+		wayLineObject.create (wayReference);
+
+		middleOfWay.transform.rotation = rotation;
 
 		return middleOfWay;
 	}

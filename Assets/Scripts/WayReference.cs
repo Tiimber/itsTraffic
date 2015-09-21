@@ -22,6 +22,10 @@ public class WayReference : MonoBehaviour {
 		return isNode1 (fromPosition) ? fieldsFromPos1ToPos2 : fieldsFromPos2ToPos1;
 	}
 
+	public float getNumberOfFieldsInDirection (bool fromPos1) {
+		return fromPos1 ? fieldsFromPos1ToPos2 : fieldsFromPos2ToPos1;
+	}
+
 	// TODO - Flag if one-way (and if so, in which direction)
 
 	// TODO - Temporary

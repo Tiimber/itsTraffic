@@ -53,7 +53,7 @@ public class MapSurface : MonoBehaviour {
 		filter.mesh = msh;
 	}
 
-	public static GameObject createPlaneMeshForPoints(Vector3 from, Vector3 to, Quaternion rotation) {
+	public static GameObject createPlaneMeshForPoints(Vector3 from, Vector3 to) {
 		Vector3 offset = from + (to - from) / 2;
 		from -= offset;
 		to -= offset;
@@ -65,13 +65,11 @@ public class MapSurface : MonoBehaviour {
 			new Vector2(from.x, to.y)
 		};
 
-		GameObject planeMesh = new GameObject ();
-		planeMesh.name = "Plane Mesh For Points";
+		GameObject planeMesh = new GameObject ("Plane Mesh For Points");
 
 		addMeshToGameObject(planeMesh, points);
 
 		planeMesh.transform.position = offset;
-		planeMesh.transform.rotation = rotation;
 
 		return planeMesh;
 	}

@@ -10,8 +10,8 @@ public class WayTypeEnum
 	public const float HIGHWAY_TERTIARY_LINK = 1.22f;
 	public const float MOTORWAY = 1.51f;
 	public const float MOTORWAY_LINK = 1.21f;
-	public const float PLATFORM = 0.71f; // Bus stop?
-	public const float PEDESTRIAN = 0.43f;
+	public const float PLATFORM = 0.43f; // Bus stop?
+	public const float PEDESTRIAN = 0.44f;
 	public const float FOOTWAY = 0.13f;
 	public const float LIVING_STREET = 0.21f;
 	public const float PATH = 0.11f;

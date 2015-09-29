@@ -4,14 +4,26 @@ using System.Collections.Generic;
 
 public class WayLine : MonoBehaviour {
 
-	private static float LINE_WIDTH = 0.002f;
+	private const float LINE_HEIGHT = 0.002f;
 	private static float LIMIT_WAYWIDTH = WayTypeEnum.PEDESTRIAN;
 
+	private static float DASHED_LINE_WIDTH = 0.05f;
+	private static float CITY_DASHED_LINE_GAP = 0.04f;
+	private static float DASHED_LINE_HEIGHT = 0.001f;
+
+	private Vector3 drawSize;
+
 	public void create (WayReference reference) {
+
 		if (reference.way.WayWidthFactor >= LIMIT_WAYWIDTH) {
-			createOuterLines (reference);
+			drawSize = reference.gameObject.transform.localScale;
+			drawSize -= new Vector3(drawSize.y, 0f, 0f);
+
+//			createOuterLines (reference);
 			createMiddleLine (reference);
 			createDashedLines (reference);
+
+			drawSize = Vector3.zero;
 		}
 	}
 
@@ -19,15 +31,15 @@ public class WayLine : MonoBehaviour {
 		GameObject way = reference.gameObject;
 		float wayHeight = way.transform.localScale.y;
 
-		GameObject lineUpper = getLineForWay (way);
+		GameObject lineUpper = getLineForWay (drawSize);
 		setWhiteMaterial (lineUpper);
 		lineUpper.transform.SetParent (transform);
 		lineUpper.transform.localPosition = new Vector3(0, -wayHeight/2f, -0.01f);
 
-		GameObject lineLower = getLineForWay (way);
+		GameObject lineLower = getLineForWay (drawSize);
 		setWhiteMaterial (lineLower);
 		lineLower.transform.SetParent (transform);
-		lineLower.transform.localPosition = new Vector3(0, wayHeight/2f - LINE_WIDTH * Settings.currentMapWidthFactor, -0.01f);
+		lineLower.transform.localPosition = new Vector3(0, wayHeight/2f - LINE_HEIGHT * Settings.currentMapWidthFactor, -0.01f);
 	}
 
 	private void createMiddleLine (WayReference reference) {
@@ -42,13 +54,13 @@ public class WayLine : MonoBehaviour {
 
 		// Way width
 		GameObject way = reference.gameObject;
-		float wayHeight = way.transform.localScale.y - LINE_WIDTH*2f;
+		float wayHeight = way.transform.localScale.y - LINE_HEIGHT*2f;
 
 
-		GameObject lineMiddle = getLineForWay (way);
+		GameObject lineMiddle = getLineForWay (drawSize);
 		setWhiteMaterial (lineMiddle);
 		lineMiddle.transform.SetParent (transform);
-		lineMiddle.transform.localPosition = new Vector3(0, LINE_WIDTH + percentualPositionY * wayHeight - wayHeight / 2f - LINE_WIDTH / 2f * Settings.currentMapWidthFactor, -0.01f);
+		lineMiddle.transform.localPosition = new Vector3(0, LINE_HEIGHT + percentualPositionY * wayHeight - wayHeight / 2f - LINE_HEIGHT / 2f * Settings.currentMapWidthFactor, -0.01f);
 	}
 
 	private void createDashedLines (WayReference reference)
@@ -73,24 +85,36 @@ public class WayLine : MonoBehaviour {
 
 		// Way width
 		GameObject way = reference.gameObject;
-		float wayHeight = way.transform.localScale.y - LINE_WIDTH*2f;
+		float wayHeight = way.transform.localScale.y - LINE_HEIGHT*2f;
 		foreach (float field in dashedLineFields) {
 			// Percentual position of way width, where to put middle line
 			float percentualPositionY = field / numberOfFields;
 
-			GameObject lineMiddle = getLineForWay (way);
-			setWhiteMaterial (lineMiddle);
+			GameObject lineMiddle = getDashedLineForWay (drawSize);
 			lineMiddle.transform.SetParent (transform);
-			lineMiddle.transform.localPosition = new Vector3(0, LINE_WIDTH + percentualPositionY * wayHeight - wayHeight / 2f - LINE_WIDTH / 2f * Settings.currentMapWidthFactor, -0.01f);
+			lineMiddle.transform.localPosition = new Vector3(0f, LINE_HEIGHT + percentualPositionY * wayHeight - wayHeight / 2f - DASHED_LINE_HEIGHT / 2f * Settings.currentMapWidthFactor, -0.01f);
 		}
 
 	}
 
-	private GameObject getLineForWay (GameObject way, bool dashed = false) {
-		Vector3 fromPos = -way.transform.localScale / 2;
-		Vector3 toPos = way.transform.localScale / 2;
+	private GameObject getDashedLineForWay (Vector3 way) {
+		GameObject dashedLine = new GameObject ();
+		for (float xStart = 0; xStart <= way.x; xStart += DASHED_LINE_WIDTH + CITY_DASHED_LINE_GAP) {
+			Vector3 lineVector = new Vector3(DASHED_LINE_WIDTH, way.y, way.z);
+			GameObject linePart = getLineForWay(lineVector, DASHED_LINE_HEIGHT);
+
+			setWhiteMaterial (linePart);
+			linePart.transform.SetParent (dashedLine.transform);
+			linePart.transform.localPosition = new Vector3(xStart - way.x / 2f, 0f, 0f);
+		}
+		return dashedLine;
+	}
+
+	private GameObject getLineForWay (Vector3 way, float lineHeight = LINE_HEIGHT) {
+		Vector3 fromPos = -way / 2;
+		Vector3 toPos = way / 2;
 		
-		toPos = new Vector3(toPos.x, fromPos.y + LINE_WIDTH * Settings.currentMapWidthFactor, toPos.z); 
+		toPos = new Vector3(toPos.x, fromPos.y + lineHeight * Settings.currentMapWidthFactor, toPos.z); 
 		
 		return MapSurface.createPlaneMeshForPoints (fromPos, toPos);
 	}

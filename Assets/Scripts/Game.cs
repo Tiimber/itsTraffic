@@ -222,7 +222,7 @@ public class Game : MonoBehaviour {
 //		Pos pos1 = getSpecificEndPoint (344L);
 //		Pos pos2 = getSpecificEndPoint (340L);
 		// Pos -> Vector3
-		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.1f);
+		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
 		GameObject vehicleInstance = Instantiate (vehicle, position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
 		vehicleObj.StartPos = pos1;
@@ -417,6 +417,8 @@ public class Game : MonoBehaviour {
 		NodeIndex.calculateIndexes ();
 //		Debug.Log (NodeIndex.endPointIndex.Count);
 
+		IntersectionOverlap.Create ();
+
 		TrafficLightIndex.AutoInitTrafficLights ();
 		//TrafficLightIndex.AutosetTrafficLightProperties ();
 
@@ -560,15 +562,15 @@ public class Game : MonoBehaviour {
 		float yStretchFactor = wayObject.WayWidthFactor * Settings.currentMapWidthFactor;
 		way.transform.localScale = new Vector3 (xStretchFactor * originalScale.x, yStretchFactor * originalScale.y, originalScale.z);
 
-		// Create gameObject with graphics for middle of way -****-
-		// TODO - Name it, apply material...
-		GameObject middleOfWay = createMiddleOfWay (way);
-
 		// Mark up small ways - TODO - Need to handle different scales / zoom
 		float smallestAllowedPath = 0.25f;
 		if (way.transform.localScale.x < smallestAllowedPath) {
 			wayReference.SmallWay = true;
 		}
+
+		// Create gameObject with graphics for middle of way -****-
+		// TODO - Name it, apply material...
+		GameObject middleOfWay = createMiddleOfWay (way);
 
 		float colliderWidthPct = Mathf.Min (yStretchFactor / (xStretchFactor * 1.5f), 0.5f);
 		List<BoxCollider> colliders = wayReference.GetComponents<BoxCollider> ().ToList ();
@@ -607,25 +609,39 @@ public class Game : MonoBehaviour {
 	}
 
 	private GameObject createMiddleOfWay (GameObject way) {
+		WayReference wayReference = way.GetComponent<WayReference> ();
+
 		Vector3 wayPosition = way.transform.position;
 		Vector3 wayScale = way.transform.localScale;
-		// TODO - Shorten the way length
 		Vector3 fromPos = new Vector3 (wayPosition.x - wayScale.x / 2f, wayPosition.y - wayScale.y / 2f, 0);
 		Vector3 toPos = new Vector3 (wayPosition.x + wayScale.x / 2f, wayPosition.y + wayScale.y / 2f, 0);
+
+		// Shorten way if big road (TODO - other logic for smaller roads later)
+		if (wayReference.way.CarWay) {
+			fromPos += new Vector3 (wayScale.y / 2f, 0f, 0f);
+			toPos -= new Vector3 (wayScale.y / 2f, 0f, 0f);
+		}
+
 		Quaternion rotation = way.transform.rotation;
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);
 		middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
 
 		// TODO - Config for material
-		AutomaticMaterialObject middleOfWayMaterialObject = middleOfWay.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
-		WayReference wayReference = way.GetComponent<WayReference> ();
-		if (wayReference.way.CarWay) {
-			middleOfWayMaterialObject.requestMaterial ("2002-Street", null); // TODO - Default material
-		} else {
-			middleOfWayMaterialObject.requestMaterial ("2003-Street", null); // TODO - Default material
+		// Small ways are not drawn with material or meshes
+		if (!wayReference.SmallWay || !wayReference.way.CarWay) {
+			AutomaticMaterialObject middleOfWayMaterialObject = middleOfWay.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
+			if (wayReference.way.CarWay) {
+				middleOfWayMaterialObject.requestMaterial ("2002-Street", null); // TODO - Default material
+				// Draw lines on way if car way
+				WayLine wayLineObject = middleOfWay.AddComponent<WayLine> () as WayLine;
+				wayLineObject.create (wayReference);
+			} else {
+				middleOfWayMaterialObject.requestMaterial ("2003-Street", null); // TODO - Default material
+				// Non Car Ways never have lines and only have one field in each direction 
+				wayReference.fieldsFromPos1ToPos2 = 1;
+				wayReference.fieldsFromPos2ToPos1 = 1;
+			}
 		}
-		WayLine wayLineObject = middleOfWay.AddComponent<WayLine> () as WayLine;
-		wayLineObject.create (wayReference);
 
 		middleOfWay.transform.rotation = rotation;
 

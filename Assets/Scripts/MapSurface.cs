@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class MapSurface : MonoBehaviour {
-//	Vector3[] vertices;
-//	int[] indices;
-//	Vector2[] vertices2D;
-	
+
 	protected void createMesh(XmlNode xmlNode) {
 		XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
 		Vector2[] vertices2D = new Vector2[nodeRefs.Count-1];
@@ -53,10 +50,24 @@ public class MapSurface : MonoBehaviour {
 		filter.mesh = msh;
 	}
 
-	public static GameObject createPlaneMeshForPoints(Vector3 from, Vector3 to) {
+	public enum Anchor {
+		CENTER,
+		LEFT_CENTER
+	}
+
+	public static GameObject createPlaneMeshForPoints(Vector3 from, Vector3 to, Anchor anchor = Anchor.CENTER) {
 		Vector3 offset = from + (to - from) / 2;
 		from -= offset;
 		to -= offset;
+
+		switch (anchor) {
+			case Anchor.LEFT_CENTER: 
+				offset += new Vector3(from.x, 0f, 0f); 
+				to -= new Vector3(from.x, 0f, 0f); 
+				from -= new Vector3(from.x, 0f, 0f); 
+				break;
+			default: break;
+		}
 
 		Vector2[] points = new Vector2[]{
 			new Vector2(from.x, from.y),

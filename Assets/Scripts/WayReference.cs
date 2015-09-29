@@ -10,10 +10,10 @@ public class WayReference : MonoBehaviour {
 	public Way way;
 	public Pos node1 { set; get; }
 	public Pos node2 { set; get; }
-	public bool SmallWay { set; get; }
+	public bool SmallWay;
 
-	private float fieldsFromPos1ToPos2 = 2f;
-	private float fieldsFromPos2ToPos1 = 2f;
+	public float fieldsFromPos1ToPos2 = 2f;
+	public float fieldsFromPos2ToPos1 = 1f;
 	public float getNumberOfFields () {
 		return fieldsFromPos1ToPos2 + fieldsFromPos2ToPos1;
 	}

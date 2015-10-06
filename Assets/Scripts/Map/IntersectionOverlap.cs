@@ -29,14 +29,15 @@ public class IntersectionOverlap {
 			WayObjectEndPoint.create (endPoints.Key, endPoint);
 		}
 
-//		foreach (KeyValuePair<long, List<WayReference>> straightWayEntry in straightWayIndex) {
-//			WayObjectStraight.create (straightWayEntry.Key, straightWayEntry.Value);
-//		}
-//
-//		foreach (KeyValuePair<long, List<WayReference>> intersectionEntry in intersectionWayIndex) {
-//			WayObjectIntersection.create (intersectionEntry.Key, intersectionEntry.Value);
-//		}
+		foreach (KeyValuePair<long, List<WayReference>> straightWayEntry in straightWayIndex) {
+			WayObjectStraight.create (straightWayEntry.Key, straightWayEntry.Value);
+		}
 
-		Debug.Log (nodeWayIndex);
+		foreach (KeyValuePair<long, List<WayReference>> intersectionEntry in intersectionWayIndex) {
+			WayObjectStraight.create (intersectionEntry.Key, intersectionEntry.Value);
+//			WayObjectIntersection.create (intersectionEntry.Key, intersectionEntry.Value);
+		}
+
+//		Debug.Log (nodeWayIndex);
 	}
 }

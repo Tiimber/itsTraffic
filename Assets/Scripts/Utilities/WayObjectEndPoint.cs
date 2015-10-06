@@ -13,6 +13,7 @@ public class WayObjectEndPoint {
 		Vector3 toPos = fromPos + new Vector3(originalScale.y / 2f, originalScale.y, 0f);
 
 		GameObject endPointObj = MapSurface.createPlaneMeshForPoints (fromPos, toPos, MapSurface.Anchor.LEFT_CENTER);
+		endPointObj.name = "End of way";
 		endPointObj.transform.position = endPointObj.transform.position - new Vector3 (0, 0, 0.1f) - (isNode1 ? Vector3.zero : endPoint.transform.rotation * new Vector3 (originalScale.y / 2f, 0f, 0f));
 		endPointObj.transform.rotation = endPoint.transform.rotation;
 		AutomaticMaterialObject endPointMaterialObject = endPointObj.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;

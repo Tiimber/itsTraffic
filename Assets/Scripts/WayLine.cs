@@ -32,11 +32,13 @@ public class WayLine : MonoBehaviour {
 		float wayHeight = way.transform.localScale.y;
 
 		GameObject lineUpper = getLineForWay (drawSize);
+		lineUpper.name = "Line border 1";
 		setWhiteMaterial (lineUpper);
 		lineUpper.transform.SetParent (transform);
 		lineUpper.transform.localPosition = new Vector3(0, -wayHeight/2f, -0.01f);
 
 		GameObject lineLower = getLineForWay (drawSize);
+		lineLower.name = "Line border 2";
 		setWhiteMaterial (lineLower);
 		lineLower.transform.SetParent (transform);
 		lineLower.transform.localPosition = new Vector3(0, wayHeight/2f - LINE_HEIGHT * Settings.currentMapWidthFactor, -0.01f);
@@ -58,6 +60,7 @@ public class WayLine : MonoBehaviour {
 
 
 		GameObject lineMiddle = getLineForWay (drawSize);
+		lineMiddle.name = "Middle line";
 		setWhiteMaterial (lineMiddle);
 		lineMiddle.transform.SetParent (transform);
 		lineMiddle.transform.localPosition = new Vector3(0, LINE_HEIGHT + percentualPositionY * wayHeight - wayHeight / 2f - LINE_HEIGHT / 2f * Settings.currentMapWidthFactor, -0.01f);
@@ -99,9 +102,11 @@ public class WayLine : MonoBehaviour {
 
 	private GameObject getDashedLineForWay (Vector3 way) {
 		GameObject dashedLine = new GameObject ();
+		dashedLine.name = "Dashed line";
 		for (float xStart = 0; xStart <= way.x; xStart += DASHED_LINE_WIDTH + CITY_DASHED_LINE_GAP) {
 			Vector3 lineVector = new Vector3(DASHED_LINE_WIDTH, way.y, way.z);
 			GameObject linePart = getLineForWay(lineVector, DASHED_LINE_HEIGHT);
+			linePart.name = "Dash";
 
 			setWhiteMaterial (linePart);
 			linePart.transform.SetParent (dashedLine.transform);

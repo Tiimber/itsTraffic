@@ -26,6 +26,7 @@ public class MapSurface : MonoBehaviour {
 	}
 
 	private static void addMeshToGameObject (GameObject gameObject, Vector2[] vertices2D) {
+
 		// Use the triangulator to get indices for creating triangles
 		Triangulator tr = new Triangulator(vertices2D);
 		int[] indices = tr.Triangulate();
@@ -43,7 +44,15 @@ public class MapSurface : MonoBehaviour {
 		msh.uv = vertices2D;
 		msh.RecalculateNormals();
 		msh.RecalculateBounds();
-		
+
+//		Vector3[] normals = msh.normals;
+//		for (int i = 0; i < normals.Length; i++) {
+//			normals[i] = normal;
+//		}
+//		msh.SetNormals (normals.ToList ());
+////		msh.RecalculateNormals();
+////		msh.RecalculateBounds();
+
 		// Set up game object with mesh;
 		gameObject.AddComponent(typeof(MeshRenderer));
 		MeshFilter filter = gameObject.AddComponent(typeof(MeshFilter)) as MeshFilter;
@@ -76,13 +85,28 @@ public class MapSurface : MonoBehaviour {
 			new Vector2(from.x, to.y)
 		};
 
+		return createPlaneMeshForVector2 (points, offset);
+	}
+
+	public static GameObject createPlaneMeshForPoints(List<Vector3> points) {
+		Vector2[] vector2Points = new Vector2[points.Count];
+		int i = 0;
+		foreach (Vector3 point in points) {
+			vector2Points[i++] = point;
+		}
+		return createPlaneMeshForVector2 (vector2Points, Vector3.zero);
+	}
+
+	private static GameObject createPlaneMeshForVector2 (Vector2[] points, Vector3 offset) {
 		GameObject planeMesh = new GameObject ("Plane Mesh For Points");
-
+		
 		addMeshToGameObject(planeMesh, points);
-
+		
 		planeMesh.transform.position = offset;
-
+		
 		return planeMesh;
 	}
+	
+		
 }
 	

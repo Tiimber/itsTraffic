@@ -624,6 +624,7 @@ public class Game : MonoBehaviour {
 
 		Quaternion rotation = way.transform.rotation;
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);
+		middleOfWay.name = "Plane Mesh for " + way.name;
 		middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
 
 		// TODO - Config for material

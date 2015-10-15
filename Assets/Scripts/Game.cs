@@ -417,6 +417,7 @@ public class Game : MonoBehaviour {
 		NodeIndex.calculateIndexes ();
 //		Debug.Log (NodeIndex.endPointIndex.Count);
 
+		// TODO - Real one
 		IntersectionOverlap.Create ();
 
 		TrafficLightIndex.AutoInitTrafficLights ();
@@ -499,8 +500,8 @@ public class Game : MonoBehaviour {
 			foreach (XmlAttribute refAttribute in nodeRefs) {
 				Pos pos = NodeIndex.nodes [Convert.ToInt64 (refAttribute.Value)];
 				if (prev != null) {
-					WayReference wayReference = createPartOfWay (prev, pos, way);
 					if (!way.Building) {
+						WayReference wayReference = createPartOfWay (prev, pos, way);
 						NodeIndex.addWayReferenceToNode (prev.Id, wayReference);
 						NodeIndex.addWayReferenceToNode (pos.Id, wayReference);
 					}
@@ -617,10 +618,10 @@ public class Game : MonoBehaviour {
 		Vector3 toPos = new Vector3 (wayPosition.x + wayScale.x / 2f, wayPosition.y + wayScale.y / 2f, 0);
 
 		// Shorten way if big road (TODO - other logic for smaller roads later)
-		if (wayReference.way.CarWay) {
+		//if (wayReference.way.CarWay) {
 			fromPos += new Vector3 (wayScale.y / 2f, 0f, 0f);
 			toPos -= new Vector3 (wayScale.y / 2f, 0f, 0f);
-		}
+		//}
 
 		Quaternion rotation = way.transform.rotation;
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);

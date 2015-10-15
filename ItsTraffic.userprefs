@@ -1,29 +1,33 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Utilities/WayObjectStraight.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game.cs">
     <Files>
-      <File FileName="Assets/Scripts/Map/IntersectionOverlap.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Game.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/WayReference.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/WayLine.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Map/NodeIndex.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/WayObjectEndPoint.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/MapSurface.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/WayObjectStraight.cs" Line="97" Column="27" />
-      <File FileName="Assets/Scripts/MaterialManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/DebugFn.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/Singleton.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Utilities/DebugFn.cs" Line="39" Column="20" />
       <File FileName="Assets/Scripts/Vehicle.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Math3d.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/BuildingRoof.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Game.cs" Line="508" Column="6" />
+      <File FileName="Assets/Scripts/Utilities/WayObjectStraight.cs" Line="41" Column="57" />
+      <File FileName="Assets/Scripts/Map/IntersectionOverlap.cs" Line="65" Column="103" />
+      <File FileName="Assets/Scripts/Utilities/WayObjectEndPoint.cs" Line="6" Column="79" />
+      <File FileName="Assets/Scripts/Map/Way.cs" Line="44" Column="10" />
+      <File FileName="Assets/Scripts/Map/WayTypeEnum.cs" Line="26" Column="41" />
+      <File FileName="Assets/Scripts/Map/NodeIndex.cs" Line="23" Column="37" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
-        <State expanded="True" selected="True" />
+        <State expanded="True">
+          <Node name="Assembly-CSharp" expanded="True">
+            <Node name="Scripts" expanded="True">
+              <Node name="Map" expanded="True" />
+              <Node name="Utilities" expanded="True" />
+              <Node name="Game.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
       </Pad>
       <Pad Id="MonoDevelop.Debugger.WatchPad">
         <State>
-          <Value>normals[0]</Value>
+          <Value>way1Rotation.eulerAngles</Value>
+          <Value>way2Rotation.eulerAngles</Value>
         </State>
       </Pad>
     </Pads>

@@ -11,7 +11,7 @@ public class AutomaticMaterialObject : MonoBehaviour, IPubSub {
 		if (MaterialManager.MaterialIndex.ContainsKey (materialIdNumber)) {
 			applyMaterial (MaterialManager.MaterialIndex[materialIdNumber]);
 		} else {
-			Debug.Log ("Requested Material: " + materialIdNumber);
+//			Debug.Log ("Requested Material: " + materialIdNumber);
 			PubSub.subscribe ("Material-" + materialIdNumber, this);
 			StartCoroutine (MaterialManager.LoadMaterial (materialIdNumber, idParts[1]));
 			if (defaultMaterial != null) {
@@ -27,7 +27,7 @@ public class AutomaticMaterialObject : MonoBehaviour, IPubSub {
 	}
 
 	public void onMessage (string message, object data) {
-		Debug.Log ("Material for way: " + message);
+//		Debug.Log ("Material for way: " + message);
 		applyMaterial (MaterialManager.MaterialIndex[requestedMaterialId]);
 	}
 }

@@ -10,6 +10,8 @@ public class WayTypeEnum
 	public const float HIGHWAY_TERTIARY_LINK = 1.22f;
 	public const float MOTORWAY = 1.51f;
 	public const float MOTORWAY_LINK = 1.21f;
+
+	// Keep all "Non CarWays" under 1.00f and above 0.00f
 	public const float PLATFORM = 0.43f; // Bus stop?
 	public const float PEDESTRIAN = 0.44f;
 	public const float FOOTWAY = 0.13f;
@@ -20,6 +22,8 @@ public class WayTypeEnum
 	public const float STEPS = 0.41f;
 	public const float RESIDENTIAL = 0.51f;
 	public const float UNCLASSIFIED = 1.11f;
+
+	public const float OTHER_FOOTWAY = 0.10f;
 
 	public const float ALL = 0.00f;
 
@@ -41,6 +45,8 @@ public class WayTypeEnum
 		STEPS,
 		RESIDENTIAL,
 		UNCLASSIFIED,
+
+		OTHER_FOOTWAY,
 
 		ALL
 	};

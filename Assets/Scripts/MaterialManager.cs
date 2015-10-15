@@ -41,7 +41,7 @@ public class MaterialManager {
 				// Resource found - just add it to our index
 				Material material = MaterialResources [materialKey];
 				MaterialIndex.Add (id, material);
-				Debug.Log ("Publishing Material: " + id);
+//				Debug.Log ("Publishing Material: " + id);
 				PubSub.publish("Material-" + id);
 				yield return null;
 			} else if (MaterialAvailable.ContainsKey (materialKey)) {

@@ -9,7 +9,7 @@ using System.Linq;
 // Latitude = y
 using UnityStandardAssets.Cameras;
 
-public class Game : MonoBehaviour {
+public class Game : MonoBehaviour, IPubSub {
 
 	public Camera mainCamera;
 	public Camera introCamera;
@@ -31,6 +31,7 @@ public class Game : MonoBehaviour {
 	public GameObject landuseObject;
 	public GameObject trafficLight;
 	public GameObject treeObject;
+	public GameObject vehicleEmission;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;
@@ -57,6 +58,8 @@ public class Game : MonoBehaviour {
 		StartCoroutine (MaterialManager.Init ());
 		StartCoroutine (loadXML ());
 //		Time.timeScale = 0.1f;
+		// Subscribe to when emission is let out from vehicles
+		PubSub.subscribe ("Vehicle:emitGas", this);
 	}
 	
 	// Update is called once per frame
@@ -589,7 +592,7 @@ public class Game : MonoBehaviour {
 		Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, 0, 0);
 		if (previousPos.getTagValue ("crossing") == "traffic_signals") {
 			Vector3 rotatedAdjustPos = rotation * adjustPos;
-			Vector3 lightPosition = new Vector3(position1.x + rotatedAdjustPos.x, position1.y + rotatedAdjustPos.y, -0.1f);
+			Vector3 lightPosition = new Vector3(position1.x + rotatedAdjustPos.x, position1.y + rotatedAdjustPos.y, -0.15f);
 			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, 0, 180f)) * trafficLight.transform.rotation;
 			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
@@ -598,7 +601,7 @@ public class Game : MonoBehaviour {
 		}
 		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
 			Vector3 rotatedAdjustPos = rotation * adjustPos;
-			Vector3 lightPosition = new Vector3(position2.x - rotatedAdjustPos.x, position2.y - rotatedAdjustPos.y, -0.1f);
+			Vector3 lightPosition = new Vector3(position2.x - rotatedAdjustPos.x, position2.y - rotatedAdjustPos.y, -0.15f);
 			Quaternion lightRotation = rotation * trafficLight.transform.rotation;
 			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
@@ -617,17 +620,17 @@ public class Game : MonoBehaviour {
 		Vector3 fromPos = new Vector3 (wayPosition.x - wayScale.x / 2f, wayPosition.y - wayScale.y / 2f, 0);
 		Vector3 toPos = new Vector3 (wayPosition.x + wayScale.x / 2f, wayPosition.y + wayScale.y / 2f, 0);
 
-		// Shorten way if big road (TODO - other logic for smaller roads later)
-		//if (wayReference.way.CarWay) {
-			fromPos += new Vector3 (wayScale.y / 2f, 0f, 0f);
-			toPos -= new Vector3 (wayScale.y / 2f, 0f, 0f);
-		//}
+		fromPos += new Vector3 (wayScale.y / 2f, 0f, 0f);
+		toPos -= new Vector3 (wayScale.y / 2f, 0f, 0f);
 
 		Quaternion rotation = way.transform.rotation;
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);
 		middleOfWay.name = "Plane Mesh for " + way.name;
-		middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
-
+		if (wayReference.way.CarWay) {
+			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
+		} else {
+			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.099f);
+		}
 		// TODO - Config for material
 		// Small ways are not drawn with material or meshes
 		if (!wayReference.SmallWay || !wayReference.way.CarWay) {
@@ -716,5 +719,10 @@ public class Game : MonoBehaviour {
 				wayReference.GetComponent<Renderer>().enabled = false;
 			}
 		}
+	}
+
+	public void onMessage (string message, object data) {
+		Vehicle vehicle = (Vehicle)data;
+		Instantiate (vehicleEmission, vehicle.getEmitPosition(), vehicle.gameObject.transform.rotation);
 	}
 }

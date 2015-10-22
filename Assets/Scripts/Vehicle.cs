@@ -20,7 +20,12 @@ public class Vehicle: MonoBehaviour {
 //	private Vector3 PreviousMovementVector { set; get; }
 	private float currentSpeed = 0f;
 
-	private const float MaxRotation = 20f;
+	private float EmissionFactor { set; get; }
+	private float CollectedEmissionAmount = 0f;
+
+	private const float THRESHOLD_EMISSION_PUFF = 0.002f;
+
+//	private const float MaxRotation = 20f;
 	private float DesiredRotation { set; get; }
 	private float TurnBreakFactor { set; get; }
 	private float AwarenessBreakFactor { set; get; }
@@ -104,7 +109,10 @@ public class Vehicle: MonoBehaviour {
 			float currentAcceleration = (vehicleTargetSpeed - currentSpeed) / vehicleTargetSpeed * Acceleration;
 			// Adjust with speedfactor
 			currentAcceleration /= Settings.speedFactor;
-			currentSpeed += currentAcceleration * Time.deltaTime;
+			float speedChangeInFrame = currentAcceleration * Time.deltaTime;
+			currentSpeed += speedChangeInFrame;
+
+			calculateCollectedEmission(speedChangeInFrame);
 
 			adjustColliders ();
 
@@ -269,6 +277,7 @@ public class Vehicle: MonoBehaviour {
 		Acceleration = Random.Range (2f, 3f);
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
+		EmissionFactor = Random.Range (0.1f, 1.0f);
 
 		FacVehiclesInAwarenessArea = new List<Vehicle> ();
 		PcVehiclesInAwarenessArea = new List<Vehicle> ();
@@ -569,6 +578,32 @@ public class Vehicle: MonoBehaviour {
 		return wayReference.transform.rotation * new Vector3 (0, offsetFromMiddle, 0);
 	}
 
+	private void calculateCollectedEmission (float speedChangeInFrame) {
+		if (speedChangeInFrame > 0f) {
+			CollectedEmissionAmount += speedChangeInFrame;
+//			Debug.Log ("Gas amount: " + CollectedEmissionAmount);
+			if (CollectedEmissionAmount > THRESHOLD_EMISSION_PUFF) {
+				emitGas();
+				CollectedEmissionAmount -= THRESHOLD_EMISSION_PUFF;
+			}
+		}
+	}
+
+	private void emitGas ()
+	{
+		Debug.Log ("Emit gas");
+		PubSub.publish ("Vehicle:emitGas", this);
+		Debug.Break ();
+	}
+
+	public Vector3 getEmitPosition () {
+//		Transform carObjectTransform = transform.FindChild ("CarObject");
+//		Vector3 localPos = carObjectTransform.localPosition;
+//
+//		return transform.position + localPos;
+		return transform.position;
+	}
+
 	private class CollisionObj<T> {
 		public WayReference WayReference { get; set; }
 		public Vehicle Vehicle { get; set; }
@@ -588,7 +623,7 @@ public class Vehicle: MonoBehaviour {
 			this.ExtraData = extraData;
 		}
 	}
-
+	
 	public void OnGUI () {
 		if (Vehicle.debug == this) {
 			int y = 200;

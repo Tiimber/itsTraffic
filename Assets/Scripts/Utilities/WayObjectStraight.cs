@@ -36,7 +36,8 @@ public class WayObjectStraight {
 //		Debug.Log ("Intersection");
 		GameObject intersectionObj = MapSurface.createPlaneMeshForPoints (meshPoints);
 		intersectionObj.name = "Intersection " + (wayReferences.Count - 1) + "-way (" + key + ")";
-		intersectionObj.transform.position = intersectionObj.transform.position - new Vector3 (0, 0, 0.1f);
+		Vector3 zOffset = wayReferences[0].way.CarWay ? new Vector3 (0, 0, -0.1f) : new Vector3 (0, 0, -0.099f);
+		intersectionObj.transform.position = intersectionObj.transform.position + zOffset;
 		AutomaticMaterialObject intersectionMaterialObject = intersectionObj.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
 		intersectionMaterialObject.requestMaterial (materialId, null); // TODO - Should have same material as connecting way(s)
 	}

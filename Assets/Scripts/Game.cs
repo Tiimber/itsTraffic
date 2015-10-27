@@ -430,7 +430,9 @@ public class Game : MonoBehaviour, IPubSub {
 		foreach (Pos node in Map.Nodes) {
 			string naturalValue = node.getTagValue ("natural");
 			if (naturalValue != null) {
-				System.Random treeAngle = new System.Random((int)(Math.Floor(node.Lon * node.Lat) * 10e7));
+				int randomSeed = Math3d.GetDecimals(node.Lon) * Math3d.GetDecimals(node.Lat);
+				Debug.Log (randomSeed);
+				System.Random treeAngle = new System.Random(randomSeed);
 				float treeRotation = (float)(treeAngle.NextDouble ()) * 360f;
 				Instantiate (treeObject, getCameraPosition(node), Quaternion.Euler(new Vector3(0, 0, treeRotation)));
 			}

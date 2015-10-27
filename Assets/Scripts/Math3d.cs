@@ -1055,4 +1055,8 @@ public class Math3d {
 	public static int Mod (int x, int m) {
 		return (x%m + m) % m;
 	}
+
+	public static int GetDecimals(float value) {
+		return (int)((value % 1) * 1e4);
+	}
 }

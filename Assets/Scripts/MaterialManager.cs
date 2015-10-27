@@ -44,6 +44,9 @@ public class MaterialManager {
 //				Debug.Log ("Publishing Material: " + id);
 				PubSub.publish("Material-" + id);
 				yield return null;
+
+			// TODO - else if available on disk, "download" from there and create material, put into MaterialIndex
+
 			} else if (MaterialAvailable.ContainsKey (materialKey)) {
 				// Material is available, need to download and construct the material from the texture
 				if (!DownloadingMaterial.Contains (materialKey)) {
@@ -122,20 +125,28 @@ public class MaterialManager {
 		// Now create the Texture from the image data
 		KeyValuePair<int, int> size = MaterialAvailableSizes [materialKey];
 		Texture2D materialTexture = new Texture2D (size.Key, size.Value);
-		materialTexture.LoadImage (connection.bytes);
+//		materialTexture.LoadImage (connection.bytes);
+		connection.LoadImageIntoTexture (materialTexture);
 		byte[] pngData = materialTexture.EncodeToPNG ();
-		string textureFullFilePath = "Assets/Resources/" + filename;
+		string textureTargetFolder = Application.persistentDataPath + "/" + type;
+		string textureFullFilePath = Application.persistentDataPath + "/" + filename;
+//		string textureFullFilePath = "Assets/Resources/" + filename;
+		if (!Directory.Exists (textureTargetFolder)) {
+			Directory.CreateDirectory (textureTargetFolder);
+		}
 		File.WriteAllBytes(textureFullFilePath, pngData);
-		AssetDatabase.Refresh ();
+//		AssetDatabase.Refresh ();
 
 		// Now to create a simple material with the texture
-		string materialFullFilePath = "Assets/Resources/" + type + "/Materials/" + StripTypeAndExtension (filename) + ".mat";
-		AssetDatabase.CreateAsset (new Material (Shader.Find ("Custom/PlainShader")), materialFullFilePath);
-		Material material = (Material) (AssetDatabase.LoadAssetAtPath (materialFullFilePath, typeof(Material)));
-		material.mainTexture = (Texture2D)(AssetDatabase.LoadAssetAtPath (textureFullFilePath, typeof(Texture2D)));
+//		string materialFullFilePath = "Assets/Resources/" + type + "/Materials/" + StripTypeAndExtension (filename) + ".mat";
+//		AssetDatabase.CreateAsset (new Material (Shader.Find ("Custom/PlainShader")), materialFullFilePath);
+		Material material = new Material (Shader.Find ("Custom/PlainShader"));
+		material.mainTexture = materialTexture;
+//		Material material = (Material) (AssetDatabase.LoadAssetAtPath (materialFullFilePath, typeof(Material)));
+//		material.mainTexture = (Texture2D)(AssetDatabase.LoadAssetAtPath (textureFullFilePath, typeof(Texture2D)));
 
 		// Save the texture and material to files in our resources folder, for quick load next time
-		AssetDatabase.SaveAssets ();
+//		AssetDatabase.SaveAssets ();
 
 		// Add it to our index
 		Debug.Log ("Adding to index: " + id);

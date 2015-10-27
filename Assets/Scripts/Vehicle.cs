@@ -593,7 +593,7 @@ public class Vehicle: MonoBehaviour {
 	{
 		Debug.Log ("Emit gas");
 		PubSub.publish ("Vehicle:emitGas", this);
-		Debug.Break ();
+//		Debug.Break ();
 	}
 
 	public Vector3 getEmitPosition () {

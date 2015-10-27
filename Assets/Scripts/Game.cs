@@ -722,7 +722,13 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void onMessage (string message, object data) {
-		Vehicle vehicle = (Vehicle)data;
-		Instantiate (vehicleEmission, vehicle.getEmitPosition(), vehicle.gameObject.transform.rotation);
+		if (message == "Vehicle:emitGas") {
+			Vehicle vehicle = (Vehicle)data;
+			GameObject emission = Instantiate (vehicleEmission, vehicle.getEmitPosition(), vehicle.gameObject.transform.rotation) as GameObject;
+			DebugFn.arrow(vehicle.transform.position, vehicle.getEmitPosition());
+			ParticleSystem particleSystem = emission.GetComponent<ParticleSystem>();
+			particleSystem.Simulate(0.10f, true);
+			particleSystem.Play(true);
+		}
 	}
 }

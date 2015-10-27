@@ -122,7 +122,7 @@ public class WayObjectStraight {
 		// TODO DEBUG ONLY
 		if (!intersectionFound) {
 			Debug.Log ("Complex Intersection point not found");
-			Debug.Break ();
+//			Debug.Break ();
 		}
 		
 		meshPoints.Add (intersectionPoint);
@@ -220,7 +220,7 @@ public class WayObjectStraight {
 				// TODO DEBUG ONLY
 				if (!intersectionFound) {
 					Debug.Log ("Intersection point not found");
-					Debug.Break ();
+//					Debug.Break ();
 				}
 				
 				meshPoints.Add (intersectionPoint);

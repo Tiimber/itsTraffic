@@ -431,7 +431,6 @@ public class Game : MonoBehaviour, IPubSub {
 			string naturalValue = node.getTagValue ("natural");
 			if (naturalValue != null) {
 				int randomSeed = Math3d.GetDecimals(node.Lon) * Math3d.GetDecimals(node.Lat);
-				Debug.Log (randomSeed);
 				System.Random treeAngle = new System.Random(randomSeed);
 				float treeRotation = (float)(treeAngle.NextDouble ()) * 360f;
 				Instantiate (treeObject, getCameraPosition(node), Quaternion.Euler(new Vector3(0, 0, treeRotation)));

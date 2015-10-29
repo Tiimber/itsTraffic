@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
-using UnityEditor;
 using System.IO;
 
 public class MaterialManager {
 
-	private static string materialBaseUrl = "http://samlingar.com/itsTraffic/";
+	private static string downloadedMaterialsFolder = Application.persistentDataPath + "/downloadedMaterials/";
+	private static string localMaterialBaseUrl = "file://" + Application.persistentDataPath + "/downloadedMaterials/";
+	private static string remoteMaterialBaseUrl = "http://samlingar.com/itsTraffic/";
 	private static string[] MaterialTypes = new string[]{"Outdoors", "Roof", "Street", "Wall"};
 
 	// Materials that we have available in the app
@@ -16,6 +17,7 @@ public class MaterialManager {
 	private static List<string> DownloadingMaterial = new List<string>();
 	private static Dictionary<string, string> MaterialAvailable = new Dictionary<string, string>();
 	private static Dictionary<string, KeyValuePair<int, int>> MaterialAvailableSizes = new Dictionary<string, KeyValuePair<int, int>> ();
+	private static List<string> MaterialAvailableLocally = new List<string>();
 
 	// Materials that are indexed for use
 	public static Dictionary<string, Material> MaterialIndex = new Dictionary<string, Material>();
@@ -28,9 +30,20 @@ public class MaterialManager {
 	public static IEnumerator<WWW> Init () {
 		LoadLocalMaterials ();
 
-		WWW connection = new WWW (materialBaseUrl + "list.txt");
-		yield return connection;
-		GetListOfRemoteMaterials (connection);
+		// Ensure list of downloaded materials
+		if (!Directory.Exists (downloadedMaterialsFolder)) {
+			Directory.CreateDirectory (downloadedMaterialsFolder);
+			string listInitData = "# Type|ID-Name.png|width|height\n";
+			File.AppendAllText(downloadedMaterialsFolder + "list.txt", listInitData);
+		}
+
+		WWW downloadedMaterialsList = new WWW (localMaterialBaseUrl + "list.txt");
+		yield return downloadedMaterialsList;
+		GetListOfRemoteMaterials (downloadedMaterialsList, false);
+
+		WWW remoteMaterialsList = new WWW (remoteMaterialBaseUrl + "list.txt");
+		yield return remoteMaterialsList;
+		GetListOfRemoteMaterials (remoteMaterialsList);
 	}
 
 	public static IEnumerator<WWW> LoadMaterial (string id, string type) {
@@ -44,17 +57,17 @@ public class MaterialManager {
 //				Debug.Log ("Publishing Material: " + id);
 				PubSub.publish("Material-" + id);
 				yield return null;
-
-			// TODO - else if available on disk, "download" from there and create material, put into MaterialIndex
-
 			} else if (MaterialAvailable.ContainsKey (materialKey)) {
 				// Material is available, need to download and construct the material from the texture
 				if (!DownloadingMaterial.Contains (materialKey)) {
 					DownloadingMaterial.Add (materialKey);
-					WWW connection = new WWW (materialBaseUrl + MaterialAvailable[materialKey]);
+					bool isAvailableLocally = MaterialAvailableLocally.Contains (materialKey);
+					string baseUrl = isAvailableLocally ? localMaterialBaseUrl : remoteMaterialBaseUrl;
+
+					WWW connection = new WWW (baseUrl + MaterialAvailable[materialKey]);
 					yield return connection;
 
-					DownloadAndCreateMaterial (connection, id, type, MaterialAvailable [materialKey], materialKey);
+					DownloadAndCreateMaterial (connection, id, type, MaterialAvailable [materialKey], materialKey, !isAvailableLocally);
 				}
 			} else {
 				if (isSyncDone) {
@@ -72,6 +85,7 @@ public class MaterialManager {
 
 	private static void LoadLocalMaterials () {
 		// Load all resources that are embedded in the application (also includes materials downloaded, created and saved)
+		// TODO - Maybe not load in all resources, but only add them to the map and load them when first requested
 		foreach (string type in MaterialTypes) {
 			UnityEngine.Object[] resources = Resources.LoadAll (type + "/Materials");
 			for (int i = 0; i < resources.Length; i++) {
@@ -83,7 +97,7 @@ public class MaterialManager {
 		}
 	}
 
-	private static void GetListOfRemoteMaterials (WWW connection) {
+	private static void GetListOfRemoteMaterials (WWW connection, bool isRemoteMaterials = true) {
 		string[] lines = connection.text.Split(new char[] {'\n'});
 		foreach (string line in lines) {
 			if (line.Length > 0 && !line.Trim().StartsWith("#") && line.Contains("|")) {
@@ -106,12 +120,17 @@ public class MaterialManager {
 					if (!MaterialAvailable.ContainsKey(entryKey)) {
 						MaterialAvailable.Add(entryKey, filename);
 						MaterialAvailableSizes.Add (entryKey, new KeyValuePair<int, int>(width, height));
+						if (!isRemoteMaterials) {
+							MaterialAvailableLocally.Add(entryKey);
+						}
 					}
 				}
 			}
 		}
-		isSyncDone = true;
-		loadQueuedMaterials ();
+		if (isRemoteMaterials) {
+			isSyncDone = true;
+			loadQueuedMaterials ();
+		}
 	}
 
 	private static void loadQueuedMaterials ()
@@ -121,32 +140,27 @@ public class MaterialManager {
 		}
 	}
 
-	private static void DownloadAndCreateMaterial (WWW connection, string id, string type, string filename, string materialKey) {
+	private static void DownloadAndCreateMaterial (WWW connection, string id, string type, string filename, string materialKey, bool loadedFromWeb = true) {
 		// Now create the Texture from the image data
 		KeyValuePair<int, int> size = MaterialAvailableSizes [materialKey];
 		Texture2D materialTexture = new Texture2D (size.Key, size.Value);
-//		materialTexture.LoadImage (connection.bytes);
 		connection.LoadImageIntoTexture (materialTexture);
 		byte[] pngData = materialTexture.EncodeToPNG ();
-		string textureTargetFolder = Application.persistentDataPath + "/" + type;
-		string textureFullFilePath = Application.persistentDataPath + "/" + filename;
-//		string textureFullFilePath = "Assets/Resources/" + filename;
-		if (!Directory.Exists (textureTargetFolder)) {
-			Directory.CreateDirectory (textureTargetFolder);
+
+		if (loadedFromWeb) {
+			string textureTargetFolder = downloadedMaterialsFolder + type;
+			string textureFullFilePath = downloadedMaterialsFolder + filename;
+			if (!Directory.Exists (textureTargetFolder)) {
+				Directory.CreateDirectory (textureTargetFolder);
+			}
+			File.WriteAllBytes (textureFullFilePath, pngData);
+			string materialListEntry = type + "|" + StripFilename(filename, false) + "|" + size.Key + "|" + size.Value + "\n";
+			File.AppendAllText(downloadedMaterialsFolder + "list.txt", materialListEntry);		
 		}
-		File.WriteAllBytes(textureFullFilePath, pngData);
-//		AssetDatabase.Refresh ();
 
 		// Now to create a simple material with the texture
-//		string materialFullFilePath = "Assets/Resources/" + type + "/Materials/" + StripTypeAndExtension (filename) + ".mat";
-//		AssetDatabase.CreateAsset (new Material (Shader.Find ("Custom/PlainShader")), materialFullFilePath);
 		Material material = new Material (Shader.Find ("Custom/PlainShader"));
 		material.mainTexture = materialTexture;
-//		Material material = (Material) (AssetDatabase.LoadAssetAtPath (materialFullFilePath, typeof(Material)));
-//		material.mainTexture = (Texture2D)(AssetDatabase.LoadAssetAtPath (textureFullFilePath, typeof(Texture2D)));
-
-		// Save the texture and material to files in our resources folder, for quick load next time
-//		AssetDatabase.SaveAssets ();
 
 		// Add it to our index
 		Debug.Log ("Adding to index: " + id);
@@ -156,10 +170,13 @@ public class MaterialManager {
 		Debug.Log ("Material indexed: " + id);
 	}
 
-	private static string StripTypeAndExtension (string name) {
-		string withouttype = name.Substring (name.IndexOf ('/') + 1);
-		string withoutending = withouttype.Substring (0, withouttype.LastIndexOf ('.'));
-		return withoutending;
+	private static string StripFilename (string name, bool alsoStripExtension = true) {
+		string result = name;
+		result = result.Substring (result.IndexOf ('/') + 1);
+		if (alsoStripExtension) {
+			result = result.Substring (0, result.LastIndexOf ('.'));
+		}
+		return result;
 	}
 
 	private static string GetNumberPrefix (string name) {

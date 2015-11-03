@@ -23,7 +23,7 @@ public class Vehicle: MonoBehaviour {
 	private float EmissionFactor { set; get; }
 	private float CollectedEmissionAmount = 0f;
 
-	private const float THRESHOLD_EMISSION_PUFF = 0.002f;
+	private const float THRESHOLD_EMISSION_PUFF = 0.003f;
 
 //	private const float MaxRotation = 20f;
 	private float DesiredRotation { set; get; }
@@ -278,6 +278,7 @@ public class Vehicle: MonoBehaviour {
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
 		EmissionFactor = Random.Range (0.1f, 1.0f);
+		CollectedEmissionAmount = Random.Range (0.000f, 0.002f);
 
 		FacVehiclesInAwarenessArea = new List<Vehicle> ();
 		PcVehiclesInAwarenessArea = new List<Vehicle> ();
@@ -597,11 +598,12 @@ public class Vehicle: MonoBehaviour {
 	}
 
 	public Vector3 getEmitPosition () {
-//		Transform carObjectTransform = transform.FindChild ("CarObject");
-//		Vector3 localPos = carObjectTransform.localPosition;
-//
-//		return transform.position + localPos;
 		return transform.position;
+	}
+
+	// TODO - Depending on vehicle, return different amounts
+	public float getEmissionAmount () {
+		return 1f;
 	}
 
 	private class CollisionObj<T> {

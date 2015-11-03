@@ -17,6 +17,8 @@ public class Game : MonoBehaviour, IPubSub {
 	public static Game instance;
 	private int animationItemsQueue = 0;
 
+	private float cameraEmission = 0f;
+
 	public static KeyValuePair<Pos, WayReference> CurrentWayReference { set; get; }
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }
 	public static List<Pos> CurrentPath { set; get; }
@@ -725,11 +727,21 @@ public class Game : MonoBehaviour, IPubSub {
 	public void onMessage (string message, object data) {
 		if (message == "Vehicle:emitGas") {
 			Vehicle vehicle = (Vehicle)data;
-			GameObject emission = Instantiate (vehicleEmission, vehicle.getEmitPosition(), vehicle.gameObject.transform.rotation) as GameObject;
-			DebugFn.arrow(vehicle.transform.position, vehicle.getEmitPosition());
+			Vector3 emitPosition = vehicle.getEmitPosition() + new Vector3(0f, 0f, mainCamera.transform.position.z + 1f);
+			GameObject emission = Instantiate (vehicleEmission, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
+//			DebugFn.arrow(vehicle.transform.position, emitPosition);
+			emission.GetComponent<Emission>().Amount = vehicle.getEmissionAmount ();
 			ParticleSystem particleSystem = emission.GetComponent<ParticleSystem>();
 			particleSystem.Simulate(0.10f, true);
 			particleSystem.Play(true);
+
+			StartCoroutine(destroyEmission(particleSystem));
 		}
+	}
+
+	public IEnumerator destroyEmission (ParticleSystem emission) {
+		yield return new WaitForSeconds (emission.duration);
+		cameraEmission += emission.gameObject.GetComponent<Emission> ().Amount;
+		Destroy (emission.gameObject);
 	}
 }

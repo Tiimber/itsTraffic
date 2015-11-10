@@ -84,6 +84,12 @@ public class Vehicle: MonoBehaviour {
 		initVehicleProfile ();
 		updateCurrentTarget ();
 
+//		Transform car = transform.FindChild ("CarObject");
+//		Renderer r = car.GetComponent<Renderer>();
+//		Material m = r.material;
+//		Color c = m.color;
+//		c.a = 0.5f;
+//		m.color = c;
 
 //		transform.rotation = Quaternion.Euler(0, 0, 97.97565f);
 
@@ -217,6 +223,7 @@ public class Vehicle: MonoBehaviour {
 		} else {
 			// TODO - We've probably reached the end of the road, what to do?
 //			Debug.Log ("No movement");
+			fadeOutAndDestroy ();
 		}
 	}
 
@@ -423,11 +430,12 @@ public class Vehicle: MonoBehaviour {
 					vehicleMovement = transform.rotation * Vector3.right;
 				}
 			} else {
-				// TODO - Temporary only - stop on endpoint
+				// "Disappear" on endpoint
 				if (colliderName == "CAR") {
 					// Endpoint
 					currentSpeed = 0;
 					Acceleration = 0;
+					fadeOutAndDestroy ();
 				}
 			}
 		}
@@ -592,7 +600,7 @@ public class Vehicle: MonoBehaviour {
 
 	private void emitGas ()
 	{
-		Debug.Log ("Emit gas");
+//		Debug.Log ("Emit gas");
 		PubSub.publish ("Vehicle:emitGas", this);
 //		Debug.Break ();
 	}
@@ -604,6 +612,11 @@ public class Vehicle: MonoBehaviour {
 	// TODO - Depending on vehicle, return different amounts
 	public float getEmissionAmount () {
 		return 1f;
+	}
+
+	private void fadeOutAndDestroy () {
+		// TODO - Can we do a fade out?
+		Destroy (this.gameObject);
 	}
 
 	private class CollisionObj<T> {

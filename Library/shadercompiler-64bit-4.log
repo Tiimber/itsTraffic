@@ -1,16 +1,6 @@
 Base path: /Applications/Unity/Unity.app/Contents
-Pipe name: \\.\pipe\UnityShaderCompiler-64bit-4-15081472
+Pipe name: \\.\pipe\UnityShaderCompiler-64bit-4-171110400
 Cmd: getPlatforms
-Cmd: compileSnippet
-  api=14 type=0 insize=2129 outsize=763 kw= pd=UNITY_NO_DXT5nm UNITY_NO_RGBM UNITY_NO_SCREENSPACE_SHADOWS UNITY_NO_LINEAR_COLORSPACE ok=1
-Cmd: compileSnippet
-  api=14 type=0 insize=944 outsize=965 kw= pd=UNITY_NO_DXT5nm UNITY_NO_RGBM UNITY_NO_SCREENSPACE_SHADOWS UNITY_NO_LINEAR_COLORSPACE ok=1
-Cmd: compileSnippet
-  api=14 type=0 insize=1151 outsize=770 kw= pd=UNITY_NO_DXT5nm UNITY_NO_RGBM UNITY_NO_SCREENSPACE_SHADOWS UNITY_NO_LINEAR_COLORSPACE ok=1
-Cmd: compileSnippet
-  api=14 type=0 insize=1172 outsize=1172 kw= pd=UNITY_NO_DXT5nm UNITY_NO_RGBM UNITY_NO_SCREENSPACE_SHADOWS UNITY_NO_LINEAR_COLORSPACE ok=1
-Cmd: compileSnippet
-  api=14 type=0 insize=958 outsize=1045 kw= pd=UNITY_NO_DXT5nm UNITY_NO_RGBM UNITY_NO_SCREENSPACE_SHADOWS UNITY_NO_LINEAR_COLORSPACE ok=1
 End of pipe
 
 Quitting shader compiler process

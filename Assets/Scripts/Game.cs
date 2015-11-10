@@ -16,15 +16,17 @@ public class Game : MonoBehaviour, IPubSub {
 
 	public static Game instance;
 	private int animationItemsQueue = 0;
-
 	private float cameraEmission = 0f;
+
+	public static long randomSeed;
+	private static bool running = false;
 
 	public static KeyValuePair<Pos, WayReference> CurrentWayReference { set; get; }
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }
 	public static List<Pos> CurrentPath { set; get; }
 
-	private string mapFileName = "/testmap01.osm";
-	private string configFileName = "/testmap03-config.xml";
+	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
+	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
@@ -57,11 +59,20 @@ public class Game : MonoBehaviour, IPubSub {
 	// Use this for initialization
 	void Start () {
 		Game.instance = this;
+		Game.randomSeed = Misc.currentTimeMillis ();
+
 		StartCoroutine (MaterialManager.Init ());
 		StartCoroutine (loadXML ());
+
+		CameraHandler.setMainCamera (mainCamera);
+		PubSub.subscribe ("mainCameraActivated", this);
+
 //		Time.timeScale = 0.1f;
 		// Subscribe to when emission is let out from vehicles
 		PubSub.subscribe ("Vehicle:emitGas", this);
+
+		Game.running = true;
+		new VehicleRandomizer ();
 	}
 	
 	// Update is called once per frame
@@ -93,6 +104,10 @@ public class Game : MonoBehaviour, IPubSub {
 				Vehicle.detachCurrentCamera ();
 				mainCamera.enabled = true;
 			}
+		} else if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
+			float scrollAmount = Input.GetAxis ("Mouse ScrollWheel");
+//			Debug.Log (scrollAmount);
+			CameraHandler.CustomZoom (scrollAmount);
 		}
 
 		// Draw debugIndex stuff
@@ -207,7 +222,7 @@ public class Game : MonoBehaviour, IPubSub {
 		PubSub.publish ("mainCameraActivated");
 	}
 
-	private void createNewCar () {
+	public void createNewCar () {
 		Pos pos1 = getRandomEndPoint (null);
 		Pos pos2 = getRandomEndPoint (pos1);
 
@@ -233,7 +248,7 @@ public class Game : MonoBehaviour, IPubSub {
 		vehicleObj.StartPos = pos1;
 		vehicleObj.CurrentPosition = pos1;
 		vehicleObj.EndPos = pos2;
-		vehicleObj.GetComponent<Renderer> ().material.color = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+//		vehicleObj.GetComponent<Renderer> ().material.color = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
 
 		if (followCar) {
 			mainCamera.enabled = false;
@@ -367,8 +382,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private IEnumerator loadXML () {
-		string mapFile = "file://" + Application.streamingAssetsPath + mapFileName; 
-		WWW www = new WWW (mapFile);
+		WWW www = new WWW (mapFileName);
 		
 		yield return www;
 
@@ -441,8 +455,7 @@ public class Game : MonoBehaviour, IPubSub {
 		         
 
 		// Read config
-		string configFile = "file://" + Application.streamingAssetsPath + configFileName; 
-		WWW wwwConfig = new WWW (configFile);
+		WWW wwwConfig = new WWW (configFileName);
 		
 		yield return wwwConfig;
 
@@ -727,15 +740,17 @@ public class Game : MonoBehaviour, IPubSub {
 	public void onMessage (string message, object data) {
 		if (message == "Vehicle:emitGas") {
 			Vehicle vehicle = (Vehicle)data;
-			Vector3 emitPosition = vehicle.getEmitPosition() + new Vector3(0f, 0f, mainCamera.transform.position.z + 1f);
+			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, mainCamera.transform.position.z + 1f);
 			GameObject emission = Instantiate (vehicleEmission, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
 //			DebugFn.arrow(vehicle.transform.position, emitPosition);
-			emission.GetComponent<Emission>().Amount = vehicle.getEmissionAmount ();
-			ParticleSystem particleSystem = emission.GetComponent<ParticleSystem>();
-			particleSystem.Simulate(0.10f, true);
-			particleSystem.Play(true);
+			emission.GetComponent<Emission> ().Amount = vehicle.getEmissionAmount ();
+			ParticleSystem particleSystem = emission.GetComponent<ParticleSystem> ();
+			particleSystem.Simulate (0.10f, true);
+			particleSystem.Play (true);
 
-			StartCoroutine(destroyEmission(particleSystem));
+			StartCoroutine (destroyEmission (particleSystem));
+		} else if (message == "mainCameraActivated") {
+			CameraHandler.InitialZoom ();
 		}
 	}
 
@@ -743,5 +758,9 @@ public class Game : MonoBehaviour, IPubSub {
 		yield return new WaitForSeconds (emission.duration);
 		cameraEmission += emission.gameObject.GetComponent<Emission> ().Amount;
 		Destroy (emission.gameObject);
+	}
+
+	public static bool isRunning () {
+		return Game.running;
 	}
 }

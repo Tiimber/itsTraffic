@@ -48,6 +48,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
 	private bool showOnlyCurrentLevel = false;
 	private bool followCar = false;
+	private Vector3 prevMousePosition;
 
 	private Dictionary<long, Dictionary<string, string>> objectProperties = new Dictionary<long, Dictionary<string, string>>();
 
@@ -104,10 +105,43 @@ public class Game : MonoBehaviour, IPubSub {
 				Vehicle.detachCurrentCamera ();
 				mainCamera.enabled = true;
 			}
-		} else if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
+		}
+
+		// Left mouse button
+		if (Input.GetMouseButton (0)) {
+			bool firstFrame = Input.GetMouseButtonDown (0);
+			Vector3 mousePosition = Input.mousePosition;
+
+			if (!firstFrame) {
+				Vector3 diffMove = mousePosition - prevMousePosition;
+				CameraHandler.Move(diffMove);
+			}
+			prevMousePosition = mousePosition;
+		}
+
+		if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
 			float scrollAmount = Input.GetAxis ("Mouse ScrollWheel");
 //			Debug.Log (scrollAmount);
 			CameraHandler.CustomZoom (scrollAmount);
+		}
+
+		// Touch interactions
+		if (Input.touchSupported) {
+			// Zoom
+			if (Input.touchCount == 2) {
+				Touch touchOne = Input.GetTouch (0);
+				Touch touchTwo = Input.GetTouch (1);
+
+				Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+				Vector2 touchTwoPrevPos = touchTwo.position - touchTwo.deltaPosition;
+
+				float prevTouchDeltaMag = (touchOnePrevPos - touchTwoPrevPos).magnitude;
+				float touchDeltaMag = (touchOne.position - touchTwo.position).magnitude;
+
+				float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+
+				CameraHandler.CustomZoom (-deltaMagnitudeDiff / 100f);
+			}
 		}
 
 		// Draw debugIndex stuff

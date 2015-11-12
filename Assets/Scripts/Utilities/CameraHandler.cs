@@ -37,6 +37,7 @@ public class CameraHandler {
 		while (t <= 1f) {
 			t += Time.deltaTime / time;
 			float targetZoom = main.orthographicSize + Mathf.SmoothStep(0f, amount, t);
+			// TODO - Clamp?
 			if (amount > 0f) {
 				targetZoom = Mathf.Min (targetZoom, MIN_ZOOM_LEVEL);
 			} else {
@@ -45,5 +46,30 @@ public class CameraHandler {
 			main.orthographicSize = targetZoom;
 			yield return t;
 		}
+	}
+
+	public static void Move(Vector3 move) {
+		float cameraSize = main.orthographicSize;
+		float screenHeight = Screen.height;
+		float screenDisplayFactor = cameraSize * 2f / screenHeight;
+
+		Vector3 adjustedMove = move * -1f;
+
+		Singleton<Game>.Instance.StartCoroutine (MoveWithVector(adjustedMove * screenDisplayFactor, 0.3f));
+	}
+
+	private static IEnumerator MoveWithVector (Vector3 moveVector, float time) {
+		float t = 0f;
+		Vector3 velocity = Vector3.zero;
+		Vector3 lastPosition = Vector3.zero;
+		while (t <= 1f) {
+			t += Time.deltaTime / time;
+			// TODO - Clamp?
+			Vector3 newPosition = Vector3.SmoothDamp(lastPosition, moveVector, ref velocity, time, Mathf.Infinity, t);
+			main.transform.position += newPosition - lastPosition;
+			lastPosition = newPosition;
+			yield return t;
+		}
+//		main.transform.position += moveVector;
 	}
 }

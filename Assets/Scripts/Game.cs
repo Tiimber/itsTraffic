@@ -41,6 +41,8 @@ public class Game : MonoBehaviour, IPubSub {
 	private static Rect cameraBounds;
 	private static Rect mapBounds;
 
+	// TODO - When switched to ortographic camera, set this in those objects
+	public static float cameraOrtographicSize = 5f;
 	public static float heightFactor;
 
 	private Vector3 oneVector = Vector3.right;
@@ -65,7 +67,8 @@ public class Game : MonoBehaviour, IPubSub {
 		StartCoroutine (MaterialManager.Init ());
 		StartCoroutine (loadXML ());
 
-		CameraHandler.setMainCamera (mainCamera);
+		CameraHandler.SetMinZoom (cameraOrtographicSize);
+		CameraHandler.SetMainCamera (mainCamera);
 		PubSub.subscribe ("mainCameraActivated", this);
 
 //		Time.timeScale = 0.1f;
@@ -438,10 +441,10 @@ public class Game : MonoBehaviour, IPubSub {
 
 //		Camera mainCamera = Camera.main;
 		// TODO - Take these out from the camera
-		float cameraMinX = -5F;
-		float cameraMinY = -5F;
-		float cameraMaxX = 5F;
-		float cameraMaxY = 5F;
+		float cameraMinX = -cameraOrtographicSize;
+		float cameraMinY = -cameraOrtographicSize;
+		float cameraMaxX = cameraOrtographicSize;
+		float cameraMaxY = cameraOrtographicSize;
 		cameraBounds = new Rect (cameraMinX, cameraMinY, cameraMaxX - cameraMinX, cameraMaxY - cameraMinY);
 
 		XmlNodeList nodeNodes = xmlDoc.SelectNodes("/osm/node");

@@ -2,14 +2,18 @@
 using UnityEngine;
 
 public class CameraHandler {
-	private const float MIN_ZOOM_LEVEL = 5f;
+	private static float MIN_ZOOM_LEVEL = 5f;
 	private const float MAX_ZOOM_LEVEL = 0.5f; // TODO - Adjust
 
 	private static float CalculatedOptimalZoom = 3.5f; // TODO - We want this to be automatic and depending on map and/or device type
 
 	private static Camera main;
 
-	public static void setMainCamera (Camera camera) {
+	public static void SetMinZoom (float zoom) {
+		CameraHandler.MIN_ZOOM_LEVEL = zoom;
+	}
+
+	public static void SetMainCamera (Camera camera) {
 		main = camera;
 	}
 
@@ -44,6 +48,7 @@ public class CameraHandler {
 				targetZoom = Mathf.Max (targetZoom, MAX_ZOOM_LEVEL);
 			}
 			main.orthographicSize = targetZoom;
+			Singleton<Game>.Instance.StartCoroutine (MoveWithVector(Vector3.zero, 0f, false));
 			yield return t;
 		}
 	}
@@ -58,18 +63,30 @@ public class CameraHandler {
 		Singleton<Game>.Instance.StartCoroutine (MoveWithVector(adjustedMove * screenDisplayFactor, 0.3f));
 	}
 
-	private static IEnumerator MoveWithVector (Vector3 moveVector, float time) {
+	private static IEnumerator MoveWithVector (Vector3 moveVector, float time, bool doAnimate = true) {
 		float t = 0f;
 		Vector3 velocity = Vector3.zero;
 		Vector3 lastPosition = Vector3.zero;
-		while (t <= 1f) {
-			t += Time.deltaTime / time;
-			// TODO - Clamp?
-			Vector3 newPosition = Vector3.SmoothDamp(lastPosition, moveVector, ref velocity, time, Mathf.Infinity, t);
-			main.transform.position += newPosition - lastPosition;
-			lastPosition = newPosition;
-			yield return t;
+
+		Vector3 targetPosition = main.transform.position + moveVector;
+		float cameraSize = main.orthographicSize;
+		float maxOffset = MIN_ZOOM_LEVEL - cameraSize;
+
+		moveVector.x = Mathf.Clamp (targetPosition.x, -maxOffset, maxOffset) - main.transform.position.x;
+		moveVector.y = Mathf.Clamp (targetPosition.y, -maxOffset, maxOffset) - main.transform.position.y;
+
+		if (doAnimate && time > 0f) {
+			while (t <= 1f) {
+				t += Time.deltaTime / time;
+				Vector3 newPosition = Vector3.SmoothDamp (lastPosition, moveVector, ref velocity, time, Mathf.Infinity, t);
+				main.transform.position += newPosition - lastPosition;
+				lastPosition = newPosition;
+				yield return t;
+			}
+		} else {
+			// TODO - This is also for low end devices
+			main.transform.position += moveVector;
+			yield return time;
 		}
-//		main.transform.position += moveVector;
 	}
 }

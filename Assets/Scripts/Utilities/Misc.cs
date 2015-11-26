@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class Misc{
@@ -21,5 +22,9 @@ public class Misc{
 	public static long currentTimeMillis()
 	{
 		return (long) ((DateTime.UtcNow - Jan1st1970).TotalMilliseconds);
+	}
+
+	public static List<T> CloneBaseNodeList<T> (List<T> list) where T: MonoBehaviour {
+		return new List<T> (list);
 	}
 }

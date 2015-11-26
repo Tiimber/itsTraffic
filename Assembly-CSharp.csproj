@@ -98,6 +98,7 @@
      <Compile Include="Assets\Scripts\Utilities\Misc.cs" />
      <Compile Include="Assets\Scripts\Utilities\ScreenWipe.cs" />
      <Compile Include="Assets\Scripts\Utilities\Singleton.cs" />
+     <Compile Include="Assets\Scripts\Utilities\WayHelper.cs" />
      <Compile Include="Assets\Scripts\Utilities\WayObjectEndPoint.cs" />
      <Compile Include="Assets\Scripts\Utilities\WayObjectStraight.cs" />
      <Compile Include="Assets\Scripts\Utilities\buildingBaseLayoutGeneration_R01.cs" />
@@ -119,17 +120,11 @@
      <None Include="Assets\Standard Assets\Cameras\CameraGuidelines.txt" />
      <None Include="Assets\Shaders\PlainShader.shader" />
      <None Include="Assets\Cardboard\Resources\SolidColor.shader" />
- <Reference Include="UnityEngine.Advertisements">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
- </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.Analytics">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>/Applications/Unity/Unity.app/Contents/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>

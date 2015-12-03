@@ -142,19 +142,25 @@ public class WayLine : MonoBehaviour {
 	}
 
 	public static void CreateCurved (GameObject parent, long key, List<WayReference> wayReferences) {
-		WayReference firstReference = wayReferences [0];
-	
 		// Make sure to only make dashed lines if the number of fields are the same in the way direction
 		WayReference firstWayReference = wayReferences [0];
 		WayReference secondWayReference = wayReferences [1];
-		bool makeDashedLines = firstWayReference.getNumberOfFieldsInDirection(true) == secondWayReference.getNumberOfFieldsInDirection(false);
-//		Debug.Log (makeDashedLines);
 
-		if (firstReference.way.WayWidthFactor >= LIMIT_WAYWIDTH && firstReference.way.CarWay) {
+		bool firstIsNode1 = firstWayReference.isNode1 (NodeIndex.getPosById (key));
+		bool secondIsNode1 = secondWayReference.isNode1 (NodeIndex.getPosById (key));
+
+		float firstFieldsTowardsPos = firstWayReference.getNumberOfFieldsInDirection(!firstIsNode1);
+		float secondFieldsFromPos = secondWayReference.getNumberOfFieldsInDirection(secondIsNode1);
+
+		float secondFieldsTowardsPos = secondWayReference.getNumberOfFieldsInDirection(!secondIsNode1);
+		float firstFieldsFromPos = firstWayReference.getNumberOfFieldsInDirection(firstIsNode1);
+		bool makeDashedLines = firstFieldsTowardsPos == secondFieldsFromPos && secondFieldsTowardsPos == firstFieldsFromPos;
+
+		if (firstWayReference.way.WayWidthFactor >= LIMIT_WAYWIDTH && firstWayReference.way.CarWay) {
 //			createOuterLines (reference);
 			CreateCurvedMiddleLine (parent, key, wayReferences);
 			if (makeDashedLines) {
-//				createDashedLines (reference);
+				CreateCurvedDashedLines (parent, key, wayReferences);
 			}
 		}
 	}
@@ -218,11 +224,161 @@ public class WayLine : MonoBehaviour {
 		AddBezierPoints (linePoints, waySecondMiddleLineBottomPos, waySecondRotation, wayFirstMiddleLineBottomPos, wayFirstRotation);
 
 		GameObject lineMiddle = MapSurface.createPlaneMeshForPoints (linePoints);
-		lineMiddle.name = "Middle line";
+		lineMiddle.name = "Curved middle line";
 		WayLine.SetWhiteMaterial (lineMiddle);
 		lineMiddle.transform.SetParent (parent.transform);
 		lineMiddle.transform.localPosition = new Vector3(0, 0, -0.01f);
+	}
 
+	private static void CreateCurvedDashedLines (GameObject parent, long key, List<WayReference> wayReferences)
+	{
+		GameObject curveDashedLines = new GameObject ();
+		curveDashedLines.name = "Curved dashed lines";
+		curveDashedLines.transform.SetParent(parent.transform);
+		curveDashedLines.transform.localPosition = Vector3.zero;
+
+		Pos centerPos = NodeIndex.getPosById (key);
+		Vector3 posPosition = Game.getCameraPosition (centerPos);
+
+		WayReference firstReference = wayReferences [0];
+		WayReference secondReference = wayReferences [1];
+
+		bool firstIsNode1 = firstReference.isNode1 (centerPos);
+		bool secondIsNode1 = secondReference.isNode1 (centerPos);
+
+		GameObject wayFirst = firstReference.gameObject;
+		GameObject waySecond = secondReference.gameObject;
+
+		// Number of fields in opposite direction
+		float fieldsFromPos2 = firstReference.getNumberOfFieldsInDirection (false);
+		
+		// Number of fields in own direction
+		float fieldsFromPos1 = firstReference.getNumberOfFieldsInDirection (true);
+		
+		// Number of fields in total
+		float numberOfFields = firstReference.getNumberOfFields ();
+		
+		List<float> dashedLineFields = new List<float> ();
+		for (float field = 1; field < fieldsFromPos2; field++) {
+			dashedLineFields.Add (field);
+		}
+		
+		for (float field = 1; field < fieldsFromPos1; field++) {
+			dashedLineFields.Add (fieldsFromPos2 + field);
+		}
+		
+		// Way width
+		float wayHeight = wayFirst.transform.localScale.y;
+		float wayHeightCompensated = wayHeight - GetLineHeight()*2f;
+		foreach (float field in dashedLineFields) {
+			GameObject curveDashes = new GameObject ();
+			curveDashes.name = "Curved dashes";
+			curveDashes.transform.SetParent(curveDashedLines.transform);
+			curveDashes.transform.localPosition = Vector3.zero;
+
+			// Percentual position of way width, where to put middle line
+			float percentualPositionY = field / numberOfFields;
+
+			// Get our points (center in y-axis)
+			Vector3 firstPosMiddle = posPosition + wayFirst.transform.rotation * new Vector3((firstIsNode1 ? 1 : -1) * wayHeight / 2f, -wayHeightCompensated / 2f + GetLineHeight() + percentualPositionY * wayHeightCompensated - GetDashedLineHeight() / 2f, 0);
+			Vector3 secondPosMiddle = posPosition + waySecond.transform.rotation * new Vector3((secondIsNode1 ? 1 : -1) * wayHeight / 2f, -wayHeightCompensated / 2f + GetLineHeight() + percentualPositionY * wayHeightCompensated - GetDashedLineHeight() / 2f, 0);
+
+			Vector3 halfDashedLineHeight = new Vector3(0, GetDashedLineHeight() / 2f, 0);
+
+			// Get our points (top in y-axis)
+			Vector3 firstPosTop = firstPosMiddle - wayFirst.transform.rotation * halfDashedLineHeight;
+			Vector3 secondPosTop = secondPosMiddle - waySecond.transform.rotation * halfDashedLineHeight;
+
+			// Get our points (bottom in y-axis)
+			Vector3 firstPosBottom = firstPosMiddle + wayFirst.transform.rotation * halfDashedLineHeight;
+			Vector3 secondPosBottom = secondPosMiddle + waySecond.transform.rotation * halfDashedLineHeight;
+
+			Quaternion firstRotation = firstIsNode1 ? WayHelper.ONEEIGHTY_DEGREES * wayFirst.transform.rotation : wayFirst.transform.rotation;
+			Quaternion secondRotation = secondIsNode1 ? WayHelper.ONEEIGHTY_DEGREES * waySecond.transform.rotation : waySecond.transform.rotation;
+			Vector3 firstDirection = firstRotation * Vector3.right;
+			Vector3 secondDirection = secondRotation * Vector3.right;
+
+			Vector3 intersectionPoint;
+			Vector3 intersectionPointTop;
+			Vector3 intersectionPointBottom;
+			bool intersectionFound = Math3d.LineLineIntersection (out intersectionPoint, firstPosMiddle, firstDirection, secondPosMiddle, secondDirection);
+			if (!intersectionFound && firstRotation.eulerAngles.z == secondRotation.eulerAngles.z) {
+				intersectionFound = true;
+				intersectionPoint = firstPosMiddle + ((secondPosMiddle - firstPosMiddle) / 2);
+				intersectionPointTop = firstPosTop + ((secondPosTop - firstPosTop) / 2);
+				intersectionPointBottom = firstPosBottom + ((secondPosBottom - firstPosBottom) / 2);
+			} else {
+				Math3d.LineLineIntersection (out intersectionPointTop, firstPosTop, firstDirection, secondPosTop, secondDirection);
+				Math3d.LineLineIntersection (out intersectionPointBottom, firstPosBottom, firstDirection, secondPosBottom, secondDirection);
+
+			}
+
+			// TODO - Shouldn't be needed - debug only
+//			if (!intersectionFound) {
+//				Debug.Log ("ERR: " + key);
+//				return;
+//			}
+
+			// 1. Get bezier length for curve
+			float bezierLength = Math3d.GetBezierLength (firstPosMiddle, intersectionPoint, secondPosMiddle);
+			
+			// 2. Decide how many dashes to fit, with gaps (also calculate each dash and gap length)
+			// If only one line
+			float numberOfLines = 1f; 
+			float dashedLineWidth = bezierLength;
+			float dashedLineGap = 0f;
+			// If more lines
+			if (bezierLength > DASHED_LINE_WIDTH + CITY_DASHED_LINE_GAP) {
+				float totalWidth = 0f;
+				for ( numberOfLines = 2f ;  ; numberOfLines++) {
+					totalWidth = DASHED_LINE_WIDTH + (DASHED_LINE_WIDTH + CITY_DASHED_LINE_GAP) * (numberOfLines - 1);
+					if (totalWidth >= bezierLength) {
+						break;
+					}
+				}
+				dashedLineWidth = DASHED_LINE_WIDTH * bezierLength / totalWidth;
+				dashedLineGap = CITY_DASHED_LINE_GAP * bezierLength / totalWidth;
+			}
+
+			
+			// 3. Calculate each dash along the line t (time) on bezier curve 
+			List<KeyValuePair<float, float>> dashTimes = new List<KeyValuePair<float, float>> ();
+			if (numberOfLines == 1f) {
+				dashTimes.Add(new KeyValuePair<float, float>(0f, 1f));
+			} else {
+				dashTimes.Add(new KeyValuePair<float, float>(0f, dashedLineWidth / bezierLength));
+				for (float lineStart = dashedLineWidth + dashedLineGap; lineStart < bezierLength; lineStart += dashedLineWidth + dashedLineGap) {
+					float lineStartTime = lineStart / bezierLength;
+					dashTimes.Add(new KeyValuePair<float, float>(lineStartTime, lineStartTime + dashedLineWidth / bezierLength));
+				}
+			}
+
+			foreach (KeyValuePair<float, float> dashTime in dashTimes) {
+				float startTime = dashTime.Key;
+				float endTime = dashTime.Value;
+				float dashLengthPercent = endTime - startTime;
+				float numberOfPoints = Mathf.Max(bezierLength / dashLengthPercent * WayHelper.BEZIER_RESOLUTION, 4f);
+				float eachPointTime = dashLengthPercent / numberOfPoints;
+
+				List<Vector3> dashPoints = new List<Vector3>();
+
+				// Top line
+				for (float t = startTime; t <= endTime; t += eachPointTime) {
+					dashPoints.Add (Math3d.GetVectorInBezierAtTime (t, firstPosTop, intersectionPointTop, secondPosTop));
+				}
+
+				// Bottom line
+				for (float t = endTime; t >= startTime; t -= eachPointTime) {
+					dashPoints.Add (Math3d.GetVectorInBezierAtTime (t, firstPosBottom, intersectionPointBottom, secondPosBottom));
+				}
+
+				GameObject lineMiddle = MapSurface.createPlaneMeshForPoints (dashPoints);
+				lineMiddle.name = "Curved dash";
+				WayLine.SetWhiteMaterial (lineMiddle);
+				lineMiddle.transform.SetParent (curveDashes.transform);
+				lineMiddle.transform.localPosition = new Vector3(0, 0, -0.01f);
+			}
+		}
 	}
 
 	private static void AddBezierPoints (List<Vector3> meshPoints, Vector3 start, Quaternion startRotation, Vector3 end, Quaternion endRotation)

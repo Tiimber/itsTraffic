@@ -12,8 +12,8 @@ public class WayReference : MonoBehaviour {
 	public Pos node2 { set; get; }
 	public bool SmallWay;
 
-	public float fieldsFromPos1ToPos2 = 3f; 
-	public float fieldsFromPos2ToPos1 = 3f;
+	public float fieldsFromPos1ToPos2 = 2f; 
+	public float fieldsFromPos2ToPos1 = 1f;
 	public float getNumberOfFields () {
 		return fieldsFromPos1ToPos2 + fieldsFromPos2ToPos1;
 	}

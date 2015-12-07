@@ -266,7 +266,10 @@ public class WayLine : MonoBehaviour {
 		for (float field = 1; field < fieldsFromPos1; field++) {
 			dashedLineFields.Add (fieldsFromPos2 + field);
 		}
-		
+
+		// If ways have same "isNode1", invert y-axis for second way
+		bool isSameNode1 = firstIsNode1 == secondIsNode1;
+
 		// Way width
 		float wayHeight = wayFirst.transform.localScale.y;
 		float wayHeightCompensated = wayHeight - GetLineHeight()*2f;
@@ -280,18 +283,24 @@ public class WayLine : MonoBehaviour {
 			float percentualPositionY = field / numberOfFields;
 
 			// Get our points (center in y-axis)
-			Vector3 firstPosMiddle = posPosition + wayFirst.transform.rotation * new Vector3((firstIsNode1 ? 1 : -1) * wayHeight / 2f, -wayHeightCompensated / 2f + GetLineHeight() + percentualPositionY * wayHeightCompensated - GetDashedLineHeight() / 2f, 0);
-			Vector3 secondPosMiddle = posPosition + waySecond.transform.rotation * new Vector3((secondIsNode1 ? 1 : -1) * wayHeight / 2f, -wayHeightCompensated / 2f + GetLineHeight() + percentualPositionY * wayHeightCompensated - GetDashedLineHeight() / 2f, 0);
+			float yPositionInWay = percentualPositionY * wayHeightCompensated;
+			float dashYMiddle = -wayHeightCompensated / 2f + GetLineHeight() + yPositionInWay - GetDashedLineHeight() / 2f;
+			float dashYMiddleSameNode1 = wayHeightCompensated / 2f - yPositionInWay + GetDashedLineHeight() / 2f;
+
+			Vector3 firstPosMiddle = posPosition + wayFirst.transform.rotation * new Vector3((firstIsNode1 ? 1 : -1) * wayHeight / 2f, dashYMiddle, 0);
+			Vector3 secondPosMiddle = posPosition + waySecond.transform.rotation * new Vector3((secondIsNode1 ? 1 : -1) * wayHeight / 2f, isSameNode1 ? dashYMiddleSameNode1 : dashYMiddle, 0);
 
 			Vector3 halfDashedLineHeight = new Vector3(0, GetDashedLineHeight() / 2f, 0);
 
 			// Get our points (top in y-axis)
-			Vector3 firstPosTop = firstPosMiddle - wayFirst.transform.rotation * halfDashedLineHeight;
-			Vector3 secondPosTop = secondPosMiddle - waySecond.transform.rotation * halfDashedLineHeight;
+			Vector3 wayFirstHalfDashedHeight = wayFirst.transform.rotation * halfDashedLineHeight;
+			Vector3 waySecondHalfDashedHeight = waySecond.transform.rotation * halfDashedLineHeight;
+			Vector3 firstPosTop = firstPosMiddle - wayFirstHalfDashedHeight;
+			Vector3 secondPosTop = secondPosMiddle + (isSameNode1 ? 1 : -1) * waySecondHalfDashedHeight;
 
 			// Get our points (bottom in y-axis)
-			Vector3 firstPosBottom = firstPosMiddle + wayFirst.transform.rotation * halfDashedLineHeight;
-			Vector3 secondPosBottom = secondPosMiddle + waySecond.transform.rotation * halfDashedLineHeight;
+			Vector3 firstPosBottom = firstPosMiddle + wayFirstHalfDashedHeight;
+			Vector3 secondPosBottom = secondPosMiddle + (isSameNode1 ? -1 : 1) *  waySecondHalfDashedHeight;
 
 			Quaternion firstRotation = firstIsNode1 ? WayHelper.ONEEIGHTY_DEGREES * wayFirst.transform.rotation : wayFirst.transform.rotation;
 			Quaternion secondRotation = secondIsNode1 ? WayHelper.ONEEIGHTY_DEGREES * waySecond.transform.rotation : waySecond.transform.rotation;
@@ -314,10 +323,10 @@ public class WayLine : MonoBehaviour {
 			}
 
 			// TODO - Shouldn't be needed - debug only
-//			if (!intersectionFound) {
-//				Debug.Log ("ERR: " + key);
-//				return;
-//			}
+			if (!intersectionFound) {
+				Debug.Log ("ERR: " + key);
+				return;
+			}
 
 			// 1. Get bezier length for curve
 			float bezierLength = Math3d.GetBezierLength (firstPosMiddle, intersectionPoint, secondPosMiddle);

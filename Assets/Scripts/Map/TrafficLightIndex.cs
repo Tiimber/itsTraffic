@@ -8,6 +8,7 @@ public class TrafficLightIndex
 {
 	private static List<TrafficLightLogic> TrafficLights = new List<TrafficLightLogic>();
 	private static Dictionary<TrafficLightLogic, Dictionary<TrafficLightIndex.RelationState, List<TrafficLightLogic>>> TrafficLightRelations = new Dictionary<TrafficLightLogic, Dictionary<TrafficLightIndex.RelationState, List<TrafficLightLogic>>> ();
+	public static Dictionary<long, List<TrafficLightLogic>> TrafficLightsForPos = new Dictionary<long, List<TrafficLightLogic>> (); 
 
 	public static void AddTrafficLight (TrafficLightLogic trafficLight) {
 		TrafficLights.Add (trafficLight);
@@ -18,6 +19,8 @@ public class TrafficLightIndex
 		AutosetTrafficLightProperties ();
 		// Index them to keep a map with each traffic light, and know which are in same crossing, oppose or on the sides
 		BuildTrafficLightIndex ();
+		// Create a traffic light collider for interacting
+		CreateTrafficLightColliders ();
 	}
 
 	public static void ApplyConfig (XmlNode objectNode) {
@@ -56,6 +59,13 @@ public class TrafficLightIndex
 
 	private static void BuildTrafficLightIndex () {
 		foreach (TrafficLightLogic trafficLight in TrafficLights) {
+			// Add to our Pos.id -> [trafficLight] dictionary
+			long posId = trafficLight.getPos().Id;
+			if (!TrafficLightsForPos.ContainsKey (posId)) {
+				TrafficLightsForPos.Add (posId, new List<TrafficLightLogic>());
+			}
+			TrafficLightsForPos [posId].Add(trafficLight);
+
 			foreach (TrafficLightLogic otherTrafficLight in TrafficLights) {
 				if (trafficLight != otherTrafficLight && trafficLight.getPos ().Equals (otherTrafficLight.getPos())) {
 					// This traffic light is either same light or opposite to it
@@ -114,6 +124,10 @@ public class TrafficLightIndex
 				otherDirectionLight.setState (otherState);
 			}
 		}
+	}
+
+	private static void CreateTrafficLightColliders () {
+		// TODO - For each pos in TrafficLightsForPos, create a spherecollider, add custom script and logic for it
 	}
 	
 	private enum RelationState {

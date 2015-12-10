@@ -6,6 +6,7 @@ public class TrafficLightLogic : MonoBehaviour {
 	private float timeBetweenSwitches = 5f;
 	private bool switching = false;
 	private State state = State.NOT_INITIALISED;
+	private State endState = State.NOT_INITIALISED;
 	private Light lightObj = null;
 
 	private GameObject redLightObject = null;
@@ -21,6 +22,8 @@ public class TrafficLightLogic : MonoBehaviour {
 	private Color lightRed = new Color(1f, 0f, 0f);
 
 	public string Id { set; get; }
+
+	private Coroutine currentCoroutine = null;
 
 	public void setProperties (Pos pos, float rotation, Pos otherPos) {
 		setPos (pos);
@@ -101,17 +104,26 @@ public class TrafficLightLogic : MonoBehaviour {
 		}
 	}
 
+	public void manualSwitch() {
+		if (currentCoroutine != null) {
+			StopCoroutine(currentCoroutine);
+			state = endState;
+		}
+		StartSwitchLights ();
+	}
+
 	private void StartSwitchLights () {
 		switching = true;
 		if (state == State.GREEN) {
-			StartCoroutine (switchColors (State.RED));
+			currentCoroutine = StartCoroutine (switchColors (State.RED));
 		} else if (state == State.RED) {
-			StartCoroutine (switchColors (State.GREEN));
+			currentCoroutine = StartCoroutine (switchColors (State.GREEN));
 		}
 		timeToSwitch = timeBetweenSwitches;
 	}
 
 	private IEnumerator switchColors (State endState) {
+		this.endState = endState;
 		state = State.YELLOW;
 		setLightState ();
 		yield return new WaitForSeconds (2f);

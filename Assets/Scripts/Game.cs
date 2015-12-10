@@ -112,6 +112,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		// Left mouse button
 		if (Input.GetMouseButton (0)) {
+			// Drag logic
 			bool firstFrame = Input.GetMouseButtonDown (0);
 			Vector3 mousePosition = Input.mousePosition;
 
@@ -120,6 +121,12 @@ public class Game : MonoBehaviour, IPubSub {
 				CameraHandler.Move(diffMove);
 			}
 			prevMousePosition = mousePosition;
+
+			// Click logic
+			if (firstFrame) {
+				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint(mousePosition);
+				PubSub.publish ("Click", mouseWorldPoint);
+			}
 		}
 
 		if (Input.GetAxis ("Mouse ScrollWheel") != 0) {

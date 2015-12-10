@@ -87,7 +87,7 @@ public class TrafficLightIndex
 			}
 		}
 	}
-
+	
 	private static TrafficLightLogic GetTrafficLightById (string id) {
 		TrafficLightLogic trafficLight = null;
 		foreach (TrafficLightLogic light in TrafficLights) {
@@ -127,7 +127,30 @@ public class TrafficLightIndex
 	}
 
 	private static void CreateTrafficLightColliders () {
-		// TODO - For each pos in TrafficLightsForPos, create a spherecollider, add custom script and logic for it
+		// For each pos in TrafficLightsForPos, register an entry in TrafficLightToggle, with position and radius
+		foreach (KeyValuePair<long, List<TrafficLightLogic>> trafficLightGroup in TrafficLightsForPos) {
+			long posId = trafficLightGroup.Key;
+			Pos centerPos = NodeIndex.getPosById (posId);
+			float maxDistance = 0f;
+			Vector3 centerPosCameraPosition = Game.getCameraPosition (centerPos);
+		
+			// Get max distance from crossing
+			foreach (TrafficLightLogic trafficLight in trafficLightGroup.Value) {
+				maxDistance = Mathf.Max( Vector2.Distance (trafficLight.transform.position, centerPosCameraPosition), maxDistance);
+			}
+
+			// Double the maxDistance to get a somewhat bigger touch area
+			TrafficLightToggle.Add (posId, centerPosCameraPosition, maxDistance * 2f);
+		}
+		TrafficLightToggle.Start ();
+	}
+
+	public static void toggleLightsForPos (long posId) {
+		// Get lights for pos
+		List<TrafficLightLogic> trafficLights = TrafficLightsForPos [posId];
+		foreach (TrafficLightLogic trafficLight in trafficLights) {
+			trafficLight.manualSwitch ();
+		}
 	}
 	
 	private enum RelationState {

@@ -92,6 +92,7 @@
      <Compile Include="Assets\Scripts\NodeDistance.cs" />
      <Compile Include="Assets\Scripts\PolygonTester.cs" />
      <Compile Include="Assets\Scripts\Settings.cs" />
+     <Compile Include="Assets\Scripts\TrafficLightToggle.cs" />
      <Compile Include="Assets\Scripts\Triangulator.cs" />
      <Compile Include="Assets\Scripts\Utilities\CameraHandler.cs" />
      <Compile Include="Assets\Scripts\Utilities\DebugFn.cs" />

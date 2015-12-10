@@ -648,9 +648,12 @@ public class Game : MonoBehaviour, IPubSub {
 
 		// Check if this way has a traffic light, and add it
 		// TODO - Lift out into method...
-		// TODO - Consider when there are less fields in one direction, y position of traffic light should be adjusted
-		Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, 0, 0);
 		if (previousPos.getTagValue ("crossing") == "traffic_signals") {
+			float fieldsInOppositeDirection = wayReference.getNumberOfFieldsInDirection (currentPos);
+			float fieldsTotal = wayReference.getNumberOfFields ();
+			float percentagePosYFromMiddle = fieldsInOppositeDirection / fieldsTotal - 0.5f;
+
+			Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, way.transform.localScale.y * percentagePosYFromMiddle, 0);
 			Vector3 rotatedAdjustPos = rotation * adjustPos;
 			Vector3 lightPosition = new Vector3(position1.x + rotatedAdjustPos.x, position1.y + rotatedAdjustPos.y, -0.15f);
 			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, 0, 180f)) * trafficLight.transform.rotation;
@@ -660,6 +663,11 @@ public class Game : MonoBehaviour, IPubSub {
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
 		}
 		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
+			float fieldsInSameDirection = wayReference.getNumberOfFieldsInDirection (previousPos);
+			float fieldsTotal = wayReference.getNumberOfFields ();
+			float percentagePosYFromMiddle = fieldsInSameDirection / fieldsTotal - 0.5f;
+
+			Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, way.transform.localScale.y * percentagePosYFromMiddle, 0);
 			Vector3 rotatedAdjustPos = rotation * adjustPos;
 			Vector3 lightPosition = new Vector3(position2.x - rotatedAdjustPos.x, position2.y - rotatedAdjustPos.y, -0.15f);
 			Quaternion lightRotation = rotation * trafficLight.transform.rotation;

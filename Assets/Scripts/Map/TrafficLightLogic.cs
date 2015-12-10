@@ -133,7 +133,7 @@ public class TrafficLightLogic : MonoBehaviour {
 	}
 
 	private void setLightState () {
-		lightObj.color = state == State.RED ? lightRed : lightGreen;
+		lightObj.color = (state == State.RED ? lightRed : (state == State.GREEN ? lightGreen : lightYellow));
 		redLightObject.SetActive (state == State.RED);
 		yellowLightObject.SetActive (state == State.YELLOW);
 		greenLightObject.SetActive (state == State.GREEN);

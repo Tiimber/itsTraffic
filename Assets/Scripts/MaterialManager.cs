@@ -34,7 +34,7 @@ public class MaterialManager {
 		if (!Directory.Exists (downloadedMaterialsFolder)) {
 			Directory.CreateDirectory (downloadedMaterialsFolder);
 			string listInitData = "# Type|ID-Name.png|width|height\n";
-			//File.AppendAllText(downloadedMaterialsFolder + "list.txt", listInitData);
+			File.AppendAllText(downloadedMaterialsFolder + "list.txt", listInitData);
 		}
 
 		WWW downloadedMaterialsList = new WWW (localMaterialBaseUrl + "list.txt");
@@ -153,9 +153,9 @@ public class MaterialManager {
 			if (!Directory.Exists (textureTargetFolder)) {
 				Directory.CreateDirectory (textureTargetFolder);
 			}
-			//File.WriteAllBytes (textureFullFilePath, pngData);
+			File.WriteAllBytes (textureFullFilePath, pngData);
 			string materialListEntry = type + "|" + StripFilename(filename, false) + "|" + size.Key + "|" + size.Value + "\n";
-			//File.AppendAllText(downloadedMaterialsFolder + "list.txt", materialListEntry);		
+			File.AppendAllText(downloadedMaterialsFolder + "list.txt", materialListEntry);		
 		}
 
 		// Now to create a simple material with the texture

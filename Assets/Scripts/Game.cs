@@ -649,9 +649,10 @@ public class Game : MonoBehaviour, IPubSub {
 		// Check if this way has a traffic light, and add it
 		// TODO - Lift out into method...
 		if (previousPos.getTagValue ("crossing") == "traffic_signals") {
-			float fieldsInOppositeDirection = wayReference.getNumberOfFieldsInDirection (currentPos);
+			float fieldsInOppositeDirection = wayReference.getNumberOfFieldsInDirection (previousPos);
 			float fieldsTotal = wayReference.getNumberOfFields ();
-			float percentagePosYFromMiddle = fieldsInOppositeDirection / fieldsTotal - 0.5f;
+			float colliderPercentageY = fieldsInOppositeDirection / fieldsTotal;
+			float percentagePosYFromMiddle = -(fieldsInOppositeDirection / fieldsTotal - 0.5f);
 
 			Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, way.transform.localScale.y * percentagePosYFromMiddle, 0);
 			Vector3 rotatedAdjustPos = rotation * adjustPos;
@@ -661,11 +662,12 @@ public class Game : MonoBehaviour, IPubSub {
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
 			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z, currentPos);
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
-			setTrafficLightCollider (trafficLightInstance, wayReference, percentagePosYFromMiddle, true);
+			setTrafficLightCollider (trafficLightInstance, wayReference, colliderPercentageY, true);
 		}
 		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
 			float fieldsInSameDirection = wayReference.getNumberOfFieldsInDirection (previousPos);
 			float fieldsTotal = wayReference.getNumberOfFields ();
+			float colliderPercentageY = fieldsInSameDirection / fieldsTotal;
 			float percentagePosYFromMiddle = fieldsInSameDirection / fieldsTotal - 0.5f;
 
 			Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, way.transform.localScale.y * percentagePosYFromMiddle, 0);
@@ -676,16 +678,16 @@ public class Game : MonoBehaviour, IPubSub {
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
 			trafficLightInstance.setProperties (currentPos, rotation.eulerAngles.z, previousPos);
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
-			setTrafficLightCollider (trafficLightInstance, wayReference, percentagePosYFromMiddle, false);
+			setTrafficLightCollider (trafficLightInstance, wayReference, colliderPercentageY, false);
 		}
 
 		return wayReference;
 	}
 
-	private void setTrafficLightCollider (TrafficLightLogic trafficLightInstance, WayReference wayReference, float percentagePosYFromMiddle, bool isNode1) {
+	private void setTrafficLightCollider (TrafficLightLogic trafficLightInstance, WayReference wayReference, float colliderPercentageY, bool isNode1) {
 		float lightColliderHeightFactor = 20.3f / 0.255f;
 		float wayHeight = wayReference.gameObject.transform.localScale.y;
-		float percentageHeight = isNode1 ? (percentagePosYFromMiddle + 0.5f) : 1f - (percentagePosYFromMiddle + 0.5f);
+		float percentageHeight = isNode1 ? colliderPercentageY : 1f - colliderPercentageY;
 		float lightColliderAbsoluteHeight = wayHeight * percentageHeight;
 		float lightColliderHeight = lightColliderAbsoluteHeight * lightColliderHeightFactor;
 		BoxCollider redCollider = trafficLightInstance.gameObject.transform.FindChild ("Red").gameObject.GetComponent<BoxCollider> ();	

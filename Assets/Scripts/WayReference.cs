@@ -12,18 +12,19 @@ public class WayReference : MonoBehaviour {
 	public Pos node2 { set; get; }
 	public bool SmallWay;
 
+	// TODO - This is named wrong!
 	public float fieldsFromPos1ToPos2 = 2f; 
 	public float fieldsFromPos2ToPos1 = 1f;
 	public float getNumberOfFields () {
 		return fieldsFromPos1ToPos2 + fieldsFromPos2ToPos1;
 	}
 
-	public float getNumberOfFieldsInDirection (Pos fromPosition) {
-		return isNode1 (fromPosition) ? fieldsFromPos1ToPos2 : fieldsFromPos2ToPos1;
+	public float getNumberOfFieldsInDirection (Pos toPosition) {
+		return isNode1 (toPosition) ? fieldsFromPos1ToPos2 : fieldsFromPos2ToPos1;
 	}
 
-	public float getNumberOfFieldsInDirection (bool fromPos1) {
-		return fromPos1 ? fieldsFromPos1ToPos2 : fieldsFromPos2ToPos1;
+	public float getNumberOfFieldsInDirection (bool toPos) {
+		return toPos ? fieldsFromPos1ToPos2 : fieldsFromPos2ToPos1;
 	}
 
 	// TODO - Flag if one-way (and if so, in which direction)

@@ -661,6 +661,7 @@ public class Game : MonoBehaviour, IPubSub {
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
 			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z, currentPos);
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
+			setTrafficLightCollider (trafficLightInstance, wayReference, percentagePosYFromMiddle, true);
 		}
 		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
 			float fieldsInSameDirection = wayReference.getNumberOfFieldsInDirection (previousPos);
@@ -675,9 +676,28 @@ public class Game : MonoBehaviour, IPubSub {
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
 			trafficLightInstance.setProperties (currentPos, rotation.eulerAngles.z, previousPos);
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
+			setTrafficLightCollider (trafficLightInstance, wayReference, percentagePosYFromMiddle, false);
 		}
 
 		return wayReference;
+	}
+
+	private void setTrafficLightCollider (TrafficLightLogic trafficLightInstance, WayReference wayReference, float percentagePosYFromMiddle, bool isNode1) {
+		float lightColliderHeightFactor = 20.3f / 0.255f;
+		float wayHeight = wayReference.gameObject.transform.localScale.y;
+		float percentageHeight = isNode1 ? (percentagePosYFromMiddle + 0.5f) : 1f - (percentagePosYFromMiddle + 0.5f);
+		float lightColliderAbsoluteHeight = wayHeight * percentageHeight;
+		float lightColliderHeight = lightColliderAbsoluteHeight * lightColliderHeightFactor;
+		BoxCollider redCollider = trafficLightInstance.gameObject.transform.FindChild ("Red").gameObject.GetComponent<BoxCollider> ();	
+		Vector3 redColliderSize = new Vector3 (lightColliderHeight, redCollider.size.y, redCollider.size.z);
+		redCollider.size = redColliderSize;
+		Vector3 redColliderCenter = new Vector3 (lightColliderHeight / 2f, redCollider.center.y, redCollider.center.z);
+		redCollider.center = redColliderCenter;
+		BoxCollider yellowCollider = trafficLightInstance.gameObject.transform.FindChild ("Yellow").gameObject.GetComponent<BoxCollider> ();	
+		Vector3 yellowColliderSize = new Vector3 (lightColliderHeight, yellowCollider.size.y, yellowCollider.size.z);
+		yellowCollider.size = yellowColliderSize;
+		Vector3 yellowColliderCenter = new Vector3 (lightColliderHeight / 2f, yellowCollider.center.y, yellowCollider.center.z);
+		yellowCollider.center = yellowColliderCenter;
 	}
 
 	private GameObject createMiddleOfWay (GameObject way) {

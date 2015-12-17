@@ -7,9 +7,9 @@ public class NodeIndex
 	
 	public static Dictionary<long, List<WayReference>> nodeWayIndex = new Dictionary<long, List<WayReference>>();
 	
-	public static Dictionary<long, List<WayReference>> endPointIndex;
-	public static Dictionary<long, List<WayReference>> straightWayIndex;
-	public static Dictionary<long, List<WayReference>> intersectionWayIndex;
+	public static Dictionary<long, List<WayReference>> endPointIndex = new Dictionary<long, List<WayReference>>();
+	public static Dictionary<long, List<WayReference>> straightWayIndex = new Dictionary<long, List<WayReference>>();
+	public static Dictionary<long, List<WayReference>> intersectionWayIndex = new Dictionary<long, List<WayReference>>();
 	
 	public static Dictionary<long, List<WayReference>> buildingOutlines = new Dictionary<long, List<WayReference>>();
 	

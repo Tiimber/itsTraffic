@@ -67,7 +67,6 @@
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\CardboardAndroidDevice.cs" />
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\CardboardiOSDevice.cs" />
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\UnityEditorDevice.cs" />
-     <Compile Include="Assets\LightLogic.cs" />
      <Compile Include="Assets\Scripts\AutomaticMaterialObject.cs" />
      <Compile Include="Assets\Scripts\BuildingRoof.cs" />
      <Compile Include="Assets\Scripts\Emission.cs" />
@@ -75,6 +74,7 @@
      <Compile Include="Assets\Scripts\Interfaces\IPubSub.cs" />
      <Compile Include="Assets\Scripts\Interfaces\PubSub.cs" />
      <Compile Include="Assets\Scripts\LanduseSurface.cs" />
+     <Compile Include="Assets\Scripts\LightLogic.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\Map\BaseNode.cs" />
      <Compile Include="Assets\Scripts\Map\IdNode.cs" />
@@ -91,6 +91,8 @@
      <Compile Include="Assets\Scripts\MaterialManager.cs" />
      <Compile Include="Assets\Scripts\Math3d.cs" />
      <Compile Include="Assets\Scripts\NodeDistance.cs" />
+     <Compile Include="Assets\Scripts\PointDigit.cs" />
+     <Compile Include="Assets\Scripts\Points.cs" />
      <Compile Include="Assets\Scripts\PolygonTester.cs" />
      <Compile Include="Assets\Scripts\Settings.cs" />
      <Compile Include="Assets\Scripts\TrafficLightToggle.cs" />

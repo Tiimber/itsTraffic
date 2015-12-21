@@ -13,6 +13,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 	public Camera mainCamera;
 	public Camera introCamera;
+	public Camera pointsCamera;
 
 	public static Game instance;
 	private int animationItemsQueue = 0;
@@ -108,13 +109,18 @@ public class Game : MonoBehaviour, IPubSub {
 				Vehicle.detachCurrentCamera ();
 				mainCamera.enabled = true;
 			}
+		} else if (Input.GetKeyDown (KeyCode.Q)) {
+			PubSub.publish("points:inc", 13579);
+		} else if (Input.GetKeyDown (KeyCode.W)) {
+			PubSub.publish("points:dec", 24680);
 		}
 
-		foreach(KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
-		{
-			if (Input.GetKeyDown(kcode))
-				Debug.Log("KeyCode down: " + kcode);
-		}
+
+//		foreach(KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
+//		{
+//			if (Input.GetKeyDown(kcode))
+//				Debug.Log("KeyCode down: " + kcode);
+//		}
 
 		// Left mouse button
 		if (Input.GetMouseButton (0)) {
@@ -813,6 +819,7 @@ public class Game : MonoBehaviour, IPubSub {
 			StartCoroutine (destroyEmission (particleSystem));
 		} else if (message == "mainCameraActivated") {
 			CameraHandler.InitialZoom ();
+			pointsCamera.enabled = true;
 		}
 	}
 

@@ -617,6 +617,8 @@ public class Vehicle: MonoBehaviour {
 	private void fadeOutAndDestroy () {
 		// TODO - Can we do a fade out?
 		Destroy (this.gameObject);
+		// TODO - Calculate points based on time, distance, or whatever...
+		PubSub.publish ("points:inc", 100);
 	}
 
 	private class CollisionObj<T> {

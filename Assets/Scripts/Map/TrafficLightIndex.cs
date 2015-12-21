@@ -55,7 +55,6 @@ public class TrafficLightIndex
 					float lightRotation = Mathf.Abs((relatedTrafficLight.getRotation () - firstLightRotation) % 180f);
 					TrafficLightLogic.State state = lightRotation > 45f && lightRotation <= 135f ? TrafficLightLogic.State.GREEN : TrafficLightLogic.State.RED;
 					relatedTrafficLight.setState(state);
-					Debug.Log ("State: " + state);
 				}
 			}
 		}

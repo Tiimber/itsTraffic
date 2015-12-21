@@ -67,6 +67,7 @@
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\CardboardAndroidDevice.cs" />
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\CardboardiOSDevice.cs" />
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\UnityEditorDevice.cs" />
+     <Compile Include="Assets\LightLogic.cs" />
      <Compile Include="Assets\Scripts\AutomaticMaterialObject.cs" />
      <Compile Include="Assets\Scripts\BuildingRoof.cs" />
      <Compile Include="Assets\Scripts\Emission.cs" />
@@ -111,6 +112,7 @@
      <Compile Include="Assets\Sources\LightningBolt.cs" />
      <None Include="Assets\Cardboard\Resources\SkyboxMesh.shader" />
      <None Include="Assets\Cardboard\Distortion\CardboardDistortion.cginc" />
+     <None Include="Assets\TODO\todo.txt" />
      <None Include="Assets\GameObjects\clouds\material\shader\CloudShader.shader" />
      <None Include="Assets\Cardboard\Resources\UnlitTexture.shader" />
      <None Include="Assets\Cardboard\Legacy\Resources\GUIScreen.shader" />

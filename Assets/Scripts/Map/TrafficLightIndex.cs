@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using System.Collections;
 
 public class TrafficLightIndex
 {
@@ -21,6 +22,8 @@ public class TrafficLightIndex
 		BuildTrafficLightIndex ();
 		// Create a traffic light collider for interacting
 		CreateTrafficLightColliders ();
+		// Tell all traffic light to update their "lit" light status
+		Singleton<Game>.Instance.StartCoroutine (SetTrafficLightStates ());
 	}
 
 	public static void ApplyConfig (XmlNode objectNode) {
@@ -52,6 +55,7 @@ public class TrafficLightIndex
 					float lightRotation = Mathf.Abs((relatedTrafficLight.getRotation () - firstLightRotation) % 180f);
 					TrafficLightLogic.State state = lightRotation > 45f && lightRotation <= 135f ? TrafficLightLogic.State.GREEN : TrafficLightLogic.State.RED;
 					relatedTrafficLight.setState(state);
+					Debug.Log ("State: " + state);
 				}
 			}
 		}
@@ -150,6 +154,13 @@ public class TrafficLightIndex
 		List<TrafficLightLogic> trafficLights = TrafficLightsForPos [posId];
 		foreach (TrafficLightLogic trafficLight in trafficLights) {
 			trafficLight.manualSwitch ();
+		}
+	}
+
+	private static IEnumerator SetTrafficLightStates () {
+		yield return new WaitForSeconds (0.1f);
+		foreach (TrafficLightLogic trafficLight in TrafficLights) {
+			trafficLight.manualStart ();
 		}
 	}
 	

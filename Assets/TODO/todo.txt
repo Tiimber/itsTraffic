@@ -1,0 +1,37 @@
+0070 - TrafficLight Collider.prefab
+0080 - Basic point system.prefab
+0090 - Vehicle collission handling.prefab
+0095 - Driver behaviour, backing, honking, (screw it, Im driving anyways), read road and car situation.prefab
+0100 - Crashes - 1 - cars blink and disappear.prefab
+0110 - Roundabouts.prefab
+0115 - Fade out old cars before removing them.prefab
+0120 - Bridges.prefab
+0130 - People.prefab
+0140 - Information window of people, vehicles, buildings....prefab
+0150 - Main menu.prefab
+0160 - Loading splash.prefab
+0170 - Sounds.prefab
+0175 - Controller support.prefab
+0180 - Radio - 1 - Background music.prefab
+0190 - Camera emission filter.prefab
+0195 - Vehicle lights, blinkers and headlights.prefab
+0200 - Register domain.prefab
+0210 - Create homepage 'placeholder'.prefab
+0220 - Swap Main Camera with Cardboard camera.prefab
+
+1000 - Kickstarter.prefab
+1010 - More car types.prefab
+1020 - Fix stuck cars.prefab
+1030 - Camera on people (overview).prefab
+1040 - Cardboard adaptations (pan instead of rotate...).prefab
+1050 - Android adaptions + zoom sensitivity.prefab
+1060 - iOS adaptions + zoom sensitivity.prefab
+1070 - Lives of pledgers.prefab
+1080 - Map setup (buses, weather, population).prefab
+1090 - Scenarios (static seed).prefab
+1100 - Points Of Interests.prefab
+1110 - Vehicle and Person waypoints.prefab
+1120 - Traffic Lights advanced menu (communication, auto switch on_off).prefab
+1130 - Material repository.prefab
+1140 - Advanced Point system.prefab
+1150 - OpenStreetMap collaboration.prefab

@@ -110,6 +110,12 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 
+		foreach(KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
+		{
+			if (Input.GetKeyDown(kcode))
+				Debug.Log("KeyCode down: " + kcode);
+		}
+
 		// Left mouse button
 		if (Input.GetMouseButton (0)) {
 			// Drag logic
@@ -661,8 +667,8 @@ public class Game : MonoBehaviour, IPubSub {
 			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
 			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z, currentPos);
+			trafficLightInstance.setColliders (wayReference, colliderPercentageY, true);
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
-			setTrafficLightCollider (trafficLightInstance, wayReference, colliderPercentageY, true);
 		}
 		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
 			float fieldsInSameDirection = wayReference.getNumberOfFieldsInDirection (previousPos);
@@ -677,31 +683,13 @@ public class Game : MonoBehaviour, IPubSub {
 			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
 			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
 			trafficLightInstance.setProperties (currentPos, rotation.eulerAngles.z, previousPos);
+			trafficLightInstance.setColliders (wayReference, colliderPercentageY, false);
 			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
-			setTrafficLightCollider (trafficLightInstance, wayReference, colliderPercentageY, false);
 		}
 
 		return wayReference;
 	}
-
-	private void setTrafficLightCollider (TrafficLightLogic trafficLightInstance, WayReference wayReference, float colliderPercentageY, bool isNode1) {
-		float lightColliderHeightFactor = 20.3f / 0.255f;
-		float wayHeight = wayReference.gameObject.transform.localScale.y;
-		float percentageHeight = isNode1 ? colliderPercentageY : 1f - colliderPercentageY;
-		float lightColliderAbsoluteHeight = wayHeight * percentageHeight;
-		float lightColliderHeight = lightColliderAbsoluteHeight * lightColliderHeightFactor;
-		BoxCollider redCollider = trafficLightInstance.gameObject.transform.FindChild ("Red").gameObject.GetComponent<BoxCollider> ();	
-		Vector3 redColliderSize = new Vector3 (lightColliderHeight, redCollider.size.y, redCollider.size.z);
-		redCollider.size = redColliderSize;
-		Vector3 redColliderCenter = new Vector3 (lightColliderHeight / 2f, redCollider.center.y, redCollider.center.z);
-		redCollider.center = redColliderCenter;
-		BoxCollider yellowCollider = trafficLightInstance.gameObject.transform.FindChild ("Yellow").gameObject.GetComponent<BoxCollider> ();	
-		Vector3 yellowColliderSize = new Vector3 (lightColliderHeight, yellowCollider.size.y, yellowCollider.size.z);
-		yellowCollider.size = yellowColliderSize;
-		Vector3 yellowColliderCenter = new Vector3 (lightColliderHeight / 2f, yellowCollider.center.y, yellowCollider.center.z);
-		yellowCollider.center = yellowColliderCenter;
-	}
-
+	
 	private GameObject createMiddleOfWay (GameObject way) {
 		WayReference wayReference = way.GetComponent<WayReference> ();
 

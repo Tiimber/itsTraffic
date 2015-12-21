@@ -77,8 +77,14 @@ public class TrafficLightLogic : MonoBehaviour {
 		Id = pos.Id + "," + otherPos.Id;
 	}
 
+	void Start() {
+		if (lightObj == null) {
+			manualStart ();
+		}
+	}
+
 	// Use this for initialization
-	void Start () {
+	public void manualStart () {
 		for (int i = 0; i < transform.childCount; i++) {
 			GameObject child = transform.GetChild (i).gameObject;
 			switch (child.name) {
@@ -93,7 +99,33 @@ public class TrafficLightLogic : MonoBehaviour {
 		setLightState ();
 		timeToSwitch = timeBetweenSwitches;
 	}
-	
+
+	public void setColliders (WayReference wayReference, float colliderPercentageY, bool isNode1) {
+		// Calculations for collider height
+		float lightColliderHeightFactor = 20.3f / 0.255f;
+		float wayHeight = wayReference.gameObject.transform.localScale.y;
+		float percentageHeight = isNode1 ? colliderPercentageY : 1f - colliderPercentageY;
+		float lightColliderAbsoluteHeight = wayHeight * percentageHeight;
+		float lightColliderHeight = lightColliderAbsoluteHeight * lightColliderHeightFactor;
+
+		// Calculations for collider length
+		float waySpeed = wayReference.way.WayWidthFactor;
+		float redLightColliderLength = (waySpeed / 0.85f) * 1200f; 
+		float yellowLightColliderLength = redLightColliderLength * 2f;
+
+		BoxCollider redCollider = transform.FindChild ("Red").GetComponent<BoxCollider> ();	
+		Vector3 redColliderSize = new Vector3 (lightColliderHeight, redLightColliderLength, redCollider.size.z);
+		redCollider.size = redColliderSize;
+		Vector3 redColliderCenter = new Vector3 (lightColliderHeight / 2f, redLightColliderLength / 2f, redCollider.center.z);
+		redCollider.center = redColliderCenter;
+		BoxCollider yellowCollider = transform.FindChild ("Yellow").gameObject.GetComponent<BoxCollider> ();	
+		Vector3 yellowColliderSize = new Vector3 (lightColliderHeight, yellowLightColliderLength, yellowCollider.size.z);
+		yellowCollider.size = yellowColliderSize;
+		Vector3 yellowColliderCenter = new Vector3 (lightColliderHeight / 2f, yellowLightColliderLength / 2f, yellowCollider.center.z);
+		yellowCollider.center = yellowColliderCenter;
+	}
+
+
 	// Update is called once per frame
 	void Update () {
 		if (!switching) {
@@ -132,11 +164,16 @@ public class TrafficLightLogic : MonoBehaviour {
 		switching = false;
 	}
 
-	private void setLightState () {
+	public void setLightState () {
 		lightObj.color = (state == State.RED ? lightRed : (state == State.GREEN ? lightGreen : lightYellow));
-		redLightObject.SetActive (state == State.RED);
-		yellowLightObject.SetActive (state == State.YELLOW);
-		greenLightObject.SetActive (state == State.GREEN);
+
+		LightLogic redLight = redLightObject.GetComponent<LightLogic> ();
+		LightLogic yellowLight = yellowLightObject.GetComponent<LightLogic> ();
+		LightLogic greenLight = greenLightObject.GetComponent<LightLogic> ();
+
+		redLight.setState (state);
+		yellowLight.setState (state);
+		greenLight.setState (state);
 	}
 
 	public enum State {

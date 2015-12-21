@@ -73,6 +73,7 @@
      <Compile Include="Assets\Standard Assets\CrossPlatformInput\Scripts\VirtualInput.cs" />
      <None Include="Assets\Cardboard\Resources\SkyboxMesh.shader" />
      <None Include="Assets\Cardboard\Distortion\CardboardDistortion.cginc" />
+     <None Include="Assets\TODO\todo.txt" />
      <None Include="Assets\GameObjects\clouds\material\shader\CloudShader.shader" />
      <None Include="Assets\Cardboard\Resources\UnlitTexture.shader" />
      <None Include="Assets\Cardboard\Legacy\Resources\GUIScreen.shader" />

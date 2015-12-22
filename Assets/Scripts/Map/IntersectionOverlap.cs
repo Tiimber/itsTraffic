@@ -5,10 +5,16 @@ using System.Linq;
 
 public class IntersectionOverlap {
 
+	private static bool off = false;
+
+
 	private const string CARWAY_MATERIAL_ID = "2002-Asphalt";
 	private const string SMALL_WAY_MATERIAL_ID = "2003-Asphalt-small";
 
 	public static void Create () {
+		if (off) {
+			return;
+		}
 		Dictionary<long, List<WayReference>> nodeWayIndex = NodeIndex.nodeWayIndex.
 			ToDictionary(
 				entry => entry.Key, 

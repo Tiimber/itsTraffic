@@ -116,10 +116,10 @@ public class BuildingRoof : MapSurface, IPubSub {
 	private IEnumerator applyMaterialsWhenAvailableThenExtrude (string materialId, string wallMaterialId) {
 		while (!MaterialManager.MaterialIndex.ContainsKey (materialId) || (wallMaterialId != null && !MaterialManager.MaterialIndex.ContainsKey(wallMaterialId))) {
 			yield return new WaitForSeconds (0.5f);
-			Debug.Log ("Waiting for materials: " + materialId + ", " + wallMaterialId);
+//			Debug.Log ("Waiting for materials: " + materialId + ", " + wallMaterialId);
 		}
 
-		Debug.Log ("Got materials: " + materialId + ", " + wallMaterialId);
+//		Debug.Log ("Got materials: " + materialId + ", " + wallMaterialId);
 		Material material = MaterialManager.MaterialIndex [materialId];
 		Material wallMaterial = wallMaterialId != null ? MaterialManager.MaterialIndex [wallMaterialId] : null;
 

@@ -12,7 +12,7 @@ public class LanduseSurface : MapSurface {
 		{"residential", new Color (0.2f, 0, 0)},
 		{"industrial", new Color (0.2f, 0.2f, 0)},
 		{"retail", new Color (0.2f, 0, 0.2f)},
-
+		{"cemetery", new Color (0.43f, 0.62f, 0.46f)},
 
 		{DEFAULT_TYPE, new Color (0, 1f, 0)}
 	};

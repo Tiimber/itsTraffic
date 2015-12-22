@@ -27,4 +27,15 @@ public class Misc{
 	public static List<T> CloneBaseNodeList<T> (List<T> list) where T: MonoBehaviour {
 		return new List<T> (list);
 	}
+
+	public static List<GameObject> NameStartsWith(string start) {
+		List<GameObject> matches = new List<GameObject> ();
+		GameObject[] gameObjects = GameObject.FindObjectsOfType (typeof(GameObject)) as GameObject[];
+		foreach (GameObject gameObject in gameObjects){
+			if (gameObject.name.StartsWith(start)) {
+				matches.Add (gameObject);
+			}
+		}
+		return matches;
+	}
 }

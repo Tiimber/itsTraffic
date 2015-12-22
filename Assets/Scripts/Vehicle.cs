@@ -201,6 +201,10 @@ public class Vehicle: MonoBehaviour {
 				return;
 			}
 			Vector3 positionMovement = new Vector3 (movementVector.x, movementVector.y, 0);
+//			if (float.IsNaN(positionMovement.x) || float.IsInfinity(positionMovement.x)) {
+//				positionMovement = Vector3.zero;
+//			}
+//			Debug.Log (positionMovement);
 			transform.position += positionMovement;
 			AccumulatedBezierDistance += positionMovement.magnitude;
 
@@ -282,6 +286,10 @@ public class Vehicle: MonoBehaviour {
 		// Set more vehicle profile properties here
 		SpeedFactor = Random.Range (0.8f, 1.2f);
 		Acceleration = Random.Range (2f, 3f);
+		if (slow) {
+			SpeedFactor = Random.Range (0.2f, 0.3f);
+			Acceleration = Random.Range (1f, 2f);
+		}
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
 		EmissionFactor = Random.Range (0.1f, 1.0f);
@@ -655,4 +663,7 @@ public class Vehicle: MonoBehaviour {
 			GUI.Label (new Rect (0, y += 20, 500, 20), "EndPos: " + EndPos.Id + "(" + NodeIndex.endPointIndex[EndPos.Id][0].Id + ")");
 		}
 	}
+
+	// TODO - Temporary stuffz
+	public bool slow = false;
 }

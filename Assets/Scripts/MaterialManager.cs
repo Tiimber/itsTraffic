@@ -23,7 +23,8 @@ public class MaterialManager {
 	public static Dictionary<string, Material> MaterialIndex = new Dictionary<string, Material>();
 
 	// Material list synced?
-	private static bool isSyncDone = false;
+	private static bool isSyncRemoteDone = false;
+	private static bool isSyncLocalDone = false;
 	// Before list synced, list of requested materials
 	private static List<KeyValuePair<string, string>> queuedMaterialsForAfterSync = new List<KeyValuePair<string, string>> ();
 
@@ -70,9 +71,10 @@ public class MaterialManager {
 					DownloadAndCreateMaterial (connection, id, type, MaterialAvailable [materialKey], materialKey, !isAvailableLocally);
 				}
 			} else {
-				if (isSyncDone) {
+				if (isSyncRemoteDone && isSyncLocalDone) {
 					// Material is missing, what to do?
-					Debug.LogWarning ("Couldn't find material for ID: " + id + " (" + type+ ")");
+					// TODO - This isn't correct - investigate later
+//					Debug.LogWarning ("Couldn't find material for ID: " + id + " (" + type+ ")");
 					yield return null;
 				} else {
 					queuedMaterialsForAfterSync.Add (new KeyValuePair<string, string>(id, type));
@@ -128,7 +130,11 @@ public class MaterialManager {
 			}
 		}
 		if (isRemoteMaterials) {
-			isSyncDone = true;
+			isSyncRemoteDone = true;
+		} else {
+			isSyncLocalDone = true;
+		}
+		if (isSyncLocalDone && isSyncRemoteDone) {
 			loadQueuedMaterials ();
 		}
 	}
@@ -163,11 +169,11 @@ public class MaterialManager {
 		material.mainTexture = materialTexture;
 
 		// Add it to our index
-		Debug.Log ("Adding to index: " + id);
+//		Debug.Log ("Adding to index: " + id);
 		MaterialIndex.Add (id, material);
-		Debug.Log ("Publishing Material: " + id);
+//		Debug.Log ("Publishing Material: " + id);
 		PubSub.publish("Material-" + id);
-		Debug.Log ("Material indexed: " + id);
+//		Debug.Log ("Material indexed: " + id);
 	}
 
 	private static string StripFilename (string name, bool alsoStripExtension = true) {

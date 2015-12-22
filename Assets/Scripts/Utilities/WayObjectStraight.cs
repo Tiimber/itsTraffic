@@ -5,10 +5,15 @@ using System.Collections.Generic;
 // TODO - Rename since fitting for straight and intersections
 public class WayObjectStraight {
 
+	private static bool off = false;
+
 	private static Vector3 DEGREES_90 = new Vector3 (0f, 0f, 90f);
 	private static Vector3 DEGREES_270 = new Vector3 (0f, 0f, 270f);
 
 	public static void create (long key, List<WayReference> wayReferences, string materialId) {
+		if (off) {
+			return;
+		}
 		Pos pos = NodeIndex.getPosById (key);
 
 		// Sort based on rotation in the point closest to the intersection

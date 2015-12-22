@@ -26,8 +26,10 @@ public class Game : MonoBehaviour, IPubSub {
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }
 	public static List<Pos> CurrentPath { set; get; }
 
-	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
-	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
+//	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
+	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08.osm";
+//	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
+	private string configFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
@@ -278,7 +280,16 @@ public class Game : MonoBehaviour, IPubSub {
 		PubSub.publish ("mainCameraActivated");
 	}
 
+	// TODO - Temporary counter
+//	int carNo = 0;
+
 	public void createNewCar () {
+
+		// TODO - Temporary counter
+//		if (carNo > 1) {
+//			return;
+//		}
+
 		Pos pos1 = getRandomEndPoint (null);
 		Pos pos2 = getRandomEndPoint (pos1);
 
@@ -286,7 +297,7 @@ public class Game : MonoBehaviour, IPubSub {
 //			new long[][] {
 ////				new long[] {20L, 340L}, // TODO - If heavy traffic, this might get stuck along the way
 ////				new long[] {340L, 20L},  // TODO - If heavy traffic, this might get stuck along the way
-////				new long[] {344L, 340L},
+//				new long[] {344L, 340L},
 ////				new long[] {340L, 344L},
 ////				new long[] {325L, 340L},
 ////				new long[] {325L, 20L}
@@ -295,12 +306,18 @@ public class Game : MonoBehaviour, IPubSub {
 //		Pos pos1 = randomEndpointPair [0];
 //		Pos pos2 = randomEndpointPair [1];
 
-//		Pos pos1 = getSpecificEndPoint (344L);
-//		Pos pos2 = getSpecificEndPoint (340L);
+//		Pos pos1 = getSpecificEndPoint (20L);
+//		Pos pos2 = getSpecificEndPoint (122L);
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
 		GameObject vehicleInstance = Instantiate (vehicle, position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
+
+		// TODO - Temporary counter
+//		if (carNo++ == 0) {
+//			vehicleObj.slow = true;
+//		}
+
 		vehicleObj.StartPos = pos1;
 		vehicleObj.CurrentPosition = pos1;
 		vehicleObj.EndPos = pos2;
@@ -515,8 +532,8 @@ public class Game : MonoBehaviour, IPubSub {
 		
 		yield return wwwConfig;
 
-		XmlDocument xmlDocConfig = new XmlDocument();
-		xmlDocConfig.LoadXml(wwwConfig.text);
+		XmlDocument xmlDocConfig = new XmlDocument ();
+		xmlDocConfig.LoadXml (wwwConfig.text);
 
 		XmlNodeList objectNodes = xmlDocConfig.SelectNodes ("//object");
 		foreach (XmlNode objectNode in objectNodes) {
@@ -534,27 +551,64 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 		// TODO move this to after all materials have finished loading
+		List<GameObject> allBuldingRoofs = Misc.NameStartsWith ("BuildingRoof (");
 		foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
-			GameObject gameObject =	GameObject.Find ("BuildingRoof (" + objectEntry.Key + ")");
-//			Debug.Log("BuildingRoof (" + objectEntry.Key + ")");
-			BuildingRoof buildingRoof = gameObject.GetComponent<BuildingRoof>();
-			buildingRoof.setProperties(objectEntry.Value);
+			GameObject buildingRoofObj = GameObject.Find ("BuildingRoof (" + objectEntry.Key + ")");
+			if (buildingRoofObj != null) {
+//				Debug.Log("BuildingRoof (" + objectEntry.Key + ")");
+				BuildingRoof buildingRoof = buildingRoofObj.GetComponent<BuildingRoof>();
+				buildingRoof.setProperties(objectEntry.Value);
+				allBuldingRoofs.Remove (buildingRoofObj);
+			}
+		}
+
+		if (allBuldingRoofs.Count > 0) {
+			Dictionary<string, string> standardRoof = new Dictionary<string, string> ();
+			standardRoof.Add ("material", "2");
+			standardRoof.Add ("wall", "1000");
+			foreach (GameObject buildingRoofObj in allBuldingRoofs) {
+				BuildingRoof buildingRoof = buildingRoofObj.GetComponent<BuildingRoof>();
+				string buildingRoofName = buildingRoofObj.name;
+				string buildingRoofId = buildingRoofName.Substring(buildingRoofName.IndexOf('(') + 1);
+				buildingRoofId = buildingRoofId.Substring(0, buildingRoofId.IndexOf(')'));
+
+				// Set height based on id
+				System.Random treeAngle = new System.Random(int.Parse(buildingRoofId));
+				int buildingHeight = treeAngle.Next (10, 40);
+				standardRoof.Add ("height", "" + buildingHeight);
+				standardRoof.Add ("id", buildingRoofId);
+				initRoofStreetOrOutdoors ("Roof", standardRoof); 
+
+				buildingRoof.setProperties(standardRoof);
+
+				standardRoof.Remove	("id");
+				standardRoof.Remove ("height");
+			}
 		}
 	}
 
-	private void initRoofStreetOrOutdoors (string type, XmlNode objectNode) {
-		long id = Convert.ToInt64(objectNode.Attributes.GetNamedItem ("id").Value);
-		Dictionary<string, string> properties = new Dictionary<string, string>();
-		foreach (XmlNode propertyNode in objectNode.ChildNodes) {
-			properties.Add(propertyNode.Name, propertyNode.InnerText);
-			switch (propertyNode.Name) {
-				case "material": StartCoroutine (MaterialManager.LoadMaterial(propertyNode.InnerText, type)); break;
-				case "wall": StartCoroutine (MaterialManager.LoadMaterial(propertyNode.InnerText, "Wall")); break;
+	private void initRoofStreetOrOutdoors (string type, Dictionary<string, string> properties) {
+		long id = long.Parse(properties["id"]);
+		foreach (KeyValuePair<string, string> property in properties) {
+			switch (property.Key) {
+				case "material": StartCoroutine (MaterialManager.LoadMaterial(property.Value, type)); break;
+				case "wall": StartCoroutine (MaterialManager.LoadMaterial(property.Value, "Wall")); break;
 				case "height": break;
 				default: break;
 			}
 		}
 		objectProperties.Add(id, properties);
+	}
+
+	private void initRoofStreetOrOutdoors (string type, XmlNode objectNode) {
+		Dictionary<string, string> properties = new Dictionary<string, string>();
+
+		string id = objectNode.Attributes.GetNamedItem ("id").Value;
+		properties.Add ("id", id);
+		foreach (XmlNode propertyNode in objectNode.ChildNodes) {
+			properties.Add(propertyNode.Name, propertyNode.InnerText);
+		}
+		initRoofStreetOrOutdoors (type, properties);
 	}
 	
 	private void addTags (NodeWithTags node, XmlNode xmlNode)
@@ -634,6 +688,10 @@ public class Game : MonoBehaviour, IPubSub {
 		wayObject.addWayReference (wayReference);
 
 		// Target value = wayObject.WayWidthFactor
+
+		// Roundabouts special logic
+		bool isRoundabout = wayObject.getTagValue("junction") == "roundabout";
+
 		float xStretchFactor = Vector3.Magnitude (wayVector) * Settings.wayLengthFactor;
 		float yStretchFactor = wayObject.WayWidthFactor * Settings.currentMapWidthFactor;
 		way.transform.localScale = new Vector3 (xStretchFactor * originalScale.x, yStretchFactor * originalScale.y, originalScale.z);

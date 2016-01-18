@@ -43,6 +43,10 @@ public class IntersectionOverlap {
 		CreateSmallerWays ();
 	}
 
+	static List<float> WITHOUT_INTERSECTION = new List<float>() {
+		WayTypeEnum.PLATFORM
+	}; 
+
 	public static void CreateSmallerWays () {
 
 		foreach (float wayType in WayTypeEnum.WayTypes) {

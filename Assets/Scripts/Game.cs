@@ -27,9 +27,9 @@ public class Game : MonoBehaviour, IPubSub {
 	public static List<Pos> CurrentPath { set; get; }
 
 //	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
-	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08.osm";
+	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
 //	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
-	private string configFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml";
+	private string configFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
@@ -460,6 +460,7 @@ public class Game : MonoBehaviour, IPubSub {
 		yield return www;
 
 		XmlDocument xmlDoc = new XmlDocument();
+		Debug.Log (www.url);
 		xmlDoc.LoadXml(www.text);
 
 		XmlNode boundsNode = xmlDoc.SelectSingleNode ("/osm/bounds");
@@ -639,14 +640,27 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 		if (way.Building) {
-			GameObject building = Instantiate(buildingObject) as GameObject;
-			BuildingRoof roof = building.GetComponent<BuildingRoof>();
-			roof.createBuildingWithXMLNode(xmlNode);
-		}
-		if (way.LandUse) {
-			GameObject landuse = Instantiate(landuseObject) as GameObject;
-			LanduseSurface surface = landuse.GetComponent<LanduseSurface>();
-			surface.createLanduseWithXMLNode(xmlNode, way);
+			GameObject building = Instantiate (buildingObject) as GameObject;
+			building.transform.position = new Vector3 (0f, 0f, -0.098f);
+			BuildingRoof roof = building.GetComponent<BuildingRoof> ();
+			roof.createBuildingWithXMLNode (xmlNode);
+		} else if (way.LandUse) {
+			GameObject landuse = Instantiate (landuseObject) as GameObject;
+			landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
+			LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
+			surface.createLanduseWithXMLNode (xmlNode, way);
+		} else { 
+			if (way.getTagValue ("area") == "yes") {
+				GameObject landuse = Instantiate (landuseObject) as GameObject;
+				landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
+				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
+				surface.createLanduseWithXMLNode (xmlNode, way, way.getWayType ());
+			} else if (way.WayWidthFactor == WayTypeEnum.PLATFORM) {
+				GameObject landuse = Instantiate (landuseObject) as GameObject;
+				landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
+				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
+				surface.createLanduseAreaWithXMLNode (xmlNode, way, way.getWayType (), WayTypeEnum.EXPANDED_PLATFORM);
+			}
 		}
 	}
 
@@ -704,7 +718,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 		// Create gameObject with graphics for middle of way -****-
 		// TODO - Name it, apply material...
-		GameObject middleOfWay = createMiddleOfWay (way);
+		bool drawFullWay = wayReference.way.WayWidthFactor == WayTypeEnum.PLATFORM;
+		GameObject middleOfWay = createMiddleOfWay (way, drawFullWay);
 
 		float colliderWidthPct = Mathf.Min (yStretchFactor / (xStretchFactor * 1.5f), 0.5f);
 		List<BoxCollider> colliders = wayReference.GetComponents<BoxCollider> ().ToList ();
@@ -754,7 +769,7 @@ public class Game : MonoBehaviour, IPubSub {
 		return wayReference;
 	}
 	
-	private GameObject createMiddleOfWay (GameObject way) {
+	private GameObject createMiddleOfWay (GameObject way, bool drawFullWay) {
 		WayReference wayReference = way.GetComponent<WayReference> ();
 
 		Vector3 wayPosition = way.transform.position;
@@ -762,8 +777,10 @@ public class Game : MonoBehaviour, IPubSub {
 		Vector3 fromPos = new Vector3 (wayPosition.x - wayScale.x / 2f, wayPosition.y - wayScale.y / 2f, 0);
 		Vector3 toPos = new Vector3 (wayPosition.x + wayScale.x / 2f, wayPosition.y + wayScale.y / 2f, 0);
 
-		fromPos += new Vector3 (wayScale.y / 2f, 0f, 0f);
-		toPos -= new Vector3 (wayScale.y / 2f, 0f, 0f);
+		if (!drawFullWay) {
+			fromPos += new Vector3 (wayScale.y / 2f, 0f, 0f);
+			toPos -= new Vector3 (wayScale.y / 2f, 0f, 0f);
+		}
 
 		Quaternion rotation = way.transform.rotation;
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);

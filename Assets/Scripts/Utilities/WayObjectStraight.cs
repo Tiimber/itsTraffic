@@ -133,6 +133,9 @@ public class WayObjectStraight {
 		
 		// TODO DEBUG ONLY
 		if (!intersectionFound) {
+			// TODO DEBUG ONLY
+			DebugFn.arrow (way1Left, way1IntersectionAngle, new Vector3(0.1f, 0f, 0f));
+			DebugFn.arrow (way2Right, way2IntersectionAngle, new Vector3(0.1f, 0f, 0f));
 			Debug.Log ("Complex Intersection point not found");
 //			Debug.Break ();
 		}

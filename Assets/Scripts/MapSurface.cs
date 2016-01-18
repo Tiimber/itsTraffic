@@ -25,6 +25,47 @@ public class MapSurface : MonoBehaviour {
 
 	}
 
+
+
+	protected void createMeshArea(XmlNode xmlNode, float wayWidthFactor) {
+		XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
+
+		// TODO create area from world positions
+		if (nodeRefs.Count >= 2) {
+			Vector2[] vertices2D = new Vector2[nodeRefs.Count * 2];
+			List<Vector2> forwardPoints = new List<Vector2> ();
+			List<Vector2> backwardPoints = new List<Vector2> ();
+			Vector2 prev = Misc.getWorldPos (nodeRefs.Item (0));;
+			Vector2 next = Misc.getWorldPos (nodeRefs.Item (1));
+
+			Quaternion deg90 = Quaternion.Euler(0, 0, 90);
+			Vector2 firstVector = next - prev;
+			firstVector = deg90 * firstVector.normalized * wayWidthFactor / 2;
+			forwardPoints.Add (prev + firstVector);
+			backwardPoints.Add (prev - firstVector);
+
+			for (int i = 1; i < nodeRefs.Count - 1; i++) {
+				Vector2 curr = next;
+				next = Misc.getWorldPos (nodeRefs.Item (i+1));
+				Vector2 midVector = next - prev;
+				midVector = deg90 * midVector.normalized * wayWidthFactor / 2;
+				forwardPoints.Add (curr + midVector);
+				backwardPoints.Add (curr - midVector);
+				prev = curr;
+			} 
+
+			Vector2 lastVector = next - prev;
+			lastVector = deg90 * lastVector.normalized * wayWidthFactor / 2;
+			forwardPoints.Add (next + lastVector);
+			backwardPoints.Add (next - lastVector);
+
+			forwardPoints.Reverse ();
+			backwardPoints.AddRange (forwardPoints);
+				
+			addMeshToGameObject (gameObject, backwardPoints.ToArray ());
+		}
+	}
+
 	private static void addMeshToGameObject (GameObject gameObject, Vector2[] vertices2D) {
 
 		// Use the triangulator to get indices for creating triangles

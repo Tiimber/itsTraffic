@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Xml;
 
-public class Misc{
+public class Misc {
+
 	public static byte[] GetBytes(string str)
 	{
 		byte[] bytes = new byte[str.Length * sizeof(char)];
@@ -38,4 +40,9 @@ public class Misc{
 		}
 		return matches;
 	}
+
+	public static Vector3 getWorldPos (XmlNode xmlNode) {
+		Pos pos = NodeIndex.nodes [Convert.ToInt64 (xmlNode.Value)];
+		return Game.getCameraPosition (pos);
+	} 
 }

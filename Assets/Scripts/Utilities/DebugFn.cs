@@ -31,6 +31,22 @@ public class DebugFn : MonoBehaviour
 		}
 	}
 
+	public static void print(Vector2 vector) {
+		if (enabled) {
+			Debug.Log ("Vector2 (" + vector.x + ", " + vector.y + ")");
+		}
+	}
+	
+	public static void print(List<Vector2> vectors) {
+		if (enabled) {
+			Debug.Log ("[");
+			foreach (Vector2 vector in vectors) {
+				print (vector);
+			}
+			Debug.Log ("]");
+		}
+	}
+
 	private static float X_LENGTH = 0.02f;
 
 	public static void arrow(Vector3 start, Vector3 eulerAngles, Vector3 lengthVector) {
@@ -54,6 +70,10 @@ public class DebugFn : MonoBehaviour
 		arrowFromTo (start, end);
 	}
 
+	public static void arrow(Vector2 start, Vector2 end) {
+		arrowFromTo (new Vector3(start.x, start.y), new Vector3(end.x, end.y));
+	}
+
 	public static void square(Vector3 pos) {
 		if (enabled) {
 			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), Color.yellow, float.MaxValue, false);
@@ -70,6 +90,14 @@ public class DebugFn : MonoBehaviour
 		if (enabled) {
 			Debug.DrawLine (bounds.center - bounds.size / 2f, bounds.center + bounds.size / 2f, Color.green, float.MaxValue, false);
 			Debug.DrawLine (bounds.center - new Vector3 (bounds.size.x, -bounds.size.y, bounds.size.z) / 2f, bounds.center + new Vector3 (bounds.size.x, -bounds.size.y, bounds.size.z) / 2f, Color.green, float.MaxValue, false);
+		}
+	}
+
+	public static void DrawOutline (List<Vector2> points) {
+		Vector2 prev = points.Last ();
+		foreach (Vector2 curr in points) {
+			arrow(prev, curr);
+			prev = curr;
 		}
 	}
 }

@@ -65,4 +65,13 @@ public class Way : NodeWithTags {
 			break;
 		}
 	}
+
+	public string getWayType() {
+		string wayType =  "unknown";
+		// TODO Take care of more area types
+		if (WayWidthFactor == WayTypeEnum.PLATFORM) {
+			wayType =  "platform";
+		}
+		return wayType;
+	}
 }

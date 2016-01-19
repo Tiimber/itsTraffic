@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public class WayLine : MonoBehaviour {
 
 	private const float LINE_HEIGHT = 0.002f;
-	private static float LIMIT_WAYWIDTH = WayTypeEnum.PEDESTRIAN;
 
 	private static float DASHED_LINE_WIDTH = 0.05f;
 	private static float CITY_DASHED_LINE_GAP = 0.04f;
@@ -23,7 +22,7 @@ public class WayLine : MonoBehaviour {
 
 	public void create (WayReference reference) {
 
-		if (reference.way.WayWidthFactor >= LIMIT_WAYWIDTH) {
+		if (reference.way.WayWidthFactor >= WayHelper.LIMIT_WAYWIDTH) {
 			drawSize = reference.gameObject.transform.localScale;
 			drawSize -= new Vector3(drawSize.y, 0f, 0f);
 
@@ -156,7 +155,7 @@ public class WayLine : MonoBehaviour {
 		float firstFieldsFromPos = firstWayReference.getNumberOfFieldsInDirection(firstIsNode1);
 		bool makeDashedLines = firstFieldsTowardsPos == secondFieldsFromPos && secondFieldsTowardsPos == firstFieldsFromPos;
 
-		if (firstWayReference.way.WayWidthFactor >= LIMIT_WAYWIDTH && firstWayReference.way.CarWay) {
+		if (firstWayReference.way.WayWidthFactor >= WayHelper.LIMIT_WAYWIDTH && firstWayReference.way.CarWay) {
 //			createOuterLines (reference);
 			CreateCurvedMiddleLine (parent, key, wayReferences);
 			if (makeDashedLines) {

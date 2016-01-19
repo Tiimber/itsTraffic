@@ -50,7 +50,12 @@ public class WayObjectStraight {
 
 		// Need waylines for all straight ways
 		if (wayReferences.Count == 2) {
-			WayLine.CreateCurved(intersectionObj, key, wayReferences);
+			bool wayQualifiedForCrossing = wayReferences[0].way.WayWidthFactor >= WayHelper.LIMIT_WAYWIDTH && wayReferences[0].way.CarWay;
+			if (pos.getTagValue("highway") == "crossing" && wayQualifiedForCrossing) {
+				DebugFn.square(Game.getCameraPosition(pos));
+			} else {
+				WayLine.CreateCurved(intersectionObj, key, wayReferences);
+			}
 		}
 	}
 

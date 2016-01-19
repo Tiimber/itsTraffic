@@ -27,9 +27,10 @@ public class Game : MonoBehaviour, IPubSub {
 	public static List<Pos> CurrentPath { set; get; }
 
 //	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
-	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
-//	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
-	private string configFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
+//	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
+	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
+	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
+//	private string configFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
@@ -731,42 +732,51 @@ public class Game : MonoBehaviour, IPubSub {
 		rightCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
 		rightCollider.center = new Vector3 (0.5f - colliderWidthPct / 2f, 0f, 0f);
 
-		// Check if this way has a traffic light, and add it
-		// TODO - Lift out into method...
-		if (previousPos.getTagValue ("crossing") == "traffic_signals") {
-			float fieldsInOppositeDirection = wayReference.getNumberOfFieldsInDirection (previousPos);
-			float fieldsTotal = wayReference.getNumberOfFields ();
-			float colliderPercentageY = fieldsInOppositeDirection / fieldsTotal;
-			float percentagePosYFromMiddle = -(fieldsInOppositeDirection / fieldsTotal - 0.5f);
-
-			Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, way.transform.localScale.y * percentagePosYFromMiddle, 0);
-			Vector3 rotatedAdjustPos = rotation * adjustPos;
-			Vector3 lightPosition = new Vector3(position1.x + rotatedAdjustPos.x, position1.y + rotatedAdjustPos.y, -0.15f);
-			Quaternion lightRotation = rotation * Quaternion.Euler(new Vector3(0, 0, 180f)) * trafficLight.transform.rotation;
-			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
-			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
-			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z, currentPos);
-			trafficLightInstance.setColliders (wayReference, colliderPercentageY, true);
-			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
-		}
-		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
-			float fieldsInSameDirection = wayReference.getNumberOfFieldsInDirection (previousPos);
-			float fieldsTotal = wayReference.getNumberOfFields ();
-			float colliderPercentageY = fieldsInSameDirection / fieldsTotal;
-			float percentagePosYFromMiddle = fieldsInSameDirection / fieldsTotal - 0.5f;
-
-			Vector3 adjustPos = new Vector3(way.transform.localScale.y / 2f, way.transform.localScale.y * percentagePosYFromMiddle, 0);
-			Vector3 rotatedAdjustPos = rotation * adjustPos;
-			Vector3 lightPosition = new Vector3(position2.x - rotatedAdjustPos.x, position2.y - rotatedAdjustPos.y, -0.15f);
-			Quaternion lightRotation = rotation * trafficLight.transform.rotation;
-			GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
-			TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic>();
-			trafficLightInstance.setProperties (currentPos, rotation.eulerAngles.z, previousPos);
-			trafficLightInstance.setColliders (wayReference, colliderPercentageY, false);
-			TrafficLightIndex.AddTrafficLight (trafficLightInstance);
-		}
+		HandleWayTags (previousPos, currentPos, way, rotation);
 
 		return wayReference;
+	}
+
+	void HandleWayTags (Pos previousPos, Pos currentPos, GameObject way, Quaternion rotation) {
+
+		// Check if this way has a traffic light, and add it
+		if (previousPos.getTagValue ("crossing") == "traffic_signals") {
+			HandleTrafficSignalForNode (previousPos, currentPos, way, rotation, true);
+		}
+		if (currentPos.getTagValue ("crossing") == "traffic_signals") {
+			HandleTrafficSignalForNode (previousPos, currentPos, way, rotation, false);
+		}
+	}
+	
+	void HandleTrafficSignalForNode (Pos previousPos, Pos currentPos, GameObject way, Quaternion rotation, bool isNode1)
+	{
+		Vector3 position1 = getCameraPosition (previousPos);
+		Vector3 position2 = getCameraPosition (currentPos);
+		WayReference wayReference = way.GetComponent<WayReference> ();
+		float fieldsInRelevantDirection = wayReference.getNumberOfFieldsInDirection (previousPos);
+		float fieldsTotal = wayReference.getNumberOfFields ();
+		float colliderPercentageY = fieldsInRelevantDirection / fieldsTotal;
+		float percentagePosYFromMiddle = (isNode1 ? -1f : 1f) * (fieldsInRelevantDirection / fieldsTotal - 0.5f);
+		Vector3 adjustPos = new Vector3 (way.transform.localScale.y / 2f, way.transform.localScale.y * percentagePosYFromMiddle, 0);
+		Vector3 rotatedAdjustPos = rotation * adjustPos;
+		Vector3 lightPosition;
+		Quaternion lightRotation;
+		if (isNode1) {
+			lightPosition = new Vector3(position1.x + rotatedAdjustPos.x, position1.y + rotatedAdjustPos.y, -0.15f);
+			lightRotation = rotation * Quaternion.Euler(new Vector3(0, 0, 180f)) * trafficLight.transform.rotation;
+		} else {
+			lightPosition = new Vector3 (position2.x - rotatedAdjustPos.x, position2.y - rotatedAdjustPos.y, -0.15f);
+			lightRotation = rotation * trafficLight.transform.rotation;
+		}
+		GameObject light = Instantiate (trafficLight, lightPosition, lightRotation) as GameObject;
+		TrafficLightLogic trafficLightInstance = light.GetComponent<TrafficLightLogic> ();
+		if (isNode1) {
+			trafficLightInstance.setProperties (previousPos, rotation.eulerAngles.z, currentPos);
+		} else {
+			trafficLightInstance.setProperties (currentPos, rotation.eulerAngles.z, previousPos);
+		}
+		trafficLightInstance.setColliders (wayReference, colliderPercentageY, isNode1);
+		TrafficLightIndex.AddTrafficLight (trafficLightInstance);
 	}
 	
 	private GameObject createMiddleOfWay (GameObject way, bool drawFullWay) {

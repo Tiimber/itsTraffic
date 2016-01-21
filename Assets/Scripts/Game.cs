@@ -40,6 +40,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public GameObject trafficLight;
 	public GameObject treeObject;
 	public GameObject vehicleEmission;
+	public GameObject wayCrossing;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;

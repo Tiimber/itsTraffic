@@ -53,6 +53,7 @@ public class WayObjectStraight {
 			bool wayQualifiedForCrossing = wayReferences[0].way.WayWidthFactor >= WayHelper.LIMIT_WAYWIDTH && wayReferences[0].way.CarWay;
 			if (pos.getTagValue("highway") == "crossing" && wayQualifiedForCrossing) {
 				DebugFn.square(Game.getCameraPosition(pos));
+				WayCrossing.Create (intersectionObj, key, wayReferences);
 			} else {
 				WayLine.CreateCurved(intersectionObj, key, wayReferences);
 			}

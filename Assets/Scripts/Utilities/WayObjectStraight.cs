@@ -7,9 +7,6 @@ public class WayObjectStraight {
 
 	private static bool off = false;
 
-	private static Vector3 DEGREES_90 = new Vector3 (0f, 0f, 90f);
-	private static Vector3 DEGREES_270 = new Vector3 (0f, 0f, 270f);
-
 	public static void create (long key, List<WayReference> wayReferences, string materialId) {
 		if (off) {
 			return;
@@ -52,7 +49,6 @@ public class WayObjectStraight {
 		if (wayReferences.Count == 2) {
 			bool wayQualifiedForCrossing = wayReferences[0].way.WayWidthFactor >= WayHelper.LIMIT_WAYWIDTH && wayReferences[0].way.CarWay;
 			if (pos.getTagValue("highway") == "crossing" && wayQualifiedForCrossing) {
-				DebugFn.square(Game.getCameraPosition(pos));
 				WayCrossing.Create (intersectionObj, key, wayReferences);
 			} else {
 				WayLine.CreateCurved(intersectionObj, key, wayReferences);
@@ -124,8 +120,8 @@ public class WayObjectStraight {
 		Vector3 way2Right = intersectionPos + way2Rotation * new Vector3(way2.transform.localScale.y / 2f, way2.transform.localScale.y / 2f , 0f);
 
 		// Angles looking towards intersection of ways
-		Vector3 way1IntersectionAngle = (way1IsNode1 ? DEGREES_90 : DEGREES_270) + way1.transform.rotation.eulerAngles;
-		Vector3 way2IntersectionAngle = (way2IsNode1 ? DEGREES_270 : DEGREES_90) + way2.transform.rotation.eulerAngles;
+		Vector3 way1IntersectionAngle = (way1IsNode1 ? WayHelper.DEGREES_90_VECTOR : WayHelper.DEGREES_270_VECTOR) + way1.transform.rotation.eulerAngles;
+		Vector3 way2IntersectionAngle = (way2IsNode1 ? WayHelper.DEGREES_270_VECTOR : WayHelper.DEGREES_90_VECTOR) + way2.transform.rotation.eulerAngles;
 		
 //		// TODO DEBUG ONLY
 //		DebugFn.arrow (way1Left, way1IntersectionAngle, new Vector3(0.1f, 0f, 0f));
@@ -226,8 +222,8 @@ public class WayObjectStraight {
 				Vector3 way2Right = intersectionPos + way2Rotation * new Vector3(way2.transform.localScale.y / 2f, way2.transform.localScale.y / 2f , 0f);
 				
 				// Angles looking towards intersection of ways
-				Vector3 way1IntersectionAngle = (way1IsNode1 ? DEGREES_90 : DEGREES_270) + way1.transform.rotation.eulerAngles;
-				Vector3 way2IntersectionAngle = (way2IsNode1 ? DEGREES_270 : DEGREES_90) + way2.transform.rotation.eulerAngles;
+				Vector3 way1IntersectionAngle = (way1IsNode1 ? WayHelper.DEGREES_90_VECTOR : WayHelper.DEGREES_270_VECTOR) + way1.transform.rotation.eulerAngles;
+				Vector3 way2IntersectionAngle = (way2IsNode1 ? WayHelper.DEGREES_270_VECTOR : WayHelper.DEGREES_90_VECTOR) + way2.transform.rotation.eulerAngles;
 				
 //				// TODO DEBUG ONLY
 //				DebugFn.arrow (way1Left, way1IntersectionAngle, new Vector3(0.1f, 0f, 0f));

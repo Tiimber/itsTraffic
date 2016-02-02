@@ -499,12 +499,16 @@ public class Game : MonoBehaviour, IPubSub {
 		XmlNodeList wayNodes = xmlDoc.SelectNodes("/osm/way");
 		foreach (XmlNode xmlNode in wayNodes) {
 			XmlAttributeCollection attributes = xmlNode.Attributes;
-			Way way = new Way(Convert.ToInt64(attributes.GetNamedItem("id").Value));
+			long wayId = Convert.ToInt64 (attributes.GetNamedItem ("id").Value);
+			Way way = new Way (wayId);
 			addTags(way, xmlNode);
 			addNodes(way, xmlNode);
 
 			Map.Ways.Add(way);
+			Map.WayIndex.Add (wayId, way);
 		}
+
+		handleRelations (xmlDoc);
 
 //		Pos testPos1 = NodeIndex.getPosById (266706407L);
 //		Pos testPos2 = NodeIndex.getPosById (29524373L);
@@ -576,8 +580,8 @@ public class Game : MonoBehaviour, IPubSub {
 				buildingRoofId = buildingRoofId.Substring(0, buildingRoofId.IndexOf(')'));
 
 				// Set height based on id
-				System.Random treeAngle = new System.Random(int.Parse(buildingRoofId));
-				int buildingHeight = treeAngle.Next (10, 40);
+				System.Random builingHeight = new System.Random(int.Parse(buildingRoofId));
+				int buildingHeight = builingHeight.Next (10, 40);
 				standardRoof.Add ("height", "" + buildingHeight);
 				standardRoof.Add ("id", buildingRoofId);
 				initRoofStreetOrOutdoors ("Roof", standardRoof); 
@@ -654,16 +658,39 @@ public class Game : MonoBehaviour, IPubSub {
 		} else { 
 			if (way.getTagValue ("area") == "yes") {
 				GameObject landuse = Instantiate (landuseObject) as GameObject;
-				landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
+				landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
 				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
 				surface.createLanduseWithXMLNode (xmlNode, way, way.getWayType ());
 			} else if (way.WayWidthFactor == WayTypeEnum.PLATFORM) {
 				GameObject landuse = Instantiate (landuseObject) as GameObject;
-				landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
+				landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
 				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
 				surface.createLanduseAreaWithXMLNode (xmlNode, way, way.getWayType (), WayTypeEnum.EXPANDED_PLATFORM);
 			}
 		}
+	}
+
+	void handleRelations (XmlDocument xmlDoc) {
+		XmlNodeList relationNodes = xmlDoc.SelectNodes("/osm/relation");
+		foreach (XmlNode xmlNode in relationNodes) {
+
+			string xmlNodeId = xmlNode.Attributes ["id"].Value;
+			XmlNode xmlNodeBuildingTag = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='building' and @v='yes']");
+			if (xmlNodeBuildingTag != null) {
+				XmlAttribute xmlNodeWayOuterAttribute = (XmlAttribute) xmlNode.SelectSingleNode ("/osm/relation[@id='" + xmlNodeId + "']/member[@role='outer']/@ref");
+				string outerWallWayId = xmlNodeWayOuterAttribute.Value;
+				XmlNode wayNode = xmlDoc.SelectSingleNode ("/osm/way[@id='" + outerWallWayId + "']");
+				XmlNode wayNodeIsBuilding = xmlDoc.SelectSingleNode ("/osm/way[@id='" + outerWallWayId + "']/tag[@k='building' and @v='yes']");
+
+				if (wayNodeIsBuilding == null) {
+					GameObject building = Instantiate (buildingObject) as GameObject;
+					building.transform.position = new Vector3 (0f, 0f, -0.098f);
+					BuildingRoof roof = building.GetComponent<BuildingRoof> ();
+					roof.createBuildingWithXMLNode (wayNode);
+				}
+			}
+		}
+		// TODO Subtract inner walls from the outer mesh.
 	}
 
 	private WayReference createPartOfWay (Pos previousPos, Pos currentPos, Way wayObject)

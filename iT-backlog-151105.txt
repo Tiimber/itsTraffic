@@ -1,0 +1,53 @@
+0010 - Randomize new cars
+0020 - Remove old cars
+0030 - Camera zoom (pinch or wheel)
+0040 - Camera pan
+0050 - Curved lines
+0060 - Traffic Light Control
+0070 - TrafficLight Collider
+0080 - Basic point system
+0090 - Vehicle collission handling
+0100 - Crashes - 1 - cars blink and disappear
+0110 - Roundabouts
+0120 - Bridges
+0130 - People
+0140 - Information window of people, vehicles, buildings...
+0150 - Main menu
+0160 - Loading splash
+0170 - Sounds
+0180 - Radio - 1 - Background music
+0190 - Camera emission filter
+0200 - Register domain
+0210 - Create homepage
+1000 - Kickstarter
+1010 - More car types
+1020 - Fix stuck cars
+1030 - Camera on people (overview)
+1040 - Cardboard adaptations (pan instead of rotate...)
+1050 - Android adaptions functionality
+1060 - iOS adaptions
+1070 - Lives of pledgers
+1080 - Map setup (buses, weather, population)
+1090 - Scenarios (static seed)
+1100 - Points Of Interests
+1110 - Vehicle and Person waypoints
+1120 - Traffic Lights communication
+1130 - Material repository
+1140 - Advanced Point system
+1150 - OpenStreetMap collaboration
+Stretch/Achievements
+Stretch/Camera on people (thrd person)
+Stretch/Cinematic scenes
+Stretch/Crashes - 2 - Cars getting deformed and obstuct traffic
+Stretch/Crashes - 3 - Can be viewed in 3D cinematic mode, with possible quarrel
+Stretch/Crimes - police chase, blocking road, player placing 'hint-points' to police
+Stretch/Demonstrations (people activities)
+Stretch/Football games, etc
+Stretch/Leaderboard
+Stretch/Licenses for other platforms
+Stretch/Parking lots
+Stretch/Radio - 2 - Interactive radio speaker
+Stretch/Roadwork
+Stretch/Seasons - snow, rain
+Stretch/Skidmarks
+Stretch/sunlight, darkness

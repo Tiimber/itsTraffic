@@ -3,4 +3,5 @@ itsTraffic.iml
 out/
 Temp
 builds/
+*.bin
 

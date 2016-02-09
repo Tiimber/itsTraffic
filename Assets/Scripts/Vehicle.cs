@@ -459,7 +459,7 @@ public class Vehicle: MonoBehaviour {
 				}
 			} else {
 				// "Disappear" on endpoint
-				if (colliderName == "CAR") {
+				if (turnState == TurnState.CAR || turnState == TurnState.BC) {
 					// Endpoint
 					currentSpeed = 0;
 					Acceleration = 0;

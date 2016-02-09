@@ -316,8 +316,8 @@ public class Game : MonoBehaviour, IPubSub {
 //		Pos pos1 = randomEndpointPair [0];
 //		Pos pos2 = randomEndpointPair [1];
 
-//		Pos pos1 = getSpecificEndPoint (172L);
-//		Pos pos2 = getSpecificEndPoint (134L);
+//		Pos pos1 = getSpecificEndPoint (15L);
+//		Pos pos2 = getSpecificEndPoint (172L);
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
 		GameObject vehicleInstance = Instantiate (vehicle, position, Quaternion.identity) as GameObject;

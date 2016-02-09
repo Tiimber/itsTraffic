@@ -45,4 +45,9 @@ public class Misc {
 		Pos pos = NodeIndex.nodes [Convert.ToInt64 (xmlNode.Value)];
 		return Game.getCameraPosition (pos);
 	} 
+
+	public static bool isAngleAccepted (float angle1, float angle2, float acceptableAngleDiff, float fullAmountDegrees = 360f) {
+		float angleDiff = Mathf.Abs (angle1 - angle2);
+		return angleDiff <= acceptableAngleDiff || angleDiff >= fullAmountDegrees - acceptableAngleDiff;
+	}
 }

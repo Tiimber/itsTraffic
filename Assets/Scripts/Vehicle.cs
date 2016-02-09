@@ -5,6 +5,23 @@ using System.Linq;
 
 public class Vehicle: MonoBehaviour {
 
+	[InspectorButton("OnButtonClicked")]
+	public bool debugPrint;
+
+	private void OnButtonClicked()
+	{
+		debugPrint ^= true;
+		if (debugPrint) {
+			DebugFn.square (TargetPoint, 3f);
+			List<Pos> drivePoints = Game.calculateCurrentPath (StartPos, EndPos);
+			WayReference wayReferenceStart = NodeIndex.getWayReference (StartPos.Id, drivePoints[1].Id);
+			WayReference wayReferenceEnd = NodeIndex.getWayReference (drivePoints[drivePoints.Count - 2].Id, EndPos.Id);
+			Debug.Log ("Start: " + wayReferenceStart.Id);
+			Debug.Log ("End: " + wayReferenceEnd.Id);
+			Debug.Log ("Turn state: " + turnState);
+		}
+	}
+
 	public Pos StartPos { set; get; }
 	public Pos EndPos { set; get; }
 	public Pos CurrentPosition { set; get; } 
@@ -19,6 +36,7 @@ public class Vehicle: MonoBehaviour {
 	private float Acceleration { set; get; }
 //	private Vector3 PreviousMovementVector { set; get; }
 	private float currentSpeed = 0f;
+	private bool isBigTurn = false;
 
 	private float EmissionFactor { set; get; }
 	private float CollectedEmissionAmount = 0f;
@@ -81,6 +99,7 @@ public class Vehicle: MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		debugPrint = true;
 		initVehicleProfile ();
 		updateCurrentTarget ();
 
@@ -229,6 +248,10 @@ public class Vehicle: MonoBehaviour {
 //			Debug.Log ("No movement");
 			fadeOutAndDestroy ();
 		}
+		if (debugPrint) {
+			DebugFn.square (TargetPoint, 0.0f);
+//			Debug.Log ("Turn state: " + turnState);
+		}
 	}
 
 	private void adjustColliders () {
@@ -315,9 +338,7 @@ public class Vehicle: MonoBehaviour {
 				}
 //				Debug.Log ("Vehicle: " + vehicleAngle);
 //				Debug.Log ("Way: " + wayAngle);
-				float angleDiff = Mathf.Abs (vehicleAngle - wayAngle);
-//				Debug.Log ("Diff: " + angleDiff);
-				if (angleDiff < acceptableAngleDiff) {
+				if (Misc.isAngleAccepted (vehicleAngle, wayAngle, acceptableAngleDiff)) {
 					CurrentPosition = CurrentTarget;
 					updateCurrentTarget ();
 				}
@@ -339,9 +360,7 @@ public class Vehicle: MonoBehaviour {
 				}
 //				Debug.Log ("Vehicle: " + vehicleAngle);
 //				Debug.Log ("Way: " + wayAngle);
-				float angleDiff = Mathf.Abs (vehicleAngle - wayAngle);
-//				Debug.Log ("Diff: " + angleDiff);
-				if (angleDiff < acceptableAngleDiff) {
+				if (Misc.isAngleAccepted (vehicleAngle, wayAngle, acceptableAngleDiff)) {
 					CurrentPosition = CurrentTarget;
 					updateCurrentTarget ();
 				}
@@ -408,7 +427,7 @@ public class Vehicle: MonoBehaviour {
 				turnState = TurnState.BC;
 			}
 
-			if (possitilities.Count == 1) {
+			if (possitilities.Count == 1 && !isBigTurn) {
 				if (turnState != TurnState.BC) {
 					float desiredRotation = Quaternion.Angle(CurrentWayReference.transform.rotation, TurnToRoad.transform.rotation);
 					bool areBothSameDirection = CurrentWayReference.isNode1(CurrentTarget) != TurnToRoad.isNode1(CurrentTarget);
@@ -417,7 +436,7 @@ public class Vehicle: MonoBehaviour {
 					}
 					TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
 				}
-			} else if (possitilities.Count > 1) {
+			} else if (possitilities.Count > 1 || isBigTurn) {
 				currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
 				Pos nextTarget = currentPath [2];
 				if (turnState != TurnState.BC) {
@@ -430,7 +449,8 @@ public class Vehicle: MonoBehaviour {
 					TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
 //					Debug.Log ("breakFactor: " + TurnBreakFactor + ", for degrees: " + desiredRotation); 
 				}
-				if (turnState == TurnState.CAR) {
+				if (turnState == TurnState.CAR || turnState == TurnState.BC) {
+					Debug.Log ("REACHED END OF CURRENT WAY TARGET!");
 					TurnToRoad = NodeIndex.getWayReference(CurrentTarget.Id, nextTarget.Id);
 					BezierLength = 0f;
 					TargetPoint = getTargetPoint(TurnToRoad, null, true);
@@ -533,6 +553,7 @@ public class Vehicle: MonoBehaviour {
 	}
 
 	public void updateCurrentTarget () {
+		isBigTurn = false;
 		TurnBreakFactor = 1.0f;
 //		Time.timeScale = TurnBreakFactor;
 		turnState = TurnState.NONE;
@@ -546,11 +567,22 @@ public class Vehicle: MonoBehaviour {
 
 			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayTypeEnum.MINIMUM_DRIVE_WAY).ToList ();
 			if (possitilities.Count == 1) {
-				TurnToRoad = possitilities[0];
-				BezierLength = 0f;
-				TargetPoint = getTargetPoint(TurnToRoad);
-				isStraightWay = true;
+				if (TurnToRoad == null || Misc.isAngleAccepted (gameObject.transform.rotation.eulerAngles.z, possitilities [0].gameObject.transform.rotation.eulerAngles.z, 45f, 180f)) {
+					Debug.Log ("STRAIGHT WAY!");
+					TurnToRoad = possitilities [0];
+					BezierLength = 0f;
+					TargetPoint = getTargetPoint (TurnToRoad);
+					isStraightWay = true;
+				} else {
+					Debug.Log ("STRAIGHT WAY WITH BIG TURN!");
+					isBigTurn = true;
+					TurnToRoad = CurrentWayReference;
+					BezierLength = 0f;
+					TargetPoint = getTargetPoint(CurrentWayReference, CurrentTarget);
+					isStraightWay = true;
+				}
 			} else {
+				Debug.Log ("END OF CURRENT WAY!");
 				TurnToRoad = CurrentWayReference;
 				BezierLength = 0f;
 				TargetPoint = getTargetPoint(CurrentWayReference, CurrentTarget);
@@ -561,6 +593,7 @@ public class Vehicle: MonoBehaviour {
 			CurrentWayReference = null;
 
 			// TODO - We've reached our destination - drive off map and despawn
+			Debug.Log ("END OF MAP!");
 			TurnToRoad = null;
 			BezierLength = 0f;
 			TargetPoint = Vector3.zero;
@@ -622,7 +655,7 @@ public class Vehicle: MonoBehaviour {
 		return 1f;
 	}
 
-	private void fadeOutAndDestroy () {
+	public void fadeOutAndDestroy () {
 		// TODO - Can we do a fade out?
 		Destroy (this.gameObject);
 		// TODO - Calculate points based on time, distance, or whatever...

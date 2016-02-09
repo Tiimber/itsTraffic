@@ -28,7 +28,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 //	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
-	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
+//	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
+	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap01.osm";
 	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
 //	private string configFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
@@ -106,7 +107,14 @@ public class Game : MonoBehaviour, IPubSub {
 				}
 			}
 		} else if (Input.GetKeyDown (KeyCode.N)) {
-			createNewCar ();
+			GameObject car = null; 
+//			GameObject car = GameObject.Find ("Camaro(ish)(Clone)");
+			if (car != null) {
+				Vehicle carObj = car.GetComponent<Vehicle> ();
+				carObj.fadeOutAndDestroy ();
+			} else {
+				createNewCar ();
+			}
 		} else if (Input.GetKeyDown (KeyCode.F)) {
 			followCar ^= true;
 			if (!followCar) {
@@ -308,8 +316,8 @@ public class Game : MonoBehaviour, IPubSub {
 //		Pos pos1 = randomEndpointPair [0];
 //		Pos pos2 = randomEndpointPair [1];
 
-//		Pos pos1 = getSpecificEndPoint (20L);
-//		Pos pos2 = getSpecificEndPoint (122L);
+//		Pos pos1 = getSpecificEndPoint (172L);
+//		Pos pos2 = getSpecificEndPoint (134L);
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
 		GameObject vehicleInstance = Instantiate (vehicle, position, Quaternion.identity) as GameObject;

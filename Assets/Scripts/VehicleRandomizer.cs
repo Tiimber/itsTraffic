@@ -5,9 +5,12 @@ public class VehicleRandomizer {
 	private float interval;
 	private System.Random random;
 
-	private const float RANDOM_VARIATION = 1f;
-	private const float MIN_INTERVAL = 1f;
-	private const float INTERVAL_DECREASE_RATE = 0.02f;
+//	private const float RANDOM_VARIATION = 1f;
+//	private const float MIN_INTERVAL = 1f;
+//	private const float INTERVAL_DECREASE_RATE = 0.02f;
+	private const float RANDOM_VARIATION = 0f;
+	private const float MIN_INTERVAL = 0f;
+	private const float INTERVAL_DECREASE_RATE = 0.05f;
 
 	public VehicleRandomizer (float interval = 5.5f) {
 		this.interval = interval;
@@ -28,7 +31,7 @@ public class VehicleRandomizer {
 
 	private void newVehicle () {
 		if (Game.isRunning ()) {
-//			Game.instance.createNewCar ();
+			Game.instance.createNewCar ();
 //			Debug.Log ("NEW CAR!");
 		}
 	}

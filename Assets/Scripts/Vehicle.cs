@@ -64,6 +64,8 @@ public class Vehicle: MonoBehaviour {
 	
 	private Vector3 vehicleMovement;
 
+	public static int numberOfCars = 0;
+
 	public void setDebug() {
 		grabCamera ();
 		Vehicle.debug = this;
@@ -99,9 +101,10 @@ public class Vehicle: MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		debugPrint = true;
+		//debugPrint = true;
 		initVehicleProfile ();
 		updateCurrentTarget ();
+		numberOfCars++;
 
 //		Transform car = transform.FindChild ("CarObject");
 //		Renderer r = car.GetComponent<Renderer>();
@@ -450,7 +453,6 @@ public class Vehicle: MonoBehaviour {
 //					Debug.Log ("breakFactor: " + TurnBreakFactor + ", for degrees: " + desiredRotation); 
 				}
 				if (turnState == TurnState.CAR || turnState == TurnState.BC) {
-					Debug.Log ("REACHED END OF CURRENT WAY TARGET!");
 					TurnToRoad = NodeIndex.getWayReference(CurrentTarget.Id, nextTarget.Id);
 					BezierLength = 0f;
 					TargetPoint = getTargetPoint(TurnToRoad, null, true);
@@ -568,13 +570,11 @@ public class Vehicle: MonoBehaviour {
 			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayTypeEnum.MINIMUM_DRIVE_WAY).ToList ();
 			if (possitilities.Count == 1) {
 				if (TurnToRoad == null || Misc.isAngleAccepted (gameObject.transform.rotation.eulerAngles.z, possitilities [0].gameObject.transform.rotation.eulerAngles.z, 45f, 180f)) {
-					Debug.Log ("STRAIGHT WAY!");
 					TurnToRoad = possitilities [0];
 					BezierLength = 0f;
 					TargetPoint = getTargetPoint (TurnToRoad);
 					isStraightWay = true;
 				} else {
-					Debug.Log ("STRAIGHT WAY WITH BIG TURN!");
 					isBigTurn = true;
 					TurnToRoad = CurrentWayReference;
 					BezierLength = 0f;
@@ -582,7 +582,6 @@ public class Vehicle: MonoBehaviour {
 					isStraightWay = true;
 				}
 			} else {
-				Debug.Log ("END OF CURRENT WAY!");
 				TurnToRoad = CurrentWayReference;
 				BezierLength = 0f;
 				TargetPoint = getTargetPoint(CurrentWayReference, CurrentTarget);
@@ -593,7 +592,6 @@ public class Vehicle: MonoBehaviour {
 			CurrentWayReference = null;
 
 			// TODO - We've reached our destination - drive off map and despawn
-			Debug.Log ("END OF MAP!");
 			TurnToRoad = null;
 			BezierLength = 0f;
 			TargetPoint = Vector3.zero;
@@ -660,6 +658,7 @@ public class Vehicle: MonoBehaviour {
 		Destroy (this.gameObject);
 		// TODO - Calculate points based on time, distance, or whatever...
 		PubSub.publish ("points:inc", 100);
+		numberOfCars--;
 	}
 
 	private class CollisionObj<T> {

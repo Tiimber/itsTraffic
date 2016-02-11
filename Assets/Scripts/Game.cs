@@ -28,8 +28,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 //	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
-//	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
-	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap01.osm";
+	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
+//	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap01.osm";
 	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
 //	private string configFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 

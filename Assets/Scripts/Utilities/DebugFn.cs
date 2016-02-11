@@ -5,7 +5,7 @@ using System.Linq;
 
 public class DebugFn : MonoBehaviour
 {
-	private static bool enabled = true;
+	private static bool enabled = false;
 
 	private static Vector3 offsetZ = new Vector3 (0, 0, -0.1f);
 

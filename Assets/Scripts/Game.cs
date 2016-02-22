@@ -28,8 +28,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 //	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
-	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
-//	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap01.osm";
+//	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
+	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap01.osm";
 	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
 //	private string configFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
@@ -300,8 +300,8 @@ public class Game : MonoBehaviour, IPubSub {
 //			return;
 //		}
 
-		Pos pos1 = getRandomEndPoint (null);
-		Pos pos2 = getRandomEndPoint (pos1);
+//		Pos pos1 = getRandomEndPoint (null);
+//		Pos pos2 = getRandomEndPoint (pos1);
 
 //		List<Pos> randomEndpointPair = getRandomPredefinedEndPointsPair(
 //			new long[][] {
@@ -318,6 +318,9 @@ public class Game : MonoBehaviour, IPubSub {
 
 //		Pos pos1 = getSpecificEndPoint (15L);
 //		Pos pos2 = getSpecificEndPoint (172L);
+
+		Pos pos1 = getSpecificEndPoint (124L);
+		Pos pos2 = getSpecificEndPoint (43L);
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
 		GameObject vehicleInstance = Instantiate (vehicle, position, Quaternion.identity) as GameObject;

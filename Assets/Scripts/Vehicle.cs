@@ -34,6 +34,7 @@ public class Vehicle: MonoBehaviour {
 	private WayReference CurrentWayReference { set; get; }
 	private float SpeedFactor { set; get; }
 	private float Acceleration { set; get; }
+	private float StartSpeedFactor { set; get; }
 //	private Vector3 PreviousMovementVector { set; get; }
 	private float currentSpeed = 0f;
 	private bool isBigTurn = false;
@@ -65,6 +66,7 @@ public class Vehicle: MonoBehaviour {
 	private Vector3 vehicleMovement;
 
 	public static int numberOfCars = 0;
+	private static float MAP_SPEED_TO_KPH_FACTOR = 100f;
 
 	public void setDebug() {
 		grabCamera ();
@@ -104,6 +106,15 @@ public class Vehicle: MonoBehaviour {
 		//debugPrint = true;
 		initVehicleProfile ();
 		updateCurrentTarget ();
+
+		// Set start speed for car
+		// TODO - In the future, if coming from parking, start from 0
+		float wayTargetSpeedKmH = CurrentWayReference.way.WayWidthFactor * MAP_SPEED_TO_KPH_FACTOR; 	// Eg 51 km/h
+		// Car target speed
+		float vehicleTargetSpeedKmH = wayTargetSpeedKmH * SpeedFactor;				// Eg 10% faster = 56.5 km/h
+		// Car starting speed
+//		currentSpeed = StartSpeedFactor * vehicleTargetSpeedKmH / MAP_SPEED_TO_KPH_FACTOR;			
+
 		numberOfCars++;
 
 //		Transform car = transform.FindChild ("CarObject");
@@ -122,23 +133,59 @@ public class Vehicle: MonoBehaviour {
 		vehicleMovement = transform.rotation * Vector3.right;
 	}
 
+	private static float GetAccForKmh(float currentSpeed, float targetSpeed) {
+		float x = currentSpeed;
+		if (currentSpeed < targetSpeed) {
+			float a=10f, b=2.782511f, c=-0.05497385f, d=0.0003783534f, e=-8.548685e-7f;
+//			float a = 0.001696185f, b = 0.02523364f, c = -0.000497608f, d = 0.000003406148f, e = -7.872413E-9f;
+			return a + b * x + c * Mathf.Pow (x, 2) + d * Mathf.Pow (x, 3) + e * Mathf.Pow (x, 4);
+		} else {
+			float a = 29f, b = 0.005330882f, c = -0.0005330882f;
+			return -(a + b * x + c * Mathf.Pow (x, 2));
+		}
+	}
+
 	// Update is called once per frame
 	int i = 0;
 	void Update () {
 		i++;
 //		Debug.Log (i++);
 		if (TurnToRoad != null) {
-			// TODO - Try to make this better
-			// The vehicles desired speed per second on this specific road
-			float wayTargetSpeed = CurrentWayReference.way.WayWidthFactor * Settings.playbackSpeed;
+
+			// Way target speed
+			float wayTargetSpeedKmH = CurrentWayReference.way.WayWidthFactor * MAP_SPEED_TO_KPH_FACTOR; 	// Eg 51 km/h
+			// Car target speed
+			float vehicleTargetSpeedKmH = wayTargetSpeedKmH * SpeedFactor;									// Eg 10% faster = 56.5 km/h
+
+			// Current car speed
+			float currentSpeedKmH = currentSpeed * MAP_SPEED_TO_KPH_FACTOR;
+
+			// Lowest break factor (decides how fast the car currently want to go)
 			float breakFactor = Mathf.Min (TurnBreakFactor, AwarenessBreakFactor);
-			float vehicleTargetSpeed = (wayTargetSpeed * SpeedFactor * breakFactor / 2) / 10f;
-			// Calculated movement for current frame
-			float currentAcceleration = (vehicleTargetSpeed - currentSpeed) / vehicleTargetSpeed * Acceleration;
-			// Adjust with speedfactor
-			currentAcceleration /= Settings.speedFactor;
-			float speedChangeInFrame = currentAcceleration * Time.deltaTime;
+
+			// Car target after break factor
+			float vehicleTargetSpeedAfterBreakFactorKmH = breakFactor * vehicleTargetSpeedKmH;
+
+			// Acceleration this "second" at current car speed
+			float speedChangeKmh = GetAccForKmh (currentSpeedKmH, vehicleTargetSpeedAfterBreakFactorKmH);
+
+			// Car speed change for this current frame
+			float speedChangeInFrame = (speedChangeKmh * Time.deltaTime) / MAP_SPEED_TO_KPH_FACTOR;
+
+			// Apply speed change
 			currentSpeed += speedChangeInFrame;
+
+//			// TODO - Try to make this better
+//			// The vehicles desired speed per second on this specific road
+//			float wayTargetSpeed = CurrentWayReference.way.WayWidthFactor * Settings.playbackSpeed;
+//			float breakFactor = Mathf.Min (TurnBreakFactor, AwarenessBreakFactor);
+//			float vehicleTargetSpeed = (wayTargetSpeed * SpeedFactor * breakFactor / 2) / 10f;
+//			// Calculated movement for current frame
+//			float currentAcceleration = (vehicleTargetSpeed - currentSpeed) / vehicleTargetSpeed * Acceleration;
+//			// Adjust with speedfactor
+//			currentAcceleration /= Settings.speedFactor;
+//			float speedChangeInFrame = currentAcceleration * Time.deltaTime;
+//			currentSpeed += speedChangeInFrame;
 
 			calculateCollectedEmission(speedChangeInFrame);
 
@@ -312,9 +359,11 @@ public class Vehicle: MonoBehaviour {
 		// Set more vehicle profile properties here
 		SpeedFactor = Random.Range (0.8f, 1.2f);
 		Acceleration = Random.Range (2f, 3f);
+		StartSpeedFactor = Random.Range (0.5f, 1f);
 		if (slow) {
 			SpeedFactor = Random.Range (0.2f, 0.3f);
 			Acceleration = Random.Range (1f, 2f);
+			StartSpeedFactor = Random.Range (0.1f, 4f);
 		}
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
@@ -685,7 +734,7 @@ public class Vehicle: MonoBehaviour {
 		if (Vehicle.debug == this) {
 			int y = 200;
 			// TurnBreakFactor, CurrentSpeed, CurrentPos, CurrentTarget, EndPos
-			GUI.Label (new Rect (0, y += 20, 500, 20), "Speed: "+currentSpeed);
+			GUI.Label (new Rect (0, y += 20, 500, 20), "Speed: "+currentSpeed * MAP_SPEED_TO_KPH_FACTOR);
 			GUI.Label (new Rect (0, y += 20, 500, 20), "TurnBreakFactor: "+TurnBreakFactor);
 			GUI.Label (new Rect (0, y += 20, 500, 20), "StartPos: " + StartPos.Id + "(" + NodeIndex.endPointIndex[StartPos.Id][0].Id + ")");
 			GUI.Label (new Rect (0, y += 20, 500, 20), "CurrentPos: " + CurrentPosition.Id);

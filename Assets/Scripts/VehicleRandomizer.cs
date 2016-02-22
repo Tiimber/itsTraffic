@@ -31,7 +31,7 @@ public class VehicleRandomizer {
 
 	private void newVehicle () {
 		if (Game.isRunning ()) {
-			Game.instance.createNewCar ();
+//			Game.instance.createNewCar ();
 //			Debug.Log ("NEW CAR!");
 		}
 	}

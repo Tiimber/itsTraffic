@@ -58,6 +58,7 @@ public class Vehicle: MonoBehaviour {
 	private Vector3 TargetPoint { set; get; }
 	private WayReference TurnToRoad { set; get; }
 	private bool isStraightWay { set; get; }
+	private bool isCurrentTargetCrossing = false;
 	private TurnState turnState = TurnState.NONE;
 	private float BezierLength { set; get; }
 	private float AccumulatedBezierDistance { set; get; }
@@ -120,6 +121,7 @@ public class Vehicle: MonoBehaviour {
 		currentSpeed = StartSpeedFactor * vehicleTargetSpeedKmH / KPH_TO_LONGLAT_SPEED;			
 
 		numberOfCars++;
+		DataCollector.Add ("Total # of vehicles", 1f);
 
 //		Transform car = transform.FindChild ("CarObject");
 //		Renderer r = car.GetComponent<Renderer>();
@@ -135,6 +137,8 @@ public class Vehicle: MonoBehaviour {
 //		Debug.Log (offset.x + ", " + offset.y);
 		transform.position = new Vector3 (transform.position.x + offset.x, transform.position.y + offset.y, transform.position.z);
 		vehicleMovement = transform.rotation * Vector3.right;
+
+		StartCoroutine (reportStats ());
 	}
 
 	private static float GetAccForKmh(float currentSpeed, float targetSpeed) {
@@ -150,10 +154,7 @@ public class Vehicle: MonoBehaviour {
 	}
 
 	// Update is called once per frame
-	int i = 0;
 	void Update () {
-		i++;
-//		Debug.Log (i++);
 		if (TurnToRoad != null) {
 
 			// Way target speed
@@ -187,6 +188,19 @@ public class Vehicle: MonoBehaviour {
 
 			// Apply speed change
 			currentSpeed += speedChangeInFrameNoBacking;
+
+
+			// Add stats for if we were driving or stopping this frame
+			if (breakFactor == 0f) {
+				stats [STAT_WAITING_TIME].add (Time.deltaTime);
+			} else {
+				stats [STAT_DRIVING_TIME].add (Time.deltaTime);
+			}
+
+			if (speedChangeKmh != 0f) {
+				float metersDriven = Misc.kmhToMps (speedChangeKmh) * Time.deltaTime;
+				stats [STAT_DRIVING_DISTANCE].add (Mathf.Abs(metersDriven));
+			}
 
 //			// TODO - Try to make this better
 //			// The vehicles desired speed per second on this specific road
@@ -536,6 +550,7 @@ public class Vehicle: MonoBehaviour {
 					TargetPoint = getTargetPoint(TurnToRoad, null, true);
 					isStraightWay = false;
 					vehicleMovement = transform.rotation * Vector3.right;
+					statReportPossibleCrossing ();
 				}
 			} else {
 				// "Disappear" on endpoint
@@ -661,10 +676,14 @@ public class Vehicle: MonoBehaviour {
 	}
 
 	public void updateCurrentTarget () {
+		if (CurrentTarget != null && TrafficLightIndex.TrafficLightsForPos.ContainsKey(CurrentTarget.Id)) {
+			stats[STAT_PASSED_TRAFFICLIGHT].add(1f);
+		}
 		isBigTurn = false;
 		TurnBreakFactor = 1.0f;
 //		Time.timeScale = TurnBreakFactor;
 		turnState = TurnState.NONE;
+		statReportPossibleCrossing ();
 		currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
 		if (currentPath.Count > 1) {
 			CurrentTarget = currentPath [1];
@@ -692,6 +711,7 @@ public class Vehicle: MonoBehaviour {
 				BezierLength = 0f;
 				TargetPoint = getTargetPoint(CurrentWayReference, CurrentTarget);
 				isStraightWay = true;
+				isCurrentTargetCrossing = true;
 			}
 		} else {
 			CurrentTarget = null;
@@ -746,6 +766,7 @@ public class Vehicle: MonoBehaviour {
 	private void emitGas ()
 	{
 //		Debug.Log ("Emit gas");
+		stats [STAT_EMITTEDGAS].add (1f);
 		PubSub.publish ("Vehicle:emitGas", this);
 //		Debug.Break ();
 	}
@@ -764,7 +785,39 @@ public class Vehicle: MonoBehaviour {
 		Destroy (this.gameObject);
 		// TODO - Calculate points based on time, distance, or whatever...
 		PubSub.publish ("points:inc", 100);
+		DataCollector.Add ("Vehicles reached goal", 1f);
 		numberOfCars--;
+	}
+
+	private static string STAT_DRIVING_TIME = "Vehicles driving time";
+	private static string STAT_WAITING_TIME = "Vehicles waiting time";
+	private static string STAT_DRIVING_DISTANCE = "Vehicles driving distance";
+	private static string STAT_PASSED_CROSSINGS = "Vehicles passed crossings";
+	private static string STAT_PASSED_TRAFFICLIGHT = "Vehicles passed traffic lights";
+	private static string STAT_EMITTEDGAS = "Vehicle gas emitted";
+	private Dictionary<string, DataCollector.InnerData> stats = new Dictionary<string, DataCollector.InnerData> {
+		{STAT_DRIVING_TIME, new DataCollector.InnerData()},
+		{STAT_WAITING_TIME, new DataCollector.InnerData()},
+		{STAT_DRIVING_DISTANCE, new DataCollector.InnerData()},
+		{STAT_PASSED_CROSSINGS, new DataCollector.InnerData()},
+		{STAT_PASSED_TRAFFICLIGHT, new DataCollector.InnerData()},
+		{STAT_EMITTEDGAS, new DataCollector.InnerData()}
+	};
+	private IEnumerator reportStats () {
+		do {
+			yield return new WaitForSeconds (1f);
+			foreach (KeyValuePair<string, DataCollector.InnerData> stat in stats) {
+				DataCollector.Add (stat.Key, stat.Value);
+				stat.Value.reset ();
+			}
+		} while (this.gameObject != null);
+	}
+
+	void statReportPossibleCrossing () {
+		if (isCurrentTargetCrossing) {
+			stats [STAT_PASSED_CROSSINGS].add (1f);
+			isCurrentTargetCrossing = false;
+		}
 	}
 
 	private class CollisionObj {

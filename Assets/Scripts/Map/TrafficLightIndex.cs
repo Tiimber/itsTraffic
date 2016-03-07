@@ -154,6 +154,7 @@ public class TrafficLightIndex
 		foreach (TrafficLightLogic trafficLight in trafficLights) {
 			trafficLight.manualSwitch ();
 		}
+		DataCollector.Add ("Manual traffic light switches", 1f);
 	}
 
 	private static IEnumerator SetTrafficLightStates () {

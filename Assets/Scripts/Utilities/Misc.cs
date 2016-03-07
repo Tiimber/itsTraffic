@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Xml;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 public class Misc {
 
@@ -49,5 +52,32 @@ public class Misc {
 	public static bool isAngleAccepted (float angle1, float angle2, float acceptableAngleDiff, float fullAmountDegrees = 360f) {
 		float angleDiff = Mathf.Abs (angle1 - angle2);
 		return angleDiff <= acceptableAngleDiff || angleDiff >= fullAmountDegrees - acceptableAngleDiff;
+	}
+
+	public static float kmhToMps (float speedChangeKmh)
+	{
+		return speedChangeKmh * 1000f / 3600f;
+	}
+
+	public static T DeepClone<T>(T original)
+	{
+		// Construct a temporary memory stream
+		MemoryStream stream = new MemoryStream();
+
+		// Construct a serialization formatter that does all the hard work
+		BinaryFormatter formatter = new BinaryFormatter();
+
+		// This line is explained in the "Streaming Contexts" section
+		formatter.Context = new StreamingContext(StreamingContextStates.Clone);
+
+		// Serialize the object graph into the memory stream
+		formatter.Serialize(stream, original);
+
+		// Seek back to the start of the memory stream before deserializing
+		stream.Position = 0;
+
+		// Deserialize the graph into a new set of objects
+		// and return the root of the graph (deep copy) to the caller
+		return (T)(formatter.Deserialize(stream));
 	}
 }

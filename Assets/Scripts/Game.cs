@@ -67,6 +67,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 	// Use this for initialization
 	void Start () {
+		initDataCollection ();
+
 		Game.instance = this;
 		Game.randomSeed = Misc.currentTimeMillis ();
 
@@ -83,6 +85,13 @@ public class Game : MonoBehaviour, IPubSub {
 
 		Game.running = true;
 		new VehicleRandomizer ();
+	}
+
+	void initDataCollection ()
+	{
+		DataCollector.InitLabel ("Total # of vehicles");
+		DataCollector.InitLabel ("Vehicles reached goal");
+		DataCollector.InitLabel ("Manual traffic light switches");
 	}
 	
 	// Update is called once per frame

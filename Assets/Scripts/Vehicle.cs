@@ -35,8 +35,11 @@ public class Vehicle: MonoBehaviour {
 	private float SpeedFactor { set; get; }
 	private float Acceleration { set; get; }
 	private float StartSpeedFactor { set; get; }
+	private float ImpatientThresholdNonTrafficLight { set; get; }
+	private float ImpatientThresholdTrafficLight { set; get; }
 //	private Vector3 PreviousMovementVector { set; get; }
 	private float currentSpeed = 0f;
+	private float timeOfLastMovement = 0f;
 	private bool isBigTurn = false;
 
 	private float EmissionFactor { set; get; }
@@ -72,6 +75,8 @@ public class Vehicle: MonoBehaviour {
 	public static int numberOfCars = 0;
 	private static float MAP_SPEED_TO_KPH_FACTOR = 100f;
 	private static float KPH_TO_LONGLAT_SPEED = 30000f;
+	private static float IMPATIENT_TRAFFIC_LIGHT_THRESHOLD = 13f;
+	private static float IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD = 5f;
 
 	public void setDebug() {
 		grabCamera ();
@@ -189,11 +194,17 @@ public class Vehicle: MonoBehaviour {
 			// Apply speed change
 			currentSpeed += speedChangeInFrameNoBacking;
 
-
-			// Add stats for if we were driving or stopping this frame
+			// React to standing still or moving this frame
 			if (breakFactor == 0f) {
 				stats [STAT_WAITING_TIME].add (Time.deltaTime);
+
+				if (Time.time > timeOfLastMovement + ImpatientThresholdTrafficLight) {
+					honk ();
+					timeOfLastMovement = Time.time - 7 * Random.Range (0.8f, 1.2f);
+				}
 			} else {
+				timeOfLastMovement = Time.time;
+				honk (false);
 				stats [STAT_DRIVING_TIME].add (Time.deltaTime);
 			}
 
@@ -331,6 +342,10 @@ public class Vehicle: MonoBehaviour {
 		}
 	}
 
+	private void honk (bool startHonk = true) {
+		GetComponent<VehicleSounds> ().honk (startHonk);
+	}
+
 	private void adjustColliders () {
 		VehicleCollider[] vehicleCollders = GetComponentsInChildren<VehicleCollider> ();
 
@@ -384,9 +399,22 @@ public class Vehicle: MonoBehaviour {
 
 	void initVehicleProfile () {
 		// Set more vehicle profile properties here
-		SpeedFactor = Random.Range (0.8f, 1.2f);
+		float minSpeedFactor = 0.8f;
+		float maxSpeedFactor = 1.2f;
+		float speedFactorInterval = maxSpeedFactor - minSpeedFactor;
+
+		SpeedFactor = Random.Range (minSpeedFactor, maxSpeedFactor);
 		Acceleration = Random.Range (2f, 3f);
 		StartSpeedFactor = Random.Range (0.5f, 1f);
+
+		float minImpatientFactor = 0.8f;
+		float maxImpatientFactor = 1.2f;
+		float impatientFactorInterval = maxImpatientFactor - minImpatientFactor;
+
+		float impatientFactor = (speedFactorInterval - ((SpeedFactor - minSpeedFactor) / speedFactorInterval)) * impatientFactorInterval + minImpatientFactor;
+		ImpatientThresholdNonTrafficLight = IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
+		ImpatientThresholdTrafficLight = IMPATIENT_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
+
 		if (slow) {
 			SpeedFactor = Random.Range (0.2f, 0.3f);
 			Acceleration = Random.Range (1f, 2f);
@@ -394,6 +422,7 @@ public class Vehicle: MonoBehaviour {
 		}
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
+		timeOfLastMovement = Time.time;
 		EmissionFactor = Random.Range (0.1f, 1.0f);
 		CollectedEmissionAmount = Random.Range (0.000f, 0.002f);
 

@@ -4,6 +4,7 @@ using System.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SystemRandom = System.Random;
 
 // Longitude = x
 // Latitude = y
@@ -35,7 +36,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
-	public GameObject vehicle;
+	public List<VehiclesDistribution> vehicles;
 	public GameObject buildingObject;
 	public GameObject landuseObject;
 	public GameObject trafficLight;
@@ -57,6 +58,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private bool showOnlyCurrentLevel = false;
 	private bool followCar = false;
 	private Vector3 prevMousePosition;
+	private float sumVehicleFrequency;
 
 	private Dictionary<long, Dictionary<string, string>> objectProperties = new Dictionary<long, Dictionary<string, string>>();
 
@@ -68,6 +70,7 @@ public class Game : MonoBehaviour, IPubSub {
 	// Use this for initialization
 	void Start () {
 		initDataCollection ();
+		calculateVehicleFrequency ();
 
 		Game.instance = this;
 		Game.randomSeed = Misc.currentTimeMillis ();
@@ -332,7 +335,7 @@ public class Game : MonoBehaviour, IPubSub {
 //		Pos pos2 = getSpecificEndPoint (43L);
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
-		GameObject vehicleInstance = Instantiate (vehicle, position, Quaternion.identity) as GameObject;
+		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate(), position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
 
 		// TODO - Temporary counter
@@ -964,5 +967,22 @@ public class Game : MonoBehaviour, IPubSub {
 
 	public static bool isRunning () {
 		return Game.running;
+	}
+
+	private void calculateVehicleFrequency ()
+	{
+		sumVehicleFrequency = 0f;
+		vehicles.ForEach(vehicle => sumVehicleFrequency += vehicle.frequency);
+	}
+
+	private GameObject getVehicleToInstantiate () {
+		float randomPosition = UnityEngine.Random.Range (0f, sumVehicleFrequency);
+		foreach (VehiclesDistribution vehicle in vehicles) {
+			randomPosition -= vehicle.frequency;
+			if (randomPosition <= 0f) {
+				return vehicle.vehicle.gameObject;
+			}
+		}
+		return null;
 	}
 }

@@ -114,6 +114,7 @@
      <Compile Include="Assets\Scripts\VehicleCollider.cs" />
      <Compile Include="Assets\Scripts\VehicleRandomizer.cs" />
      <Compile Include="Assets\Scripts\VehicleSounds.cs" />
+     <Compile Include="Assets\Scripts\VehiclesDistribution.cs" />
      <Compile Include="Assets\Scripts\WayLine.cs" />
      <Compile Include="Assets\Scripts\WayReference.cs" />
      <Compile Include="Assets\Sources\LightningBolt.cs" />

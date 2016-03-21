@@ -7,6 +7,8 @@ using System;
 
 public class DataCollector : MonoBehaviour {
 
+	private bool output = true;
+
 	private float lastDataDiff = 0f;
 	private float dataDiffThreshold = 1f;
 	private bool diffCollected = false;
@@ -26,28 +28,30 @@ public class DataCollector : MonoBehaviour {
 	}
 
 	void OnGUI() {
-		if (Time.time > lastDataDiff + dataDiffThreshold) {
-			calculateDataDiff ();
-			lastDataDiff = Time.time;
-		}
-		int w = Screen.width, h = Screen.height;
-		int labelHeight = h * 2 / 100;
-
-		GUIStyle style = new GUIStyle();
-		style.alignment = TextAnchor.UpperLeft;
-		style.fontSize = labelHeight;
-		style.normal.textColor = new Color (0.9f, 0.9f, 0.9f, 1.0f);
-
-		int lines = Data.Count;
-		int i = 0;
-		foreach (string label in Data.Keys) {
-			Rect rect = new Rect (0, h - labelHeight - (lines - i) * labelHeight, w, labelHeight);
-			string text = label + ": " + Data [label];
-			if (diffCollected && DiffData.ContainsKey(label)) {
-				text += " (" + DiffData[label] + ")";
+		if (output) {
+			if (Time.time > lastDataDiff + dataDiffThreshold) {
+				calculateDataDiff ();
+				lastDataDiff = Time.time;
 			}
-			GUI.Label(rect, text, style);
-			i++;
+			int w = Screen.width, h = Screen.height;
+			int labelHeight = h * 2 / 100;
+
+			GUIStyle style = new GUIStyle ();
+			style.alignment = TextAnchor.UpperLeft;
+			style.fontSize = labelHeight;
+			style.normal.textColor = new Color (0.9f, 0.9f, 0.9f, 1.0f);
+
+			int lines = Data.Count;
+			int i = 0;
+			foreach (string label in Data.Keys) {
+				Rect rect = new Rect (0, h - labelHeight - (lines - i) * labelHeight, w, labelHeight);
+				string text = label + ": " + Data [label];
+				if (diffCollected && DiffData.ContainsKey (label)) {
+					text += " (" + DiffData [label] + ")";
+				}
+				GUI.Label (rect, text, style);
+				i++;
+			}
 		}
 	}
 

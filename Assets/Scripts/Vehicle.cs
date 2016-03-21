@@ -45,7 +45,7 @@ public class Vehicle: MonoBehaviour {
 	private float EmissionFactor { set; get; }
 	private float CollectedEmissionAmount = 0f;
 
-	private const float THRESHOLD_EMISSION_PUFF = 0.003f;
+	private const float THRESHOLD_EMISSION_PUFF = 0.030f;
 
 //	private const float MaxRotation = 20f;
 	private float DesiredRotation { set; get; }
@@ -75,8 +75,8 @@ public class Vehicle: MonoBehaviour {
 	public static int numberOfCars = 0;
 	private static float MAP_SPEED_TO_KPH_FACTOR = 100f;
 	private static float KPH_TO_LONGLAT_SPEED = 30000f;
-	private static float IMPATIENT_TRAFFIC_LIGHT_THRESHOLD = 13f;
-	private static float IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD = 5f;
+	private static float IMPATIENT_TRAFFIC_LIGHT_THRESHOLD = 17f;
+	private static float IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD = 8f;
 
 	public void setDebug() {
 		grabCamera ();
@@ -200,7 +200,8 @@ public class Vehicle: MonoBehaviour {
 
 				if (Time.time > timeOfLastMovement + ImpatientThresholdTrafficLight) {
 					honk ();
-					timeOfLastMovement = Time.time - 7 * Random.Range (0.8f, 1.2f);
+					// Make sure to not honk directly again
+					timeOfLastMovement = Time.time - 13f * Random.Range (0.8f, 1.2f);
 				}
 			} else {
 				timeOfLastMovement = Time.time;
@@ -367,15 +368,18 @@ public class Vehicle: MonoBehaviour {
 			totalColliderSize = forwardColliders + maxColliderAdditionFactor * current / max * forwardColliders;
 		}
 
+		BoxCollider carCollider = vehicleCollders [2].GetComponent<BoxCollider> ();
+		float carColliderOffset = carCollider.size.x / 2f;
+
 		float widthFac = fac * totalColliderSize;
-		float midFac = 0.5f + (pc * totalColliderSize) + widthFac / 2f;
+		float midFac = carColliderOffset + (pc * totalColliderSize) + widthFac / 2f;
 
 		BoxCollider facCollider = vehicleCollders [0].GetComponent<BoxCollider> ();
 		facCollider.center = new Vector3 (midFac, 0f, 0f);
 		facCollider.size = new Vector3 (widthFac, 1f, 1f);
 
 		float widthPc = pc * totalColliderSize;
-		float midPc = 0.5f + widthPc / 2f;
+		float midPc = carColliderOffset + widthPc / 2f;
 
 		BoxCollider pcCollider = vehicleCollders [1].GetComponent<BoxCollider> ();
 		pcCollider.center = new Vector3 (midPc, 0f, 0f);

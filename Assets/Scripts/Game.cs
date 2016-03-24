@@ -312,8 +312,8 @@ public class Game : MonoBehaviour, IPubSub {
 //			return;
 //		}
 
-		Pos pos1 = getRandomEndPoint (null);
-		Pos pos2 = getRandomEndPoint (pos1);
+//		Pos pos1 = getRandomEndPoint (null);
+//		Pos pos2 = getRandomEndPoint (pos1);
 
 //		List<Pos> randomEndpointPair = getRandomPredefinedEndPointsPair(
 //			new long[][] {
@@ -328,8 +328,8 @@ public class Game : MonoBehaviour, IPubSub {
 //		Pos pos1 = randomEndpointPair [0];
 //		Pos pos2 = randomEndpointPair [1];
 
-//		Pos pos1 = getSpecificEndPoint (15L);
-//		Pos pos2 = getSpecificEndPoint (172L);
+		Pos pos1 = getSpecificEndPoint (88L);
+		Pos pos2 = getSpecificEndPoint (128L);
 
 //		Pos pos1 = getSpecificEndPoint (124L);
 //		Pos pos2 = getSpecificEndPoint (43L);
@@ -485,7 +485,7 @@ public class Game : MonoBehaviour, IPubSub {
 		yield return www;
 
 		XmlDocument xmlDoc = new XmlDocument();
-		Debug.Log (www.url);
+//		Debug.Log (www.url);
 		xmlDoc.LoadXml(www.text);
 
 		XmlNode boundsNode = xmlDoc.SelectSingleNode ("/osm/bounds");
@@ -976,13 +976,16 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private GameObject getVehicleToInstantiate () {
-		float randomPosition = UnityEngine.Random.Range (0f, sumVehicleFrequency);
-		foreach (VehiclesDistribution vehicle in vehicles) {
-			randomPosition -= vehicle.frequency;
-			if (randomPosition <= 0f) {
-				return vehicle.vehicle.gameObject;
-			}
-		}
-		return null;
+		// Only camaros for now
+		return vehicles [0].vehicle.gameObject;
+		// TODO - When doing performance fixes, take this back for more car types
+//		float randomPosition = UnityEngine.Random.Range (0f, sumVehicleFrequency);
+//		foreach (VehiclesDistribution vehicle in vehicles) {
+//			randomPosition -= vehicle.frequency;
+//			if (randomPosition <= 0f) {
+//				return vehicle.vehicle.gameObject;
+//			}
+//		}
+//		return null;
 	}
 }

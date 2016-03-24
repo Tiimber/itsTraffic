@@ -13,7 +13,7 @@ public class WayReference : MonoBehaviour {
 	public bool SmallWay;
 
 	// TODO - This is named wrong!
-	public float fieldsFromPos1ToPos2 = 2f; 
+	public float fieldsFromPos1ToPos2 = 1f; 
 	public float fieldsFromPos2ToPos1 = 1f;
 	public float getNumberOfFields () {
 		return fieldsFromPos1ToPos2 + fieldsFromPos2ToPos1;

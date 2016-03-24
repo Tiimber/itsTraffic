@@ -65,6 +65,7 @@ public class Vehicle: MonoBehaviour {
 	private TurnState turnState = TurnState.NONE;
 	private float BezierLength { set; get; }
 	private float AccumulatedBezierDistance { set; get; }
+	private float backingCounterSeconds = 0f;
 
 	public Camera vehicleCameraObj;
 	private static Vehicle debug;
@@ -110,7 +111,6 @@ public class Vehicle: MonoBehaviour {
 	}
 
 	// TODO - Carefulness (drunk level, tired, age...)
-
 	// Use this for initialization
 	void Start () {
 		//debugPrint = true;
@@ -149,12 +149,19 @@ public class Vehicle: MonoBehaviour {
 	private static float GetAccForKmh(float currentSpeed, float targetSpeed) {
 		float x = currentSpeed;
 		if (currentSpeed < targetSpeed) {
+			x = Mathf.Max (x, 0f);
 			float a=10f, b=2.782511f, c=-0.05497385f, d=0.0003783534f, e=-8.548685e-7f;
 //			float a = 0.001696185f, b = 0.02523364f, c = -0.000497608f, d = 0.000003406148f, e = -7.872413E-9f;
 			return a + b * x + c * Mathf.Pow (x, 2) + d * Mathf.Pow (x, 3) + e * Mathf.Pow (x, 4);
 		} else {
-			float a = 29f, b = 0.005330882f, c = -0.0005330882f;
-			return -6*(a + b * x + c * Mathf.Pow (x, 2));
+			if (x >= 0) {
+				// If breaking
+				float a = 29f, b = 0.005330882f, c = -0.0005330882f;
+				return -6 * (a + b * x + c * Mathf.Pow (x, 2));
+			} else {
+				// Backing
+				return -GetAccForKmh(-x, -targetSpeed) / 15f;
+			}
 		}
 	}
 
@@ -179,11 +186,26 @@ public class Vehicle: MonoBehaviour {
 			// Acceleration this "second" at current car speed
 			float speedChangeKmh = GetAccForKmh (currentSpeedKmH, vehicleTargetSpeedAfterBreakFactorKmH);
 
-			// Car speed change for this current frame
-			float speedChangeInFrame = (speedChangeKmh * Time.deltaTime) / KPH_TO_LONGLAT_SPEED;
+			// Speed change this delta time
+			float speedChangeInFrameKmh = speedChangeKmh * Time.deltaTime;
 
-			// No backing (yet)
-			float speedChangeInFrameNoBacking = Mathf.Max(speedChangeInFrame, -currentSpeed);
+			// Car speed change for this current frame
+			float speedChangeInFrame = speedChangeInFrameKmh / KPH_TO_LONGLAT_SPEED;
+
+			float speedChangeInFrameNoBacking;
+
+			// If in backing state, allow backing and count down the time to be backing
+			if (backingCounterSeconds > 0f) {				
+				backingCounterSeconds -= Time.deltaTime;
+				if (backingCounterSeconds <= 0f) {
+					autosetAwarenessBreakFactor ();
+				}
+
+				speedChangeInFrameNoBacking = speedChangeInFrame;
+			} else {
+				// No backing
+				speedChangeInFrameNoBacking = Mathf.Max(speedChangeInFrame, -currentSpeed);
+			}
 
 //			if (currentSpeed > 0f) {
 //				Debug.Log ("Current Speed: " + currentSpeedKmH);
@@ -201,7 +223,7 @@ public class Vehicle: MonoBehaviour {
 				if (Time.time > timeOfLastMovement + ImpatientThresholdTrafficLight) {
 					honk ();
 					// Make sure to not honk directly again
-					timeOfLastMovement = Time.time - 13f * Random.Range (0.8f, 1.2f);
+					timeOfLastMovement = Time.time - 5f * Random.Range (0.8f, 1.2f);
 				}
 			} else {
 				timeOfLastMovement = Time.time;
@@ -209,8 +231,8 @@ public class Vehicle: MonoBehaviour {
 				stats [STAT_DRIVING_TIME].add (Time.deltaTime);
 			}
 
-			if (speedChangeKmh != 0f) {
-				float metersDriven = Misc.kmhToMps (speedChangeKmh) * Time.deltaTime;
+			if (currentSpeed != 0f) {
+				float metersDriven = Misc.kmhToMps (currentSpeed * KPH_TO_LONGLAT_SPEED * Time.deltaTime);
 				stats [STAT_DRIVING_DISTANCE].add (Mathf.Abs(metersDriven));
 			}
 
@@ -268,7 +290,7 @@ public class Vehicle: MonoBehaviour {
 //			}
 
 			Vector3 positionMovementVector = currentTargetPoint - currentPos;
-			if (positionMovementVector.magnitude > 0.0001f) {
+			if (positionMovementVector.magnitude > 0.0001f && breakFactor >= 0f) {
 				Quaternion vehicleRotation = Quaternion.FromToRotation(Vector3.right, positionMovementVector);
 //				float currentRotationDegrees = Mathf.Abs(vehicleRotation.eulerAngles.z - transform.rotation.eulerAngles.z);
 //				if (i > 1 && currentRotationDegrees > 90f) {
@@ -344,13 +366,23 @@ public class Vehicle: MonoBehaviour {
 	}
 
 	private void honk (bool startHonk = true) {
-		GetComponent<VehicleSounds> ().honk (startHonk);
+		VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
+		float frustrationLevel = vehicleSounds.getFrustrationLevel ();
+		// TODO - This is the real level where the vehicle should back
+//		if (frustrationLevel < 8f) {
+		if (frustrationLevel < 2f || !startHonk) {
+			vehicleSounds.honk (startHonk);
+		} else {
+			AwarenessBreakFactor = -0.15f;
+			backingCounterSeconds = 0.8f;
+		}
 	}
 
 	private void adjustColliders () {
 		VehicleCollider[] vehicleCollders = GetComponentsInChildren<VehicleCollider> ();
 
-		float forwardColliders = 1f;
+//		float forwardColliders = 1f;
+		float forwardColliders = 1.5f;
 		float pc = 1f / 3f;
 		float fac = 2f / 3f;
 
@@ -617,20 +649,23 @@ public class Vehicle: MonoBehaviour {
 			addTrafficLightPresence (otherColliderName, trafficLightLogic);
 			autosetAwarenessBreakFactor ();
 		}
+
+		// TODO - CAR with CAR - crash - minor or major
 	}
 
-	private void autosetAwarenessBreakFactor ()
-	{
-		bool hasVehicleInFac = FacVehiclesInAwarenessArea.Any (); 
-		bool hasVehicleInPc = PcVehiclesInAwarenessArea.Any (); 
-		bool isYellowLightPresent = YellowTrafficLightPresence.Any (); 
-		bool isRedLightPresent = RedTrafficLightPresence.Any (); 
-		if (hasVehicleInPc || isRedLightPresent) {
-			AwarenessBreakFactor = 0.0f;
-		} else if (hasVehicleInFac || isYellowLightPresent) {
-			AwarenessBreakFactor = 0.5f;
-		} else {
-			AwarenessBreakFactor = 1f;
+	private void autosetAwarenessBreakFactor () {
+		if (backingCounterSeconds <= 0f) {
+			bool hasVehicleInFac = FacVehiclesInAwarenessArea.Any (); 
+			bool hasVehicleInPc = PcVehiclesInAwarenessArea.Any (); 
+			bool isYellowLightPresent = YellowTrafficLightPresence.Any (); 
+			bool isRedLightPresent = RedTrafficLightPresence.Any (); 
+			if (hasVehicleInPc || isRedLightPresent) {
+				AwarenessBreakFactor = 0.0f;
+			} else if (hasVehicleInFac || isYellowLightPresent) {
+				AwarenessBreakFactor = 0.25f;
+			} else {
+				AwarenessBreakFactor = 1f;
+			}
 		}
 	}
 

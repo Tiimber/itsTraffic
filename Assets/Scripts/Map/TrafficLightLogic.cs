@@ -131,7 +131,7 @@ public class TrafficLightLogic : MonoBehaviour {
 		if (!switching) {
 			timeToSwitch -= Time.deltaTime;
 			if (timeToSwitch <= 0) {
-				StartSwitchLights ();
+//				StartSwitchLights ();
 			}
 		}
 	}

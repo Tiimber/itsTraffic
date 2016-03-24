@@ -96,6 +96,10 @@ public class VehicleSounds : MonoBehaviour {
 	
 	}
 
+	public float getFrustrationLevel () {
+		return frustrationLevel;
+	}
+
 	public void honk (bool startHonk = true) {
 		if (startHonk) {
 			if (!honkSoundSource.isPlaying) {

@@ -633,6 +633,7 @@ public class Vehicle: MonoBehaviour {
 		if (vehicleCollisionObj != null) {
 			if (otherColliderName == CollisionObj.VEHICLE_COLLIDER) {
 				Vehicle otherVehicle = vehicleCollisionObj.Vehicle;
+				// Awareness for other CAR
 				if (colliderName == "FAC") {
 					// Front collider discovered car, slow down
 					addVehicleInAwarenessArea (colliderName, otherVehicle);
@@ -642,15 +643,34 @@ public class Vehicle: MonoBehaviour {
 					addVehicleInAwarenessArea (colliderName, otherVehicle);
 					autosetAwarenessBreakFactor ();
 				}
+
+				// Crashing our "CAR" with other CAR
+				if (colliderName == "CAR") {
+					float speedKmh = currentSpeed * KPH_TO_LONGLAT_SPEED;
+					Vector3 speedVector = transform.rotation * new Vector3 (speedKmh, 0f, 0f);
+
+					float otherVehicleSpeedKmh = otherVehicle.currentSpeed * KPH_TO_LONGLAT_SPEED;
+					Vector3 otherVehicleSpeedVector = otherVehicle.transform.rotation * new Vector3 (otherVehicleSpeedKmh, 0f, 0f);
+
+					Vector3 collissionDiff = speedVector - otherVehicleSpeedVector;
+					float collissionAmount = collissionDiff.magnitude;
+
+					stats [STAT_TOTAL_COLLISSION_AMOUNT].add (collissionAmount / 2f);
+					if (collissionAmount < 10f) {
+						stats [STAT_MINOR_COLLISSIONS].add (0.5f);
+					} else {
+						stats [STAT_MAJOR_COLLISSIONS].add (0.5f);
+					}
+				}
 			}
+
+
 		} else if (trafficLightCollisionObj != null && colliderName == "CAR") {
 			TrafficLightLogic trafficLightLogic = trafficLightCollisionObj.TrafficLightLogic;
 			// Car is in either yellow or red traffic light, slow down or break hard
 			addTrafficLightPresence (otherColliderName, trafficLightLogic);
 			autosetAwarenessBreakFactor ();
 		}
-
-		// TODO - CAR with CAR - crash - minor or major
 	}
 
 	private void autosetAwarenessBreakFactor () {
@@ -863,13 +883,19 @@ public class Vehicle: MonoBehaviour {
 	private static string STAT_PASSED_CROSSINGS = "Vehicles passed crossings";
 	private static string STAT_PASSED_TRAFFICLIGHT = "Vehicles passed traffic lights";
 	private static string STAT_EMITTEDGAS = "Vehicle gas emitted";
+	private static string STAT_MINOR_COLLISSIONS = "Vehicle minor collissions";
+	private static string STAT_MAJOR_COLLISSIONS = "Vehicle major collissions";
+	private static string STAT_TOTAL_COLLISSION_AMOUNT = "Vehicle total collission force";
 	private Dictionary<string, DataCollector.InnerData> stats = new Dictionary<string, DataCollector.InnerData> {
 		{STAT_DRIVING_TIME, new DataCollector.InnerData()},
 		{STAT_WAITING_TIME, new DataCollector.InnerData()},
 		{STAT_DRIVING_DISTANCE, new DataCollector.InnerData()},
 		{STAT_PASSED_CROSSINGS, new DataCollector.InnerData()},
 		{STAT_PASSED_TRAFFICLIGHT, new DataCollector.InnerData()},
-		{STAT_EMITTEDGAS, new DataCollector.InnerData()}
+		{STAT_EMITTEDGAS, new DataCollector.InnerData()},
+		{STAT_MINOR_COLLISSIONS, new DataCollector.InnerData()},
+		{STAT_MAJOR_COLLISSIONS, new DataCollector.InnerData()},
+		{STAT_TOTAL_COLLISSION_AMOUNT, new DataCollector.InnerData()}
 	};
 	private IEnumerator reportStats () {
 		do {

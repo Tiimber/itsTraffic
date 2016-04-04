@@ -42,6 +42,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public GameObject trafficLight;
 	public GameObject treeObject;
 	public GameObject vehicleEmission;
+	public GameObject vehicleVapour; 
 	public GameObject wayCrossing;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
@@ -85,6 +86,8 @@ public class Game : MonoBehaviour, IPubSub {
 //		Time.timeScale = 0.1f;
 		// Subscribe to when emission is let out from vehicles
 		PubSub.subscribe ("Vehicle:emitGas", this);
+		// Subscribe to when vapour is let out from vehicles
+		PubSub.subscribe ("Vehicle:emitVapour", this);
 
 		Game.running = true;
 		new VehicleRandomizer ();
@@ -953,15 +956,30 @@ public class Game : MonoBehaviour, IPubSub {
 			particleSystem.Play (true);
 
 			StartCoroutine (destroyEmission (particleSystem));
+		} else if (message == "Vehicle:emitVapour") {
+			Vehicle vehicle = (Vehicle)data;
+			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, mainCamera.transform.position.z + 1f);
+			GameObject emission = Instantiate (vehicleVapour, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
+			ParticleSystem particleSystem = emission.GetComponent<ParticleSystem> ();
+			Renderer particleRenderer = particleSystem.GetComponent<Renderer> ();
+			Material particleMaterial = particleRenderer.material;
+			particleMaterial.color = vehicle.getVapourColor ();
+
+			particleSystem.Simulate (0.90f, true);
+			particleSystem.Play (true);
+
+			StartCoroutine (destroyEmission (particleSystem, false));
 		} else if (message == "mainCameraActivated") {
 			CameraHandler.InitialZoom ();
 			pointsCamera.enabled = true;
 		}
 	}
 
-	public IEnumerator destroyEmission (ParticleSystem emission) {
+	public IEnumerator destroyEmission (ParticleSystem emission, bool addToCameraEmission = true) {
 		yield return new WaitForSeconds (emission.duration);
-		cameraEmission += emission.gameObject.GetComponent<Emission> ().Amount;
+		if (addToCameraEmission) {
+			cameraEmission += emission.gameObject.GetComponent<Emission> ().Amount;
+		}
 		Destroy (emission.gameObject);
 	}
 

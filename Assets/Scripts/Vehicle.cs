@@ -42,6 +42,11 @@ public class Vehicle: MonoBehaviour {
 	private float timeOfLastMovement = 0f;
 	private bool isBigTurn = false;
 
+	private float startHealth = 10f;
+	private float health = 1f;
+	private float vapourStartColorLevel = 0.92f;
+	private float vapourEndColorLevel = 0.32f;
+
 	private float EmissionFactor { set; get; }
 	private float CollectedEmissionAmount = 0f;
 
@@ -249,6 +254,13 @@ public class Vehicle: MonoBehaviour {
 //			currentSpeed += speedChangeInFrame;
 
 			calculateCollectedEmission(speedChangeInFrame);
+
+			// Emit gas depending on health
+			if (health < startHealth / 2f) {
+				if (Random.value < (1f - getHealthLevel()) * 0.01f) {
+					PubSub.publish ("Vehicle:emitVapour", this);
+				}
+			}
 
 			adjustColliders ();
 
@@ -661,6 +673,8 @@ public class Vehicle: MonoBehaviour {
 					} else {
 						stats [STAT_MAJOR_COLLISSIONS].add (0.5f);
 					}
+
+					registerCollissionAmount (collissionAmount);
 				}
 			}
 
@@ -671,6 +685,25 @@ public class Vehicle: MonoBehaviour {
 			addTrafficLightPresence (otherColliderName, trafficLightLogic);
 			autosetAwarenessBreakFactor ();
 		}
+	}
+
+	private float getHealthLevel () {
+		return health / (startHealth / 2f);
+	}
+
+	public Color getVapourColor() {
+		float healthLevel = getHealthLevel();
+		float colorSpan = vapourStartColorLevel - vapourEndColorLevel;
+		float colorLevel = Mathf.Min(vapourStartColorLevel, vapourEndColorLevel + healthLevel * colorSpan);
+		return new Color (colorLevel, colorLevel, colorLevel);
+	}
+
+	private void registerCollissionAmount (float amount) {
+		health -= amount;
+		if (health <= 0f) {
+
+		}
+		// TODO - Handle if car should stop
 	}
 
 	private void autosetAwarenessBreakFactor () {
@@ -982,3 +1015,4 @@ public class Vehicle: MonoBehaviour {
 	// TODO - Temporary stuffz
 	public bool slow = false;
 }
+

@@ -17,38 +17,30 @@ public class TrafficLightToggle : IPubSub {
 		PubSub.subscribe ("Click", getInstance());
 	}
 	
-	public static void Add (long posId, Vector3 center, float radius) {
-		getInstance().toggles.Add (new CircleTouch(posId, center, radius));
+	public static void Add (long posId, Vector2 center, float radius) {
+		getInstance().toggles.Add (new CircleTouchWithPosId(posId, center, radius));
 	}
 
 
-	List<CircleTouch> toggles = new List<CircleTouch>();
+	List<CircleTouchWithPosId> toggles = new List<CircleTouchWithPosId>();
 
-	public void onMessage(string message, System.Object obj) {
+	public PROPAGATION onMessage(string message, System.Object obj) {
 		if (message == "Click") {
-			Vector3 clickPos = (Vector3) obj;
-			Vector3 clickPosNoZ = new Vector3(clickPos.x, clickPos.y);
-			CircleTouch touchArea = toggles.Find(i => i.isInside(clickPosNoZ));
+			Vector2 clickPos = (Vector3) obj;
+			CircleTouchWithPosId touchArea = toggles.Find(i => i.isInside(clickPos));
 			if (touchArea != null) {
 				TrafficLightIndex.toggleLightsForPos(touchArea.posId);
 			}
 		}
+		return PROPAGATION.DEFAULT;
 	}
 
-
-	private class CircleTouch {
+	private class CircleTouchWithPosId : CircleTouch {
 		public long posId;
-		private Vector3 center;
-		private float radius;
 
-		public CircleTouch(long posId, Vector3 center, float radius) {
+		public CircleTouchWithPosId(long posId, Vector2 center, float radius) : base(center, radius) {
 			this.posId = posId;
-			this.center = center;
-			this.radius = radius;
-		}
-
-		public bool isInside(Vector3 pos) {
-			return (center - pos).magnitude <= radius;
 		}
 	}
+
 }

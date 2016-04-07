@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class Vehicle: MonoBehaviour {
+public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 	[InspectorButton("OnButtonClicked")]
 	public bool debugPrint;
@@ -46,6 +46,7 @@ public class Vehicle: MonoBehaviour {
 	private float health = 1f;
 	private float vapourStartColorLevel = 0.92f;
 	private float vapourEndColorLevel = 0.32f;
+	private bool destroying = false;
 
 	private float EmissionFactor { set; get; }
 	private float CollectedEmissionAmount = 0f;
@@ -149,6 +150,8 @@ public class Vehicle: MonoBehaviour {
 		vehicleMovement = transform.rotation * Vector3.right;
 
 		StartCoroutine (reportStats ());
+
+		PubSub.subscribe ("Click", this, 10);
 	}
 
 	private static float GetAccForKmh(float currentSpeed, float targetSpeed) {
@@ -255,13 +258,6 @@ public class Vehicle: MonoBehaviour {
 
 			calculateCollectedEmission(speedChangeInFrame);
 
-			// Emit gas depending on health
-			if (health < startHealth / 2f) {
-				if (Random.value < (1f - getHealthLevel()) * 0.01f) {
-					PubSub.publish ("Vehicle:emitVapour", this);
-				}
-			}
-
 			adjustColliders ();
 
 //			Debug.Log ("Current speed: " + currentSpeed + ", Vehicle target speed: " + vehicleTargetSpeed + ", Acceleration: " + currentAcceleration);
@@ -366,11 +362,19 @@ public class Vehicle: MonoBehaviour {
 //			} else {
 //				PreviousMovementVector = toTarget;
 //			}
-		} else {
+		} else if (health > 0f) {
 			// TODO - We've probably reached the end of the road, what to do?
 //			Debug.Log ("No movement");
 			fadeOutAndDestroy ();
 		}
+
+		// Emit gas depending on health
+		if (health < startHealth / 2f) {
+			if (Random.value < (1f - getHealthLevel()) * 0.01f) {
+				PubSub.publish ("Vehicle:emitVapour", this);
+			}
+		}
+
 		if (debugPrint) {
 			DebugFn.square (TargetPoint, 0.0f);
 //			Debug.Log ("Turn state: " + turnState);
@@ -701,9 +705,8 @@ public class Vehicle: MonoBehaviour {
 	private void registerCollissionAmount (float amount) {
 		health -= amount;
 		if (health <= 0f) {
-
+			blinkUntilClickedAndDestroy ();
 		}
-		// TODO - Handle if car should stop
 	}
 
 	private void autosetAwarenessBreakFactor () {
@@ -901,13 +904,57 @@ public class Vehicle: MonoBehaviour {
 		return 1f;
 	}
 
+	private void blinkUntilClickedAndDestroy(bool fadeDirectionOut = true) {
+		if (!destroying) {
+			TurnToRoad = null;
+			FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
+			if (fadeDirectionOut) {
+				fadeObject.DoneMessage = "fadeOut";
+				fadeObject.FadeOut (0.2f);
+			} else {
+				fadeObject.DoneMessage = "fadeIn";
+				fadeObject.FadeIn (0.2f);
+			}
+		}
+	}
+
 	public void fadeOutAndDestroy () {
-		// TODO - Can we do a fade out?
-		Destroy (this.gameObject);
-		// TODO - Calculate points based on time, distance, or whatever...
-		PubSub.publish ("points:inc", 100);
-		DataCollector.Add ("Vehicles reached goal", 1f);
-		numberOfCars--;
+		destroying = true;
+		FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
+		fadeObject.DoneMessage = "destroy";
+		fadeObject.FadeOut (0.5f);
+	}
+
+	public void onFadeMessage (string message) {
+		if (message == "destroy") {
+			Destroy (this.gameObject);
+			if (health > 0f) {
+				// TODO - Calculate points based on time, distance, or whatever...
+				PubSub.publish ("points:inc", 100);
+				DataCollector.Add ("Vehicles reached goal", 1f);
+			} else {
+				DataCollector.Add ("Vehicles destroyed", 1f);
+			}
+			numberOfCars--;
+		} else if (message == "fadeOut") {
+			blinkUntilClickedAndDestroy (false);
+		} else if (message == "fadeIn") {
+			blinkUntilClickedAndDestroy (true);
+		}
+	}
+
+	public PROPAGATION onMessage (string message, object data) {
+		if (message == "Click") {
+			if (health <= 0f && !destroying) {
+				Vector2 clickPos = (Vector3) data;
+				CircleTouch vehicleTouch = new CircleTouch (transform.position, 0.1f * 3f); // Click 0.1 (vehicle length) multiplied by three
+				if (vehicleTouch.isInside (clickPos)) {
+					fadeOutAndDestroy ();
+					return PROPAGATION.STOP_AFTER_SAME_TYPE;
+				}
+			}
+		}
+		return PROPAGATION.DEFAULT;
 	}
 
 	private static string STAT_DRIVING_TIME = "Vehicles driving time";

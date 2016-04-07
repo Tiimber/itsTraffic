@@ -127,11 +127,12 @@ public class BuildingRoof : MapSurface, IPubSub {
 		applyMaterials (material, wallMaterial);
 	}
 
-	public void onMessage (string message, object data) {
+	public PROPAGATION onMessage (string message, object data) {
 		if (message == "mainCameraActivated") {
 			Transform sidesTransform = transform.FindChild ("Building side");
 			sidesTransform.localPosition = bodyPositionAfterRising;
 		}
+		return PROPAGATION.DEFAULT;
 	}
 }
 	

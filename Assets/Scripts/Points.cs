@@ -82,11 +82,11 @@ public class Points : MonoBehaviour, IPubSub {
 	}
 
 	#region IPubSub implementation
-	public void onMessage (string message, object data)
+	public PROPAGATION onMessage (string message, object data)
 	{
 		if (message == "points:clear") {
 			points = 0;
-			return;
+			return PROPAGATION.DEFAULT;
 		}
 
 		int number = (int)data;
@@ -104,6 +104,7 @@ public class Points : MonoBehaviour, IPubSub {
 				break;
 		}
 		pointsUpdated ();
+		return PROPAGATION.DEFAULT;
 	}
 	#endregion
 }

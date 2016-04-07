@@ -72,6 +72,7 @@
      <Compile Include="Assets\Scripts\Emission.cs" />
      <Compile Include="Assets\Scripts\FadeObjectInOut.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
+     <Compile Include="Assets\Scripts\Interfaces\FadeInterface.cs" />
      <Compile Include="Assets\Scripts\Interfaces\IPubSub.cs" />
      <Compile Include="Assets\Scripts\Interfaces\PubSub.cs" />
      <Compile Include="Assets\Scripts\LanduseSurface.cs" />
@@ -99,6 +100,7 @@
      <Compile Include="Assets\Scripts\TrafficLightToggle.cs" />
      <Compile Include="Assets\Scripts\Triangulator.cs" />
      <Compile Include="Assets\Scripts\Utilities\CameraHandler.cs" />
+     <Compile Include="Assets\Scripts\Utilities\CircleTouch.cs" />
      <Compile Include="Assets\Scripts\Utilities\DataCollector.cs" />
      <Compile Include="Assets\Scripts\Utilities\DebugFn.cs" />
      <Compile Include="Assets\Scripts\Utilities\FPSDisplay.cs" />

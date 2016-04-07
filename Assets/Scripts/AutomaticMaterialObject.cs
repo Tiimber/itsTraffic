@@ -26,8 +26,9 @@ public class AutomaticMaterialObject : MonoBehaviour, IPubSub {
 		renderer.material = material;
 	}
 
-	public void onMessage (string message, object data) {
+	public PROPAGATION onMessage (string message, object data) {
 //		Debug.Log ("Material for way: " + message);
 		applyMaterial (MaterialManager.MaterialIndex[requestedMaterialId]);
+		return PROPAGATION.DEFAULT;
 	}
 }

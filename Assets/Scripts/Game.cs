@@ -944,7 +944,7 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 	}
 
-	public void onMessage (string message, object data) {
+	public PROPAGATION onMessage (string message, object data) {
 		if (message == "Vehicle:emitGas") {
 			Vehicle vehicle = (Vehicle)data;
 			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, mainCamera.transform.position.z + 1f);
@@ -973,6 +973,7 @@ public class Game : MonoBehaviour, IPubSub {
 			CameraHandler.InitialZoom ();
 			pointsCamera.enabled = true;
 		}
+		return PROPAGATION.DEFAULT;
 	}
 
 	public IEnumerator destroyEmission (ParticleSystem emission, bool addToCameraEmission = true) {

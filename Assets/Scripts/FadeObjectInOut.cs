@@ -23,6 +23,7 @@ public class FadeObjectInOut : MonoBehaviour
 	public bool fadeInOnStart = false; 
 	public bool fadeOutOnStart = false;
 	private bool logInitialFadeSequence = false; 
+	public string DoneMessage { get; set; }
 
 
 
@@ -140,47 +141,47 @@ public class FadeObjectInOut : MonoBehaviour
 			}
 		}
 
-
-		Debug.Log ("fade sequence end : " + fadingOut); 
-
+		FadeInterface fadeInterface = GetComponent<FadeInterface> ();
+		if (DoneMessage != null && fadeInterface != null) {
+			fadeInterface.onFadeMessage (DoneMessage);
+		}
 	}
 
 
-	void FadeIn ()
+	public void FadeIn ()
 	{
 		FadeIn (fadeTime); 
 	}
 
-	void FadeOut ()
+	public void FadeOut ()
 	{
 		FadeOut (fadeTime); 		
 	}
 
-	void FadeIn (float newFadeTime)
+	public void FadeIn (float newFadeTime)
 	{
-		StopAllCoroutines(); 
+		StopCoroutine("FadeSequence"); 
 		StartCoroutine("FadeSequence", newFadeTime); 
 	}
 
-	void FadeOut (float newFadeTime)
+	public void FadeOut (float newFadeTime)
 	{
-		StopAllCoroutines(); 
+		StopCoroutine("FadeSequence"); 
 		StartCoroutine("FadeSequence", -newFadeTime); 
 	}
 
 
 	// These are for testing only. 
-			void Update()
-			{
-				if (Input.GetKeyDown (KeyCode.K) )
-				{
-					FadeIn();
-				}
-				if (Input.GetKeyDown (KeyCode.L) )
-				{
-					FadeOut(); 
-				}
-			}
-
+//			void Update()
+//			{
+//				if (Input.GetKeyDown (KeyCode.K) )
+//				{
+//					FadeIn();
+//				}
+//				if (Input.GetKeyDown (KeyCode.L) )
+//				{
+//					FadeOut(); 
+//				}
+//			}
 
 }

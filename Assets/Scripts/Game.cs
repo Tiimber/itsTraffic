@@ -43,6 +43,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public GameObject treeObject;
 	public GameObject vehicleEmission;
 	public GameObject vehicleVapour; 
+	public GameObject vehicleHalo; 
 	public GameObject wayCrossing;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
@@ -62,6 +63,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private float sumVehicleFrequency;
 
 	private Dictionary<long, Dictionary<string, string>> objectProperties = new Dictionary<long, Dictionary<string, string>>();
+	private Dictionary<int, Light> dangerHalos = new Dictionary<int, Light> ();
 
 	private int debugIndex = 0;
 	private List<string> debugIndexNodes = new List<string> () {
@@ -88,6 +90,10 @@ public class Game : MonoBehaviour, IPubSub {
 		PubSub.subscribe ("Vehicle:emitGas", this);
 		// Subscribe to when vapour is let out from vehicles
 		PubSub.subscribe ("Vehicle:emitVapour", this);
+		// Subscribe to when vehicles crashes and needs attention
+		PubSub.subscribe("Vehicle:createDangerHalo", this);
+		// Subscribe to when crashed vehicles are removed, to remove the danger halo
+		PubSub.subscribe("Vehicle:removeDangerHalo", this);
 
 		Game.running = true;
 		new VehicleRandomizer ();
@@ -969,11 +975,44 @@ public class Game : MonoBehaviour, IPubSub {
 			particleSystem.Play (true);
 
 			StartCoroutine (destroyEmission (particleSystem, false));
+		} else if (message == "Vehicle:createDangerHalo") {
+			Vehicle vehicle = (Vehicle)data;
+			if (!dangerHalos.ContainsKey (vehicle.vehicleId)) {
+				Vector3 haloPosition = new Vector3 (vehicle.transform.position.x, vehicle.transform.position.y, -20f);
+				GameObject dangerHalo = Instantiate (vehicleHalo, haloPosition, Quaternion.identity) as GameObject;
+				dangerHalos.Add (vehicle.vehicleId, dangerHalo.GetComponent<Light> ());
+				if (dangerHalos.Count == 1) {
+					StartCoroutine ("pulsateDangerHalos");
+				}
+			}
+		} else if (message == "Vehicle:removeDangerHalo") {
+			Vehicle vehicle = (Vehicle)data;
+			Light dangerHaloLight = dangerHalos [vehicle.vehicleId];
+			dangerHalos.Remove (vehicle.vehicleId);
+			Destroy (dangerHaloLight.gameObject);
+			if (dangerHalos.Count == 0) {
+				StopCoroutine ("pulsateDangerHalos");
+			}
 		} else if (message == "mainCameraActivated") {
 			CameraHandler.InitialZoom ();
 			pointsCamera.enabled = true;
 		}
 		return PROPAGATION.DEFAULT;
+	}
+
+	public IEnumerator pulsateDangerHalos() {
+		float time;
+		float amplitude;
+		while (dangerHalos.Count > 0) {
+			time = Time.time / 1.3f * 2 * Mathf.PI;
+			amplitude = Mathf.Cos (time) + 2.5f;
+			foreach (Light halo in dangerHalos.Values) {
+				if (halo != null) {
+					halo.intensity = amplitude;
+				}
+			}
+			yield return null;
+		}
 	}
 
 	public IEnumerator destroyEmission (ParticleSystem emission, bool addToCameraEmission = true) {

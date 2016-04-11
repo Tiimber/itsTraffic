@@ -12,6 +12,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	{
 		debugPrint ^= true;
 		if (debugPrint) {
+			createDangerHalo ();
 			DebugFn.square (TargetPoint, 3f);
 			List<Pos> drivePoints = Game.calculateCurrentPath (StartPos, EndPos);
 			WayReference wayReferenceStart = NodeIndex.getWayReference (StartPos.Id, drivePoints[1].Id);
@@ -78,8 +79,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private static Camera debugCamera = null;
 	
 	private Vector3 vehicleMovement;
+	public int vehicleId;
 
 	public static int numberOfCars = 0;
+	public static int vehicleInstanceCount = 0;
 	private static float MAP_SPEED_TO_KPH_FACTOR = 100f;
 	private static float KPH_TO_LONGLAT_SPEED = 30000f;
 	private static float IMPATIENT_TRAFFIC_LIGHT_THRESHOLD = 17f;
@@ -132,6 +135,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		currentSpeed = StartSpeedFactor * vehicleTargetSpeedKmH / KPH_TO_LONGLAT_SPEED;			
 
 		numberOfCars++;
+		vehicleId = vehicleInstanceCount++;
 		DataCollector.Add ("Total # of vehicles", 1f);
 
 //		Transform car = transform.FindChild ("CarObject");
@@ -395,7 +399,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	}
 
 	private void adjustColliders () {
-		VehicleCollider[] vehicleCollders = GetComponentsInChildren<VehicleCollider> ();
+		VehicleCollider[] vehicleColliders = GetComponentsInChildren<VehicleCollider> ();
 
 //		float forwardColliders = 1f;
 		float forwardColliders = 1.5f;
@@ -416,20 +420,20 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			totalColliderSize = forwardColliders + maxColliderAdditionFactor * current / max * forwardColliders;
 		}
 
-		BoxCollider carCollider = vehicleCollders [2].GetComponent<BoxCollider> ();
+		BoxCollider carCollider = vehicleColliders [2].GetComponent<BoxCollider> ();
 		float carColliderOffset = carCollider.size.x / 2f;
 
 		float widthFac = fac * totalColliderSize;
 		float midFac = carColliderOffset + (pc * totalColliderSize) + widthFac / 2f;
 
-		BoxCollider facCollider = vehicleCollders [0].GetComponent<BoxCollider> ();
+		BoxCollider facCollider = vehicleColliders [0].GetComponent<BoxCollider> ();
 		facCollider.center = new Vector3 (midFac, 0f, 0f);
 		facCollider.size = new Vector3 (widthFac, 1f, 1f);
 
 		float widthPc = pc * totalColliderSize;
 		float midPc = carColliderOffset + widthPc / 2f;
 
-		BoxCollider pcCollider = vehicleCollders [1].GetComponent<BoxCollider> ();
+		BoxCollider pcCollider = vehicleColliders [1].GetComponent<BoxCollider> ();
 		pcCollider.center = new Vector3 (midPc, 0f, 0f);
 		pcCollider.size = new Vector3 (widthPc, 1f, 1f);
 
@@ -705,8 +709,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private void registerCollissionAmount (float amount) {
 		health -= amount;
 		if (health <= 0f) {
+			createDangerHalo ();
 			blinkUntilClickedAndDestroy ();
 		}
+	}
+
+	private void createDangerHalo () {
+		PubSub.publish ("Vehicle:createDangerHalo", this);
 	}
 
 	private void autosetAwarenessBreakFactor () {
@@ -927,20 +936,29 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 	public void onFadeMessage (string message) {
 		if (message == "destroy") {
-			Destroy (this.gameObject);
-			if (health > 0f) {
-				// TODO - Calculate points based on time, distance, or whatever...
-				PubSub.publish ("points:inc", 100);
-				DataCollector.Add ("Vehicles reached goal", 1f);
-			} else {
-				DataCollector.Add ("Vehicles destroyed", 1f);
-			}
-			numberOfCars--;
+			StartCoroutine ("destroyVehicle");
 		} else if (message == "fadeOut") {
 			blinkUntilClickedAndDestroy (false);
 		} else if (message == "fadeIn") {
 			blinkUntilClickedAndDestroy (true);
 		}
+	}
+
+	private IEnumerator destroyVehicle() {
+		VehicleCollider[] vehicleColliders = GetComponentsInChildren<VehicleCollider> ();
+		foreach (VehicleCollider collider in vehicleColliders) {
+			collider.GetComponent<BoxCollider> ().center = new Vector3 (0f, 0f, 1000f);
+		}
+		yield return null;
+		Destroy (this.gameObject);
+		if (health > 0f) {
+			// TODO - Calculate points based on time, distance, or whatever...
+			PubSub.publish ("points:inc", 100);
+			DataCollector.Add ("Vehicles reached goal", 1f);
+		} else {
+			DataCollector.Add ("Vehicles destroyed", 1f);
+		}
+		numberOfCars--;
 	}
 
 	public PROPAGATION onMessage (string message, object data) {
@@ -950,6 +968,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 				CircleTouch vehicleTouch = new CircleTouch (transform.position, 0.1f * 3f); // Click 0.1 (vehicle length) multiplied by three
 				if (vehicleTouch.isInside (clickPos)) {
 					fadeOutAndDestroy ();
+					PubSub.publish ("Vehicle:removeDangerHalo", this);
 					return PROPAGATION.STOP_AFTER_SAME_TYPE;
 				}
 			}

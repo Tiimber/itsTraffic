@@ -43,8 +43,9 @@ public class Game : MonoBehaviour, IPubSub {
 	public GameObject treeObject;
 	public GameObject vehicleEmission;
 	public GameObject vehicleVapour; 
-	public GameObject vehicleHalo; 
+	public GameObject vehicleHalo;
 	public GameObject wayCrossing;
+	public GameObject human;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;
@@ -97,6 +98,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		Game.running = true;
 		new VehicleRandomizer ();
+		new HumanRandomizer ();
 	}
 
 	void initDataCollection ()
@@ -118,15 +120,15 @@ public class Game : MonoBehaviour, IPubSub {
 			showOnlyCurrentLevel ^= true;
 			currentLevel = 0.111f;
 			filterWays ();
-		} else if (Input.GetKeyDown (KeyCode.LeftShift)) {
-			debugIndex = ++debugIndex % debugIndexNodes.Count;
-			WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
-			foreach (WayReference wayReference in wayReferences) {
-				if (wayReference.OriginalColor != Color.magenta) {
-					wayReference.gameObject.GetComponent<Renderer> ().material.color = wayReference.OriginalColor;
-					wayReference.OriginalColor = Color.magenta;
-				}
-			}
+//		} else if (Input.GetKeyDown (KeyCode.LeftShift)) {
+//			debugIndex = ++debugIndex % debugIndexNodes.Count;
+//			WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
+//			foreach (WayReference wayReference in wayReferences) {
+//				if (wayReference.OriginalColor != Color.magenta) {
+//					wayReference.gameObject.GetComponent<Renderer> ().material.color = wayReference.OriginalColor;
+//					wayReference.OriginalColor = Color.magenta;
+//				}
+//			}
 		} else if (Input.GetKeyDown (KeyCode.N)) {
 			GameObject car = null; 
 //			GameObject car = GameObject.Find ("Camaro(ish)(Clone)");
@@ -321,27 +323,12 @@ public class Game : MonoBehaviour, IPubSub {
 //			return;
 //		}
 
-//		Pos pos1 = getRandomEndPoint (null);
-//		Pos pos2 = getRandomEndPoint (pos1);
+		Pos pos1 = getRandomEndPoint (null);
+		Pos pos2 = getRandomEndPoint (pos1);
 
-//		List<Pos> randomEndpointPair = getRandomPredefinedEndPointsPair(
-//			new long[][] {
-////				new long[] {20L, 340L}, // TODO - If heavy traffic, this might get stuck along the way
-////				new long[] {340L, 20L},  // TODO - If heavy traffic, this might get stuck along the way
-//				new long[] {344L, 340L},
-////				new long[] {340L, 344L},
-////				new long[] {325L, 340L},
-////				new long[] {325L, 20L}
-//			}
-//		);
-//		Pos pos1 = randomEndpointPair [0];
-//		Pos pos2 = randomEndpointPair [1];
+//		Pos pos1 = getSpecificEndPoint (88L);
+//		Pos pos2 = getSpecificEndPoint (128L);
 
-		Pos pos1 = getSpecificEndPoint (88L);
-		Pos pos2 = getSpecificEndPoint (128L);
-
-//		Pos pos1 = getSpecificEndPoint (124L);
-//		Pos pos2 = getSpecificEndPoint (43L);
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
 		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate(), position, Quaternion.identity) as GameObject;
@@ -940,14 +927,23 @@ public class Game : MonoBehaviour, IPubSub {
 		WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
 		foreach (WayReference wayReference in wayReferences) {
 			float currentWayWidthFactor = wayReference.way.WayWidthFactor;
+			bool shouldShow = false;
 			if (showOnlyCurrentLevel && currentWayWidthFactor == currentLevel) {
-				wayReference.GetComponent<Renderer>().enabled = true;
+				shouldShow = true;
+//				wayReference.GetComponent<Renderer>().enabled = true;
 			} else if (!showOnlyCurrentLevel && currentWayWidthFactor >= currentLevel) {
-				wayReference.GetComponent<Renderer>().enabled = true;
+				shouldShow = true;
+//				wayReference.GetComponent<Renderer>().enabled = true;
 			} else {
-				wayReference.GetComponent<Renderer>().enabled = false;
+//				wayReference.GetComponent<Renderer>().enabled = false;
 			}
+			setRendererStateForGameObject (GameObject.Find ("Plane Mesh for " + wayReference.name), shouldShow);
 		}
+	}
+
+	private void setRendererStateForGameObject (GameObject gameObject, bool shouldRender) {
+		gameObject.GetComponent<Renderer> ().enabled = shouldRender;
+		gameObject.GetComponentsInChildren<Renderer> ().ToList ().ForEach (p => p.enabled = shouldRender);
 	}
 
 	public PROPAGATION onMessage (string message, object data) {

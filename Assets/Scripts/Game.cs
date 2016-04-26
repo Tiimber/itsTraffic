@@ -315,13 +315,13 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void giveBirth() {
-		Pos startPos = getRandomHumanPos ();
-		Pos endPos = getRandomHumanPos (startPos);
+		long startPos = getRandomHumanPos ();
+		long endPos = getRandomHumanPos (startPos);
 
 		// Find closest walk path - start and end pos
 		if (NodeIndex.walkNodes.Count > 0) {
-			Tuple3<Pos, WayReference, Vector3> startInfo = getHumanSpawnInfo (startPos);
-			Tuple3<Pos, WayReference, Vector3> endInfo = getHumanSpawnInfo (endPos);
+			Tuple3<Pos, WayReference, Vector3> startInfo = NodeIndex.humanSpawnPointsInfo[startPos];
+			Tuple3<Pos, WayReference, Vector3> endInfo = NodeIndex.humanSpawnPointsInfo[endPos];
 
 			// Place out human
 			GameObject humanInstance = Instantiate (human, startInfo.Third, Quaternion.identity) as GameObject;
@@ -330,43 +330,6 @@ public class Game : MonoBehaviour, IPubSub {
 			// Write dijkstra in HumanLogic
 //			NodeIndex.nodeOfInterestIndex;
 		}
-	}
-
-	static Tuple3<Pos, WayReference, Vector3> getHumanSpawnInfo (Pos spawnPos) {
-		// Position to spawn/despawn
-		Pos spawnNode;
-		WayReference closestWay = null;
-		Vector3 closestPoint = Vector3.zero;
-		if (NodeIndex.nodeWayWalkPathIndex.ContainsKey (spawnPos.Id)) {
-			// Spawn in a node
-			spawnNode = spawnPos;
-			closestWay = NodeIndex.nodeWayWalkPathIndex [spawnPos.Id] [0];
-			closestPoint = Game.getCameraPosition (spawnNode);
-		} else {
-			// Calculate which node is closest
-			spawnNode = PosHelper.getClosestNode (spawnPos, NodeIndex.walkNodes);
-//			Debug.Log ("Node: " + spawnPos.Id);
-			// Pick closest wayReference
-			Vector3 spawnPosVector = Game.getCameraPosition (spawnPos);
-			float closestDistance = float.MaxValue;
-			List<WayReference> ways = NodeIndex.nodeWayIndex [spawnNode.Id];
-			foreach (WayReference way in ways) {
-				Vector3 wayStart = Game.getCameraPosition (way.node1);
-				Vector3 wayEnd = Game.getCameraPosition (way.node2);
-				Vector3 projectedPoint = Math3d.ProjectPointOnLineSegment (wayStart, wayEnd, spawnPosVector);
-				float distance = PosHelper.getVectorDistance (spawnPosVector, projectedPoint);
-				if (distance < closestDistance) {
-					closestDistance = distance;
-					closestWay = way;
-					closestPoint = projectedPoint;
-				}
-			}
-//			Debug.Log ("distance: " + closestDistance);
-			DebugFn.arrow (spawnPosVector, closestPoint);
-		}
-		DebugFn.square (closestPoint);
-
-		return Tuple3.New (spawnNode, closestWay, closestPoint);
 	}
 
 	// TODO - Temporary counter
@@ -409,12 +372,12 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 	}
 
-	private Pos getRandomHumanPos (Pos notPos = null) {
+	private long getRandomHumanPos (long notPos = long.MinValue) {
 		List<long> humanPoints = NodeIndex.nodesOfInterest.Keys.ToList();
-		Pos chosenHumanPoint = null;
+		long chosenHumanPoint = long.MinValue;
 
 		do {
-			chosenHumanPoint = NodeIndex.nodesOfInterest[humanPoints[UnityEngine.Random.Range (0, humanPoints.Count)]];
+			chosenHumanPoint = humanPoints[UnityEngine.Random.Range (0, humanPoints.Count)];
 		} while (notPos == chosenHumanPoint);
 
 		return chosenHumanPoint;

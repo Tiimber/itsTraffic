@@ -20,7 +20,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private int animationItemsQueue = 0;
 	private float cameraEmission = 0f;
 
-	public static long randomSeed;
+	public static long randomSeed = Misc.currentTimeMillis ();
 	private static bool running = false;
 
 	public static KeyValuePair<Pos, WayReference> CurrentWayReference { set; get; }
@@ -77,7 +77,6 @@ public class Game : MonoBehaviour, IPubSub {
 		calculateVehicleFrequency ();
 
 		Game.instance = this;
-		Game.randomSeed = Misc.currentTimeMillis ();
 
 		StartCoroutine (MaterialManager.Init ());
 		StartCoroutine (loadXML ());
@@ -104,6 +103,7 @@ public class Game : MonoBehaviour, IPubSub {
 	void initDataCollection ()
 	{
 		DataCollector.InitLabel ("Total # of vehicles");
+		DataCollector.InitLabel ("Total # of people");
 		DataCollector.InitLabel ("Vehicles reached goal");
 		DataCollector.InitLabel ("Manual traffic light switches");
 	}
@@ -136,7 +136,8 @@ public class Game : MonoBehaviour, IPubSub {
 				Vehicle carObj = car.GetComponent<Vehicle> ();
 				carObj.fadeOutAndDestroy ();
 			} else {
-				createNewCar ();
+//				createNewCar ();
+				giveBirth();
 			}
 		} else if (Input.GetKeyDown (KeyCode.F)) {
 			followCar ^= true;
@@ -313,6 +314,61 @@ public class Game : MonoBehaviour, IPubSub {
 		PubSub.publish ("mainCameraActivated");
 	}
 
+	public void giveBirth() {
+		Pos startPos = getRandomHumanPos ();
+		Pos endPos = getRandomHumanPos (startPos);
+
+		// Find closest walk path - start and end pos
+		if (NodeIndex.walkNodes.Count > 0) {
+			Tuple3<Pos, WayReference, Vector3> startInfo = getHumanSpawnInfo (startPos);
+			Tuple3<Pos, WayReference, Vector3> endInfo = getHumanSpawnInfo (endPos);
+
+			// Place out human
+			GameObject humanInstance = Instantiate (human, startInfo.Third, Quaternion.identity) as GameObject;
+			HumanLogic humanLogic = humanInstance.GetComponent<HumanLogic> ();
+
+			// Write dijkstra in HumanLogic
+//			NodeIndex.nodeOfInterestIndex;
+		}
+	}
+
+	static Tuple3<Pos, WayReference, Vector3> getHumanSpawnInfo (Pos spawnPos) {
+		// Position to spawn/despawn
+		Pos spawnNode;
+		WayReference closestWay = null;
+		Vector3 closestPoint = Vector3.zero;
+		if (NodeIndex.nodeWayWalkPathIndex.ContainsKey (spawnPos.Id)) {
+			// Spawn in a node
+			spawnNode = spawnPos;
+			closestWay = NodeIndex.nodeWayWalkPathIndex [spawnPos.Id] [0];
+			closestPoint = Game.getCameraPosition (spawnNode);
+		} else {
+			// Calculate which node is closest
+			spawnNode = PosHelper.getClosestNode (spawnPos, NodeIndex.walkNodes);
+//			Debug.Log ("Node: " + spawnPos.Id);
+			// Pick closest wayReference
+			Vector3 spawnPosVector = Game.getCameraPosition (spawnPos);
+			float closestDistance = float.MaxValue;
+			List<WayReference> ways = NodeIndex.nodeWayIndex [spawnNode.Id];
+			foreach (WayReference way in ways) {
+				Vector3 wayStart = Game.getCameraPosition (way.node1);
+				Vector3 wayEnd = Game.getCameraPosition (way.node2);
+				Vector3 projectedPoint = Math3d.ProjectPointOnLineSegment (wayStart, wayEnd, spawnPosVector);
+				float distance = PosHelper.getVectorDistance (spawnPosVector, projectedPoint);
+				if (distance < closestDistance) {
+					closestDistance = distance;
+					closestWay = way;
+					closestPoint = projectedPoint;
+				}
+			}
+//			Debug.Log ("distance: " + closestDistance);
+			DebugFn.arrow (spawnPosVector, closestPoint);
+		}
+		DebugFn.square (closestPoint);
+
+		return Tuple3.New (spawnNode, closestWay, closestPoint);
+	}
+
 	// TODO - Temporary counter
 //	int carNo = 0;
 
@@ -323,7 +379,7 @@ public class Game : MonoBehaviour, IPubSub {
 //			return;
 //		}
 
-		Pos pos1 = getRandomEndPoint (null);
+		Pos pos1 = getRandomEndPoint ();
 		Pos pos2 = getRandomEndPoint (pos1);
 
 //		Pos pos1 = getSpecificEndPoint (88L);
@@ -353,9 +409,20 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 	}
 
-	private Pos getRandomEndPoint (Pos notPos)
+	private Pos getRandomHumanPos (Pos notPos = null) {
+		List<long> humanPoints = NodeIndex.nodesOfInterest.Keys.ToList();
+		Pos chosenHumanPoint = null;
+
+		do {
+			chosenHumanPoint = NodeIndex.nodesOfInterest[humanPoints[UnityEngine.Random.Range (0, humanPoints.Count)]];
+		} while (notPos == chosenHumanPoint);
+
+		return chosenHumanPoint;
+	}
+
+	private Pos getRandomEndPoint (Pos notPos = null)
 	{
-		List<long> endPoints = NodeIndex.endPointIndex.Keys.ToList();
+		List<long> endPoints = NodeIndex.endPointDriveWayIndex.Keys.ToList();
 		Pos chosenEndPoint = null;
 
 		do {
@@ -363,7 +430,6 @@ public class Game : MonoBehaviour, IPubSub {
 			// Validate endPoint as ok way to end at (certain size)
 		} while (
 			notPos == chosenEndPoint || 
-	        NodeIndex.endPointIndex[chosenEndPoint.Id][0].way.WayWidthFactor < WayTypeEnum.MINIMUM_DRIVE_WAY ||
 			(notPos != null && calculateCurrentPath(notPos, chosenEndPoint).Count == 0)
 		);
 
@@ -515,20 +581,29 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 		Map.Nodes = NodeIndex.nodes.Values.ToList();
 
+		handleRelations (xmlDoc);
+
 		XmlNodeList wayNodes = xmlDoc.SelectNodes("/osm/way");
 		foreach (XmlNode xmlNode in wayNodes) {
 			XmlAttributeCollection attributes = xmlNode.Attributes;
-			long wayId = Convert.ToInt64 (attributes.GetNamedItem ("id").Value);
-			Way way = new Way (wayId);
-			addTags(way, xmlNode);
-			addNodes(way, xmlNode);
+			string wayIdStr = attributes.GetNamedItem ("id").Value;
+			long wayId = Convert.ToInt64 (wayIdStr);
+			if (!NodeIndex.buildingWayIds.Contains (wayId)) {
+				Way way = new Way (wayId);
+				addTags (way, xmlNode);
+				addNodes (way, xmlNode);
 
-			Map.Ways.Add(way);
-			Map.WayIndex.Add (wayId, way);
+				Map.Ways.Add (way);
+				Map.WayIndex.Add (wayId, way);
+			} else {
+				XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
+				foreach (XmlAttribute refAttribute in nodeRefs) {
+					long nodeId = Convert.ToInt64 (refAttribute.Value);
+					NodeIndex.nodeIdsForBuildingWays.Add (nodeId);
+				}
+			}
 		}
-
-		handleRelations (xmlDoc);
-
+			
 //		Pos testPos1 = NodeIndex.getPosById (266706407L);
 //		Pos testPos2 = NodeIndex.getPosById (29524373L);
 //		List<Pos> path = calculateCurrentPath (testPos1, testPos2);
@@ -551,8 +626,7 @@ public class Game : MonoBehaviour, IPubSub {
 				Instantiate (treeObject, getCameraPosition(node), Quaternion.Euler(new Vector3(0, 0, treeRotation)));
 			}
 		}
-		         
-
+			
 		// Read config
 		WWW wwwConfig = new WWW (configFileName);
 		
@@ -702,6 +776,13 @@ public class Game : MonoBehaviour, IPubSub {
 				XmlNode wayNodeIsBuilding = xmlDoc.SelectSingleNode ("/osm/way[@id='" + outerWallWayId + "']/tag[@k='building' and @v='yes']");
 
 				if (wayNodeIsBuilding == null) {
+					// Add the wayIds of buildings to a list
+					// TODO - Seems to not draw the buildings outline/inline, but still have them as nodeWays in the debug squares
+					XmlNodeList xmlNodeWayBuildings = xmlNode.SelectNodes ("/osm/relation[@id='" + xmlNodeId + "']/member/@ref");
+					foreach (XmlNode wallIdNode in xmlNodeWayBuildings) {
+						NodeIndex.buildingWayIds.Add (Convert.ToInt64(wallIdNode.Value));
+					}
+
 					GameObject building = Instantiate (buildingObject) as GameObject;
 					building.transform.position = new Vector3 (0f, 0f, -0.098f);
 					BuildingRoof roof = building.GetComponent<BuildingRoof> ();

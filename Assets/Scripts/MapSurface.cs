@@ -14,15 +14,19 @@ public class MapSurface : MonoBehaviour {
 
 		foreach (XmlAttribute refAttribute in nodeRefs) {
 			Pos pos = NodeIndex.nodes [Convert.ToInt64 (refAttribute.Value)];
-			Vector3 worldPos = Game.getCameraPosition(pos);
-			vertices2D[i++] = worldPos;
+
+			// All "area nodes" are uninteresting nodes
+			NodeIndex.addUninterestingNodeId (pos.Id);
+
 			if (i==nodeRefs.Count-1) {
 				break;
 			}
+
+			Vector3 worldPos = Game.getCameraPosition(pos);
+			vertices2D[i++] = worldPos;
 		}
 
 		addMeshToGameObject (gameObject, vertices2D);
-
 	}
 
 

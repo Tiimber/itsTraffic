@@ -101,6 +101,7 @@
      <Compile Include="Assets\Scripts\PolygonTester.cs" />
      <Compile Include="Assets\Scripts\Settings.cs" />
      <Compile Include="Assets\Scripts\ShirtLogic.cs" />
+     <Compile Include="Assets\Scripts\SkinLogic.cs" />
      <Compile Include="Assets\Scripts\TrafficLightToggle.cs" />
      <Compile Include="Assets\Scripts\Triangulator.cs" />
      <Compile Include="Assets\Scripts\Utilities\CameraHandler.cs" />
@@ -110,8 +111,10 @@
      <Compile Include="Assets\Scripts\Utilities\FPSDisplay.cs" />
      <Compile Include="Assets\Scripts\Utilities\InspectorButton.cs" />
      <Compile Include="Assets\Scripts\Utilities\Misc.cs" />
+     <Compile Include="Assets\Scripts\Utilities\PosHelper.cs" />
      <Compile Include="Assets\Scripts\Utilities\ScreenWipe.cs" />
      <Compile Include="Assets\Scripts\Utilities\Singleton.cs" />
+     <Compile Include="Assets\Scripts\Utilities\Tuple3.cs" />
      <Compile Include="Assets\Scripts\Utilities\WayCrossing.cs" />
      <Compile Include="Assets\Scripts\Utilities\WayHelper.cs" />
      <Compile Include="Assets\Scripts\Utilities\WayObjectEndPoint.cs" />

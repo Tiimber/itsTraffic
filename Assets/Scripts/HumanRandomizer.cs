@@ -11,7 +11,6 @@ public class HumanRandomizer : ObjectRandomizer {
 	}
 
 	protected override void newObject () {
-		Debug.Log ("NEW MAN IS BORN");
 //		Game.instance.giveBirth ();
 	}
 }

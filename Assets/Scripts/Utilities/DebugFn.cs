@@ -5,9 +5,13 @@ using System.Linq;
 
 public class DebugFn : MonoBehaviour
 {
-	private static bool enabled = false;
+	private static bool enabled = true;
 
 	private static Vector3 offsetZ = new Vector3 (0, 0, -0.1f);
+
+	public static void print(Pos pos) {
+		DebugFn.print (Game.getCameraPosition (pos));
+	}
 
 	public static void print(Vector3 vector) {
 		if (enabled) {
@@ -72,6 +76,10 @@ public class DebugFn : MonoBehaviour
 
 	public static void arrow(Vector2 start, Vector2 end) {
 		arrowFromTo (new Vector3(start.x, start.y), new Vector3(end.x, end.y));
+	}
+
+	public static void square(Pos pos) {
+		DebugFn.square (Game.getCameraPosition (pos));
 	}
 
 	public static void square(Vector3 pos, float time = float.MaxValue) {

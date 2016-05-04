@@ -15,6 +15,7 @@ public class WayReference : MonoBehaviour {
 	// TODO - This is named wrong!
 	public float fieldsFromPos1ToPos2 = 1f; 
 	public float fieldsFromPos2ToPos1 = 1f;
+
 	public float getNumberOfFields () {
 		return fieldsFromPos1ToPos2 + fieldsFromPos2ToPos1;
 	}
@@ -25,6 +26,34 @@ public class WayReference : MonoBehaviour {
 
 	public float getNumberOfFieldsInDirection (bool toPos) {
 		return toPos ? fieldsFromPos1ToPos2 : fieldsFromPos2ToPos1;
+	}
+
+	private float carCost = -1f;
+	private float getCarCost() {
+		if (carCost == -1f) {
+			carCost = transform.localScale.magnitude / way.WayWidthFactor;
+		}
+		return carCost;
+	}
+
+	private float walkCost = -1f;
+	private float getWalkCost() {
+		if (walkCost == -1f) {
+			if (way.WayWidthFactor <= WayTypeEnum.PEDESTRIAN) {
+				walkCost = transform.localScale.magnitude;
+			} else {
+				walkCost = transform.localScale.magnitude * (1f + way.WayWidthFactor);
+			}
+		}
+		return walkCost;
+	}
+
+	public float getTravelCost(bool isVehicle) {
+		if (isVehicle) {
+			return getCarCost ();
+		} else {
+			return getWalkCost ();
+		}
 	}
 
 	// TODO - Flag if one-way (and if so, in which direction)
@@ -102,5 +131,9 @@ public class WayReference : MonoBehaviour {
 
 	public Pos getOtherNode (Pos pos) {
 		return isNode1(pos) ? node2 : node1;
+	}
+
+	public bool hasNodes (Pos pos1, Pos pos2) {
+		return (node1 == pos1 && node2 == pos2) || (node1 == pos2 && node2 == pos1);
 	}
 }

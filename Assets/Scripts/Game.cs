@@ -30,7 +30,8 @@ public class Game : MonoBehaviour, IPubSub {
 //	private string mapFileName = "http://samlingar.com/itsTraffic/testmap01.osm";
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
-	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap09.osm";
+//	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap09.osm";
+	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm";
 	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
 //	private string configFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
@@ -326,9 +327,7 @@ public class Game : MonoBehaviour, IPubSub {
 			// Place out human
 			GameObject humanInstance = Instantiate (human, startInfo.Third, Quaternion.identity) as GameObject;
 			HumanLogic humanLogic = humanInstance.GetComponent<HumanLogic> ();
-
-			// Write dijkstra in HumanLogic
-//			NodeIndex.nodeOfInterestIndex;
+			humanLogic.setStartAndEndInfo (startInfo, endInfo);
 		}
 	}
 
@@ -345,8 +344,8 @@ public class Game : MonoBehaviour, IPubSub {
 		Pos pos1 = getRandomEndPoint ();
 		Pos pos2 = getRandomEndPoint (pos1);
 
-//		Pos pos1 = getSpecificEndPoint (88L);
-//		Pos pos2 = getSpecificEndPoint (128L);
+//		Pos pos1 = getSpecificEndPoint (46L);
+//		Pos pos2 = getSpecificEndPoint (34L);
 
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
@@ -424,7 +423,7 @@ public class Game : MonoBehaviour, IPubSub {
 		return chosenEndPoint;
 	}
 
-	public static List<Pos> calculateCurrentPath (Pos source, Pos target) {
+	public static List<Pos> calculateCurrentPath (Pos source, Pos target, bool isVehicle = true) {
 		List<Pos> calculatedPath = new List<Pos> ();
 
 		Dictionary<long, NodeDistance> visitedPaths = new Dictionary<long, NodeDistance> ();
@@ -441,7 +440,7 @@ public class Game : MonoBehaviour, IPubSub {
 				// Calculate cost to node
 				Pos neighbourNode = neighbour.Key;
 				WayReference wayReference = neighbour.Value;
-				float cost = currentCost + wayReference.gameObject.transform.localScale.magnitude / wayReference.way.WayWidthFactor;
+				float cost = currentCost + wayReference.getTravelCost(isVehicle);
 				if (!visitedPaths.ContainsKey(neighbourNode.Id)) {
 					visitedPaths.Add (neighbourNode.Id, new NodeDistance(cost, current));
 				} else if (!visitedPaths[neighbourNode.Id].visited) {
@@ -526,12 +525,23 @@ public class Game : MonoBehaviour, IPubSub {
 		float x = 0.9f / (20f * refLatDiff);
 		heightFactor = x * (refLatDiff * refLatDiff) / latDiff;
 
+		// Width to height ratio
+		float widthHeightRatio = (float) Screen.width / (float) Screen.height;
+
 //		Camera mainCamera = Camera.main;
 		// TODO - Take these out from the camera
 		float cameraMinX = -cameraOrtographicSize;
 		float cameraMinY = -cameraOrtographicSize;
 		float cameraMaxX = cameraOrtographicSize;
 		float cameraMaxY = cameraOrtographicSize;
+
+		if (widthHeightRatio > 1f) {
+			float xSpan = (cameraMaxX - cameraMinX);
+			float addedXSpan = xSpan * widthHeightRatio - xSpan;
+			cameraMinX -= addedXSpan / 2f;
+			cameraMaxX += addedXSpan / 2f;
+		}
+
 		cameraBounds = new Rect (cameraMinX, cameraMinY, cameraMaxX - cameraMinX, cameraMaxY - cameraMinY);
 
 		XmlNodeList nodeNodes = xmlDoc.SelectNodes("/osm/node");
@@ -916,6 +926,13 @@ public class Game : MonoBehaviour, IPubSub {
 	private Vector3 getMidPoint (Vector3 position1, Vector3 position2)
 	{
 		return ((position2 - position1) / 2) + position1;
+	}
+
+	public static Pos createTmpPos (Vector3 third) {
+		float lon = (third.x - cameraBounds.x) / cameraBounds.width * mapBounds.width + mapBounds.x;
+		float lat = (third.y - cameraBounds.y) / cameraBounds.height * mapBounds.height + mapBounds.y;
+
+		return new Pos (-1L, lon, lat);
 	}
 
 	public static Vector3 getCameraPosition (Pos pos)

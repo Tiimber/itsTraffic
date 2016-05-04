@@ -123,9 +123,8 @@ public class FadeObjectInOut : MonoBehaviour
 
 			for (int i = 0; i < materials.Length; i++)
 			{
-				Color newColor = (colors != null ? colors[i] : materials[i].color);
-				newColor.a = Mathf.Min ( newColor.a, alphaValue ); 
-				newColor.a = Mathf.Clamp (newColor.a, 0.0f, 1.0f); 				
+				Color newColor = colors[i];
+				newColor.a = Mathf.Clamp (alphaValue, 0.0f, 1.0f); 				
 				materials[i].SetColor("_Color", newColor) ; 
 			}
 

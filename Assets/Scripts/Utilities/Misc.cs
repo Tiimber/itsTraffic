@@ -80,4 +80,14 @@ public class Misc {
 		// and return the root of the graph (deep copy) to the caller
 		return (T)(formatter.Deserialize(stream));
 	}
+
+	public static List<Vector3> posToVector3(List<Pos> positions) {
+		List<Vector3> vectors = new List<Vector3> ();
+
+		foreach (Pos pos in positions) {
+			vectors.Add (Game.getCameraPosition (pos));
+		}
+
+		return vectors;
+	}
 }

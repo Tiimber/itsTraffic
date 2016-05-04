@@ -57,12 +57,14 @@ public class SkinLogic : MonoBehaviour {
 		float skinGreen = Mathf.Clamp(baseColor.g + g, 0f, 1f);
 		float skinBlue = Mathf.Clamp(baseColor.b + b, 0f, 1f);
 
-		Color skinColor = new Color (skinRed, skinGreen, skinBlue);
+		Color skinColor = new Color (skinRed, skinGreen, skinBlue, 0f);
 
 		Renderer[] renderers = GetComponentsInChildren<Renderer> ();
 		foreach (Renderer renderer in renderers) {
 			if (renderer.gameObject.name == "skinmesh") {
-				renderer.material.SetColor ("_Color", skinColor);
+				foreach (Material material in renderer.materials) {
+					material.SetColor ("_Color", skinColor);
+				}
 			}
 		}
 	}

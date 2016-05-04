@@ -1,15 +1,8 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Utilities/PosHelper.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/HumanLogic.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game.cs" Line="332" Column="30" />
-      <File FileName="Assets/Scripts/Vehicle.cs" Line="13" Column="1" />
-      <File FileName="Assets/Scripts/Map/NodeIndex.cs" Line="49" Column="122" />
-      <File FileName="Assets/Scripts/BuildingRoof.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/MapSurface.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Map/WayTypeEnum.cs" Line="27" Column="34" />
-      <File FileName="Assets/Scripts/Utilities/PosHelper.cs" Line="10" Column="46" />
-      <File FileName="Assets/Scripts/Utilities/WayHelper.cs" Line="12" Column="1" />
+      <File FileName="Assets/Scripts/HumanLogic.cs" Line="17" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

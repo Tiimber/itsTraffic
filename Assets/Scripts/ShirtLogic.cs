@@ -19,7 +19,7 @@ public class ShirtLogic : MonoBehaviour {
 		float r = (float) HumanLogic.HumanRNG.NextDouble ();
 		float g = (float) HumanLogic.HumanRNG.NextDouble ();
 		float b = (float) HumanLogic.HumanRNG.NextDouble ();
-		Color shirtColor = new Color (r, g, b);
+		Color shirtColor = new Color (r, g, b, 0f);
 		Renderer renderer = GetComponent<Renderer> ();
 		renderer.material.SetColor ("_Color", shirtColor);
 	}

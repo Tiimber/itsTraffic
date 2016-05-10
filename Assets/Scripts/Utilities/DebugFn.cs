@@ -6,8 +6,8 @@ using System.Linq;
 public class DebugFn
 {
 	private static bool enabled = true;
-//	private const float time = float.MaxValue;
-	private const float time = 10f;
+	private const float time = float.MaxValue;
+//	private const float time = 10f;
 
 	private static Vector3 offsetZ = new Vector3 (0, 0, -0.1f);
 

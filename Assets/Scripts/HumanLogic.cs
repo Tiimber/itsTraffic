@@ -2,22 +2,99 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class HumanLogic : MonoBehaviour {
+public class HumanLogic : MonoBehaviour, FadeInterface {
 
 	public static System.Random HumanRNG = new System.Random ((int)Game.randomSeed);
+
+	private const float TARGET_WALKING_SPEED_KMH = 4.5f;
+	private const float KPH_TO_LONGLAT_SPEED = 100f;
+
+	private List<Pos> path;
+	private List<Vector3> walkPath;
+
+	private float speedFactor;
+	private bool destroying = false;
 
 	// Use this for initialization
 	void Start () {
 		DataCollector.Add ("Total # of people", 1f);
+		initHumanProfile ();
 	}
-	
+
+	private void initHumanProfile () {
+		float minSpeedFactor = 0.8f;
+		float maxSpeedFactor = 1.2f;
+
+		speedFactor = Random.Range (minSpeedFactor, maxSpeedFactor);
+	}
+
 	// Update is called once per frame
 	void Update () {
+		if (destroying) {
+			return;
+		}
+
+		Vector3 targetPoint = walkPath [0];
+		Vector3 currentPoint = transform.position;
+		rotateHuman (targetPoint, currentPoint);
+
+		float travelDistance = (currentPoint - targetPoint).magnitude;
+
+		float targetSpeedKmH = TARGET_WALKING_SPEED_KMH * speedFactor;
+		float travelLengthThisFrame = (targetSpeedKmH * Time.deltaTime) / KPH_TO_LONGLAT_SPEED;
+
+		if (travelLengthThisFrame >= travelDistance) {
+			transform.position = targetPoint;
+			walkPath.RemoveAt (0);
+			if (walkPath.Count == 0) {
+				fadeOutAndDestroy ();
+			}
+		} else {
+			Vector3 movement = transform.rotation * (Vector3.right * travelLengthThisFrame);
+			transform.position = transform.position + movement;
+		}
 	}
+
+	void rotateHuman (Vector3 target, Vector3 current)
+	{
+		Quaternion humanRotation = Quaternion.FromToRotation (Vector3.right, target - current);
+		transform.rotation = humanRotation;
+	}
+
+	public void fadeOutAndDestroy () {
+		destroying = true;
+		FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
+		fadeObject.DoneMessage = "destroy";
+		fadeObject.FadeOut (0.5f);
+	}
+
+	public void onFadeMessage (string message) {
+		if (message == "destroy") {
+			StartCoroutine ("humanReachedGoal");
+		}
+	}
+
+	private IEnumerator humanReachedGoal() {
+//		VehicleCollider[] humanColliders = GetComponentsInChildren<HumanCollider> ();
+//		foreach (VehicleCollider collider in humanColliders) {
+//			collider.GetComponent<BoxCollider> ().center = new Vector3 (0f, 0f, 1000f);
+//		}
+		yield return null;
+		Destroy (this.gameObject);
+//		if (health > 0f) {
+//			// TODO - Calculate points based on time, distance, or whatever...
+			PubSub.publish ("points:inc", 50);
+			DataCollector.Add ("Humans reached goal", 1f);
+//		} else {
+//			DataCollector.Add ("Vehicles destroyed", 1f);
+//		}
+//		numberOfCars--;
+	}
+
 		
 	public void setStartAndEndInfo (Tuple3<Pos, WayReference, Vector3> startInfo, Tuple3<Pos, WayReference, Vector3> endInfo) {
-		List<Pos> path = Game.calculateCurrentPath (startInfo.First, endInfo.First, false);
-		List<Vector3> walkPath = Misc.posToVector3 (path);
+		path = Game.calculateCurrentPath (startInfo.First, endInfo.First, false);
+		walkPath = Misc.posToVector3 (path);
 
 		if (path.Count == 1) {
 			Destroy (gameObject);
@@ -51,7 +128,8 @@ public class HumanLogic : MonoBehaviour {
 		Vector3 vec1 = walkPath [0];
 		Vector3 vec2 = walkPath [1];
 
-		Quaternion humanRotation = Quaternion.FromToRotation (Vector3.right, vec2 - vec1);
-		transform.rotation = humanRotation;
+		rotateHuman (vec2, vec1);
+
+		walkPath.RemoveAt (0);
 	}
 }

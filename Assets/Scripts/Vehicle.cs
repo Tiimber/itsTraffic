@@ -53,6 +53,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private float CollectedEmissionAmount = 0f;
 
 	private const float THRESHOLD_EMISSION_PUFF = 0.030f;
+	private const float KPH_TO_LONGLAT_SPEED = 30000f;
 
 //	private const float MaxRotation = 20f;
 	private float DesiredRotation { set; get; }
@@ -84,7 +85,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	public static int numberOfCars = 0;
 	public static int vehicleInstanceCount = 0;
 	private static float MAP_SPEED_TO_KPH_FACTOR = 100f;
-	private static float KPH_TO_LONGLAT_SPEED = 30000f;
 	private static float IMPATIENT_TRAFFIC_LIGHT_THRESHOLD = 17f;
 	private static float IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD = 8f;
 

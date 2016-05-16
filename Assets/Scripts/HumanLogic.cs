@@ -55,8 +55,11 @@ public class HumanLogic : MonoBehaviour, FadeInterface {
 		}
 	}
 
-	void rotateHuman (Vector3 target, Vector3 current)
-	{
+	private void positionHuman (Vector3 pos) {
+		transform.position = pos;
+	}
+
+	private void rotateHuman (Vector3 target, Vector3 current) {
 		Quaternion humanRotation = Quaternion.FromToRotation (Vector3.right, target - current);
 		transform.rotation = humanRotation;
 	}
@@ -113,7 +116,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface {
 			path.RemoveAt (0);
 		}
 		walkPath.Insert (0, startInfo.Third);
-		path.Insert (0, Game.createTmpPos(startInfo.Third));
+		path.Insert (0, Game.createTmpPos (startInfo.Third));
 
 		WayReference endWay = endInfo.Second;
 		if (endWay.hasNodes (secondToLastPos, lastPos)) {
@@ -123,13 +126,42 @@ public class HumanLogic : MonoBehaviour, FadeInterface {
 		walkPath.Add (endInfo.Third);
 		path.Add (Game.createTmpPos(endInfo.Third));
 
+		// Adjust position to side of bigger ways
+		adjustPositionsOnBiggerWays(path, walkPath, startWay, endWay);
+
 		DebugFn.DebugPath (walkPath);
 
 		Vector3 vec1 = walkPath [0];
 		Vector3 vec2 = walkPath [1];
 
+		positionHuman (vec1);
 		rotateHuman (vec2, vec1);
 
 		walkPath.RemoveAt (0);
+	}
+
+	private void adjustPositionsOnBiggerWays (List<Pos> path, List<Vector3> walkPath, WayReference startWay, WayReference endWay) {
+		WayReference currentWayReference = startWay;
+		for (int i = 0; i < path.Count; i++) {
+			Pos currentPos = path [i];
+			if (i == path.Count - 1) {
+				currentWayReference = endWay;
+			} else if (i > 0) {
+				Pos previousPos = path [i-1];
+				if (currentPos.Id != -1L && previousPos.Id != -1L) {
+					currentWayReference = NodeIndex.getWayReference (currentPos.Id, previousPos.Id);
+				}
+			}
+
+			// We now have the wayReference that our point should be offset on, if it's a way where cars normally drive
+//			if (currentWayReference.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY) {
+				Vector3 point = walkPath [i];
+
+				// TODO - Position on correct side of way
+				float offsetWayWidth = +(currentWayReference.transform.localScale.y / 2f) - 0.05f;
+				Vector3 humanOffsetOnWay = currentWayReference.transform.rotation * new Vector3(0f, offsetWayWidth, 0f);
+				walkPath[i] = new Vector3(point.x + humanOffsetOnWay.x, point.y + humanOffsetOnWay.y, point.z);
+//			}
+		}
 	}
 }

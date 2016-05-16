@@ -41,10 +41,10 @@ public class NodeIndex
 		straightWayIndex = nodeWayIndex.Where (p => p.Value.Count == 2).ToDictionary (p => p.Key, p => p.Value);
 		intersectionWayIndex = nodeWayIndex.Where (p => p.Value.Count > 2).ToDictionary (p => p.Key, p => p.Value);
 
-		endPointDriveWayIndex = endPointIndex.Where (p => p.Value[0].way.WayWidthFactor >= WayTypeEnum.MINIMUM_DRIVE_WAY).ToDictionary (p => p.Key, p => p.Value);
+		endPointDriveWayIndex = endPointIndex.Where (p => p.Value[0].way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToDictionary (p => p.Key, p => p.Value);
 
 		foreach (KeyValuePair<long, List<WayReference>> nodeWithWays in nodeWayIndex) {
-			List<WayReference> walkPaths = nodeWithWays.Value.Where (p => p.way.WayWidthFactor <= WayTypeEnum.MINIMUM_DRIVE_WAY && p.way.WayWidthFactor > WayTypeEnum.OTHER_FOOTWAY).ToList ();
+			List<WayReference> walkPaths = nodeWithWays.Value.Where (p => p.way.WayWidthFactor <= WayHelper.MINIMUM_DRIVE_WAY && p.way.WayWidthFactor > WayTypeEnum.OTHER_FOOTWAY).ToList ();
 			if (walkPaths.Count > 0) {
 				nodeWayWalkPathIndex.Add (nodeWithWays.Key, walkPaths);
 			}
@@ -58,7 +58,7 @@ public class NodeIndex
 				!nodeIdsForBuildingWays.Contains(p.Value.Id) &&
 				!nodeWayIndex.ContainsKey (p.Value.Id) 
 			) || (
-			endPointIndex.ContainsKey(p.Value.Id) && endPointIndex[p.Value.Id][0].way.WayWidthFactor <= WayTypeEnum.MINIMUM_DRIVE_WAY && endPointIndex[p.Value.Id][0].way.WayWidthFactor > WayTypeEnum.OTHER_FOOTWAY
+			endPointIndex.ContainsKey(p.Value.Id) && endPointIndex[p.Value.Id][0].way.WayWidthFactor <= WayHelper.MINIMUM_DRIVE_WAY && endPointIndex[p.Value.Id][0].way.WayWidthFactor > WayTypeEnum.OTHER_FOOTWAY
 			)
 		).ToDictionary(p => p.Key, p => p.Value);
 

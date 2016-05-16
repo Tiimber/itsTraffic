@@ -1,20 +1,19 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/HumanLogic.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/FadeObjectInOut.cs">
     <Files>
-      <File FileName="Assets/Scripts/HumanLogic.cs" Line="45" Column="4" />
-      <File FileName="Assets/Scripts/Game.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/CameraHandler.cs" Line="20" Column="27" />
-      <File FileName="Assets/Scripts/Vehicle.cs" Line="516" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/WayHelper.cs" Line="12" Column="42" />
+      <File FileName="Assets/Scripts/HumanLogic.cs" Line="66" Column="14" />
+      <File FileName="Assets/Scripts/Vehicle.cs" Line="6" Column="51" />
+      <File FileName="Assets/Scripts/Utilities/WayHelper.cs" Line="10" Column="72" />
+      <File FileName="Assets/Scripts/Map/NodeIndex.cs" Line="101" Column="31" />
+      <File FileName="Assets/Scripts/Utilities/DebugFn.cs" Line="10" Column="3" />
+      <File FileName="Assets/Scripts/FadeObjectInOut.cs" Line="139" Column="13" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint conditionExpression="name==&quot;BuildingRoof (383042811)&quot;" file="/home/anders/Programmering/itsTraffic/Assets/Scripts/BuildingRoof.cs" line="132" column="1" />
       <Breakpoint conditionExpression="xmlNode.Attributes.GetNamedItem (&quot;id&quot;).Value == &quot;52037555&quot;" file="/home/anders/Programmering/itsTraffic/Assets/Scripts/BuildingRoof.cs" line="50" column="1" />
-      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/HumanLogic.cs" line="44" column="46" />
-      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/HumanLogic.cs" line="41" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

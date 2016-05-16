@@ -596,7 +596,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		// Logic for upcoming wayreference end node collission
 		if (wayCollisionObj != null && wayCollisionObj.WayReference == CurrentWayReference && wayCollisionObj.Pos == CurrentTarget) {
 			// We know that this is the currentTarget - we want to know our options
-			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayTypeEnum.MINIMUM_DRIVE_WAY).ToList ();
+			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
 			if (colliderName == "FAC") {
 				turnState = TurnState.FAC;
 			} else if (colliderName == "PC") {
@@ -825,7 +825,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			endVector = Game.getCameraPosition (CurrentTarget);
 			startVector = Game.getCameraPosition (CurrentPosition);
 
-			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayTypeEnum.MINIMUM_DRIVE_WAY).ToList ();
+			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
 			if (possitilities.Count == 1) {
 				if (TurnToRoad == null || Misc.isAngleAccepted (gameObject.transform.rotation.eulerAngles.z, possitilities [0].gameObject.transform.rotation.eulerAngles.z, 45f, 180f)) {
 					TurnToRoad = possitilities [0];

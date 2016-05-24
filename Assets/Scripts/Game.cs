@@ -137,8 +137,8 @@ public class Game : MonoBehaviour, IPubSub {
 				Vehicle carObj = car.GetComponent<Vehicle> ();
 				carObj.fadeOutAndDestroy ();
 			} else {
-//				createNewCar ();
-				giveBirth();
+				createNewCar ();
+//				giveBirth();
 			}
 		} else if (Input.GetKeyDown (KeyCode.F)) {
 			followCar ^= true;

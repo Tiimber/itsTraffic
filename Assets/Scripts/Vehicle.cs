@@ -179,222 +179,236 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 	// Update is called once per frame
 	void Update () {
-		if (!destroying && TurnToRoad != null) {
+		if (!destroying) {
+			if (TurnToRoad != null && CurrentWayReference != null) {
 
-			// Way target speed
-			float wayTargetSpeedKmH = CurrentWayReference.way.WayWidthFactor * MAP_SPEED_TO_KPH_FACTOR; 	// Eg 51 km/h
-			// Car target speed
-			float vehicleTargetSpeedKmH = wayTargetSpeedKmH * SpeedFactor;									// Eg 10% faster = 56.5 km/h
+				// Way target speed
+				float wayTargetSpeedKmH = CurrentWayReference.way.WayWidthFactor * MAP_SPEED_TO_KPH_FACTOR; 	// Eg 51 km/h
+				// Car target speed
+				float vehicleTargetSpeedKmH = wayTargetSpeedKmH * SpeedFactor;									// Eg 10% faster = 56.5 km/h
 
-			// Current car speed
-			float currentSpeedKmH = currentSpeed * KPH_TO_LONGLAT_SPEED;
+				// Current car speed
+				float currentSpeedKmH = currentSpeed * KPH_TO_LONGLAT_SPEED;
 
-			// Lowest break factor (decides how fast the car currently want to go)
-			float breakFactor = Mathf.Min (TurnBreakFactor, AwarenessBreakFactor);
+				// Lowest break factor (decides how fast the car currently want to go)
+				float breakFactor = Mathf.Min (TurnBreakFactor, AwarenessBreakFactor);
 
-			// Car target after break factor
-			float vehicleTargetSpeedAfterBreakFactorKmH = breakFactor * vehicleTargetSpeedKmH;
+				// Car target after break factor
+				float vehicleTargetSpeedAfterBreakFactorKmH = breakFactor * vehicleTargetSpeedKmH;
 
-			// Acceleration this "second" at current car speed
-			float speedChangeKmh = GetAccForKmh (currentSpeedKmH, vehicleTargetSpeedAfterBreakFactorKmH);
+				// Acceleration this "second" at current car speed
+				float speedChangeKmh = GetAccForKmh (currentSpeedKmH, vehicleTargetSpeedAfterBreakFactorKmH);
 
-			// Speed change this delta time
-			float speedChangeInFrameKmh = speedChangeKmh * Time.deltaTime;
+				// Speed change this delta time
+				float speedChangeInFrameKmh = speedChangeKmh * Time.deltaTime;
 
-			// Car speed change for this current frame
-			float speedChangeInFrame = speedChangeInFrameKmh / KPH_TO_LONGLAT_SPEED;
+				// Car speed change for this current frame
+				float speedChangeInFrame = speedChangeInFrameKmh / KPH_TO_LONGLAT_SPEED;
 
-			float speedChangeInFrameNoBacking;
+				float speedChangeInFrameNoBacking;
 
-			// If in backing state, allow backing and count down the time to be backing
-			if (backingCounterSeconds > 0f) {				
-				backingCounterSeconds -= Time.deltaTime;
-				if (backingCounterSeconds <= 0f) {
-					autosetAwarenessBreakFactor ();
+				// If in backing state, allow backing and count down the time to be backing
+				if (backingCounterSeconds > 0f) {				
+					backingCounterSeconds -= Time.deltaTime;
+					startBacklights ();
+					if (backingCounterSeconds <= 0f) {
+						stopBacklights ();
+						autosetAwarenessBreakFactor ();
+					}
+
+					speedChangeInFrameNoBacking = speedChangeInFrame;
+				} else {
+					// No backing
+					speedChangeInFrameNoBacking = Mathf.Max (speedChangeInFrame, -currentSpeed);
 				}
 
-				speedChangeInFrameNoBacking = speedChangeInFrame;
-			} else {
-				// No backing
-				speedChangeInFrameNoBacking = Mathf.Max(speedChangeInFrame, -currentSpeed);
-			}
+				//			if (currentSpeed > 0f) {
+				//				Debug.Log ("Current Speed: " + currentSpeedKmH);
+				//				Debug.Log ("Target Speed: " + vehicleTargetSpeedAfterBreakFactorKmH);
+				//				Debug.Log ("Speed Change: " + speedChangeKmh);
+				//			}
 
-//			if (currentSpeed > 0f) {
-//				Debug.Log ("Current Speed: " + currentSpeedKmH);
-//				Debug.Log ("Target Speed: " + vehicleTargetSpeedAfterBreakFactorKmH);
-//				Debug.Log ("Speed Change: " + speedChangeKmh);
-//			}
+				// Apply speed change
+				currentSpeed += speedChangeInFrameNoBacking;
 
-			// Apply speed change
-			currentSpeed += speedChangeInFrameNoBacking;
+				// React to standing still or moving this frame
+				if (breakFactor == 0f) {
+					stats [STAT_WAITING_TIME].add (Time.deltaTime);
 
-			// React to standing still or moving this frame
-			if (breakFactor == 0f) {
-				stats [STAT_WAITING_TIME].add (Time.deltaTime);
-
-				if (Time.time > timeOfLastMovement + ImpatientThresholdTrafficLight) {
-					honk ();
-					// Make sure to not honk directly again
-					timeOfLastMovement = Time.time - 5f * Random.Range (0.8f, 1.2f);
+					if (Time.time > timeOfLastMovement + ImpatientThresholdTrafficLight) {
+						performIrritationAction ();
+						// Make sure to not honk directly again
+						timeOfLastMovement = Time.time - 5f * Random.Range (0.8f, 1.2f);
+					}
+				} else {
+					timeOfLastMovement = Time.time;
+					performIrritationAction (false);
+					stats [STAT_DRIVING_TIME].add (Time.deltaTime);
 				}
-			} else {
-				timeOfLastMovement = Time.time;
-				honk (false);
-				stats [STAT_DRIVING_TIME].add (Time.deltaTime);
-			}
 
-			if (currentSpeed != 0f) {
-				float metersDriven = Misc.kmhToMps (currentSpeed * KPH_TO_LONGLAT_SPEED * Time.deltaTime);
-				stats [STAT_DRIVING_DISTANCE].add (Mathf.Abs(metersDriven));
-			}
+				if (currentSpeed != 0f) {
+					float metersDriven = Misc.kmhToMps (currentSpeed * KPH_TO_LONGLAT_SPEED * Time.deltaTime);
+					stats [STAT_DRIVING_DISTANCE].add (Mathf.Abs (metersDriven));
+				}
 
-//			// TODO - Try to make this better
-//			// The vehicles desired speed per second on this specific road
-//			float wayTargetSpeed = CurrentWayReference.way.WayWidthFactor * Settings.playbackSpeed;
-//			float breakFactor = Mathf.Min (TurnBreakFactor, AwarenessBreakFactor);
-//			float vehicleTargetSpeed = (wayTargetSpeed * SpeedFactor * breakFactor / 2) / 10f;
-//			// Calculated movement for current frame
-//			float currentAcceleration = (vehicleTargetSpeed - currentSpeed) / vehicleTargetSpeed * Acceleration;
-//			// Adjust with speedfactor
-//			currentAcceleration /= Settings.speedFactor;
-//			float speedChangeInFrame = currentAcceleration * Time.deltaTime;
-//			currentSpeed += speedChangeInFrame;
+				//			// TODO - Try to make this better
+				//			// The vehicles desired speed per second on this specific road
+				//			float wayTargetSpeed = CurrentWayReference.way.WayWidthFactor * Settings.playbackSpeed;
+				//			float breakFactor = Mathf.Min (TurnBreakFactor, AwarenessBreakFactor);
+				//			float vehicleTargetSpeed = (wayTargetSpeed * SpeedFactor * breakFactor / 2) / 10f;
+				//			// Calculated movement for current frame
+				//			float currentAcceleration = (vehicleTargetSpeed - currentSpeed) / vehicleTargetSpeed * Acceleration;
+				//			// Adjust with speedfactor
+				//			currentAcceleration /= Settings.speedFactor;
+				//			float speedChangeInFrame = currentAcceleration * Time.deltaTime;
+				//			currentSpeed += speedChangeInFrame;
 
-			calculateCollectedEmission(speedChangeInFrame);
+				calculateCollectedEmission (speedChangeInFrame);
 
-			adjustColliders ();
+				adjustColliders ();
 
-//			Debug.Log ("Current speed: " + currentSpeed + ", Vehicle target speed: " + vehicleTargetSpeed + ", Acceleration: " + currentAcceleration);
+				//			Debug.Log ("Current speed: " + currentSpeed + ", Vehicle target speed: " + vehicleTargetSpeed + ", Acceleration: " + currentAcceleration);
 
-			Vector3 currentPos = new Vector3 (transform.position.x, transform.position.y, 0f);
-			Vector3 intersection = Vector3.zero;
-//			Vector3 toTarget;
+				Vector3 currentPos = new Vector3 (transform.position.x, transform.position.y, 0f);
+				Vector3 intersection = Vector3.zero;
+				//			Vector3 toTarget;
 
-			// We have a target point that we want to move towards - check if we intersect the target point (which means we need to turn)
-			Vector3 wayDirection = TurnToRoad.gameObject.transform.rotation * Vector3.right;
+				// We have a target point that we want to move towards - check if we intersect the target point (which means we need to turn)
+				Vector3 wayDirection = TurnToRoad.gameObject.transform.rotation * Vector3.right;
 
-			Vector3 currentWayDirection = CurrentWayReference.gameObject.transform.rotation * (CurrentWayReference.isNode1(CurrentTarget) ? Vector3.left : Vector3.right);
-			Vector3 appropriateMovementVector = isStraightWay ? currentWayDirection : vehicleMovement;
+				Vector3 currentWayDirection = CurrentWayReference.gameObject.transform.rotation * (CurrentWayReference.isNode1 (CurrentTarget) ? Vector3.left : Vector3.right);
+				Vector3 appropriateMovementVector = isStraightWay ? currentWayDirection : vehicleMovement;
 
-			bool intersects = Math3d.LineLineIntersection (out intersection, currentPos, appropriateMovementVector, TargetPoint, wayDirection);
+				bool intersects = Math3d.LineLineIntersection (out intersection, currentPos, appropriateMovementVector, TargetPoint, wayDirection);
 
-//			Debug.DrawLine (transform.position, transform.position + appropriateMovementVector, Color.black, float.MaxValue);
+				//			Debug.DrawLine (transform.position, transform.position + appropriateMovementVector, Color.black, float.MaxValue);
 
-			if (BezierLength == 0f) {
-				BezierLength = Math3d.GetBezierLength (currentPos, intersects ? intersection : TargetPoint, TargetPoint);
-//				Debug.Log ("Bezier length: " + BezierLength);
-				AccumulatedBezierDistance = 0f;
-			}
-//			float time = turnState == TurnState.NONE ? 0.5f : TurnToRoad.SmallWay ? 1.0f : 0.1f;
-//			float time = turnState == TurnState.NONE ? 0.5f : TurnToRoad.SmallWay ? 1.0f : (Mathf.Max (Mathf.Min(1f, AccumulatedBezierDistance / BezierLength), 0.05f));
-			float time = TurnToRoad.SmallWay && isStraightWay ? 1.0f : Mathf.Max (Mathf.Min(1f, AccumulatedBezierDistance / BezierLength), 0.05f);
-//			Debug.Log ("Time: " + time);
-			Vector3 currentTargetPoint = Math3d.GetVectorInBezierAtTime(time, currentPos, intersects ? intersection : TargetPoint, TargetPoint);
+				if (BezierLength == 0f) {
+					BezierLength = Math3d.GetBezierLength (currentPos, intersects ? intersection : TargetPoint, TargetPoint);
+					//				Debug.Log ("Bezier length: " + BezierLength);
+					AccumulatedBezierDistance = 0f;
+				}
+				//			float time = turnState == TurnState.NONE ? 0.5f : TurnToRoad.SmallWay ? 1.0f : 0.1f;
+				//			float time = turnState == TurnState.NONE ? 0.5f : TurnToRoad.SmallWay ? 1.0f : (Mathf.Max (Mathf.Min(1f, AccumulatedBezierDistance / BezierLength), 0.05f));
+				float time = TurnToRoad.SmallWay && isStraightWay ? 1.0f : Mathf.Max (Mathf.Min (1f, AccumulatedBezierDistance / BezierLength), 0.05f);
+				//			Debug.Log ("Time: " + time);
+				Vector3 currentTargetPoint = Math3d.GetVectorInBezierAtTime (time, currentPos, intersects ? intersection : TargetPoint, TargetPoint);
 
-//			Vector3 prev = Vector3.zero;
-//			for (float t = 0.0f; t <= 1.0f; t+= TurnToRoad.SmallWay && isStraightWay ? 1.0f : 0.05f) {
-//				Vector3 curr = Math3d.GetVectorInBezierAtTime(t, currentPos, intersects ? intersection : TargetPoint, TargetPoint);
-//				if (prev != Vector3.zero) {
-////					Debug.DrawLine (prev, curr, Color.yellow, float.MaxValue); // Forever
-//					Debug.DrawLine (prev, curr, Color.yellow, 10f);
-//				}
-//				prev = curr;
-//			}
+				//			Vector3 prev = Vector3.zero;
+				//			for (float t = 0.0f; t <= 1.0f; t+= TurnToRoad.SmallWay && isStraightWay ? 1.0f : 0.05f) {
+				//				Vector3 curr = Math3d.GetVectorInBezierAtTime(t, currentPos, intersects ? intersection : TargetPoint, TargetPoint);
+				//				if (prev != Vector3.zero) {
+				////					Debug.DrawLine (prev, curr, Color.yellow, float.MaxValue); // Forever
+				//					Debug.DrawLine (prev, curr, Color.yellow, 10f);
+				//				}
+				//				prev = curr;
+				//			}
 
-			Vector3 positionMovementVector = currentTargetPoint - currentPos;
-			if (positionMovementVector.magnitude > 0.0001f && breakFactor >= 0f) {
-				Quaternion vehicleRotation = Quaternion.FromToRotation(Vector3.right, positionMovementVector);
-//				float currentRotationDegrees = Mathf.Abs(vehicleRotation.eulerAngles.z - transform.rotation.eulerAngles.z);
-//				if (i > 1 && currentRotationDegrees > 90f) {
-////					Debug.Log ("Move forward");
-//					MoveTargetPointForward ();
-////					Update ();
-//					return;
-//				} else {
-//					Debug.Log ("Rotation: " + currentRotationDegrees);
+				Vector3 positionMovementVector = currentTargetPoint - currentPos;
+				if (positionMovementVector.magnitude > 0.0001f && breakFactor >= 0f) {
+					Quaternion vehicleRotation = Quaternion.FromToRotation (Vector3.right, positionMovementVector);
+					//				float currentRotationDegrees = Mathf.Abs(vehicleRotation.eulerAngles.z - transform.rotation.eulerAngles.z);
+					//				if (i > 1 && currentRotationDegrees > 90f) {
+					////					Debug.Log ("Move forward");
+					//					MoveTargetPointForward ();
+					////					Update ();
+					//					return;
+					//				} else {
+					//					Debug.Log ("Rotation: " + currentRotationDegrees);
 					transform.rotation = vehicleRotation;
-//				}
-//			} else {
-//				Debug.Log (positionMovementVector.magnitude);
+					//				}
+					//			} else {
+					//				Debug.Log (positionMovementVector.magnitude);
+				}
+
+				//			float movementPct = (currentSpeed / Mathf.Max(positionMovementVector.magnitude, 0.001f)) * Settings.wayLengthFactor;
+				float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
+				Vector3 movementVector = positionMovementVector * movementPct;
+				//			Debug.Log (BezierLength / positionMovementVector.magnitude);
+				if (TurnToRoad.SmallWay && positionMovementVector.magnitude < 0.05f && positionMovementVector.magnitude < BezierLength / 40f) {
+					// TODO - Try to get rid of SmallWays. Remove the connections to footways and merge with "non-intersecting" way 
+					//				Debug.Log (movementVector);
+					//				Debug.Log (positionMovementVector);
+					//				Debug.Log (positionMovementVector.magnitude);
+					//				Debug.Log (movementPct);
+					//				Debug.Log (currentSpeed);
+					//				Debug.Log (positionMovementVector.magnitude);
+
+					// Panic mode, switch to next target
+					//				Debug.Log ("Small way and very small movement vector, move to next road");
+					//				if (turnState != TurnState.NONE) {
+					//					CurrentPosition = CurrentTarget;
+					//					updateCurrentTarget ();
+					//				}
+					CurrentPosition = CurrentTarget;
+					updateCurrentTarget ();
+					Update ();
+					return;
+				}
+				Vector3 positionMovement = new Vector3 (movementVector.x, movementVector.y, 0);
+				//			if (float.IsNaN(positionMovement.x) || float.IsInfinity(positionMovement.x)) {
+				//				positionMovement = Vector3.zero;
+				//			}
+				//			Debug.Log (positionMovement);
+				transform.position += positionMovement;
+				AccumulatedBezierDistance += positionMovement.magnitude;
+
+				//			toTarget = TargetPoint - transform.position;
+				//			toTarget.z = 0;
+				//			if (PreviousMovementVector != Vector3.zero && Vector3.Angle (toTarget, PreviousMovementVector) > 150f) {
+				//				CurrentPosition = CurrentTarget;
+				//				updateCurrentTarget ();
+				////				Quaternion rotation;
+				////				if (CurrentWayReference.isNode1(CurrentPosition)) {
+				////					rotation = CurrentWayReference.transform.rotation;
+				////				} else {
+				////					rotation = Quaternion.Euler(0, 0, 180f) * CurrentWayReference.transform.rotation;
+				////				}
+				////				transform.rotation = rotation;
+				//				PreviousMovementVector = Vector3.zero;
+				//			} else {
+				//				PreviousMovementVector = toTarget;
+				//			}
+			} else if (health > 0f) {
+				// TODO - We've probably reached the end of the road, what to do?
+				//			Debug.Log ("No movement");
+				fadeOutAndDestroy ();
 			}
 
-//			float movementPct = (currentSpeed / Mathf.Max(positionMovementVector.magnitude, 0.001f)) * Settings.wayLengthFactor;
-			float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
-			Vector3 movementVector = positionMovementVector * movementPct;
-//			Debug.Log (BezierLength / positionMovementVector.magnitude);
-			if (TurnToRoad.SmallWay && positionMovementVector.magnitude < 0.05f && positionMovementVector.magnitude < BezierLength / 40f) {
-				// TODO - Try to get rid of SmallWays. Remove the connections to footways and merge with "non-intersecting" way 
-//				Debug.Log (movementVector);
-//				Debug.Log (positionMovementVector);
-//				Debug.Log (positionMovementVector.magnitude);
-//				Debug.Log (movementPct);
-//				Debug.Log (currentSpeed);
-//				Debug.Log (positionMovementVector.magnitude);
-
-				// Panic mode, switch to next target
-//				Debug.Log ("Small way and very small movement vector, move to next road");
-//				if (turnState != TurnState.NONE) {
-//					CurrentPosition = CurrentTarget;
-//					updateCurrentTarget ();
-//				}
-				CurrentPosition = CurrentTarget;
-				updateCurrentTarget ();
-				Update();
-				return;
+			// Emit gas depending on health
+			if (health < startHealth / 2f) {
+				if (Random.value < (1f - getHealthLevel ()) * 0.001f) {
+					PubSub.publish ("Vehicle:emitVapour", this);
+				}
 			}
-			Vector3 positionMovement = new Vector3 (movementVector.x, movementVector.y, 0);
-//			if (float.IsNaN(positionMovement.x) || float.IsInfinity(positionMovement.x)) {
-//				positionMovement = Vector3.zero;
-//			}
-//			Debug.Log (positionMovement);
-			transform.position += positionMovement;
-			AccumulatedBezierDistance += positionMovement.magnitude;
 
-//			toTarget = TargetPoint - transform.position;
-//			toTarget.z = 0;
-//			if (PreviousMovementVector != Vector3.zero && Vector3.Angle (toTarget, PreviousMovementVector) > 150f) {
-//				CurrentPosition = CurrentTarget;
-//				updateCurrentTarget ();
-////				Quaternion rotation;
-////				if (CurrentWayReference.isNode1(CurrentPosition)) {
-////					rotation = CurrentWayReference.transform.rotation;
-////				} else {
-////					rotation = Quaternion.Euler(0, 0, 180f) * CurrentWayReference.transform.rotation;
-////				}
-////				transform.rotation = rotation;
-//				PreviousMovementVector = Vector3.zero;
-//			} else {
-//				PreviousMovementVector = toTarget;
-//			}
-		} else if (health > 0f) {
-			// TODO - We've probably reached the end of the road, what to do?
-//			Debug.Log ("No movement");
-			fadeOutAndDestroy ();
-		}
-
-		// Emit gas depending on health
-		if (health < startHealth / 2f) {
-			if (Random.value < (1f - getHealthLevel()) * 0.01f) {
-				PubSub.publish ("Vehicle:emitVapour", this);
+			if (debugPrint) {
+				DebugFn.square (TargetPoint, 0.0f);
+				//			Debug.Log ("Turn state: " + turnState);
 			}
-		}
-
-		if (debugPrint) {
-			DebugFn.square (TargetPoint, 0.0f);
-//			Debug.Log ("Turn state: " + turnState);
 		}
 	}
 
-	private void honk (bool startHonk = true) {
+	private void performIrritationAction (bool startAction = true) {
 		VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
 		float frustrationLevel = vehicleSounds.getFrustrationLevel ();
 		// TODO - This is the real level where the vehicle should back
 //		if (frustrationLevel < 8f) {
-		if (frustrationLevel < 2f || !startHonk) {
-			vehicleSounds.honk (startHonk);
+		if (frustrationLevel < 2f || !startAction) {
+			// TODO - Maybe base honking/blinking depending on frustration level
+			if (!startAction) {
+				vehicleSounds.honk (startAction);
+			} else {
+				if (Random.value < 0.5f) {
+					vehicleSounds.honk (startAction);
+				} else {
+					flashHeadlights ();
+				}
+			}
 		} else {
 			AwarenessBreakFactor = -0.15f;
 			backingCounterSeconds = 0.8f;
+			stopBreaklights ();
 		}
 	}
 
@@ -504,7 +518,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 					float acceptableAngleDiff = 45f;
 					float vehicleAngle = transform.rotation.eulerAngles.z;
 					float wayAngle = TurnToRoad.transform.rotation.eulerAngles.z;
-					if (!TurnToRoad.isNode1 (CurrentTarget)) {
+					if (CurrentTarget != null && !TurnToRoad.isNode1 (CurrentTarget)) {
 						wayAngle = (wayAngle + 180) % 360;
 						//					Debug.Log ("180");
 					}
@@ -515,7 +529,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 						updateCurrentTarget ();
 					}
 				}
-			} else if (TurnToRoad.SmallWay && colliderName == "BC" && turnState != TurnState.NONE) {
+			} else if (TurnToRoad != null && TurnToRoad.SmallWay && colliderName == "BC" && turnState != TurnState.NONE) {
 				if (wayCollisionObj != null && wayCollisionObj.WayReference == TurnToRoad && wayCollisionObj.Pos == TurnToRoad.getOtherNode (CurrentTarget)) {
 					CurrentPosition = wayCollisionObj.Pos;
 					updateCurrentTarget ();
@@ -626,11 +640,29 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 						WayReference otherWayReference = NodeIndex.getWayReference (CurrentTarget.Id, nextTarget.Id);
 						float desiredRotation = Quaternion.Angle (CurrentWayReference.transform.rotation, otherWayReference.transform.rotation);
 						bool areBothSameDirection = CurrentWayReference.isNode1 (CurrentTarget) != otherWayReference.isNode1 (CurrentTarget);
+
+						float currentWayAngle = CurrentWayReference.transform.rotation.eulerAngles.z;
+						float realWayAngle;
 						if (!areBothSameDirection) {
 							desiredRotation = 180f - desiredRotation;
+							realWayAngle = otherWayReference.transform.rotation.eulerAngles.z - 180f - currentWayAngle;
+						} else {
+							realWayAngle = otherWayReference.transform.rotation.eulerAngles.z - currentWayAngle;
 						}
+
 						TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
 						//					Debug.Log ("breakFactor: " + TurnBreakFactor + ", for degrees: " + desiredRotation); 
+						if (Mathf.Abs (desiredRotation) >= 45f) {
+							if (realWayAngle < 0f) {
+								realWayAngle = realWayAngle + 360f;
+							}
+//							Debug.Log (realWayAngle);
+							if (realWayAngle > 0f && realWayAngle <= 180f) {
+								startBlinkersLeft ();
+							} else {
+								startBlinkersRight ();
+							}
+						}
 					}
 					if (turnState == TurnState.CAR || turnState == TurnState.BC) {
 						TurnToRoad = NodeIndex.getWayReference (CurrentTarget.Id, nextTarget.Id);
@@ -713,6 +745,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private void registerCollissionAmount (float amount) {
 		health -= amount;
 		if (health <= 0f) {
+			VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+			lights.turnAllOff ();
+			startWarningBlinkers ();
+
 			createDangerHalo ();
 			blinkUntilClickedAndDestroy ();
 		}
@@ -730,10 +766,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			bool isRedLightPresent = RedTrafficLightPresence.Any (); 
 			if (hasVehicleInPc || isRedLightPresent) {
 				AwarenessBreakFactor = 0.0f;
+				startBreaklights ();
 			} else if (hasVehicleInFac || isYellowLightPresent) {
 				AwarenessBreakFactor = 0.25f;
+				stopBreaklights ();
 			} else {
 				AwarenessBreakFactor = 1f;
+				stopBreaklights ();
 			}
 		}
 	}
@@ -816,10 +855,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		if (CurrentTarget != null && TrafficLightIndex.TrafficLightsForPos.ContainsKey(CurrentTarget.Id)) {
 			stats[STAT_PASSED_TRAFFICLIGHT].add(1f);
 		}
+
 		isBigTurn = false;
 		TurnBreakFactor = 1.0f;
 //		Time.timeScale = TurnBreakFactor;
 		turnState = TurnState.NONE;
+		stopBlinkers ();
+
 		statReportPossibleCrossing ();
 		currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
 		if (currentPath.Count > 1) {
@@ -920,19 +962,23 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private void blinkUntilClickedAndDestroy(bool fadeDirectionOut = true) {
 		if (!destroying) {
 			TurnToRoad = null;
-			FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
-			if (fadeDirectionOut) {
-				fadeObject.DoneMessage = "fadeOut";
-				fadeObject.FadeOut (0.2f);
-			} else {
-				fadeObject.DoneMessage = "fadeIn";
-				fadeObject.FadeIn (0.2f);
-			}
+//			FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
+//			if (fadeDirectionOut) {
+//				fadeObject.DoneMessage = "fadeOut";
+//				fadeObject.FadeOut (0.2f);
+//			} else {
+//				fadeObject.DoneMessage = "fadeIn";
+//				fadeObject.FadeIn (0.2f);
+//			}
 		}
 	}
 
 	public void fadeOutAndDestroy () {
 		destroying = true;
+
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.turnAllOff ();
+
 		FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
 		fadeObject.DoneMessage = "destroy";
 		fadeObject.FadeOut (0.5f);
@@ -1065,6 +1111,56 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		public TrafficLightCollisionObj (TrafficLightLogic trafficLightLogic, string collisionObjType) : base(collisionObjType, TrafficLightCollisionObj.NAME) {
 			this.TrafficLightLogic = trafficLightLogic;
 		}
+	}
+
+	private void startBacklights() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.setTaillightsState (true);
+	}
+
+	private void stopBacklights() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.toggleTaillights (false);
+	}
+
+	private void startBreaklights() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.setTaillightsState (false);
+	}
+
+	private void stopBreaklights() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.toggleTaillights (false);
+	}
+
+	private void flashHeadlights() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.flashHeadlights ();
+	}
+
+	private void startWarningBlinkers() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.startWarningBlinkers ();
+	}
+
+	private void stopWarningBlinkers() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.stopWarningBlinkers ();
+	}
+
+	private void startBlinkersLeft() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.startBlinkersLeft ();
+	}
+
+	private void startBlinkersRight() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.startBlinkersRight ();	
+	}
+
+	private void stopBlinkers() {
+		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+		lights.stopBlinkers ();
 	}
 
 	public void OnGUI () {

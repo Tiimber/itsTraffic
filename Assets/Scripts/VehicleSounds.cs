@@ -18,7 +18,7 @@ public class VehicleSounds : MonoBehaviour {
 
 	private Dictionary<HonkVariant, AudioClip> honks = new Dictionary<HonkVariant, AudioClip> ();
 
-	private AudioSource honkSoundSource;
+	private AudioSource soundSource;
 	private float frustrationLevel = 0f;
 
 	// Use this for initialization
@@ -27,10 +27,10 @@ public class VehicleSounds : MonoBehaviour {
 		initHonkMapping ();
 
 		// Init the audioSource
-		honkSoundSource = gameObject.AddComponent<AudioSource> ();
-		honkSoundSource.playOnAwake = false;
-		honkSoundSource.clip = honks [HonkVariant.SHORT];
-		honkSoundSource.spatialBlend = 1f;
+		soundSource = gameObject.AddComponent<AudioSource> ();
+		soundSource.playOnAwake = false;
+		soundSource.clip = honks [HonkVariant.SHORT];
+		soundSource.spatialBlend = 1f;
 //		honkSoundSource.Play ();
 	}
 
@@ -102,15 +102,15 @@ public class VehicleSounds : MonoBehaviour {
 
 	public void honk (bool startHonk = true) {
 		if (startHonk) {
-			if (!honkSoundSource.isPlaying) {
+			if (!soundSource.isPlaying) {
 				frustrationLevel += 1f;
 				pickHonkSound ();
-				honkSoundSource.Play ();
+				soundSource.Play ();
 			}
 		} else {
 			// 10 sec cooldown for one honk
 			frustrationLevel = Mathf.Max(0f, frustrationLevel - 0.1f * Time.deltaTime);
-			honkSoundSource.Stop ();
+			soundSource.Stop ();
 		}
 	}
 
@@ -128,7 +128,25 @@ public class VehicleSounds : MonoBehaviour {
 			activeHonkSound = honks[HonkVariant.EXTRA_LONG];
 		}
 
-		honkSoundSource.clip = activeHonkSound;
+		soundSource.clip = activeHonkSound;
+	}
+
+	public void playMajorCrashSound() {
+		playCrashSound (GenericVehicleSounds.instance.majorCrashSound);
+	}
+
+	public void playMinorCrashSound() {
+		playCrashSound (GenericVehicleSounds.instance.minorCrashSound);
+	}
+
+	private void playCrashSound(AudioClip crashSound) {
+		if (soundSource.isPlaying) {
+			soundSource.Stop ();
+		}
+		soundSource.clip = crashSound;
+		soundSource.Play ();
+		// Prevent honking just after crash
+		frustrationLevel = 0f;
 	}
 
 }

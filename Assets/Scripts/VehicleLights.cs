@@ -83,7 +83,6 @@ public class VehicleLights : MonoBehaviour {
 	}
 
 	public void toggleWarningBlinkers(bool enable = true) {
-		Debug.Log("Warning blinkers " + (enable ? "on" : "off"));
 		blinkersLeft.SetActive (enable);
 		blinkersRight.SetActive (enable);
 	}

@@ -44,7 +44,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private bool isBigTurn = false;
 
 	private float startHealth = 10f;
-	private float health = 1f;
+	private float health = 10f;
 	private float vapourStartColorLevel = 0.92f;
 	private float vapourEndColorLevel = 0.32f;
 	private bool destroying = false;
@@ -717,7 +717,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 							stats [STAT_MAJOR_COLLISSIONS].add (0.5f);
 						}
 
-						registerCollissionAmount (collissionAmount);
+						registerCollissionAmount (collissionAmount, otherVehicle);
 					}
 				}
 
@@ -742,7 +742,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		return new Color (colorLevel, colorLevel, colorLevel);
 	}
 
-	private void registerCollissionAmount (float amount) {
+	private void registerCollissionAmount (float amount, Vehicle otherVehicle) {
+		bool shouldPlayCrashSound = vehicleId < otherVehicle.vehicleId;
 		health -= amount;
 		if (health <= 0f) {
 			VehicleLights lights = GetComponentInChildren<VehicleLights> ();
@@ -751,6 +752,16 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 			createDangerHalo ();
 			blinkUntilClickedAndDestroy ();
+
+			if (shouldPlayCrashSound) {
+				// Big crash - play sound
+				VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
+				vehicleSounds.playMajorCrashSound ();
+			}
+		} else if (shouldPlayCrashSound) {
+			// Minor crash - play sound
+			VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
+			vehicleSounds.playMinorCrashSound ();
 		}
 	}
 

@@ -90,4 +90,35 @@ public class Misc {
 
 		return vectors;
 	}
+
+	public static string pickRandom (List<string> strings) {
+		return strings[UnityEngine.Random.Range(0, strings.Count-1)];
+	}
+
+	public static Texture2D MakeTex(int width, int height, Color col)
+	{
+		Color[] pix = new Color[width * height];
+		for(int i = 0; i < pix.Length; ++i)
+		{
+			pix[i] = col;
+		}
+		Texture2D result = new Texture2D(width, height);
+		result.SetPixels(pix);
+		result.Apply();
+		return result;
+	}
+
+	public static object getMoney (float money) {
+		// TODO - Currency for current country - Taken from map info on country
+		return "$" + Mathf.Round(money * 100f) / 100f;
+	}
+
+	public static object getDistance (float distance) {
+		// TODO - Maybe in US weird mesurements if in USA
+		return Mathf.FloorToInt(distance) + "m";
+	}
+
+	public static bool isInside (Vector2 pos, Rect rect) {
+		return rect.Contains (pos);
+	}
 }

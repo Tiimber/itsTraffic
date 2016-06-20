@@ -173,6 +173,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 			// Click logic
 			if (firstFrame) {
+				// TODO - Send click in upcoming frame if not dragged (too much)
 				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint(mousePosition);
 				PubSub.publish ("Click", mouseWorldPoint);
 			}
@@ -181,7 +182,9 @@ public class Game : MonoBehaviour, IPubSub {
 		if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
 			float scrollAmount = Input.GetAxis ("Mouse ScrollWheel");
 //			Debug.Log (scrollAmount);
-			CameraHandler.CustomZoom (scrollAmount);
+			if (scrollOk (Input.mousePosition)) {
+				CameraHandler.CustomZoom (scrollAmount);
+			}
 		}
 
 		// Touch interactions
@@ -293,6 +296,11 @@ public class Game : MonoBehaviour, IPubSub {
 				}
 			}
 		}
+	}
+
+	private bool scrollOk (Vector3 pos) {
+		InformationWindow informationWindow = GetComponent<InformationWindow> ();
+		return !informationWindow.isShown () || !Misc.isInside (pos, informationWindow.getWindowRect ());
 	}
 
 	public void addInitAnimationRequest () {
@@ -1053,6 +1061,7 @@ public class Game : MonoBehaviour, IPubSub {
 		} else if (message == "mainCameraActivated") {
 			CameraHandler.InitialZoom ();
 			pointsCamera.enabled = true;
+			GenericVehicleSounds.VehicleCountChange ();
 		}
 		return PROPAGATION.DEFAULT;
 	}

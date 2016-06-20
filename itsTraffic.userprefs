@@ -1,21 +1,24 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Vehicle.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/InformationWindow.cs">
     <Files>
-      <File FileName="Assets/Scripts/Vehicle.cs" Line="647" Column="34" />
-      <File FileName="Assets/Scripts/VehicleLights.cs" Line="146" Column="14" />
-      <File FileName="Assets/Scripts/Game.cs" Line="63" Column="33" />
-      <File FileName="Assets/Scripts/ObjectRandomizer.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/CameraHandler.cs" Line="14" Column="3" />
-      <File FileName="Assets/Scripts/FadeObjectInOut.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/InformationWindow.cs" Line="87" Column="14" />
+      <File FileName="Assets/Scripts/Game.cs" Line="178" Column="28" />
+      <File FileName="Assets/Scripts/Vehicle.cs" Line="176" Column="1" />
+      <File FileName="Assets/Scripts/InformationBase.cs" Line="8" Column="29" />
+      <File FileName="Assets/Scripts/VehicleInfo.cs" Line="49" Column="35" />
+      <File FileName="Assets/Scripts/InformationVehicle.cs" Line="52" Column="1" />
+      <File FileName="Assets/Scripts/InformationHuman.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="100" Column="43" />
+      <File FileName="Assets/Scripts/Utilities/EditorGUIx.cs" Line="18" Column="40" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint conditionExpression="name==&quot;BuildingRoof (383042811)&quot;" file="/home/anders/Programmering/itsTraffic/Assets/Scripts/BuildingRoof.cs" line="132" column="1" />
       <Breakpoint conditionExpression="xmlNode.Attributes.GetNamedItem (&quot;id&quot;).Value == &quot;52037555&quot;" file="/home/anders/Programmering/itsTraffic/Assets/Scripts/BuildingRoof.cs" line="50" column="1" />
-      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/Vehicle.cs" line="984" column="1" />
-      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/Vehicle.cs" line="977" column="1" />
+      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/InformationVehicle.cs" line="52" column="1" />
+      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/Vehicle.cs" line="176" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

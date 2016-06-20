@@ -14,7 +14,7 @@ public class TrafficLightToggle : IPubSub {
 	}
 
 	public static void Start () {
-		PubSub.subscribe ("Click", getInstance());
+		PubSub.subscribe ("Click", getInstance(), 50);
 	}
 	
 	public static void Add (long posId, Vector2 center, float radius) {

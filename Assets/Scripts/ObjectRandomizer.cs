@@ -28,7 +28,7 @@ public class ObjectRandomizer {
 				interval -= interval * intervalDecreaseRate;
 			}
 			if (Game.isRunning ()) {
-//				newObject ();
+				newObject ();
 			}
 		}
 	}

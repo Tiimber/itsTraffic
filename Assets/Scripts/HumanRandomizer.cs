@@ -11,6 +11,6 @@ public class HumanRandomizer : ObjectRandomizer {
 	}
 
 	protected override void newObject () {
-//		Game.instance.giveBirth ();
+		Game.instance.giveBirth ();
 	}
 }

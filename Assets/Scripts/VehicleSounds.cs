@@ -148,5 +148,4 @@ public class VehicleSounds : MonoBehaviour {
 		// Prevent honking just after crash
 		frustrationLevel = 0f;
 	}
-
 }

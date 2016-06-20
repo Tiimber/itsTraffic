@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
@@ -43,10 +44,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private float timeOfLastMovement = 0f;
 	private bool isBigTurn = false;
 
-	private float startHealth = 10f;
-	private float health = 10f;
+	public float startHealth = 10f;
+	public float health = 10f;
 	private float vapourStartColorLevel = 0.92f;
 	private float vapourEndColorLevel = 0.32f;
+	public float totalDrivingDistance = 0f;
 	private bool destroying = false;
 
 	private float EmissionFactor { set; get; }
@@ -123,6 +125,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	// Use this for initialization
 	void Start () {
 		//debugPrint = true;
+		initInformationVehicle ();
 		initVehicleProfile ();
 		updateCurrentTarget ();
 
@@ -137,6 +140,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		numberOfCars++;
 		vehicleId = vehicleInstanceCount++;
 		DataCollector.Add ("Total # of vehicles", 1f);
+
+		// Report one more car
+		GenericVehicleSounds.VehicleCountChange();
 
 //		Transform car = transform.FindChild ("CarObject");
 //		Renderer r = car.GetComponent<Renderer>();
@@ -155,7 +161,23 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 		StartCoroutine (reportStats ());
 
-		PubSub.subscribe ("Click", this, 10);
+		PubSub.subscribe ("Click", this, 100);
+	}
+
+	private void initInformationVehicle () {
+		VehicleInfo vehicleInfo = GetComponent<VehicleInfo> ();
+
+		InformationVehicle informationVehicle = GetComponent<InformationVehicle> ();
+		// TODO - Special logic if backer
+		informationVehicle.driver = gameObject.AddComponent<InformationHuman>();
+		informationVehicle.driver.passive = true;
+
+		// TODO - Passengers to be family of driver? (Same last name)
+		for (int i = 0; i < vehicleInfo.getNumberOfPassengers(); i++) {
+			InformationHuman passenger = gameObject.AddComponent<InformationHuman>();
+			passenger.passive = true;
+			informationVehicle.passengers.Add (passenger);
+		}
 	}
 
 	private static float GetAccForKmh(float currentSpeed, float targetSpeed) {
@@ -238,7 +260,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 					if (Time.time > timeOfLastMovement + ImpatientThresholdTrafficLight) {
 						performIrritationAction ();
 						// Make sure to not honk directly again
-						timeOfLastMovement = Time.time - 5f * Random.Range (0.8f, 1.2f);
+						timeOfLastMovement = Time.time - 5f * UnityEngine.Random.Range (0.8f, 1.2f);
 					}
 				} else {
 					timeOfLastMovement = Time.time;
@@ -247,8 +269,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 				}
 
 				if (currentSpeed != 0f) {
-					float metersDriven = Misc.kmhToMps (currentSpeed * KPH_TO_LONGLAT_SPEED * Time.deltaTime);
-					stats [STAT_DRIVING_DISTANCE].add (Mathf.Abs (metersDriven));
+					float metersDriven = Mathf.Abs(Misc.kmhToMps (currentSpeed * KPH_TO_LONGLAT_SPEED * Time.deltaTime));
+					stats [STAT_DRIVING_DISTANCE].add (metersDriven);
+					totalDrivingDistance += metersDriven;
 				}
 
 				//			// TODO - Try to make this better
@@ -377,7 +400,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 			// Emit gas depending on health
 			if (health < startHealth / 2f) {
-				if (Random.value < (1f - getHealthLevel ()) * 0.001f) {
+				if (UnityEngine.Random.value < (1f - getHealthLevel ()) * 0.001f) {
 					PubSub.publish ("Vehicle:emitVapour", this);
 				}
 			}
@@ -399,7 +422,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			if (!startAction) {
 				vehicleSounds.honk (startAction);
 			} else {
-				if (Random.value < 0.5f) {
+				if (UnityEngine.Random.value < 0.5f) {
 					vehicleSounds.honk (startAction);
 				} else {
 					flashHeadlights ();
@@ -473,9 +496,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		float maxSpeedFactor = 1.2f;
 		float speedFactorInterval = maxSpeedFactor - minSpeedFactor;
 
-		SpeedFactor = Random.Range (minSpeedFactor, maxSpeedFactor);
-		Acceleration = Random.Range (2f, 3f);
-		StartSpeedFactor = Random.Range (0.5f, 1f);
+		SpeedFactor = UnityEngine.Random.Range (minSpeedFactor, maxSpeedFactor);
+		Acceleration = UnityEngine.Random.Range (2f, 3f);
+		StartSpeedFactor = UnityEngine.Random.Range (0.5f, 1f);
 
 		float minImpatientFactor = 0.8f;
 		float maxImpatientFactor = 1.2f;
@@ -486,15 +509,15 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		ImpatientThresholdTrafficLight = IMPATIENT_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
 
 		if (slow) {
-			SpeedFactor = Random.Range (0.2f, 0.3f);
-			Acceleration = Random.Range (1f, 2f);
-			StartSpeedFactor = Random.Range (0.1f, 4f);
+			SpeedFactor = UnityEngine.Random.Range (0.2f, 0.3f);
+			Acceleration = UnityEngine.Random.Range (1f, 2f);
+			StartSpeedFactor = UnityEngine.Random.Range (0.1f, 4f);
 		}
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
 		timeOfLastMovement = Time.time;
-		EmissionFactor = Random.Range (0.1f, 1.0f);
-		CollectedEmissionAmount = Random.Range (0.000f, 0.002f);
+		EmissionFactor = UnityEngine.Random.Range (0.1f, 1.0f);
+		CollectedEmissionAmount = UnityEngine.Random.Range (0.000f, 0.002f);
 
 		FacVehiclesInAwarenessArea = new List<Vehicle> ();
 		PcVehiclesInAwarenessArea = new List<Vehicle> ();
@@ -1020,6 +1043,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			DataCollector.Add ("Vehicles destroyed", 1f);
 		}
 		numberOfCars--;
+		GenericVehicleSounds.VehicleCountChange();
 	}
 
 	public PROPAGATION onMessage (string message, object data) {

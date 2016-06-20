@@ -12,6 +12,8 @@ public class HumanLogic : MonoBehaviour, FadeInterface {
 	private List<Pos> path;
 	private List<Vector3> walkPath;
 
+	public float totalWalkingDistance;
+
 	private float speedFactor;
 	private bool destroying = false;
 
@@ -53,6 +55,9 @@ public class HumanLogic : MonoBehaviour, FadeInterface {
 			Vector3 movement = transform.rotation * (Vector3.right * travelLengthThisFrame);
 			transform.position = transform.position + movement;
 		}
+
+		float metersWalked = Mathf.Abs(Misc.kmhToMps (targetSpeedKmH) * Time.deltaTime);
+		totalWalkingDistance += metersWalked;
 	}
 
 	private void positionHuman (Vector3 pos) {

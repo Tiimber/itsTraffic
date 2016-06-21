@@ -13,4 +13,8 @@ public class CircleTouch {
 	public bool isInside(Vector2 pos) {
 		return (center - pos).magnitude <= radius;
 	}
+
+	public bool isCloser (Vector2 pos, CircleTouch other) {
+		return other == null || (this.center - pos).magnitude < (other.center - pos).magnitude;
+	}
 }

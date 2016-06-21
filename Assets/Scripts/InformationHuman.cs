@@ -36,13 +36,15 @@ public class InformationHuman : InformationBase {
 			name = NameGenerator.generate ();
 		}
 		if (dateOfBirth == notBornYet) {
+			// TODO - Make sure random ranges are valid dates
 			DateTime now = DateTime.Now;
-			dateOfBirth = new DateTime(UnityEngine.Random.Range(now.Year - 80, now.Year - 17), UnityEngine.Random.Range(1, 13), UnityEngine.Random.Range(1, 32));
+			int daysOld = UnityEngine.Random.Range (6574, 29220); // 18-80 years old in days
+			dateOfBirth = new DateTime(now.Ticks - Misc.daysToTicks(daysOld)); // Days to ticks
 		}
 		if (money == 0f) {
 			money = UnityEngine.Random.Range (0f, 500f);
 		}
-		Debug.Log("New human: " + name);
+//		Debug.Log("New human: " + name);
 	}
 
 	public override List<KeyValuePair<string, object>> getInformation () {
@@ -72,9 +74,11 @@ public class InformationHuman : InformationBase {
 				coroutine = StartCoroutine (checkAndUpdateHumanInfo (information));
 			}
 		} else {
-			StopCoroutine (coroutine);
-			coroutine = null;
-			information = null;
+			if (coroutine != null) {
+				StopCoroutine (coroutine);
+				coroutine = null;
+				this.information = null;
+			}
 		}
 	}
 

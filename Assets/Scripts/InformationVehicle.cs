@@ -31,7 +31,7 @@ public class InformationVehicle : InformationBase {
 		VehicleInfo info = GetComponent<VehicleInfo> ();
 		name = info.brand + " " + info.model;
 		year = info.year;
-		Debug.Log("New vehicle: " + name + " (" + year + ")");
+//		Debug.Log("New vehicle: " + name + " (" + year + ")");
 	}
 	
 	public override List<KeyValuePair<string, object>> getInformation () {
@@ -60,9 +60,14 @@ public class InformationVehicle : InformationBase {
 
 	private void keepInformationUpToDate (bool start, List<KeyValuePair<string, object>> information = null) {
 		if (start) {
-			coroutine = StartCoroutine (checkAndUpdateVehicleInfo(information));
+			if (coroutine == null) {
+				coroutine = StartCoroutine (checkAndUpdateVehicleInfo (information));
+			}
 		} else {
-			StopCoroutine (coroutine);
+			if (coroutine != null) {
+				StopCoroutine (coroutine);
+				coroutine = null;
+			}
 		}
 	}
 
@@ -93,5 +98,9 @@ public class InformationVehicle : InformationBase {
 		float pctHealth = health / startHealth;
 		// TODO - Readable labels?
 		return "" + Mathf.FloorToInt(pctHealth * 100);
+	}
+
+	void OnDestroy() {
+		disposeInformation ();
 	}
 }

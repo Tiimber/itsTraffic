@@ -24,14 +24,27 @@ public class InformationWindow : MonoBehaviour, IPubSub {
 		if (message == "Click") {
 			Vector2 clickPos = (Vector3) data;
 			InformationBase[] informationBaseObjects = FindObjectsOfType<InformationBase> ();
+
+			InformationBase clickedInformationBase = null;
+			CircleTouch clickedCircleTouch = null;
+
 			foreach (InformationBase informationBaseObject in informationBaseObjects) {
 				if (!informationBaseObject.passive) {
 					CircleTouch informationObjectTouch = new CircleTouch (informationBaseObject.transform.position, 0.1f * 3f); // Click 0.1 (vehicle length) multiplied by three
 					if (informationObjectTouch.isInside (clickPos)) {
-						showInformation (informationBaseObject);
-						return PROPAGATION.STOP_IMMEDIATELY;
+
+						if (informationObjectTouch.isCloser (clickPos, clickedCircleTouch)) {
+							clickedCircleTouch = informationObjectTouch;
+							clickedInformationBase = informationBaseObject;
+						}
 					}
 				}
+			}
+
+			if (clickedInformationBase != null) {
+				showInformation (clickedInformationBase);
+				return PROPAGATION.STOP_IMMEDIATELY;
+
 			}
 		}
 		return PROPAGATION.DEFAULT;
@@ -94,7 +107,9 @@ public class InformationWindow : MonoBehaviour, IPubSub {
 				foreach (KeyValuePair<string, object> infoRow in information) {
 					printKeyValuePair (infoRow, ref y, informationWindowWidth);
 				}
-//				GUI.Button (new Rect(20, 20, 100, 40), "Button");
+				if (GUI.Button (new Rect (informationWindowWidth - 35f, 5f, 20f, 20f), "X")) {
+					hideInformation ();
+				}
 			}; 
 		}
 	}

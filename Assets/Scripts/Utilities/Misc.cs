@@ -121,4 +121,8 @@ public class Misc {
 	public static bool isInside (Vector2 pos, Rect rect) {
 		return rect.Contains (pos);
 	}
+
+	public static long daysToTicks (int days) {
+		return (long) days * 24 * 60 * 60 * 1000 * 1000 * 10;
+	}
 }

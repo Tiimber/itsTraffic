@@ -32,8 +32,8 @@ public class Game : MonoBehaviour, IPubSub {
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
 //	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap09.osm";
 	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm";
-	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
-//	private string configFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
+//	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
+	private string configFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
@@ -137,8 +137,8 @@ public class Game : MonoBehaviour, IPubSub {
 				Vehicle carObj = car.GetComponent<Vehicle> ();
 				carObj.fadeOutAndDestroy ();
 			} else {
-				createNewCar ();
-//				giveBirth();
+//				createNewCar ();
+				giveBirth();
 			}
 		} else if (Input.GetKeyDown (KeyCode.F)) {
 			followCar ^= true;
@@ -150,6 +150,13 @@ public class Game : MonoBehaviour, IPubSub {
 			PubSub.publish("points:inc", 13579);
 		} else if (Input.GetKeyDown (KeyCode.W)) {
 			PubSub.publish("points:dec", 24680);
+		} else if (Input.GetKeyDown (KeyCode.T)) {
+			bool isShiftKeyDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+			if (isShiftKeyDown) {
+				HumanLogic.TURBO = 1f;
+			} else {
+				HumanLogic.TURBO++;
+			}
 		}
 
 
@@ -326,6 +333,24 @@ public class Game : MonoBehaviour, IPubSub {
 	public void giveBirth() {
 		long startPos = getRandomHumanPos ();
 		long endPos = getRandomHumanPos (startPos);
+
+//		Debug.Log (startPos + " - " + endPos);
+
+		bool forceOneDirectionOnly = true;
+		bool forceEveryOther = true;
+		long one = 3426695523L;
+		long other = 3414497903L;
+//		long one = 3402678107L;
+//		long other = 2715587963L;
+
+		// Specific points, debug
+		if (forceOneDirectionOnly) {
+			startPos = one;
+			endPos = other;
+		} else {			
+			startPos = forceEveryOther ? (HumanLogic.humanInstanceCount % 2 == 0 ? one : other) : (UnityEngine.Random.value < 0.5f ? one : other);
+			endPos = forceEveryOther ? (HumanLogic.humanInstanceCount % 2 == 0 ? other : one) : (startPos == one ? other : one);
+		}
 
 		// Find closest walk path - start and end pos
 		if (NodeIndex.walkNodes.Count > 0) {
@@ -1062,6 +1087,7 @@ public class Game : MonoBehaviour, IPubSub {
 			CameraHandler.InitialZoom ();
 			pointsCamera.enabled = true;
 			GenericVehicleSounds.VehicleCountChange ();
+			GenericHumanSounds.HumanCountChange ();
 		}
 		return PROPAGATION.DEFAULT;
 	}

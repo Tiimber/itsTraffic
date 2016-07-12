@@ -9,6 +9,7 @@ public class VehicleInfo : MonoBehaviour {
 	public string brand;
 	public string model { get; set; }
 	public int year;
+	public float vehicleWidth = 0.05f;
 
 	// Size is number of people in the car (including driver)
 	// Value inside each element is relative probability of each number of passengers

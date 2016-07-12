@@ -62,11 +62,14 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private float TurnBreakFactor { set; get; }
 	private float AwarenessBreakFactor { set; get; }
 
-	private List<Vehicle> FacVehiclesInAwarenessArea { set; get; }
-	private List<Vehicle> PcVehiclesInAwarenessArea { set; get; }
+	private HashSet<Vehicle> FacVehiclesInAwarenessArea { set; get; }
+	private HashSet<Vehicle> PcVehiclesInAwarenessArea { set; get; }
 
-	private List<TrafficLightLogic> YellowTrafficLightPresence { set; get; }
-	private List<TrafficLightLogic> RedTrafficLightPresence { set; get; }
+	private HashSet<HumanLogic> FacHumansInAwarenessArea { set; get; }
+	private HashSet<HumanLogic> PcHumansInAwarenessArea { set; get; }
+
+	private HashSet<TrafficLightLogic> YellowTrafficLightPresence { set; get; }
+	private HashSet<TrafficLightLogic> RedTrafficLightPresence { set; get; }
 
 	private Vector3 TargetPoint { set; get; }
 	private WayReference TurnToRoad { set; get; }
@@ -262,6 +265,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 						// Make sure to not honk directly again
 						timeOfLastMovement = Time.time - 5f * UnityEngine.Random.Range (0.8f, 1.2f);
 					}
+					// TODO - ImpatientThresholdNonTrafficLight as well, if traffic light is NOT the cause of vehicle standing still
 				} else {
 					timeOfLastMovement = Time.time;
 					performIrritationAction (false);
@@ -412,6 +416,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		}
 	}
 
+	public bool hasSpeed () {
+		return currentSpeed != 0f;
+	}
+
 	private void performIrritationAction (bool startAction = true) {
 		VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
 		float frustrationLevel = vehicleSounds.getFrustrationLevel ();
@@ -427,6 +435,15 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 				} else {
 					flashHeadlights ();
 				}
+
+				// If seeing human and no other slowdown - send signal to Human
+				if (onlyHumansInPanicCollider ()) {
+					foreach (HumanLogic human in PcHumansInAwarenessArea) {
+						human.vehicleIrritationAction (this);
+					}
+				}
+				// Humans subscribing to the car, send signal to Human
+				PubSub.publish("Vehicle#" + vehicleId + ":Irritation", this);
 			}
 		} else {
 			AwarenessBreakFactor = -0.15f;
@@ -519,82 +536,98 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		EmissionFactor = UnityEngine.Random.Range (0.1f, 1.0f);
 		CollectedEmissionAmount = UnityEngine.Random.Range (0.000f, 0.002f);
 
-		FacVehiclesInAwarenessArea = new List<Vehicle> ();
-		PcVehiclesInAwarenessArea = new List<Vehicle> ();
+		FacVehiclesInAwarenessArea = new HashSet<Vehicle> ();
+		PcVehiclesInAwarenessArea = new HashSet<Vehicle> ();
 
-		YellowTrafficLightPresence = new List<TrafficLightLogic> ();
-		RedTrafficLightPresence = new List<TrafficLightLogic> ();
+		FacHumansInAwarenessArea = new HashSet<HumanLogic> ();
+		PcHumansInAwarenessArea = new HashSet<HumanLogic> ();
+
+		YellowTrafficLightPresence = new HashSet<TrafficLightLogic> ();
+		RedTrafficLightPresence = new HashSet<TrafficLightLogic> ();
 	}
 
 	public void reportColliderExit (Collider col, string colliderName) {
 		if (!destroying) {
-			CollisionObj rawCollisionObj = getColliderType (col, colliderName);
-			WayCollisionObj wayCollisionObj = rawCollisionObj != null && rawCollisionObj.typeName == WayCollisionObj.NAME ? (WayCollisionObj)rawCollisionObj : null;
-			VehicleCollisionObj vehicleCollisionObj = rawCollisionObj != null && rawCollisionObj.typeName == VehicleCollisionObj.NAME ? (VehicleCollisionObj)rawCollisionObj : null;
-			TrafficLightCollisionObj trafficLightCollisionObj = rawCollisionObj != null && rawCollisionObj.typeName == TrafficLightCollisionObj.NAME ? (TrafficLightCollisionObj)rawCollisionObj : null;
+			CollisionObj rawCollisionObj = getColliderType (col);
+			if (rawCollisionObj != null) {
+				WayCollisionObj wayCollisionObj = rawCollisionObj.typeName == WayCollisionObj.NAME ? (WayCollisionObj)rawCollisionObj : null;
+				VehicleCollisionObj vehicleCollisionObj = rawCollisionObj.typeName == VehicleCollisionObj.NAME ? (VehicleCollisionObj)rawCollisionObj : null;
+				TrafficLightCollisionObj trafficLightCollisionObj = rawCollisionObj.typeName == TrafficLightCollisionObj.NAME ? (TrafficLightCollisionObj)rawCollisionObj : null;
+				HumanCollisionObj humanCollisionObj = rawCollisionObj.typeName == HumanCollisionObj.NAME ? (HumanCollisionObj)rawCollisionObj : null;
 
-			// If we're turning and our Panic Collider have left the target collider
-			if (colliderName == "PC" && turnState != TurnState.NONE) {
-				// If the collisionObj is our current TurnToRoad and the collider we're leaving is the target
-				if (wayCollisionObj != null && wayCollisionObj.WayReference == TurnToRoad && wayCollisionObj.Pos == CurrentTarget) {
-					// Make sure the vehicle rotation is somewhat similar to the target way rotation
-					float acceptableAngleDiff = 45f;
-					float vehicleAngle = transform.rotation.eulerAngles.z;
-					float wayAngle = TurnToRoad.transform.rotation.eulerAngles.z;
-					if (CurrentTarget != null && !TurnToRoad.isNode1 (CurrentTarget)) {
-						wayAngle = (wayAngle + 180) % 360;
-						//					Debug.Log ("180");
+				// If we're turning and our Panic Collider have left the target collider
+				if (colliderName == "PC" && turnState != TurnState.NONE) {
+					// If the collisionObj is our current TurnToRoad and the collider we're leaving is the target
+					if (wayCollisionObj != null && wayCollisionObj.WayReference == TurnToRoad && wayCollisionObj.Pos == CurrentTarget) {
+						// Make sure the vehicle rotation is somewhat similar to the target way rotation
+						float acceptableAngleDiff = 45f;
+						float vehicleAngle = transform.rotation.eulerAngles.z;
+						float wayAngle = TurnToRoad.transform.rotation.eulerAngles.z;
+						if (CurrentTarget != null && !TurnToRoad.isNode1 (CurrentTarget)) {
+							wayAngle = (wayAngle + 180) % 360;
+							//					Debug.Log ("180");
+						}
+						//				Debug.Log ("Vehicle: " + vehicleAngle);
+						//				Debug.Log ("Way: " + wayAngle);
+						if (Misc.isAngleAccepted (vehicleAngle, wayAngle, acceptableAngleDiff)) {
+							CurrentPosition = CurrentTarget;
+							updateCurrentTarget ();
+						}
 					}
-					//				Debug.Log ("Vehicle: " + vehicleAngle);
-					//				Debug.Log ("Way: " + wayAngle);
-					if (Misc.isAngleAccepted (vehicleAngle, wayAngle, acceptableAngleDiff)) {
-						CurrentPosition = CurrentTarget;
+				} else if (TurnToRoad != null && TurnToRoad.SmallWay && colliderName == "BC" && turnState != TurnState.NONE) {
+					if (wayCollisionObj != null && wayCollisionObj.WayReference == TurnToRoad && wayCollisionObj.Pos == TurnToRoad.getOtherNode (CurrentTarget)) {
+						CurrentPosition = wayCollisionObj.Pos;
 						updateCurrentTarget ();
 					}
-				}
-			} else if (TurnToRoad != null && TurnToRoad.SmallWay && colliderName == "BC" && turnState != TurnState.NONE) {
-				if (wayCollisionObj != null && wayCollisionObj.WayReference == TurnToRoad && wayCollisionObj.Pos == TurnToRoad.getOtherNode (CurrentTarget)) {
-					CurrentPosition = wayCollisionObj.Pos;
-					updateCurrentTarget ();
-				}
-			} else if (colliderName == "BC" && turnState != TurnState.NONE) {
-				if (wayCollisionObj != null && wayCollisionObj.WayReference == TurnToRoad && wayCollisionObj.Pos == CurrentTarget) {
-					// Make sure the vehicle rotation is somewhat similar to the target way rotation
-					float acceptableAngleDiff = 45f;
-					float vehicleAngle = transform.rotation.eulerAngles.z;
-					float wayAngle = TurnToRoad.transform.rotation.eulerAngles.z;
-					if (!TurnToRoad.isNode1 (CurrentTarget)) {
-						wayAngle = (wayAngle + 180) % 360;
-						//					Debug.Log ("180");
-					}
-					//				Debug.Log ("Vehicle: " + vehicleAngle);
-					//				Debug.Log ("Way: " + wayAngle);
-					if (Misc.isAngleAccepted (vehicleAngle, wayAngle, acceptableAngleDiff)) {
-						CurrentPosition = CurrentTarget;
-						updateCurrentTarget ();
+				} else if (colliderName == "BC" && turnState != TurnState.NONE) {
+					if (wayCollisionObj != null && wayCollisionObj.WayReference == TurnToRoad && wayCollisionObj.Pos == CurrentTarget) {
+						// Make sure the vehicle rotation is somewhat similar to the target way rotation
+						float acceptableAngleDiff = 45f;
+						float vehicleAngle = transform.rotation.eulerAngles.z;
+						float wayAngle = TurnToRoad.transform.rotation.eulerAngles.z;
+						if (!TurnToRoad.isNode1 (CurrentTarget)) {
+							wayAngle = (wayAngle + 180) % 360;
+							//					Debug.Log ("180");
+						}
+						//				Debug.Log ("Vehicle: " + vehicleAngle);
+						//				Debug.Log ("Way: " + wayAngle);
+						if (Misc.isAngleAccepted (vehicleAngle, wayAngle, acceptableAngleDiff)) {
+							CurrentPosition = CurrentTarget;
+							updateCurrentTarget ();
+						}
 					}
 				}
-			}
 
-			string otherColliderName = rawCollisionObj.CollisionObjType;
-			if (vehicleCollisionObj != null) {
-				if (otherColliderName == CollisionObj.VEHICLE_COLLIDER) {
-					Vehicle otherVehicle = vehicleCollisionObj.Vehicle;
+				string otherColliderName = rawCollisionObj.CollisionObjType;
+				if (vehicleCollisionObj != null) {
+					if (otherColliderName == CollisionObj.VEHICLE_COLLIDER) {
+						Vehicle otherVehicle = vehicleCollisionObj.Vehicle;
+						if (colliderName == "FAC") {
+							// Front collider discovered car, slow down
+							removeVehicleInAwarenessArea (colliderName, otherVehicle);
+							autosetAwarenessBreakFactor ();
+						} else if (colliderName == "PC") {
+							// Panic collider discovered car, break hard
+							removeVehicleInAwarenessArea (colliderName, otherVehicle);
+							autosetAwarenessBreakFactor ();
+						}
+					}
+				} else if (trafficLightCollisionObj != null && colliderName == "CAR") {
+					TrafficLightLogic trafficLightLogic = trafficLightCollisionObj.TrafficLightLogic;
+					// Car is in either yellow or red traffic light, slow down or break hard
+					removeTrafficLightPresence (otherColliderName, trafficLightLogic);
+					autosetAwarenessBreakFactor ();
+				} else if (humanCollisionObj != null) {
 					if (colliderName == "FAC") {
-						// Front collider discovered car, slow down
-						removeVehicleInAwarenessArea (colliderName, otherVehicle);
+						// Human leaving Front collider
+						removeHumanInAwarenessArea (colliderName, humanCollisionObj.Human);
 						autosetAwarenessBreakFactor ();
 					} else if (colliderName == "PC") {
-						// Panic collider discovered car, break hard
-						removeVehicleInAwarenessArea (colliderName, otherVehicle);
+						// Human leaving Panic collider
+						removeHumanInAwarenessArea (colliderName, humanCollisionObj.Human);
 						autosetAwarenessBreakFactor ();
 					}
 				}
-			} else if (trafficLightCollisionObj != null && colliderName == "CAR") {
-				TrafficLightLogic trafficLightLogic = trafficLightCollisionObj.TrafficLightLogic;
-				// Car is in either yellow or red traffic light, slow down or break hard
-				removeTrafficLightPresence (otherColliderName, trafficLightLogic);
-				autosetAwarenessBreakFactor ();
 			}
 		}
 	}
@@ -628,128 +661,141 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		// * PC with other car CAR (currentSpeed <= 0)		- Other car is backing, depending on vehicle characteristics, honk and back
 		// * BC ...
 		if (!destroying) {
-			CollisionObj rawCollisionObj = getColliderType (col, colliderName);
-			WayCollisionObj wayCollisionObj = rawCollisionObj != null && rawCollisionObj.typeName == WayCollisionObj.NAME ? (WayCollisionObj)rawCollisionObj : null;
-			VehicleCollisionObj vehicleCollisionObj = rawCollisionObj != null && rawCollisionObj.typeName == VehicleCollisionObj.NAME ? (VehicleCollisionObj)rawCollisionObj : null;
-			TrafficLightCollisionObj trafficLightCollisionObj = rawCollisionObj != null && rawCollisionObj.typeName == TrafficLightCollisionObj.NAME ? (TrafficLightCollisionObj)rawCollisionObj : null;
+			CollisionObj rawCollisionObj = getColliderType (col);
+			if (rawCollisionObj != null) {
+				WayCollisionObj wayCollisionObj = rawCollisionObj.typeName == WayCollisionObj.NAME ? (WayCollisionObj)rawCollisionObj : null;
+				VehicleCollisionObj vehicleCollisionObj = rawCollisionObj.typeName == VehicleCollisionObj.NAME ? (VehicleCollisionObj)rawCollisionObj : null;
+				TrafficLightCollisionObj trafficLightCollisionObj = rawCollisionObj.typeName == TrafficLightCollisionObj.NAME ? (TrafficLightCollisionObj)rawCollisionObj : null;
+				HumanCollisionObj humanCollisionObj = rawCollisionObj.typeName == HumanCollisionObj.NAME ? (HumanCollisionObj)rawCollisionObj : null;
 
-			// Logic for upcoming wayreference end node collission
-			if (wayCollisionObj != null && wayCollisionObj.WayReference == CurrentWayReference && wayCollisionObj.Pos == CurrentTarget) {
-				// We know that this is the currentTarget - we want to know our options
-				List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
-				if (colliderName == "FAC") {
-					turnState = TurnState.FAC;
-				} else if (colliderName == "PC") {
-					turnState = TurnState.PC;
-				} else if (colliderName == "CAR") {
-					turnState = TurnState.CAR;
-				} else if (colliderName == "BC") {
-					turnState = TurnState.BC;
-				}
-
-				if (possitilities.Count == 1 && !isBigTurn) {
-					if (turnState != TurnState.BC) {
-						float desiredRotation = Quaternion.Angle (CurrentWayReference.transform.rotation, TurnToRoad.transform.rotation);
-						bool areBothSameDirection = CurrentWayReference.isNode1 (CurrentTarget) != TurnToRoad.isNode1 (CurrentTarget);
-						if (!areBothSameDirection) {
-							desiredRotation = 180f - desiredRotation;
-						}
-						TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
-					}
-				} else if (possitilities.Count > 1 || isBigTurn) {
-					currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
-					Pos nextTarget = currentPath [2];
-					if (turnState != TurnState.BC) {
-						WayReference otherWayReference = NodeIndex.getWayReference (CurrentTarget.Id, nextTarget.Id);
-						float desiredRotation = Quaternion.Angle (CurrentWayReference.transform.rotation, otherWayReference.transform.rotation);
-						bool areBothSameDirection = CurrentWayReference.isNode1 (CurrentTarget) != otherWayReference.isNode1 (CurrentTarget);
-
-						float currentWayAngle = CurrentWayReference.transform.rotation.eulerAngles.z;
-						float realWayAngle;
-						if (!areBothSameDirection) {
-							desiredRotation = 180f - desiredRotation;
-							realWayAngle = otherWayReference.transform.rotation.eulerAngles.z - 180f - currentWayAngle;
-						} else {
-							realWayAngle = otherWayReference.transform.rotation.eulerAngles.z - currentWayAngle;
-						}
-
-						TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
-						//					Debug.Log ("breakFactor: " + TurnBreakFactor + ", for degrees: " + desiredRotation); 
-						if (Mathf.Abs (desiredRotation) >= 45f) {
-							if (realWayAngle < 0f) {
-								realWayAngle = realWayAngle + 360f;
-							}
-//							Debug.Log (realWayAngle);
-							if (realWayAngle > 0f && realWayAngle <= 180f) {
-								startBlinkersLeft ();
-							} else {
-								startBlinkersRight ();
-							}
-						}
-					}
-					if (turnState == TurnState.CAR || turnState == TurnState.BC) {
-						TurnToRoad = NodeIndex.getWayReference (CurrentTarget.Id, nextTarget.Id);
-						BezierLength = 0f;
-						TargetPoint = getTargetPoint (TurnToRoad, null, true);
-						isStraightWay = false;
-						vehicleMovement = transform.rotation * Vector3.right;
-						statReportPossibleCrossing ();
-					}
-				} else {
-					// "Disappear" on endpoint
-					if (turnState == TurnState.CAR || turnState == TurnState.BC) {
-						// Endpoint
-						currentSpeed = 0;
-						Acceleration = 0;
-						fadeOutAndDestroy ();
-					}
-				}
-			}
-
-			// Logic for other vehicle awareness
-			string otherColliderName = rawCollisionObj.CollisionObjType;
-			if (vehicleCollisionObj != null) {
-				if (otherColliderName == CollisionObj.VEHICLE_COLLIDER) {
-					Vehicle otherVehicle = vehicleCollisionObj.Vehicle;
-					// Awareness for other CAR
+				// Logic for upcoming wayreference end node collission
+				if (wayCollisionObj != null && wayCollisionObj.WayReference == CurrentWayReference && wayCollisionObj.Pos == CurrentTarget) {
+					// We know that this is the currentTarget - we want to know our options
+					List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
 					if (colliderName == "FAC") {
-						// Front collider discovered car, slow down
-						addVehicleInAwarenessArea (colliderName, otherVehicle);
+						turnState = TurnState.FAC;
+					} else if (colliderName == "PC") {
+						turnState = TurnState.PC;
+					} else if (colliderName == "CAR") {
+						turnState = TurnState.CAR;
+					} else if (colliderName == "BC") {
+						turnState = TurnState.BC;
+					}
+
+					if (possitilities.Count == 1 && !isBigTurn) {
+						if (turnState != TurnState.BC) {
+							float desiredRotation = Quaternion.Angle (CurrentWayReference.transform.rotation, TurnToRoad.transform.rotation);
+							bool areBothSameDirection = CurrentWayReference.isNode1 (CurrentTarget) != TurnToRoad.isNode1 (CurrentTarget);
+							if (!areBothSameDirection) {
+								desiredRotation = 180f - desiredRotation;
+							}
+							TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
+						}
+					} else if (possitilities.Count > 1 || isBigTurn) {
+						currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+						Pos nextTarget = currentPath [2];
+						if (turnState != TurnState.BC) {
+							WayReference otherWayReference = NodeIndex.getWayReference (CurrentTarget.Id, nextTarget.Id);
+							float desiredRotation = Quaternion.Angle (CurrentWayReference.transform.rotation, otherWayReference.transform.rotation);
+							bool areBothSameDirection = CurrentWayReference.isNode1 (CurrentTarget) != otherWayReference.isNode1 (CurrentTarget);
+
+							float currentWayAngle = CurrentWayReference.transform.rotation.eulerAngles.z;
+							float realWayAngle;
+							if (!areBothSameDirection) {
+								desiredRotation = 180f - desiredRotation;
+								realWayAngle = otherWayReference.transform.rotation.eulerAngles.z - 180f - currentWayAngle;
+							} else {
+								realWayAngle = otherWayReference.transform.rotation.eulerAngles.z - currentWayAngle;
+							}
+
+							TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
+							//					Debug.Log ("breakFactor: " + TurnBreakFactor + ", for degrees: " + desiredRotation); 
+							if (Mathf.Abs (desiredRotation) >= 45f) {
+								if (realWayAngle < 0f) {
+									realWayAngle = realWayAngle + 360f;
+								}
+								//							Debug.Log (realWayAngle);
+								if (realWayAngle > 0f && realWayAngle <= 180f) {
+									startBlinkersLeft ();
+								} else {
+									startBlinkersRight ();
+								}
+							}
+						}
+						if (turnState == TurnState.CAR || turnState == TurnState.BC) {
+							TurnToRoad = NodeIndex.getWayReference (CurrentTarget.Id, nextTarget.Id);
+							BezierLength = 0f;
+							TargetPoint = getTargetPoint (TurnToRoad, null, true);
+							isStraightWay = false;
+							vehicleMovement = transform.rotation * Vector3.right;
+							statReportPossibleCrossing ();
+						}
+					} else {
+						// "Disappear" on endpoint
+						if (turnState == TurnState.CAR || turnState == TurnState.BC) {
+							// Endpoint
+							currentSpeed = 0;
+							Acceleration = 0;
+							fadeOutAndDestroy ();
+						}
+					}
+				}
+
+				// Logic for other vehicle awareness
+				string otherColliderName = rawCollisionObj.CollisionObjType;
+				if (vehicleCollisionObj != null) {
+					if (otherColliderName == CollisionObj.VEHICLE_COLLIDER) {
+						Vehicle otherVehicle = vehicleCollisionObj.Vehicle;
+						// Awareness for other CAR
+						if (colliderName == "FAC") {
+							// Front collider discovered car, slow down
+							addVehicleInAwarenessArea (colliderName, otherVehicle);
+							autosetAwarenessBreakFactor ();
+						} else if (colliderName == "PC") {
+							// Panic collider discovered car, break hard
+							addVehicleInAwarenessArea (colliderName, otherVehicle);
+							autosetAwarenessBreakFactor ();
+						}
+
+						// Crashing our "CAR" with other CAR
+						if (colliderName == "CAR") {
+							float speedKmh = currentSpeed * KPH_TO_LONGLAT_SPEED;
+							Vector3 speedVector = transform.rotation * new Vector3 (speedKmh, 0f, 0f);
+
+							float otherVehicleSpeedKmh = otherVehicle.currentSpeed * KPH_TO_LONGLAT_SPEED;
+							Vector3 otherVehicleSpeedVector = otherVehicle.transform.rotation * new Vector3 (otherVehicleSpeedKmh, 0f, 0f);
+
+							Vector3 collissionDiff = speedVector - otherVehicleSpeedVector;
+							float collissionAmount = collissionDiff.magnitude;
+
+							stats [STAT_TOTAL_COLLISSION_AMOUNT].add (collissionAmount / 2f);
+							if (collissionAmount < 10f) {
+								stats [STAT_MINOR_COLLISSIONS].add (0.5f);
+							} else {
+								stats [STAT_MAJOR_COLLISSIONS].add (0.5f);
+							}
+
+							registerCollissionAmount (collissionAmount, otherVehicle);
+						}
+					}
+
+
+				} else if (trafficLightCollisionObj != null && colliderName == "CAR") {
+					TrafficLightLogic trafficLightLogic = trafficLightCollisionObj.TrafficLightLogic;
+					// Car is in either yellow or red traffic light, slow down or break hard
+					addTrafficLightPresence (otherColliderName, trafficLightLogic);
+					autosetAwarenessBreakFactor ();
+				} else if (humanCollisionObj != null) {
+					if (colliderName == "FAC") {
+						// Front collider discovered human, slow down
+						addHumanInAwarenessArea (colliderName, humanCollisionObj.Human);
 						autosetAwarenessBreakFactor ();
 					} else if (colliderName == "PC") {
-						// Panic collider discovered car, break hard
-						addVehicleInAwarenessArea (colliderName, otherVehicle);
+						// Panic collider discovered human, break hard
+						addHumanInAwarenessArea (colliderName, humanCollisionObj.Human);
 						autosetAwarenessBreakFactor ();
 					}
-
-					// Crashing our "CAR" with other CAR
-					if (colliderName == "CAR") {
-						float speedKmh = currentSpeed * KPH_TO_LONGLAT_SPEED;
-						Vector3 speedVector = transform.rotation * new Vector3 (speedKmh, 0f, 0f);
-
-						float otherVehicleSpeedKmh = otherVehicle.currentSpeed * KPH_TO_LONGLAT_SPEED;
-						Vector3 otherVehicleSpeedVector = otherVehicle.transform.rotation * new Vector3 (otherVehicleSpeedKmh, 0f, 0f);
-
-						Vector3 collissionDiff = speedVector - otherVehicleSpeedVector;
-						float collissionAmount = collissionDiff.magnitude;
-
-						stats [STAT_TOTAL_COLLISSION_AMOUNT].add (collissionAmount / 2f);
-						if (collissionAmount < 10f) {
-							stats [STAT_MINOR_COLLISSIONS].add (0.5f);
-						} else {
-							stats [STAT_MAJOR_COLLISSIONS].add (0.5f);
-						}
-
-						registerCollissionAmount (collissionAmount, otherVehicle);
-					}
 				}
-
-
-			} else if (trafficLightCollisionObj != null && colliderName == "CAR") {
-				TrafficLightLogic trafficLightLogic = trafficLightCollisionObj.TrafficLightLogic;
-				// Car is in either yellow or red traffic light, slow down or break hard
-				addTrafficLightPresence (otherColliderName, trafficLightLogic);
-				autosetAwarenessBreakFactor ();
 			}
 		}
 	}
@@ -796,12 +842,14 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		if (backingCounterSeconds <= 0f) {
 			bool hasVehicleInFac = FacVehiclesInAwarenessArea.Any (); 
 			bool hasVehicleInPc = PcVehiclesInAwarenessArea.Any (); 
+			bool hasHumanInFac = FacHumansInAwarenessArea.Any ();
+			bool hasHumanInPc = PcHumansInAwarenessArea.Any ();
 			bool isYellowLightPresent = YellowTrafficLightPresence.Any (); 
 			bool isRedLightPresent = RedTrafficLightPresence.Any (); 
-			if (hasVehicleInPc || isRedLightPresent) {
+			if (hasVehicleInPc || hasHumanInPc || isRedLightPresent) {
 				AwarenessBreakFactor = 0.0f;
 				startBreaklights ();
-			} else if (hasVehicleInFac || isYellowLightPresent) {
+			} else if (hasVehicleInFac || hasHumanInFac || isYellowLightPresent) {
 				AwarenessBreakFactor = 0.25f;
 				stopBreaklights ();
 			} else {
@@ -810,37 +858,42 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			}
 		}
 	}
-
 	private void addVehicleInAwarenessArea (string colliderName, Vehicle otherVehicle) {
-		List<Vehicle> vehiclesInAwarenessArea = colliderName == "FAC" ? FacVehiclesInAwarenessArea : PcVehiclesInAwarenessArea;
-		if (!vehiclesInAwarenessArea.Contains (otherVehicle)) {
-			vehiclesInAwarenessArea.Add (otherVehicle);
-		}
+		HashSet<Vehicle> vehiclesInAwarenessArea = colliderName == "FAC" ? FacVehiclesInAwarenessArea : PcVehiclesInAwarenessArea;
+		vehiclesInAwarenessArea.Add (otherVehicle);
 //		Debug.Log ("Added to " + colliderName + ", length: " + vehiclesInAwarenessArea.Count);
 	}
 
 	private void removeVehicleInAwarenessArea (string colliderName, Vehicle otherVehicle) {
-		List<Vehicle> vehiclesInAwarenessArea = colliderName == "FAC" ? FacVehiclesInAwarenessArea : PcVehiclesInAwarenessArea;
-		if (vehiclesInAwarenessArea.Contains (otherVehicle)) {
-			vehiclesInAwarenessArea.Remove (otherVehicle);
-		}
+		HashSet<Vehicle> vehiclesInAwarenessArea = colliderName == "FAC" ? FacVehiclesInAwarenessArea : PcVehiclesInAwarenessArea;
+		vehiclesInAwarenessArea.Remove (otherVehicle);
 //		Debug.Log ("Removed from " + colliderName + ", length: " + vehiclesInAwarenessArea.Count);
 	}
 
+	private void addHumanInAwarenessArea (string colliderName, HumanLogic human) {
+		HashSet<HumanLogic> humansInAwarenessArea = colliderName == "FAC" ? FacHumansInAwarenessArea : PcHumansInAwarenessArea;
+		humansInAwarenessArea.Add (human);
+	}
+
+	private void removeHumanInAwarenessArea (string colliderName, HumanLogic human) {
+		HashSet<HumanLogic> humansInAwarenessArea = colliderName == "FAC" ? FacHumansInAwarenessArea : PcHumansInAwarenessArea;
+		humansInAwarenessArea.Remove (human);
+	}
+
 	private void addTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
-		List<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
-		if (!trafficLightPresence.Contains (trafficLightLogic)) {
-			trafficLightPresence.Add (trafficLightLogic);
-		}
-		//		Debug.Log ("Added to " + colliderName + ", length: " + trafficLightPresence.Count);
+		HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
+		trafficLightPresence.Add (trafficLightLogic);
+//		Debug.Log ("Added to " + colliderName + ", length: " + trafficLightPresence.Count);
 	}
 
 	private void removeTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
-		List<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
-		if (trafficLightPresence.Contains (trafficLightLogic)) {
-			trafficLightPresence.Remove (trafficLightLogic);
-		}
-		//		Debug.Log ("Removed from " + colliderName + ", length: " + trafficLightPresence.Count);
+		HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
+		trafficLightPresence.Remove (trafficLightLogic);
+//		Debug.Log ("Removed from " + colliderName + ", length: " + trafficLightPresence.Count);
+	}
+
+	private bool onlyHumansInPanicCollider () {
+		return !PcVehiclesInAwarenessArea.Any () && !RedTrafficLightPresence.Any () && PcHumansInAwarenessArea.Any ();
 	}
 
 	private Vector3 getTargetPoint (WayReference turnToRoad, Pos endNode = null, bool furtherIn = false)
@@ -864,22 +917,26 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 //		Debug.Log ("New: " + TargetPoint);
 	}
 
-	private CollisionObj getColliderType (Collider col, string colliderName)
+	private CollisionObj getColliderType (Collider col)
 	{
 		GameObject colliderGameObject = col.gameObject;
 		if (colliderGameObject.GetComponent<WayReference> () != null) {
 			// Way reference
-			int colliderIndex = colliderGameObject.GetComponents<Collider>().ToList().IndexOf(col);
+			int colliderIndex = colliderGameObject.GetComponents<Collider> ().ToList ().IndexOf (col);
 			bool isNode1 = colliderIndex % 2 == 0;
 			WayReference wayReference = colliderGameObject.GetComponent<WayReference> ();
-			return new WayCollisionObj(wayReference, CollisionObj.WAY_COLLIDER, isNode1 ? wayReference.node1 : wayReference.node2);
-		} else if (colliderGameObject.transform.parent != null) {
-			if (colliderGameObject.transform.parent.gameObject.GetComponent<Vehicle> () != null) {
-				// Car
-				return new VehicleCollisionObj (colliderGameObject.transform.parent.gameObject.GetComponent<Vehicle> (), colliderGameObject.name);
-			} else if (colliderGameObject.transform.parent.gameObject.GetComponent<TrafficLightLogic> () != null) {
-				// Traffic Light
-				return new TrafficLightCollisionObj (colliderGameObject.transform.parent.gameObject.GetComponent<TrafficLightLogic> (), colliderGameObject.name);
+			return new WayCollisionObj (wayReference, CollisionObj.WAY_COLLIDER, isNode1 ? wayReference.node1 : wayReference.node2);
+		} else if (colliderGameObject.GetComponentInParent<Vehicle> () != null) {
+			// Car
+			return new VehicleCollisionObj (colliderGameObject.GetComponentInParent<Vehicle> (), colliderGameObject.name);
+		} else if (colliderGameObject.GetComponentInParent<TrafficLightLogic> () != null) {
+			// Traffic Light
+			return new TrafficLightCollisionObj (colliderGameObject.GetComponentInParent<TrafficLightLogic> (), colliderGameObject.name);
+		} else if (colliderGameObject.GetComponentInParent<HumanLogic> () != null) {
+			// Human (only "BODY" is interesting)
+			string name = HumanCollider.colliderNamesForGameObjectName[colliderGameObject.name];
+			if (name == "BODY") {
+				return new HumanCollisionObj (colliderGameObject.GetComponentInParent<HumanLogic> (), name);
 			}
 		}
 		return null;
@@ -1009,6 +1066,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 	public void fadeOutAndDestroy () {
 		destroying = true;
+		PubSub.unsubscribe ("Click", this);
 
 		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
 		lights.turnAllOff ();
@@ -1047,14 +1105,26 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	}
 
 	public PROPAGATION onMessage (string message, object data) {
-		if (message == "Click") {
-			if (health <= 0f && !destroying) {
-				Vector2 clickPos = (Vector3) data;
-				CircleTouch vehicleTouch = new CircleTouch (transform.position, 0.1f * 3f); // Click 0.1 (vehicle length) multiplied by three
-				if (vehicleTouch.isInside (clickPos)) {
-					fadeOutAndDestroy ();
-					PubSub.publish ("Vehicle:removeDangerHalo", this);
-					return PROPAGATION.STOP_AFTER_SAME_TYPE;
+		if (!destroying) {
+			if (message == "Click") {
+				if (health <= 0f) {
+					Vector2 clickPos = (Vector3)data;
+					CircleTouch vehicleTouch = new CircleTouch (transform.position, 0.1f * 3f); // Click 0.1 (vehicle length) multiplied by three
+					if (vehicleTouch.isInside (clickPos)) {
+						fadeOutAndDestroy ();
+						PubSub.publish ("Vehicle:removeDangerHalo", this);
+						return PROPAGATION.STOP_AFTER_SAME_TYPE;
+					}
+				} else if (!hasSpeed ()) {
+					Vector2 clickPos = (Vector3)data;
+					CircleTouch vehicleTouch = new CircleTouch (transform.position, 0.1f * 1.5f); // Click 0.1 (vehicle length) multiplied by 1.5
+					if (vehicleTouch.isInside (clickPos)) {
+						performIrritationAction ();
+						VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
+						vehicleSounds.decreaseFrustrationLevelOnManualHonk ();
+
+						return PROPAGATION.STOP_AFTER_SAME_TYPE;
+					}
 				}
 			}
 		}
@@ -1097,57 +1167,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			isCurrentTargetCrossing = false;
 		}
 	}
-
-	private class CollisionObj {
-		public string CollisionObjType { get; set; }
-		public string typeName;
-
-		public const string WAY_COLLIDER = "WC";
-		public const string VEHICLE_FRONT_AWARE_COLLIDER = "FAC";
-		public const string VEHICLE_PANIC_COLLIDER = "PC";
-		public const string VEHICLE_COLLIDER = "CAR";
-		public const string VEHICLE_BACK_COLLIDER = "BC";
-		public const string TRAFFIC_LIGHT_YELLOW = "Yellow";
-		public const string TRAFFIC_LIGHT_RED = "Red";
-
-		protected CollisionObj (string collisionObjType, string typeName) {
-			this.CollisionObjType = collisionObjType;
-			this.typeName = typeName;
-		}
-	}
-
-	private class VehicleCollisionObj : CollisionObj {
-		public static string NAME = "VEHICLE_COLLISION_OBJ";
-
-		public Vehicle Vehicle { get; set; }
-
-		public VehicleCollisionObj (Vehicle vehicle, string collisionObjType) : base(collisionObjType, VehicleCollisionObj.NAME) {
-			this.Vehicle = vehicle;
-		}
-	}
-	
-	private class WayCollisionObj : CollisionObj {
-		public static string NAME = "WAY_COLLISION_OBJ";
-
-		public WayReference WayReference { get; set; }
-		public Pos Pos { get; set; }
-
-		public WayCollisionObj (WayReference wayReference, string collisionObjType, Pos pos) : base(collisionObjType, WayCollisionObj.NAME) {
-			this.WayReference = wayReference;
-			this.Pos = pos;
-		}
-	}
 		
-	private class TrafficLightCollisionObj : CollisionObj {
-		public static string NAME = "TRAFFIC_LIGHT_COLLISION_OBJ";
-
-		public TrafficLightLogic TrafficLightLogic { get; set; }
-
-		public TrafficLightCollisionObj (TrafficLightLogic trafficLightLogic, string collisionObjType) : base(collisionObjType, TrafficLightCollisionObj.NAME) {
-			this.TrafficLightLogic = trafficLightLogic;
-		}
-	}
-
 	private void startBacklights() {
 		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
 		lights.setTaillightsState (true);

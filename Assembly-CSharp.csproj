@@ -69,10 +69,17 @@
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\UnityEditorDevice.cs" />
      <Compile Include="Assets\Scripts\AutomaticMaterialObject.cs" />
      <Compile Include="Assets\Scripts\BuildingRoof.cs" />
+     <Compile Include="Assets\Scripts\CollisionObjects\CollisionObj.cs" />
+     <Compile Include="Assets\Scripts\CollisionObjects\HumanCollisionObj.cs" />
+     <Compile Include="Assets\Scripts\CollisionObjects\TrafficLightCollisionObj.cs" />
+     <Compile Include="Assets\Scripts\CollisionObjects\VehicleCollisionObj.cs" />
+     <Compile Include="Assets\Scripts\CollisionObjects\WayCollisionObj.cs" />
      <Compile Include="Assets\Scripts\Emission.cs" />
      <Compile Include="Assets\Scripts\FadeObjectInOut.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
+     <Compile Include="Assets\Scripts\GenericHumanSounds.cs" />
      <Compile Include="Assets\Scripts\GenericVehicleSounds.cs" />
+     <Compile Include="Assets\Scripts\HumanCollider.cs" />
      <Compile Include="Assets\Scripts\HumanLogic.cs" />
      <Compile Include="Assets\Scripts\HumanRandomizer.cs" />
      <Compile Include="Assets\Scripts\InformationBase.cs" />

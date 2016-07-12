@@ -47,7 +47,7 @@ public class DataCollector : MonoBehaviour {
 				Rect rect = new Rect (0, h - labelHeight - (lines - i) * labelHeight, w, labelHeight);
 				string text = label + ": " + Data [label];
 				if (diffCollected && DiffData.ContainsKey (label)) {
-					text += " (" + DiffData [label] + ")";
+					text += " (" + Mathf.RoundToInt(DiffData [label]) + ")";
 				}
 				GUI.Label (rect, text, style);
 				i++;
@@ -90,7 +90,7 @@ public class DataCollector : MonoBehaviour {
 		}
 
 		public override string ToString () {
-			return value.ToString ();
+			return Mathf.RoundToInt(value).ToString ();
 		}
 	}
 }

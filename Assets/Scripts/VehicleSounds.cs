@@ -20,6 +20,7 @@ public class VehicleSounds : MonoBehaviour {
 
 	private AudioSource soundSource;
 	private float frustrationLevel = 0f;
+	private static float FRUSTRATION_INCREASE_ON_HONK = 1f; 
 
 	// Use this for initialization
 	void Start () {
@@ -100,10 +101,14 @@ public class VehicleSounds : MonoBehaviour {
 		return frustrationLevel;
 	}
 
+	public void decreaseFrustrationLevelOnManualHonk() {
+		frustrationLevel -= FRUSTRATION_INCREASE_ON_HONK;
+	}
+
 	public void honk (bool startHonk = true) {
 		if (startHonk) {
 			if (!soundSource.isPlaying) {
-				frustrationLevel += 1f;
+				frustrationLevel += FRUSTRATION_INCREASE_ON_HONK;
 				pickHonkSound ();
 				soundSource.Play ();
 			}

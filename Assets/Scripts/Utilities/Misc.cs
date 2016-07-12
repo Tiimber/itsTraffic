@@ -125,4 +125,8 @@ public class Misc {
 	public static long daysToTicks (int days) {
 		return (long) days * 24 * 60 * 60 * 1000 * 1000 * 10;
 	}
+
+	public static float getDistance (Vector3 from, Vector3 to) {
+		return (from - to).magnitude; 
+	}
 }

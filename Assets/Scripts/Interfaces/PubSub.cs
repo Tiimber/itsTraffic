@@ -24,8 +24,10 @@ public class PubSub {
 			List<IPubSub> messageEntry = subscriptions[message];
 			if (messageEntry.Contains (subscriber)) {
 				messageEntry.Remove (subscriber);
+				subscriptionsWithPriorities [message].Remove (subscriber);
 				if (messageEntry.Count == 0) {
 					subscriptions.Remove (message);
+					subscriptionsWithPriorities.Remove (message);
 				}
 			}
 		}

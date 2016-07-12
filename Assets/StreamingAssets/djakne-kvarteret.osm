@@ -456,6 +456,8 @@
  <node id="1623951757" visible="true" version="2" changeset="21198967" timestamp="2014-03-19T20:10:40Z" user="Essin" uid="438299" lat="55.6065080" lon="13.0042768"/>
  <node id="1421420927" visible="true" version="4" changeset="39087144" timestamp="2016-05-04T05:23:44Z" user="Tiimber" uid="3191489" lat="55.6061048" lon="13.0046485">
   <tag k="highway" v="crossing"/>
+  <!-- TODO - Not real traffic signal -->
+  <!-- <tag k="crossing" v="traffic_signals"/>-->
  </node>
  <node id="243069490" visible="true" version="6" changeset="10625466" timestamp="2012-02-08T15:15:11Z" user="joakimfors" uid="306096" lat="55.6037302" lon="13.0046531"/>
  <node id="246553341" visible="true" version="5" changeset="10625466" timestamp="2012-02-08T15:15:12Z" user="joakimfors" uid="306096" lat="55.6065287" lon="13.0044084"/>

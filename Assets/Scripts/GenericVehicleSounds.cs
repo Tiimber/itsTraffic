@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class GenericVehicleSounds : MonoBehaviour {
+public class GenericVehicleSounds : MonoBehaviour, IPubSub {
+
+	private static float volume = 0.8f;
 
 	public AudioClip majorCrashSound;
 	public AudioClip minorCrashSound;
@@ -18,6 +20,7 @@ public class GenericVehicleSounds : MonoBehaviour {
 
 	void Start () {
 		GenericVehicleSounds.instance = this;
+		PubSub.subscribe ("Volume:ambient", this);
 
 		GenericVehicleSounds.ambientSoundSources = new List<AudioSource> (maxAmbientChannels);
 		for (int i = 0; i < maxAmbientChannels; i++) {
@@ -26,6 +29,7 @@ public class GenericVehicleSounds : MonoBehaviour {
 			ambientSoundSource.spatialBlend = 1f;
 			ambientSoundSource.clip = GenericVehicleSounds.instance.ambientTrafficSound;
 			ambientSoundSource.loop = true;
+			ambientSoundSource.volume = volume;
 			ambientSoundSource.time = Random.Range (0f, GenericVehicleSounds.instance.ambientTrafficSound.length);
 			GenericVehicleSounds.ambientSoundSources.Add (ambientSoundSource);
 		}
@@ -55,4 +59,14 @@ public class GenericVehicleSounds : MonoBehaviour {
 		GenericVehicleSounds.ambientSoundSources [n].Play ();
 	}
 
+	public PROPAGATION onMessage (string message, object data) {
+		if (message == "Volume:ambient") {
+			float volume = (float) data;
+			foreach (AudioSource audioSource in ambientSoundSources) {
+				audioSource.volume = volume;
+			}
+		}
+
+		return PROPAGATION.DEFAULT;
+	}
 }

@@ -9,6 +9,8 @@ public class ObjectRandomizer {
 	private float minInterval;
 	private float intervalDecreaseRate;
 
+	private bool isRunning = true;
+
 	public ObjectRandomizer (float interval, float randomVariation, float minInterval, float intervalDecreaseRate) {
 		if (random == null) {
 			random = new System.Random ((int)Game.randomSeed);
@@ -21,13 +23,13 @@ public class ObjectRandomizer {
 	}
 
 	private IEnumerator createNewObjects () {
-		while (Game.isRunning ()) {
+		while (Game.isRunning () && isRunning) {
 			float nextTime = interval + (float)random.NextDouble() * randomVariation; 
 			yield return new WaitForSeconds(nextTime);
 			if (interval > minInterval) {
 				interval -= interval * intervalDecreaseRate;
 			}
-			if (Game.isRunning ()) {
+			if (Game.isRunning () && isRunning) {
 				newObject ();
 			}
 		}
@@ -35,5 +37,9 @@ public class ObjectRandomizer {
 
 	protected virtual void newObject () {
 		Debug.Log ("Create object");
+	}
+
+	protected void stop() {
+		isRunning = false;
 	}
 }

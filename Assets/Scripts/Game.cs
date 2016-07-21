@@ -9,9 +9,12 @@ using SystemRandom = System.Random;
 // Longitude = x
 // Latitude = y
 using UnityStandardAssets.Cameras;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Game : MonoBehaviour, IPubSub {
 
+	public Camera menuCamera;
 	public Camera mainCamera;
 	public Camera introCamera;
 	public Camera pointsCamera;
@@ -74,13 +77,14 @@ public class Game : MonoBehaviour, IPubSub {
 
 	// Use this for initialization
 	void Start () {
+		showMenu ();
 		initDataCollection ();
 		calculateVehicleFrequency ();
 
 		Game.instance = this;
 
 		StartCoroutine (MaterialManager.Init ());
-		StartCoroutine (loadXML ());
+//		StartCoroutine (loadXML ());
 
 		CameraHandler.SetMinZoom (cameraOrtographicSize);
 		CameraHandler.SetMainCamera (mainCamera);
@@ -95,10 +99,17 @@ public class Game : MonoBehaviour, IPubSub {
 		PubSub.subscribe("Vehicle:createDangerHalo", this);
 		// Subscribe to when crashed vehicles are removed, to remove the danger halo
 		PubSub.subscribe("Vehicle:removeDangerHalo", this);
+	}
 
-		Game.running = true;
-		new VehicleRandomizer ();
-		new HumanRandomizer ();
+	public void startGame() {
+		introCamera.enabled = true;
+		StartCoroutine (loadXML ());
+	}
+
+	private void showMenu(bool show = true) {
+		menuCamera.enabled = show;
+//		menuCamera.gameObject.SetActive (show);
+		// WHAT?!
 	}
 
 	void initDataCollection ()
@@ -137,8 +148,8 @@ public class Game : MonoBehaviour, IPubSub {
 				Vehicle carObj = car.GetComponent<Vehicle> ();
 				carObj.fadeOutAndDestroy ();
 			} else {
-//				createNewCar ();
-				giveBirth();
+				createNewCar ();
+//				giveBirth();
 			}
 		} else if (Input.GetKeyDown (KeyCode.F)) {
 			followCar ^= true;
@@ -537,6 +548,10 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private IEnumerator loadXML () {
+		introCamera.enabled = true;
+		introCamera.gameObject.SetActive (true);
+		showMenu (false);
+
 		WWW www = new WWW (mapFileName);
 		
 		yield return www;
@@ -1084,6 +1099,11 @@ public class Game : MonoBehaviour, IPubSub {
 				StopCoroutine ("pulsateDangerHalos");
 			}
 		} else if (message == "mainCameraActivated") {
+			Game.running = true;
+
+			VehicleRandomizer.Create ();
+			HumanRandomizer.Create ();
+
 			CameraHandler.InitialZoom ();
 			pointsCamera.enabled = true;
 			GenericVehicleSounds.VehicleCountChange ();
@@ -1138,4 +1158,36 @@ public class Game : MonoBehaviour, IPubSub {
 //		}
 //		return null;
 	}
+
+	public void quitApp() {
+		Application.Quit ();
+	}
+
+	public void toggleOptions() {
+		GameObject optionsButton = EventSystem.current.currentSelectedGameObject;
+		GameObject subMenu = optionsButton.transform.FindChild ("Submenu").gameObject;
+		subMenu.SetActive (!subMenu.activeSelf);
+	}
+
+	public void musicVolumeChanged() {
+//		GameObject slider = EventSystem.current.currentSelectedGameObject;
+//		float value = slider.GetComponent<Slider>().value;
+
+		// TODO
+
+	}
+
+	public void ambientSoundVolumeChanged() {
+//		GameObject slider = EventSystem.current.currentSelectedGameObject;
+//		float value = slider.GetComponent<Slider>().value;
+//		PubSub.publish ("Volume:ambient", value);
+	}
+
+	public void soundEffectsVolumeChanged() {
+//		GameObject slider = EventSystem.current.currentSelectedGameObject;
+//		float value = slider.GetComponent<Slider>().value;
+
+		// TODO
+	}
+
 }

@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class GenericHumanSounds : MonoBehaviour {
+public class GenericHumanSounds : MonoBehaviour, IPubSub {
+
+	private static float volume = 0.8f;
 
 	public List<AudioClip> ambientHumanSounds;
 
@@ -14,6 +16,7 @@ public class GenericHumanSounds : MonoBehaviour {
 
 	void Start () {
 		GenericHumanSounds.instance = this;
+		PubSub.subscribe ("Volume:ambient", this);
 
 		GenericHumanSounds.ambientSoundSources = new List<AudioSource> (ambientHumanSounds.Count);
 		for (int i = 0; i < ambientHumanSounds.Count; i++) {
@@ -22,6 +25,7 @@ public class GenericHumanSounds : MonoBehaviour {
 			ambientSoundSource.spatialBlend = 1f;
 			ambientSoundSource.clip = GenericHumanSounds.instance.ambientHumanSounds[i];
 			ambientSoundSource.loop = true;
+			ambientSoundSource.volume = volume;
 			ambientSoundSource.time = Random.Range (0f, GenericHumanSounds.instance.ambientHumanSounds[i].length);
 			GenericHumanSounds.ambientSoundSources.Add (ambientSoundSource);
 		}
@@ -51,4 +55,14 @@ public class GenericHumanSounds : MonoBehaviour {
 		GenericHumanSounds.ambientSoundSources [n].Play ();
 	}
 
+	public PROPAGATION onMessage (string message, object data) {
+		if (message == "Volume:ambient") {
+			float volume = (float) data;
+			foreach (AudioSource audioSource in ambientSoundSources) {
+				audioSource.volume = volume;
+			}
+		}
+
+		return PROPAGATION.DEFAULT;
+	}
 }

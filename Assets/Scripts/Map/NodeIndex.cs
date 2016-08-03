@@ -123,4 +123,33 @@ public class NodeIndex
 
 		return Tuple3.New (spawnNode, closestWay, closestPoint);
 	}
+
+	public static Pos getPosClosestTo (Vector3 mouseWorldPoint) {
+		long closestNodeId = -1L;
+		float closestNodeDistance = float.MaxValue;
+		foreach (long id in nodes.Keys) {
+			Pos node = nodes[id];
+			if (nodeIdHasDriveway(id)) {
+				Vector3 wayPoint = Game.getCameraPosition (node); 
+				float nodeDistance = Misc.getDistance(mouseWorldPoint, wayPoint);
+				if (nodeDistance < closestNodeDistance) {
+					closestNodeId = id;
+					closestNodeDistance = nodeDistance;
+				}
+			}
+		}
+		return closestNodeId != -1L ? nodes [closestNodeId] : null;
+	}
+
+	private static bool nodeIdHasDriveway (long id) {
+		if (nodeWayIndex.ContainsKey (id)) {
+			List<WayReference> wayReferences = nodeWayIndex [id];
+			foreach (WayReference wayReference in wayReferences) {
+				if (wayReference.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

@@ -15,6 +15,7 @@ using UnityEngine.UI;
 public class Game : MonoBehaviour, IPubSub {
 
 	public Camera menuCamera;
+	public GameObject menuSystem;
 	public Camera mainCamera;
 	public Camera introCamera;
 	public Camera pointsCamera;
@@ -25,6 +26,12 @@ public class Game : MonoBehaviour, IPubSub {
 
 	public static long randomSeed = Misc.currentTimeMillis ();
 	private static bool running = false;
+	private static bool paused = false;
+	private static bool frozen = false;
+
+	// TODO - Either remove or use to help with building levels
+	private static bool debugMode = false;
+	private static List<Pos> debugDrawBetween = new List<Pos>();
 
 	public static KeyValuePair<Pos, WayReference> CurrentWayReference { set; get; }
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }
@@ -37,6 +44,8 @@ public class Game : MonoBehaviour, IPubSub {
 	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm";
 //	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
 	private string configFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml";
+
+	private string levelSetupFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml";
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
@@ -59,6 +68,8 @@ public class Game : MonoBehaviour, IPubSub {
 	public static float cameraOrtographicSize = 5f;
 	public static float heightFactor;
 
+	public float soundEffectsVolume = 0.8f;
+
 	private Vector3 oneVector = Vector3.right;
 	
 	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
@@ -78,13 +89,13 @@ public class Game : MonoBehaviour, IPubSub {
 	// Use this for initialization
 	void Start () {
 		showMenu ();
+		paused = false;
 		initDataCollection ();
 		calculateVehicleFrequency ();
 
 		Game.instance = this;
 
 		StartCoroutine (MaterialManager.Init ());
-//		StartCoroutine (loadXML ());
 
 		CameraHandler.SetMinZoom (cameraOrtographicSize);
 		CameraHandler.SetMainCamera (mainCamera);
@@ -102,14 +113,26 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void startGame() {
-		introCamera.enabled = true;
-		StartCoroutine (loadXML ());
+		if (paused) {
+			showMenu (false);
+		} else {
+			toggleStartSubmenu ();
+		}
 	}
 
+	public void startEndlessMode() {
+		introCamera.enabled = true;
+		StartCoroutine (loadXML (mapFileName, configFileName));
+	}
+
+	public void startMission() {
+		introCamera.enabled = true;
+		StartCoroutine (loadLevelSetup (levelSetupFileName));
+	}
+		
 	private void showMenu(bool show = true) {
-		menuCamera.enabled = show;
-//		menuCamera.gameObject.SetActive (show);
-		// WHAT?!
+		menuSystem.SetActive (show);
+		Game.paused = show;
 	}
 
 	void initDataCollection ()
@@ -122,16 +145,17 @@ public class Game : MonoBehaviour, IPubSub {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
-			currentLevel = WayTypeEnum.getLower (currentLevel);
-			filterWays ();
-		} else if (Input.GetKeyDown (KeyCode.Minus) || Input.GetKeyDown (KeyCode.M)) {
-			currentLevel = WayTypeEnum.getHigher (currentLevel);
-			filterWays ();
-		} else if (Input.GetKeyDown (KeyCode.Space)) {
-			showOnlyCurrentLevel ^= true;
-			currentLevel = 0.111f;
-			filterWays ();
+//		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
+//			currentLevel = WayTypeEnum.getLower (currentLevel);
+//			filterWays ();
+//		} else if (Input.GetKeyDown (KeyCode.Minus) || Input.GetKeyDown (KeyCode.M)) {
+//			currentLevel = WayTypeEnum.getHigher (currentLevel);
+//			filterWays ();
+//		} else if (Input.GetKeyDown (KeyCode.Space)) {
+//			showOnlyCurrentLevel ^= true;
+//			currentLevel = 0.111f;
+//			filterWays ();
+
 //		} else if (Input.GetKeyDown (KeyCode.LeftShift)) {
 //			debugIndex = ++debugIndex % debugIndexNodes.Count;
 //			WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
@@ -141,7 +165,8 @@ public class Game : MonoBehaviour, IPubSub {
 //					wayReference.OriginalColor = Color.magenta;
 //				}
 //			}
-		} else if (Input.GetKeyDown (KeyCode.N)) {
+//		} else 
+		if (Input.GetKeyDown (KeyCode.N)) {
 			GameObject car = null; 
 //			GameObject car = GameObject.Find ("Camaro(ish)(Clone)");
 			if (car != null) {
@@ -151,6 +176,13 @@ public class Game : MonoBehaviour, IPubSub {
 				createNewCar ();
 //				giveBirth();
 			}
+		} else if (Input.GetKeyDown (KeyCode.P)) {
+			// Pause (Freeze)
+			// TODO - Just for testing, should at least not be a button...
+			toggleFreezeGame ();
+		} else if (Input.GetKeyDown(KeyCode.D)) {
+			// TODO - Temporary
+			toggleDebugMode ();
 		} else if (Input.GetKeyDown (KeyCode.F)) {
 			followCar ^= true;
 			if (!followCar) {
@@ -158,15 +190,19 @@ public class Game : MonoBehaviour, IPubSub {
 				mainCamera.enabled = true;
 			}
 		} else if (Input.GetKeyDown (KeyCode.Q)) {
-			PubSub.publish("points:inc", 13579);
+			PubSub.publish ("points:inc", 13579);
 		} else if (Input.GetKeyDown (KeyCode.W)) {
-			PubSub.publish("points:dec", 24680);
+			PubSub.publish ("points:dec", 24680);
 		} else if (Input.GetKeyDown (KeyCode.T)) {
-			bool isShiftKeyDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+			bool isShiftKeyDown = Input.GetKey (KeyCode.LeftShift) || Input.GetKey (KeyCode.RightShift);
 			if (isShiftKeyDown) {
 				HumanLogic.TURBO = 1f;
 			} else {
 				HumanLogic.TURBO++;
+			}
+		} else if (Input.GetKeyDown (KeyCode.Escape)) {
+			if (!paused) {
+				showMenu ();
 			}
 		}
 
@@ -194,6 +230,30 @@ public class Game : MonoBehaviour, IPubSub {
 				// TODO - Send click in upcoming frame if not dragged (too much)
 				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint(mousePosition);
 				PubSub.publish ("Click", mouseWorldPoint);
+			}
+		}
+
+		// TODO - This is for debug - choosing endpoints
+		if (Game.debugMode) {
+			if (Input.GetMouseButtonDown (1)) {
+				Vector3 mousePosition = Input.mousePosition;
+				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mousePosition);
+				Pos pos = NodeIndex.getPosClosestTo (mouseWorldPoint);
+				debugDrawBetween.Add (pos);
+				if (debugDrawBetween.Count > 2) {
+					debugDrawBetween.RemoveAt (0);
+				}
+				if (debugDrawBetween.Count == 2) {
+					Debug.Log ("Position Ids: " + debugDrawBetween[0].Id + " - " + debugDrawBetween[1].Id);
+				}
+			}
+
+			// Draw lines!
+			if (debugDrawBetween.Count > 1) {
+				List<Pos> path = Game.calculateCurrentPath(debugDrawBetween[0], debugDrawBetween[1], true);
+				DebugFn.temporaryOverride (new Color (0.3f, 0.3f, 1f), 0.05f);
+				DebugFn.DebugPath (path);
+				DebugFn.temporaryOverride (Color.black);
 			}
 		}
 
@@ -547,7 +607,28 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 	}
 
-	private IEnumerator loadXML () {
+	private IEnumerator loadLevelSetup (string levelFileName) {
+		introCamera.enabled = true;
+		introCamera.gameObject.SetActive (true);
+		showMenu (false);
+
+		WWW www = new WWW (levelFileName);
+
+		yield return www;
+
+		XmlDocument xmlDoc = new XmlDocument();
+//		Debug.Log (www.url);
+		xmlDoc.LoadXml(www.text);
+
+		Level level = new Level (xmlDoc);
+
+		// TODO - Continue parsing
+
+
+		StartCoroutine (loadXML (level.mapUrl, level.configUrl));
+	}
+
+	private IEnumerator loadXML (string mapFileName, string configFileName) {
 		introCamera.enabled = true;
 		introCamera.gameObject.SetActive (true);
 		showMenu (false);
@@ -1139,6 +1220,10 @@ public class Game : MonoBehaviour, IPubSub {
 		return Game.running;
 	}
 
+	public static bool isPaused () {
+		return Game.paused;
+	}
+
 	private void calculateVehicleFrequency ()
 	{
 		sumVehicleFrequency = 0f;
@@ -1164,9 +1249,29 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void toggleOptions() {
-		GameObject optionsButton = EventSystem.current.currentSelectedGameObject;
-		GameObject subMenu = optionsButton.transform.FindChild ("Submenu").gameObject;
-		subMenu.SetActive (!subMenu.activeSelf);
+		GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "OptionsSubmenu").gameObject;
+		menuOptionsVisible (!subMenu.activeSelf);
+	}
+
+	private void menuOptionsVisible(bool show) {
+		if (show) {
+			menuStartVisible (false);
+		}
+		GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "OptionsSubmenu").gameObject;
+		subMenu.SetActive (show);
+	}
+
+	public void toggleStartSubmenu() {
+		GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "StartSubmenu").gameObject;
+		menuStartVisible(!subMenu.activeSelf);
+	}
+
+	private void menuStartVisible(bool show) {
+		if (show) {
+			menuOptionsVisible (false);
+		}
+		GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "StartSubmenu").gameObject;
+		subMenu.SetActive (show);
 	}
 
 	public void musicVolumeChanged() {
@@ -1178,16 +1283,34 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void ambientSoundVolumeChanged() {
-//		GameObject slider = EventSystem.current.currentSelectedGameObject;
-//		float value = slider.GetComponent<Slider>().value;
-//		PubSub.publish ("Volume:ambient", value);
+		EventSystem current = EventSystem.current;
+		if (current != null) {
+			GameObject slider = current.currentSelectedGameObject;
+			float value = slider.GetComponent<Slider> ().value;
+			PubSub.publish ("Volume:ambient", value);
+		}
 	}
 
 	public void soundEffectsVolumeChanged() {
-//		GameObject slider = EventSystem.current.currentSelectedGameObject;
-//		float value = slider.GetComponent<Slider>().value;
-
-		// TODO
+		EventSystem current = EventSystem.current;
+		if (current != null) {
+			GameObject slider = current.currentSelectedGameObject;
+			float value = slider.GetComponent<Slider> ().value;
+			soundEffectsVolume = value;
+			PubSub.publish ("Volume:effects", value);
+		}
 	}
 
+	void toggleFreezeGame () {
+		Game.frozen = !Game.frozen;
+		Time.timeScale = Game.frozen ? 0f : 1f;
+	}
+
+	public static bool isMovementEnabled() {
+		return Game.instance != null && !Game.frozen;
+	}
+
+	void toggleDebugMode () {
+		Game.debugMode = !Game.debugMode;
+	}
 }

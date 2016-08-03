@@ -129,4 +129,68 @@ public class Misc {
 	public static float getDistance (Vector3 from, Vector3 to) {
 		return (from - to).magnitude; 
 	}
+
+	//Breadth-first search
+	public static Transform FindDeepChild(Transform aParent, string aName) {
+		var result = aParent.Find(aName);
+		if (result != null) {
+			return result;
+		}
+		foreach(Transform child in aParent) {
+			result = Misc.FindDeepChild(child, aName);
+			if (result != null)
+				return result;
+		}
+		return null;
+	}
+
+	// Convert string with comma separated longs to list of longs
+	public static List<long> parseLongs (string passengerIdsStr) {
+		List<long> ids = new List<long> ();
+		if (passengerIdsStr != null) {
+			string[] idStrings = passengerIdsStr.Split (',');
+			foreach (string id in idStrings) {
+				ids.Add (Convert.ToInt64 (id));
+			}
+		}
+		return ids;
+	}
+
+	public static string xmlString(XmlNode attributeNode) {
+		if (attributeNode != null) {
+			return attributeNode.Value;
+		}
+		return null;
+	}
+
+	public static bool xmlBool(XmlNode attributeNode) {
+		string strVal = Misc.xmlString (attributeNode);
+		return strVal == "true";
+	}
+
+	public static int xmlInt(XmlNode attributeNode) {
+		string strVal = Misc.xmlString (attributeNode);
+		if (strVal != null) {
+			return Convert.ToInt32 (strVal);
+		}
+		return 0;
+	}
+
+	public static float xmlFloat(XmlNode attributeNode) {
+		string strVal = Misc.xmlString (attributeNode);
+		if (strVal != null) {
+			return Convert.ToSingle (strVal);
+		}
+		return 0f;
+	}
+
+	public static long xmlLong(XmlNode attributeNode) {
+		string strVal = Misc.xmlString (attributeNode);
+		if (strVal != null) {
+			return Convert.ToInt64 (strVal);
+		}
+		return 0L;
+	}
+
+
 }

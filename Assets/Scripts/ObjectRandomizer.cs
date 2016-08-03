@@ -30,7 +30,9 @@ public class ObjectRandomizer {
 				interval -= interval * intervalDecreaseRate;
 			}
 			if (Game.isRunning () && isRunning) {
-				newObject ();
+				if (!Game.isPaused ()) {
+					newObject ();
+				}
 			}
 		}
 	}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<level 
+	name="This is my level!" 
+	randomSeed="MAH LÄVÄL" 
+	timeOfDay="13:30"
+	mapUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm"
+	configUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml"
+>
+	<objectives>
+		<win type="points" value="20000" />
+		<lose type="time" value="3m" />
+	</objectives>
+	<randomizer enabled="true" time="30s" />
+	<setup>
+		<people>
+			<person id="20007" refonly="true" name="Per Persson" dob="1946-08" money="133.7" />
+			<person id="20013" refonly="true" name="Linnèa Persson" dob="1952-04" money="145.51" />
+			<person id="20001" refonly="true" name="Ronja Rövardotter" dob="1963-12" money="9.99" />
+			
+			<person id="20027" refonly="false" time="-1" name="Harald Treutiger" dob="1956-06" money="12.34" />
+			<person id="20038" refonly="false" time="22.5" name="Adam Alsing" dob="1968-10" money="23.45" />
+		</people>
+		<vehicles>
+			<vehicle id="10001" time="-1" startPos="1623951731" endPos="92777329" type="Camaro" name="Sportzcar Oldsmobile" year="2013" distance="70" condition="0.6" driverId="20007" passengerIds="20013"/>
+			<vehicle id="10002" time="17.1" startPos="1623951731" endPos="92777329" type="Camaro" name="Sportzcar Newsmobile" year="2016" distance="1421" condition="0.1" driverId="20001" />
+		</vehicles>
+	</setup>
+</level>

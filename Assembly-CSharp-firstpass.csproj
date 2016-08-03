@@ -78,6 +78,7 @@
      <None Include="Assets\Shaders\FadeShader.shader" />
      <None Include="Assets\Cardboard\Resources\UnlitTexture.shader" />
      <None Include="Assets\StreamingAssets\testmap08-config.xml" />
+     <None Include="Assets\StreamingAssets\level-robbin.xml" />
      <None Include="Assets\Cardboard\Legacy\Resources\GUIScreen.shader" />
      <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />

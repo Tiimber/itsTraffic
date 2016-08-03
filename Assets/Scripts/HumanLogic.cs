@@ -57,49 +57,51 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 		if (destroying) {
 			return;
 		}
+			
+		if (Game.isMovementEnabled ()) {
+			if (waitTime > 0f) {
+				waitTime -= Time.deltaTime;
+				stats [STAT_WAITING_TIME].add (Time.deltaTime);
+			} else if (waitForHumans.Any ()) {
+				// Do nothing
+				stats [STAT_WAITING_TIME].add (Time.deltaTime);
+			} else {
+				if (!vehiclesInVision.Any () || (deviationTarget != INVALID_POINT && vehiclesInVision.Any ())) {
+					// Go to deviation target if set, otherwise according to walkPath
+					Vector3 targetPoint = getTargetPoint ();
+					Vector3 currentPoint = transform.position;
+					rotateHuman (targetPoint, currentPoint);
 
-		if (waitTime > 0f) {
-			waitTime -= Time.deltaTime;
-			stats [STAT_WAITING_TIME].add (Time.deltaTime);
-		} else if (waitForHumans.Any()) {
-			// Do nothing
-			stats [STAT_WAITING_TIME].add (Time.deltaTime);
-		} else {
-			if (!vehiclesInVision.Any() || (deviationTarget != INVALID_POINT && vehiclesInVision.Any ())) {
-				// Go to deviation target if set, otherwise according to walkPath
-				Vector3 targetPoint = getTargetPoint();
-				Vector3 currentPoint = transform.position;
-				rotateHuman (targetPoint, currentPoint);
+					float travelDistance = Misc.getDistance (currentPoint, targetPoint);
 
-				float travelDistance = Misc.getDistance(currentPoint, targetPoint);
+					float targetSpeedKmH = TARGET_WALKING_SPEED_KMH * speedFactor;
+					// TODO - Debug only - TURBO
+					targetSpeedKmH *= HumanLogic.TURBO;
+					float travelLengthThisFrame = (targetSpeedKmH * Time.deltaTime) / KPH_TO_LONGLAT_SPEED;
 
-				float targetSpeedKmH = TARGET_WALKING_SPEED_KMH * speedFactor;
-				// TODO - Debug only - TURBO
-				targetSpeedKmH *= HumanLogic.TURBO;
-				float travelLengthThisFrame = (targetSpeedKmH * Time.deltaTime) / KPH_TO_LONGLAT_SPEED;
-
-				if (travelLengthThisFrame >= travelDistance) {
-					transform.position = targetPoint;
-					if (deviationTarget != INVALID_POINT) {
-						deviationTarget = INVALID_POINT;
-					} else if (timedDeviationTarget != null) {
-						timedDeviationTarget = null;
-					} else {
-						walkPath.RemoveAt (0);
-						if (walkPath.Count == 0) {
-							fadeOutAndDestroy ();
+					if (travelLengthThisFrame >= travelDistance) {
+						transform.position = targetPoint;
+						if (deviationTarget != INVALID_POINT) {
+							deviationTarget = INVALID_POINT;
+						} else if (timedDeviationTarget != null) {
+							timedDeviationTarget = null;
+						} else {
+							walkPath.RemoveAt (0);
+							if (walkPath.Count == 0) {
+								fadeOutAndDestroy ();
+							}
 						}
+					} else {
+						Vector3 movement = transform.rotation * (Vector3.right * travelLengthThisFrame);
+						transform.position = transform.position + movement;
 					}
-				} else {
-					Vector3 movement = transform.rotation * (Vector3.right * travelLengthThisFrame);
-					transform.position = transform.position + movement;
+
+					float metersWalked = Mathf.Abs (Misc.kmhToMps (targetSpeedKmH) * Time.deltaTime);
+					totalWalkingDistance += metersWalked;
+
+					stats [STAT_WALKING_TIME].add (Time.deltaTime);
+					stats [STAT_WALKING_DISTANCE].add (metersWalked);
 				}
-
-				float metersWalked = Mathf.Abs (Misc.kmhToMps (targetSpeedKmH) * Time.deltaTime);
-				totalWalkingDistance += metersWalked;
-
-				stats [STAT_WALKING_TIME].add (Time.deltaTime);
-				stats [STAT_WALKING_DISTANCE].add (metersWalked);
 			}
 		}
 	}
@@ -281,11 +283,13 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 							}
 						}
 					} else if (colliderName == "BODY") {
-						float ourDistance = Misc.getDistance (transform.position, walkPath [0]);
-						float otherDistance = Misc.getDistance (otherHuman.transform.position, otherHuman.walkPath [0]);
-						if (ourDistance > otherDistance || (ourDistance == otherDistance && !shouldDecide)) {
-							if (!otherHuman.waitForHumans.Contains (this)) {
-								waitForHumans.Add (otherHuman);
+						if (walkPath.Count > 0 && otherHuman.walkPath.Count > 0) {
+							float ourDistance = Misc.getDistance (transform.position, walkPath [0]);
+							float otherDistance = Misc.getDistance (otherHuman.transform.position, otherHuman.walkPath [0]);
+							if (ourDistance > otherDistance || (ourDistance == otherDistance && !shouldDecide)) {
+								if (!otherHuman.waitForHumans.Contains (this)) {
+									waitForHumans.Add (otherHuman);
+								}
 							}
 						}
 					}

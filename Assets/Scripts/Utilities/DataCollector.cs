@@ -28,7 +28,7 @@ public class DataCollector : MonoBehaviour {
 	}
 
 	void OnGUI() {
-		if (output) {
+		if (Game.isMovementEnabled() && output) {
 			if (Time.time > lastDataDiff + dataDiffThreshold) {
 				calculateDataDiff ();
 				lastDataDiff = Time.time;

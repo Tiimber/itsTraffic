@@ -9,6 +9,9 @@ public class DebugFn
 	private const float time = float.MaxValue;
 //	private const float time = 10f;
 
+	private static Color overrideColor;
+	private static float overrideTime = -1f;
+
 	private static Vector3 offsetZ = new Vector3 (0, 0, -0.1f);
 
 	public static void print(Pos pos) {
@@ -65,10 +68,10 @@ public class DebugFn
 
 	private static void arrowFromTo (Vector3 start, Vector3 end, float time = time) {
 		if (enabled) {
-			Debug.DrawLine (start + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), start + offsetZ + new Vector3 (X_LENGTH, X_LENGTH, 0f), Color.yellow, time, false);
-			Debug.DrawLine (start + offsetZ + new Vector3 (-X_LENGTH, X_LENGTH, 0f), start + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), Color.yellow, time, false);
+			Debug.DrawLine (start + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), start + offsetZ + new Vector3 (X_LENGTH, X_LENGTH, 0f), getColor(Color.yellow), getTime(time), false);
+			Debug.DrawLine (start + offsetZ + new Vector3 (-X_LENGTH, X_LENGTH, 0f), start + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), getColor(Color.yellow), getTime(time), false);
 			
-			Debug.DrawLine (start + offsetZ, end + offsetZ, Color.yellow, time, false);
+			Debug.DrawLine (start + offsetZ, end + offsetZ, getColor(Color.yellow), getTime(time), false);
 		}
 	}
 
@@ -90,20 +93,20 @@ public class DebugFn
 
 	public static void square(Vector3 pos, float time = time) {
 		if (enabled) {
-			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), Color.yellow, time, false);
-			Debug.DrawLine (pos + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, X_LENGTH, 0f), Color.yellow, time, false);
-			Debug.DrawLine (pos + offsetZ + new Vector3 (X_LENGTH, X_LENGTH, 0f), pos + offsetZ + new Vector3 (-X_LENGTH, X_LENGTH, 0f), Color.yellow, time, false);
-			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, X_LENGTH, 0f), pos + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), Color.yellow, time, false);
+			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), getColor(Color.yellow), getTime(time), false);
+			Debug.DrawLine (pos + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, X_LENGTH, 0f), getColor(Color.yellow), getTime(time), false);
+			Debug.DrawLine (pos + offsetZ + new Vector3 (X_LENGTH, X_LENGTH, 0f), pos + offsetZ + new Vector3 (-X_LENGTH, X_LENGTH, 0f), getColor(Color.yellow), getTime(time), false);
+			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, X_LENGTH, 0f), pos + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), getColor(Color.yellow), getTime(time), false);
 
-			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, X_LENGTH, 0f), Color.yellow, time, false);
-			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), Color.yellow, time, false);
+			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, -X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, X_LENGTH, 0f), getColor(Color.yellow), getTime(time), false);
+			Debug.DrawLine (pos + offsetZ + new Vector3 (-X_LENGTH, X_LENGTH, 0f), pos + offsetZ + new Vector3 (X_LENGTH, -X_LENGTH, 0f), getColor(Color.yellow), getTime(time), false);
 		}
 	}
 
 	public static void DrawBounds(Bounds bounds, float time = time) {
 		if (enabled) {
-			Debug.DrawLine (bounds.center - bounds.size / 2f, bounds.center + bounds.size / 2f, Color.green, time, false);
-			Debug.DrawLine (bounds.center - new Vector3 (bounds.size.x, -bounds.size.y, bounds.size.z) / 2f, bounds.center + new Vector3 (bounds.size.x, -bounds.size.y, bounds.size.z) / 2f, Color.green, time, false);
+			Debug.DrawLine (bounds.center - bounds.size / 2f, bounds.center + bounds.size / 2f, getColor(Color.green), getTime(time), false);
+			Debug.DrawLine (bounds.center - new Vector3 (bounds.size.x, -bounds.size.y, bounds.size.z) / 2f, bounds.center + new Vector3 (bounds.size.x, -bounds.size.y, bounds.size.z) / 2f, getColor(Color.green), getTime(time), false);
 		}
 	}
 
@@ -131,5 +134,22 @@ public class DebugFn
 			Vector3 pos = path [i];
 			DebugFn.arrow (prev, pos);
 		}
+	}
+
+	public static void temporaryOverride (Color color, float time = 0f) {
+		if (time > 0f) {
+			DebugFn.overrideColor = color;
+			DebugFn.overrideTime = time;
+		} else {
+			DebugFn.overrideTime = 0f;
+		}
+	}
+
+	private static float getTime (float time) {
+		return DebugFn.overrideTime > 0f ? DebugFn.overrideTime : time;
+	}
+
+	static Color getColor (Color color) {
+		return DebugFn.overrideTime > 0f ? DebugFn.overrideColor : color;
 	}
 }

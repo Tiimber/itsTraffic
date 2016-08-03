@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class VehicleSounds : MonoBehaviour {
+public class VehicleSounds : MonoBehaviour, IPubSub {
+
+	private float volume = 0.8f;
 
 	public AudioClip shortHonkSound;
 	public AudioClip twoShortHonkSound;
@@ -27,11 +29,16 @@ public class VehicleSounds : MonoBehaviour {
 		// Init the honks dictionary
 		initHonkMapping ();
 
+		volume = Game.instance.soundEffectsVolume;
+
+		PubSub.subscribe ("Volume:effects", this);
+
 		// Init the audioSource
 		soundSource = gameObject.AddComponent<AudioSource> ();
 		soundSource.playOnAwake = false;
 		soundSource.clip = honks [HonkVariant.SHORT];
 		soundSource.spatialBlend = 1f;
+		soundSource.volume = volume;
 //		honkSoundSource.Play ();
 	}
 
@@ -152,5 +159,20 @@ public class VehicleSounds : MonoBehaviour {
 		soundSource.Play ();
 		// Prevent honking just after crash
 		frustrationLevel = 0f;
+	}
+		
+	public PROPAGATION onMessage (string message, object data) {
+		if (message == "Volume:effects") {
+			if (!GetComponent<Vehicle> ().destroying) {
+				float volume = (float)data;
+				soundSource.volume = volume;
+			}
+		}
+
+		return PROPAGATION.DEFAULT;
+	}
+
+	void OnDestroy() {
+		PubSub.unsubscribe ("Volume:effects", this);
 	}
 }

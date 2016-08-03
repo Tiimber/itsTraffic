@@ -90,6 +90,10 @@
      <Compile Include="Assets\Scripts\Interfaces\IPubSub.cs" />
      <Compile Include="Assets\Scripts\Interfaces\PubSub.cs" />
      <Compile Include="Assets\Scripts\LanduseSurface.cs" />
+     <Compile Include="Assets\Scripts\Level\Level.cs" />
+     <Compile Include="Assets\Scripts\Level\Objectives.cs" />
+     <Compile Include="Assets\Scripts\Level\Randomizer.cs" />
+     <Compile Include="Assets\Scripts\Level\Setup.cs" />
      <Compile Include="Assets\Scripts\LightLogic.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\Map\BaseNode.cs" />
@@ -106,6 +110,7 @@
      <Compile Include="Assets\Scripts\MapSurface.cs" />
      <Compile Include="Assets\Scripts\MaterialManager.cs" />
      <Compile Include="Assets\Scripts\Math3d.cs" />
+     <Compile Include="Assets\Scripts\MissionStarAmount.cs" />
      <Compile Include="Assets\Scripts\NodeDistance.cs" />
      <Compile Include="Assets\Scripts\ObjectRandomizer.cs" />
      <Compile Include="Assets\Scripts\PointDigit.cs" />
@@ -114,6 +119,7 @@
      <Compile Include="Assets\Scripts\Settings.cs" />
      <Compile Include="Assets\Scripts\ShirtLogic.cs" />
      <Compile Include="Assets\Scripts\SkinLogic.cs" />
+     <Compile Include="Assets\Scripts\StarImageToggle.cs" />
      <Compile Include="Assets\Scripts\TrafficLightToggle.cs" />
      <Compile Include="Assets\Scripts\Triangulator.cs" />
      <Compile Include="Assets\Scripts\Utilities\CameraHandler.cs" />
@@ -153,6 +159,7 @@
      <None Include="Assets\Shaders\FadeShader.shader" />
      <None Include="Assets\Cardboard\Resources\UnlitTexture.shader" />
      <None Include="Assets\StreamingAssets\testmap08-config.xml" />
+     <None Include="Assets\StreamingAssets\level-robbin.xml" />
      <None Include="Assets\Cardboard\Legacy\Resources\GUIScreen.shader" />
      <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />

@@ -30,7 +30,7 @@ public class GenericVehicleSounds : MonoBehaviour, IPubSub {
 			ambientSoundSource.clip = GenericVehicleSounds.instance.ambientTrafficSound;
 			ambientSoundSource.loop = true;
 			ambientSoundSource.volume = volume;
-			ambientSoundSource.time = Random.Range (0f, GenericVehicleSounds.instance.ambientTrafficSound.length);
+			ambientSoundSource.time = Misc.randomRange (0f, GenericVehicleSounds.instance.ambientTrafficSound.length);
 			GenericVehicleSounds.ambientSoundSources.Add (ambientSoundSource);
 		}
 	}

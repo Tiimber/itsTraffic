@@ -4,13 +4,14 @@ using System.Xml;
 public class Level {
 
 	public string name;
-	public string randomSeed;
+	public int randomSeed;
 	public string timeOfDay;
 	public string mapUrl;
 	public string configUrl;
 
 	public Objectives objectives;
-	public Randomizer randomizer;
+	public Randomizer humanRandomizer;
+	public Randomizer vehicleRandomizer;
 	public Setup setup;
 
 	public Level(XmlDocument xmlDoc) {
@@ -20,19 +21,21 @@ public class Level {
 		XmlNode objectivesNode = xmlDoc.SelectSingleNode ("/level/objectives");
 		objectives = new Objectives (objectivesNode);
 
-		XmlNode randomizerNode = xmlDoc.SelectSingleNode ("/level/randomizer");
-		randomizer = new Randomizer (randomizerNode);
+		XmlNode humanRandomizerNode = xmlDoc.SelectSingleNode ("/level/humanRandomizer");
+		humanRandomizer = new Randomizer (humanRandomizerNode, "human");
+
+		XmlNode vehicleRandomizerNode = xmlDoc.SelectSingleNode ("/level/vehicleRandomizer");
+		vehicleRandomizer = new Randomizer (vehicleRandomizerNode, "vehicle");
 
 		XmlNode setupNode = xmlDoc.SelectSingleNode ("/level/setup");
 		setup = new Setup (setupNode);
-
-		string a = setup.ToString();
 	}
 
 	private void extractLevelDetails(XmlNode levelNode) {
 		XmlAttributeCollection levelAttributes = levelNode.Attributes;
 		name = Misc.xmlString(levelAttributes.GetNamedItem ("name"));
-		randomSeed = Misc.xmlString(levelAttributes.GetNamedItem ("randomSeed"));
+		string randomSeedStr = Misc.xmlString(levelAttributes.GetNamedItem ("randomSeed"));
+		randomSeed = randomSeedStr.GetHashCode ();
 		timeOfDay = Misc.xmlString(levelAttributes.GetNamedItem ("timeOfDay"));
 		mapUrl = Misc.xmlString(levelAttributes.GetNamedItem ("mapUrl"));
 		configUrl = Misc.xmlString(levelAttributes.GetNamedItem ("configUrl"));

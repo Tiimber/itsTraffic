@@ -10,7 +10,26 @@
 		<win type="points" value="20000" />
 		<lose type="time" value="3m" />
 	</objectives>
-	<randomizer enabled="true" time="30s" />
+
+	<humanRandomizer 
+		enabled="true" 
+		delay="5"
+		interval="4"
+		variation="1"
+		minInterval="1"
+		intervalDecreaseRate="0"
+	/>
+	
+	<vehicleRandomizer 
+		enabled="true" 
+		delay="5"
+		interval="5.5"
+		variation="1"
+		minInterval="1"
+		intervalDecreaseRate="0.02"
+	/>
+
+
 	<setup>
 		<people>
 			<person id="20007" refonly="true" name="Per Persson" dob="1946-08" money="133.7" />

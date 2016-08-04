@@ -26,7 +26,7 @@ public class GenericHumanSounds : MonoBehaviour, IPubSub {
 			ambientSoundSource.clip = GenericHumanSounds.instance.ambientHumanSounds[i];
 			ambientSoundSource.loop = true;
 			ambientSoundSource.volume = volume;
-			ambientSoundSource.time = Random.Range (0f, GenericHumanSounds.instance.ambientHumanSounds[i].length);
+			ambientSoundSource.time = Misc.randomRange (0f, GenericHumanSounds.instance.ambientHumanSounds[i].length);
 			GenericHumanSounds.ambientSoundSources.Add (ambientSoundSource);
 		}
 	}

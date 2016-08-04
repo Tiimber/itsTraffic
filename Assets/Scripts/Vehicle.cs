@@ -264,7 +264,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 						if (Time.time > timeOfLastMovement + ImpatientThresholdTrafficLight) {
 							performIrritationAction ();
 							// Make sure to not honk directly again
-							timeOfLastMovement = Time.time - 5f * UnityEngine.Random.Range (0.8f, 1.2f);
+							timeOfLastMovement = Time.time - 5f * Misc.randomRange (0.8f, 1.2f);
 						}
 						// TODO - ImpatientThresholdNonTrafficLight as well, if traffic light is NOT the cause of vehicle standing still
 					} else {
@@ -515,9 +515,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		float maxSpeedFactor = 1.2f;
 		float speedFactorInterval = maxSpeedFactor - minSpeedFactor;
 
-		SpeedFactor = UnityEngine.Random.Range (minSpeedFactor, maxSpeedFactor);
-		Acceleration = UnityEngine.Random.Range (2f, 3f);
-		StartSpeedFactor = UnityEngine.Random.Range (0.5f, 1f);
+		SpeedFactor = Misc.randomRange (minSpeedFactor, maxSpeedFactor);
+		Acceleration = Misc.randomRange (2f, 3f);
+		StartSpeedFactor = Misc.randomRange (0.5f, 1f);
 
 		float minImpatientFactor = 0.8f;
 		float maxImpatientFactor = 1.2f;
@@ -528,15 +528,15 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		ImpatientThresholdTrafficLight = IMPATIENT_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
 
 		if (slow) {
-			SpeedFactor = UnityEngine.Random.Range (0.2f, 0.3f);
-			Acceleration = UnityEngine.Random.Range (1f, 2f);
-			StartSpeedFactor = UnityEngine.Random.Range (0.1f, 4f);
+			SpeedFactor = Misc.randomRange (0.2f, 0.3f);
+			Acceleration = Misc.randomRange (1f, 2f);
+			StartSpeedFactor = Misc.randomRange (0.1f, 4f);
 		}
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
 		timeOfLastMovement = Time.time;
-		EmissionFactor = UnityEngine.Random.Range (0.1f, 1.0f);
-		CollectedEmissionAmount = UnityEngine.Random.Range (0.000f, 0.002f);
+		EmissionFactor = Misc.randomRange (0.1f, 1.0f);
+		CollectedEmissionAmount = Misc.randomRange (0.000f, 0.002f);
 
 		FacVehiclesInAwarenessArea = new HashSet<Vehicle> ();
 		PcVehiclesInAwarenessArea = new HashSet<Vehicle> ();

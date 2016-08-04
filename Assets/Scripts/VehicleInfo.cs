@@ -22,7 +22,7 @@ public class VehicleInfo : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		model = ModelGeneratorVehicles.generate (brand);
-		year = DateTime.Now.Year - UnityEngine.Random.Range (0, 10);
+		year = DateTime.Now.Year - Misc.randomRange (0, 10);
 	}
 	
 	// Update is called once per frame
@@ -33,7 +33,7 @@ public class VehicleInfo : MonoBehaviour {
 	private void randomizeNumberOfPassengers () {
 		int index = 0;
 		int sum = passengerFrequency.Sum ();
-		int random = UnityEngine.Random.Range (0, sum);
+		int random = Misc.randomRange (0, sum);
 		int current = 0;
 		foreach (int part in passengerFrequency) {
 			current += part;

@@ -49,7 +49,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 		float minSpeedFactor = 0.8f;
 		float maxSpeedFactor = 1.2f;
 
-		speedFactor = Random.Range (minSpeedFactor, maxSpeedFactor);
+		speedFactor = Misc.randomRange (minSpeedFactor, maxSpeedFactor);
 	}
 
 	// Update is called once per frame

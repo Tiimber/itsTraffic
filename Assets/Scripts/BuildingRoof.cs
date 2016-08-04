@@ -27,7 +27,7 @@ public class BuildingRoof : MapSurface, IPubSub {
 
 	void Start () {
 		PubSub.subscribe ("mainCameraActivated", this);
-		delayTime = UnityEngine.Random.Range (0.3f, 0.8f);
+		delayTime = Misc.randomRange (0.3f, 0.8f);
 	}
 
 	void Update () {

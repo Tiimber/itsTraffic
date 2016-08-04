@@ -81,6 +81,8 @@ public class Game : MonoBehaviour, IPubSub {
 	private Dictionary<long, Dictionary<string, string>> objectProperties = new Dictionary<long, Dictionary<string, string>>();
 	private Dictionary<int, Light> dangerHalos = new Dictionary<int, Light> ();
 
+	private Level loadedLevel = null;
+
 	private int debugIndex = 0;
 	private List<string> debugIndexNodes = new List<string> () {
 		"none", "endpoint", "straightWay", "intersections", "all"
@@ -480,7 +482,7 @@ public class Game : MonoBehaviour, IPubSub {
 		long chosenHumanPoint = long.MinValue;
 
 		do {
-			chosenHumanPoint = humanPoints[UnityEngine.Random.Range (0, humanPoints.Count)];
+			chosenHumanPoint = humanPoints[Misc.randomRange (0, humanPoints.Count)];
 		} while (notPos == chosenHumanPoint);
 
 		return chosenHumanPoint;
@@ -492,7 +494,7 @@ public class Game : MonoBehaviour, IPubSub {
 		Pos chosenEndPoint = null;
 
 		do {
-			chosenEndPoint = NodeIndex.nodes[endPoints[UnityEngine.Random.Range (0, endPoints.Count)]];
+			chosenEndPoint = NodeIndex.nodes[endPoints[Misc.randomRange (0, endPoints.Count)]];
 			// Validate endPoint as ok way to end at (certain size)
 		} while (
 			notPos == chosenEndPoint || 
@@ -505,7 +507,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private List<Pos> getRandomPredefinedEndPointsPair (long[][] listOfPairs)
 	{
 		List<Pos> pair = new List<Pos> ();
-		int index = UnityEngine.Random.Range (0, listOfPairs.Count());
+		int index = Misc.randomRange (0, listOfPairs.Count());
 		pair.Add (getSpecificEndPoint(listOfPairs[index][0]));
 		pair.Add (getSpecificEndPoint(listOfPairs[index][1]));
 		return pair;
@@ -620,12 +622,9 @@ public class Game : MonoBehaviour, IPubSub {
 //		Debug.Log (www.url);
 		xmlDoc.LoadXml(www.text);
 
-		Level level = new Level (xmlDoc);
+		loadedLevel = new Level (xmlDoc);
 
-		// TODO - Continue parsing
-
-
-		StartCoroutine (loadXML (level.mapUrl, level.configUrl));
+		StartCoroutine (loadXML (loadedLevel.mapUrl, loadedLevel.configUrl));
 	}
 
 	private IEnumerator loadXML (string mapFileName, string configFileName) {
@@ -1182,8 +1181,17 @@ public class Game : MonoBehaviour, IPubSub {
 		} else if (message == "mainCameraActivated") {
 			Game.running = true;
 
-			VehicleRandomizer.Create ();
-			HumanRandomizer.Create ();
+			if (loadedLevel != null) {
+				VehicleRandomizer.Create (loadedLevel.vehicleRandomizer, loadedLevel);
+				HumanRandomizer.Create (loadedLevel.humanRandomizer, loadedLevel);
+				HumanLogic.HumanRNG = new System.Random (loadedLevel.randomSeed);
+				Misc.setRandomSeed (loadedLevel.randomSeed);
+			} else {
+				VehicleRandomizer.Create ();
+				HumanRandomizer.Create ();
+				HumanLogic.HumanRNG = new System.Random ((int)Game.randomSeed);
+				Misc.setRandomSeed ((int)Game.randomSeed);
+			}
 
 			CameraHandler.InitialZoom ();
 			pointsCamera.enabled = true;
@@ -1234,7 +1242,7 @@ public class Game : MonoBehaviour, IPubSub {
 		// Only camaros for now
 		return vehicles [0].vehicle.gameObject;
 		// TODO - When doing performance fixes, take this back for more car types
-//		float randomPosition = UnityEngine.Random.Range (0f, sumVehicleFrequency);
+		//		float randomPosition = Misc.randomRange (0f, sumVehicleFrequency);
 //		foreach (VehiclesDistribution vehicle in vehicles) {
 //			randomPosition -= vehicle.frequency;
 //			if (randomPosition <= 0f) {

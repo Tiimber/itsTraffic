@@ -9,6 +9,8 @@ using System.Runtime.Serialization;
 
 public class Misc {
 
+	public static System.Random random = new System.Random();
+
 	public static byte[] GetBytes(string str)
 	{
 		byte[] bytes = new byte[str.Length * sizeof(char)];
@@ -92,7 +94,7 @@ public class Misc {
 	}
 
 	public static string pickRandom (List<string> strings) {
-		return strings[UnityEngine.Random.Range(0, strings.Count-1)];
+		return strings [Misc.randomRange (0, strings.Count-1)];
 	}
 
 	public static Texture2D MakeTex(int width, int height, Color col)
@@ -156,41 +158,52 @@ public class Misc {
 		return ids;
 	}
 
-	public static string xmlString(XmlNode attributeNode) {
+	public static string xmlString(XmlNode attributeNode, string defaultValue = null) {
 		if (attributeNode != null) {
 			return attributeNode.Value;
 		}
-		return null;
+		return defaultValue;
 	}
 
-	public static bool xmlBool(XmlNode attributeNode) {
+	public static bool xmlBool(XmlNode attributeNode, bool defaultValue = false) {
 		string strVal = Misc.xmlString (attributeNode);
-		return strVal == "true";
+		return strVal == "true" ? true : defaultValue;
 	}
 
-	public static int xmlInt(XmlNode attributeNode) {
+	public static int xmlInt(XmlNode attributeNode, int defaultValue = 0) {
 		string strVal = Misc.xmlString (attributeNode);
 		if (strVal != null) {
 			return Convert.ToInt32 (strVal);
 		}
-		return 0;
+		return defaultValue;
 	}
 
-	public static float xmlFloat(XmlNode attributeNode) {
+	public static float xmlFloat(XmlNode attributeNode, float defaultValue = 0f) {
 		string strVal = Misc.xmlString (attributeNode);
 		if (strVal != null) {
 			return Convert.ToSingle (strVal);
 		}
-		return 0f;
+		return defaultValue;
 	}
 
-	public static long xmlLong(XmlNode attributeNode) {
+	public static long xmlLong(XmlNode attributeNode, long defaultValue = 0L) {
 		string strVal = Misc.xmlString (attributeNode);
 		if (strVal != null) {
 			return Convert.ToInt64 (strVal);
 		}
-		return 0L;
+		return defaultValue;
+	}
+		
+	public static void setRandomSeed (int randomSeed) {
+		Misc.random = new System.Random (randomSeed);
 	}
 
+	public static float randomRange(float min, float max) {
+		double value = Misc.random.NextDouble ();
+		return min + (max - min) * (float)value;
+	}
 
+	public static int randomRange(int min, int max) {
+		return Misc.random.Next (min, max);
+	}
 }

@@ -38,11 +38,11 @@ public class InformationHuman : InformationBase {
 		if (dateOfBirth == notBornYet) {
 			// TODO - Make sure random ranges are valid dates
 			DateTime now = DateTime.Now;
-			int daysOld = UnityEngine.Random.Range (6574, 29220); // 18-80 years old in days
+			int daysOld = Misc.randomRange (6574, 29220); // 18-80 years old in days
 			dateOfBirth = new DateTime(now.Ticks - Misc.daysToTicks(daysOld)); // Days to ticks
 		}
 		if (money == 0f) {
-			money = UnityEngine.Random.Range (0f, 500f);
+			money = Misc.randomRange (0f, 500f);
 		}
 //		Debug.Log("New human: " + name);
 	}

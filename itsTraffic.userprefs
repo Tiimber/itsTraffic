@@ -1,11 +1,22 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Level/Setup.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Utilities/Misc.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game.cs" Line="676" Column="59" />
-      <File FileName="Assets/Scripts/Level/Level.cs" Line="29" Column="1" />
+      <File FileName="Assets/Scripts/Game.cs" Line="27" Column="31" />
+      <File FileName="Assets/Scripts/Level/Level.cs" Line="38" Column="45" />
       <File FileName="Assets/Scripts/Level/Setup.cs" Line="86" Column="10" />
-      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="155" Column="4" />
+      <File FileName="Assets/Scripts/Level/Randomizer.cs" Line="17" Column="79" />
+      <File FileName="Assets/Scripts/HumanRandomizer.cs" Line="28" Column="143" />
+      <File FileName="Assets/Scripts/VehicleRandomizer.cs" Line="28" Column="145" />
+      <File FileName="Assets/Scripts/HumanLogic.cs" Line="53" Column="3" />
+      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="11" Column="2" />
+      <File FileName="Assets/Scripts/GenericHumanSounds.cs" Line="29" Column="47" />
+      <File FileName="Assets/Scripts/ObjectRandomizer.cs" Line="19" Column="4" />
+      <File FileName="Assets/Scripts/GenericVehicleSounds.cs" Line="34" Column="47" />
+      <File FileName="Assets/Scripts/InformationHuman.cs" Line="45" Column="28" />
+      <File FileName="Assets/Scripts/BuildingRoof.cs" Line="30" Column="31" />
+      <File FileName="Assets/Scripts/Vehicle.cs" Line="539" Column="41" />
+      <File FileName="Assets/Scripts/VehicleInfo.cs" Line="39" Column="20" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
@@ -13,7 +24,7 @@
       <Breakpoint conditionExpression="name==&quot;BuildingRoof (383042811)&quot;" file="/home/anders/Programmering/itsTraffic/Assets/Scripts/BuildingRoof.cs" line="132" column="1" />
       <Breakpoint conditionExpression="xmlNode.Attributes.GetNamedItem (&quot;id&quot;).Value == &quot;52037555&quot;" file="/home/anders/Programmering/itsTraffic/Assets/Scripts/BuildingRoof.cs" line="50" column="1" />
       <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/VehicleSounds.cs" line="158" column="1" />
-      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/Level/Level.cs" line="29" column="14" />
+      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/ObjectRandomizer.cs" line="21" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

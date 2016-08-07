@@ -27,7 +27,6 @@ public class InformationVehicle : InformationBase {
 	// Use this for initialization
 	void Start () {
 		type = "Vehicle";
-
 		VehicleInfo info = GetComponent<VehicleInfo> ();
 		name = info.brand + " " + info.model;
 		year = info.year;

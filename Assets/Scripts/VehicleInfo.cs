@@ -17,12 +17,21 @@ public class VehicleInfo : MonoBehaviour {
 	// Element n - Probability for n passengers
 	public List<int> passengerFrequency;
 
-	private int numberOfPassengers = -1;
+	public int numberOfPassengers = -1;
 
 	// Use this for initialization
 	void Start () {
-		model = ModelGeneratorVehicles.generate (brand);
-		year = DateTime.Now.Year - Misc.randomRange (0, 10);
+		Setup.VehicleSetup data = GetComponent<Vehicle> ().characteristics;
+		if (data != null) {
+			name = data.name;
+			brand = data.brand;
+			model = data.model;
+			year = data.year;
+			numberOfPassengers = data.passengerIds.Count;
+		} else {			
+			model = ModelGeneratorVehicles.generate (brand);
+			year = DateTime.Now.Year - Misc.randomRange (0, 10);
+		}
 	}
 	
 	// Update is called once per frame

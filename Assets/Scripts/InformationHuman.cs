@@ -22,28 +22,47 @@ public class InformationHuman : InformationBase {
 	protected float money;
 	protected string mood;
 	protected float distance;
+	public int passengerIndex = -1;
 //	protected List<InformationNode> destination; // TODO
 
 
 	// Use this for initialization
 	void Start () {
-		init ();
+		initInformation ();
 	}
 
-	public void init() {
+	public void initInformation() {
 		type = "Human";
-		if (name == null) {
-			name = NameGenerator.generate ();
+		// Check for stored information in HumanLogic
+		HumanLogic human = GetComponent<HumanLogic>();
+		Vehicle vehicle = GetComponent<Vehicle> ();
+		Setup.PersonSetup data = null;
+		if (human != null) {
+			data = human.personality;
+		} else if (vehicle != null && vehicle.characteristics != null) {
+			long personId;
+			if (passengerIndex == -1) {
+				personId = vehicle.characteristics.driverId;
+			} else {
+				personId = vehicle.characteristics.passengerIds [passengerIndex];
+			}
+			data = Game.instance.loadedLevel.setup.getReferencePerson(personId);
 		}
-		if (dateOfBirth == notBornYet) {
+
+		if (data != null) {
+			name = data.name;
+			dateOfBirth = Misc.parseDate (data.dob);
+			money = data.money;
+			return;
+		} else {
+			name = NameGenerator.generate ();
 			// TODO - Make sure random ranges are valid dates
 			DateTime now = DateTime.Now;
 			int daysOld = Misc.randomRange (6574, 29220); // 18-80 years old in days
 			dateOfBirth = new DateTime(now.Ticks - Misc.daysToTicks(daysOld)); // Days to ticks
-		}
-		if (money == 0f) {
 			money = Misc.randomRange (0f, 500f);
 		}
+
 //		Debug.Log("New human: " + name);
 	}
 

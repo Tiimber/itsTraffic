@@ -26,12 +26,17 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 	private float waitTime = 0f;
 	private bool destroying = false;
 	public int humanId;
+	public Setup.PersonSetup personality = null;
 
 	public static int numberOfHumans = 0;
 	public static int humanInstanceCount = 0;
 
 	// TODO - This is for debugging (press T to increase, Shift+T to reset)
 	public static float TURBO = 1f;
+
+	public void setPersonality (Setup.PersonSetup personality) {
+		this.personality = personality;
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -46,10 +51,14 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 	}
 
 	private void initHumanProfile () {
-		float minSpeedFactor = 0.8f;
-		float maxSpeedFactor = 1.2f;
+		if (personality != null) {
+			speedFactor = personality.speedFactor;
+		} else {
+			float minSpeedFactor = 0.8f;
+			float maxSpeedFactor = 1.2f;
 
-		speedFactor = Misc.randomRange (minSpeedFactor, maxSpeedFactor);
+			speedFactor = Misc.randomRange (minSpeedFactor, maxSpeedFactor);
+		}
 	}
 
 	// Update is called once per frame

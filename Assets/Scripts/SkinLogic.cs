@@ -47,17 +47,24 @@ public class SkinLogic : MonoBehaviour {
 	}
 
 	private void setSkinColor() {
-		Color baseColor = getBaseSkinColor ();
+		Color skinColor;
 
-		float r = ((float) HumanLogic.HumanRNG.NextDouble ()) * 0.06f - 0.03f;
-		float g = ((float) HumanLogic.HumanRNG.NextDouble ()) * 0.06f - 0.03f;
-		float b = ((float) HumanLogic.HumanRNG.NextDouble ()) * 0.06f - 0.03f;
+		Setup.PersonSetup personality = GetComponentInParent<HumanLogic> ().personality;
+		if (personality != null && personality.skinColor != null) {
+			skinColor = Misc.parseColor (personality.skinColor);
+		} else {
+			Color baseColor = getBaseSkinColor ();
 
-		float skinRed = Mathf.Clamp(baseColor.r + r, 0f, 1f);
-		float skinGreen = Mathf.Clamp(baseColor.g + g, 0f, 1f);
-		float skinBlue = Mathf.Clamp(baseColor.b + b, 0f, 1f);
+			float r = ((float) HumanLogic.HumanRNG.NextDouble ()) * 0.06f - 0.03f;
+			float g = ((float) HumanLogic.HumanRNG.NextDouble ()) * 0.06f - 0.03f;
+			float b = ((float) HumanLogic.HumanRNG.NextDouble ()) * 0.06f - 0.03f;
 
-		Color skinColor = new Color (skinRed, skinGreen, skinBlue, 0f);
+			float skinRed = Mathf.Clamp(baseColor.r + r, 0f, 1f);
+			float skinGreen = Mathf.Clamp(baseColor.g + g, 0f, 1f);
+			float skinBlue = Mathf.Clamp(baseColor.b + b, 0f, 1f);
+
+			skinColor = new Color (skinRed, skinGreen, skinBlue, 0f);
+		}
 
 		Renderer[] renderers = GetComponentsInChildren<Renderer> ();
 		foreach (Renderer renderer in renderers) {

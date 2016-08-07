@@ -16,10 +16,17 @@ public class ShirtLogic : MonoBehaviour {
 	}
 
 	private void setShirtColor() {
-		float r = (float) HumanLogic.HumanRNG.NextDouble ();
-		float g = (float) HumanLogic.HumanRNG.NextDouble ();
-		float b = (float) HumanLogic.HumanRNG.NextDouble ();
-		Color shirtColor = new Color (r, g, b, 0f);
+		Color shirtColor;
+
+		Setup.PersonSetup personality = GetComponentInParent<HumanLogic> ().personality;
+		if (personality != null && personality.shirtColor != null) {
+			shirtColor = Misc.parseColor (personality.shirtColor);
+		} else {
+			float r = (float) HumanLogic.HumanRNG.NextDouble ();
+			float g = (float) HumanLogic.HumanRNG.NextDouble ();
+			float b = (float) HumanLogic.HumanRNG.NextDouble ();
+			shirtColor = new Color (r, g, b, 0f);
+		}
 		Renderer renderer = GetComponent<Renderer> ();
 		renderer.material.SetColor ("_Color", shirtColor);
 	}

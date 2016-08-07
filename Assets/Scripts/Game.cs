@@ -41,11 +41,11 @@ public class Game : MonoBehaviour, IPubSub {
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
 //	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap09.osm";
-	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm";
+	private string mapFileName = "file:///Users/robbin/itsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm";
 //	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
-	private string configFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml";
+	private string configFileName = "file:///Users/robbin/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
-	private string levelSetupFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml";
+	private string levelSetupFileName = "file:///Users/robbin/itsTraffic/Assets/StreamingAssets/level-robbin.xml";
 
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
@@ -81,7 +81,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private Dictionary<long, Dictionary<string, string>> objectProperties = new Dictionary<long, Dictionary<string, string>>();
 	private Dictionary<int, Light> dangerHalos = new Dictionary<int, Light> ();
 
-	private Level loadedLevel = null;
+	public Level loadedLevel = null;
 
 	private int debugIndex = 0;
 	private List<string> debugIndexNodes = new List<string> () {
@@ -403,28 +403,41 @@ public class Game : MonoBehaviour, IPubSub {
 		PubSub.publish ("mainCameraActivated");
 	}
 
+	public void giveBirth(Setup.PersonSetup data) {
+		long startPos = data.startPos;
+		long endPos = data.endPos;
+
+		makePerson (startPos, endPos, data);
+	}
+
 	public void giveBirth() {
 		long startPos = getRandomHumanPos ();
 		long endPos = getRandomHumanPos (startPos);
 
 //		Debug.Log (startPos + " - " + endPos);
 
-		bool forceOneDirectionOnly = true;
-		bool forceEveryOther = true;
-		long one = 3426695523L;
-		long other = 3414497903L;
+//		bool forceOneDirectionOnly = false;
+//		bool forceEveryOther = false;
+
+//		long one = 3426695523L;
+//		long other = 3414497903L;
+
 //		long one = 3402678107L;
 //		long other = 2715587963L;
 
-		// Specific points, debug
-		if (forceOneDirectionOnly) {
-			startPos = one;
-			endPos = other;
-		} else {			
-			startPos = forceEveryOther ? (HumanLogic.humanInstanceCount % 2 == 0 ? one : other) : (UnityEngine.Random.value < 0.5f ? one : other);
-			endPos = forceEveryOther ? (HumanLogic.humanInstanceCount % 2 == 0 ? other : one) : (startPos == one ? other : one);
-		}
+//		// Specific points, debug
+//		if (forceOneDirectionOnly) {
+//			startPos = one;
+//			endPos = other;
+//		} else {
+//			startPos = forceEveryOther ? (HumanLogic.humanInstanceCount % 2 == 0 ? one : other) : (UnityEngine.Random.value < 0.5f ? one : other);
+//			endPos = forceEveryOther ? (HumanLogic.humanInstanceCount % 2 == 0 ? other : one) : (startPos == one ? other : one);
+//		}
 
+		makePerson (startPos, endPos);
+	}
+
+	private void makePerson (long startPos, long endPos, Setup.PersonSetup data = null) {
 		// Find closest walk path - start and end pos
 		if (NodeIndex.walkNodes.Count > 0) {
 			Tuple3<Pos, WayReference, Vector3> startInfo = NodeIndex.humanSpawnPointsInfo[startPos];
@@ -434,11 +447,19 @@ public class Game : MonoBehaviour, IPubSub {
 			GameObject humanInstance = Instantiate (human, startInfo.Third, Quaternion.identity) as GameObject;
 			HumanLogic humanLogic = humanInstance.GetComponent<HumanLogic> ();
 			humanLogic.setStartAndEndInfo (startInfo, endInfo);
+
+			if (data != null) {
+				humanLogic.setPersonality (data);
+			}
 		}
 	}
 
-	// TODO - Temporary counter
-//	int carNo = 0;
+	public void createNewCar (Setup.VehicleSetup data) {
+		Pos pos1 = NodeIndex.getPosById (data.startPos);
+		Pos pos2 = NodeIndex.getPosById (data.endPos);
+
+		makeCar (pos1, pos2, data);
+	}
 
 	public void createNewCar () {
 
@@ -453,15 +474,15 @@ public class Game : MonoBehaviour, IPubSub {
 //		Pos pos1 = getSpecificEndPoint (46L);
 //		Pos pos2 = getSpecificEndPoint (34L);
 
+		makeCar (pos1, pos2);
+	}
+
+	private void makeCar(Pos pos1, Pos pos2, Setup.VehicleSetup data = null) {
 		// Pos -> Vector3
 		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
+		// TODO - Replace getVehicleToInstantiate() with fetching correct car model from data (if not null)
 		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate(), position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
-
-		// TODO - Temporary counter
-//		if (carNo++ == 0) {
-//			vehicleObj.slow = true;
-//		}
 
 		vehicleObj.StartPos = pos1;
 		vehicleObj.CurrentPosition = pos1;
@@ -474,6 +495,10 @@ public class Game : MonoBehaviour, IPubSub {
 		} else {
 			Vehicle.detachCurrentCamera();
 			mainCamera.enabled = true;
+		}
+
+		if (data != null) {
+			vehicleObj.setCharacteristics (data);
 		}
 	}
 
@@ -1186,6 +1211,7 @@ public class Game : MonoBehaviour, IPubSub {
 				HumanRandomizer.Create (loadedLevel.humanRandomizer, loadedLevel);
 				HumanLogic.HumanRNG = new System.Random (loadedLevel.randomSeed);
 				Misc.setRandomSeed (loadedLevel.randomSeed);
+				CustomObjectCreator.initWithSetup (loadedLevel.setup);
 			} else {
 				VehicleRandomizer.Create ();
 				HumanRandomizer.Create ();

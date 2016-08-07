@@ -206,4 +206,18 @@ public class Misc {
 	public static int randomRange(int min, int max) {
 		return Misc.random.Next (min, max);
 	}
+
+	public static DateTime parseDate (string dob) {
+		string[] dateParts = dob.Split ('-');
+		return new DateTime (Convert.ToInt32 (dateParts [0]), Convert.ToInt32 (dateParts [1]), dateParts.Length > 2 ? Convert.ToInt32 (dateParts [2]) : 1);
+	}
+
+	public static Color parseColor (string skinColor) {
+		string[] colorParts = skinColor.Split (',');
+		float r = Convert.ToInt32 (colorParts [0]) / 255f;
+		float g = Convert.ToInt32 (colorParts [1]) / 255f;
+		float b = Convert.ToInt32 (colorParts [2]) / 255f;
+
+		return new Color (r, g, b);
+	}
 }

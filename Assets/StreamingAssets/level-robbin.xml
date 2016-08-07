@@ -32,16 +32,39 @@
 
 	<setup>
 		<people>
-			<person id="20007" refonly="true" name="Per Persson" dob="1946-08" money="133.7" />
-			<person id="20013" refonly="true" name="Linnèa Persson" dob="1952-04" money="145.51" />
-			<person id="20001" refonly="true" name="Ronja Rövardotter" dob="1963-12" money="9.99" />
+			<person id="20007" refOnly="true" name="Per Persson" dob="1946-08" money="133.7" />
+			<person id="20013" refOnly="true" name="Linnèa Persson" dob="1952-04" money="145.51" />
+			<person id="20001" refOnly="true" name="Ronja Rövardotter" dob="1963-12" money="9.99" />
 			
-			<person id="20027" refonly="false" time="-1" name="Harald Treutiger" dob="1956-06" money="12.34" />
-			<person id="20038" refonly="false" time="22.5" name="Adam Alsing" dob="1968-10" money="23.45" />
+			<person id="20027" refOnly="false" time="-1" name="Harald Treutiger" dob="1956-06" money="12.34"
+					speedFactor="1.0" startPos="3426695523" endPos="3414497903" 
+					shirtColor="255,120,120" skinColor="255,232,168"
+			/>
+			<person id="20038" refOnly="false" time="22.5" name="Adam Alsing" dob="1968-10" money="23.45"
+					speedFactor="0.82" startPos="3402678107" endPos="2715587963" 
+					shirtColor="60,255,80" skinColor="63,33,20"
+			/>
 		</people>
 		<vehicles>
-			<vehicle id="10001" time="-1" startPos="1623951731" endPos="92777329" type="Camaro" name="Sportzcar Oldsmobile" year="2013" distance="70" condition="0.6" driverId="20007" passengerIds="20013"/>
-			<vehicle id="10002" time="17.1" startPos="1623951731" endPos="92777329" type="Camaro" name="Sportzcar Newsmobile" year="2016" distance="1421" condition="0.1" driverId="20001" />
+		<!---
+			SpeedFactor = 0.8 - 1.2;
+			Acceleration = 2 - 3;
+			StartSpeedFactor = 0.5 - 1;
+
+			ImpatientThresholdNonTrafficLight = 6.4 - 9.6;
+			ImpatientThresholdTrafficLight = 13.6 - 20.4;
+
+		-->
+			<vehicle id="10001" time="-1" startPos="1623951731" endPos="92777329" type="Camaro" 
+					 name="Sportzcar Oldsmobile" brand="Sportzcar" model="Oldsmobile" 
+					 year="2013" distance="70" condition="0.6" driverId="20007" passengerIds="20013"
+					 speedFactor="0.8" acceleration="2.0" startSpeedFactor="0.5"
+					 impatientThresholdNonTrafficLight="6.4" impatientThresholdTrafficLight="13.6"
+			/>
+			<vehicle id="10002" time="17.1" startPos="1623951731" endPos="92777329" type="Camaro"
+					 name="Sportzcar Newsmobile" brand="Sportzcar" model="Newsmobile"
+					 year="2016" distance="1421" condition="0.1" driverId="20001"
+			/>
 		</vehicles>
 	</setup>
 </level>

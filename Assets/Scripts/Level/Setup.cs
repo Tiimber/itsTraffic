@@ -2,22 +2,37 @@
 using System.Xml;
 using System.Collections.Generic;
 using System;
+using UnityEngine;
 
 public class Setup {
 
+	public List<PersonSetup> referencePeople = new List<PersonSetup> ();
 	public List<PersonSetup> people = new List<PersonSetup>();
 	public List<VehicleSetup> vehicles = new List<VehicleSetup>();
 
 	public Setup(XmlNode setupNode) {
 		XmlNodeList personNodes = setupNode.SelectNodes("people/person");
 		foreach (XmlNode personNode in personNodes) {
-			people.Add (createPerson (personNode));
+			PersonSetup person = createPerson (personNode);
+			if (person.refOnly) {
+				referencePeople.Add (person);
+			} else {
+				people.Add (person);
+			}
 		}
 
 		XmlNodeList vehicleNodes = setupNode.SelectNodes("vehicles/vehicle");
 		foreach (XmlNode vehicleNode in vehicleNodes) {
 			vehicles.Add (createVehicle (vehicleNode));
 		}
+
+		referencePeople.Sort ((a, b) => a.id.CompareTo (b.id));
+		people.Sort ((a, b) => a.time.CompareTo (b.time));
+		vehicles.Sort ((a, b) => a.time.CompareTo (b.time));
+	}
+
+	public Setup.PersonSetup getReferencePerson (long personId) {
+		return referencePeople.Find (p => p.id == personId);
 	}
 
 	private PersonSetup createPerson (XmlNode personNode) {
@@ -25,11 +40,17 @@ public class Setup {
 		long id = Misc.xmlLong(personAttributes.GetNamedItem ("id"));
 		string name = Misc.xmlString(personAttributes.GetNamedItem ("name"));
 		float time = Misc.xmlFloat(personAttributes.GetNamedItem ("time"));
+		long startPos = Misc.xmlLong(personAttributes.GetNamedItem ("startPos"));
+		long endPos = Misc.xmlLong(personAttributes.GetNamedItem ("endPos"));
+
 		bool refOnly = Misc.xmlBool(personAttributes.GetNamedItem ("refOnly"));
 		string dob = Misc.xmlString(personAttributes.GetNamedItem ("dob"));
 		float money = Misc.xmlFloat(personAttributes.GetNamedItem ("money"));
+		float speedFactor = Misc.xmlFloat (personAttributes.GetNamedItem ("speedFactor"));
+		string shirtColor = Misc.xmlString (personAttributes.GetNamedItem ("shirtColor"));
+		string skinColor = Misc.xmlString (personAttributes.GetNamedItem ("skinColor"));
 
-		return new PersonSetup (id, name, time, refOnly, dob, money);
+		return new PersonSetup (id, name, time, startPos, endPos, refOnly, dob, money, speedFactor, shirtColor, skinColor);
 	}
 
 	private VehicleSetup createVehicle (XmlNode vehicleNode) {
@@ -37,9 +58,11 @@ public class Setup {
 		long id = Misc.xmlLong(vehicleAttributes.GetNamedItem ("id"));
 		string name = Misc.xmlString(vehicleAttributes.GetNamedItem ("name"));
 		float time = Misc.xmlFloat(vehicleAttributes.GetNamedItem ("time"));
-
 		long startPos = Misc.xmlLong(vehicleAttributes.GetNamedItem ("startPos"));
 		long endPos = Misc.xmlLong(vehicleAttributes.GetNamedItem ("endPos"));
+
+		string brand = Misc.xmlString(vehicleAttributes.GetNamedItem ("brand"));
+		string model = Misc.xmlString(vehicleAttributes.GetNamedItem ("model"));
 		string type = Misc.xmlString(vehicleAttributes.GetNamedItem ("type"));
 		int year = Misc.xmlInt(vehicleAttributes.GetNamedItem ("year"));
 		float distance = Misc.xmlFloat(vehicleAttributes.GetNamedItem ("distance"));
@@ -47,19 +70,28 @@ public class Setup {
 		long driverId = Misc.xmlLong(vehicleAttributes.GetNamedItem ("driverId"));
 		string passengerIdsStr = Misc.xmlString(vehicleAttributes.GetNamedItem ("passengerIds"));
 		List<long> passengerIds = Misc.parseLongs (passengerIdsStr);
+		float speedFactor = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("speedFactor"));
+		float acceleration = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("acceleration"));
+		float startSpeedFactor = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("startSpeedFactor"));
+		float impatientThresholdNonTrafficLight = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("impatientThresholdNonTrafficLight"));
+		float impatientThresholdTrafficLight = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("impatientThresholdTrafficLight"));
 
-		return new VehicleSetup (id, name, time, startPos, endPos, type, year, distance, condition, driverId, passengerIds);
+		return new VehicleSetup (id, name, time, startPos, endPos, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight);
 	}
 
 	public class InstanceSetup {
 		public long id;
 		public string name;
 		public float time;
+		public long startPos;
+		public long endPos;
 
-		public InstanceSetup(long id, string name, float time) {
+		public InstanceSetup(long id, string name, float time, long startPos, long endPos) {
 			this.id = id;
 			this.name = name;
 			this.time = time;
+			this.startPos = startPos;
+			this.endPos = endPos;
 		}
 	}
 
@@ -67,33 +99,49 @@ public class Setup {
 		public bool refOnly;
 		public string dob;
 		public float money;
+		public float speedFactor;
+		public string shirtColor;
+		public string skinColor;
 
-		public PersonSetup(long id, string name, float time, bool refOnly, string dob, float money) : base(id, name, time) {
+		public PersonSetup(long id, string name, float time, long startPos, long endPos, bool refOnly, string dob, float money, float speedFactor, string shirtColor, string skinColor) : base(id, name, time, startPos, endPos) {
 			this.refOnly = refOnly;
 			this.dob = dob;
 			this.money = money;
+			this.speedFactor = speedFactor;
+			this.shirtColor = shirtColor;
+			this.skinColor = skinColor;
 		}
 	}
 
 	public class VehicleSetup : InstanceSetup {
-		public long startPos;
-		public long endPos;
+		public string brand;
+		public string model;
 		public string type;
 		public int year;
 		public float distance;
 		public float condition;
 		public long driverId;
 		public List<long> passengerIds;
+		public float speedFactor;
+		public float acceleration;
+		public float startSpeedFactor;
+		public float impatientThresholdNonTrafficLight;
+		public float impatientThresholdTrafficLight;
 
-		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string type, int year, float distance, float condition, long driverId, List<long> passengerIds) : base(id, name, time) {
-			this.startPos = startPos;
-			this.endPos = endPos;
+		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight) : base(id, name, time, startPos, endPos) {
+			this.brand = brand;
+			this.model = model;
 			this.type = type;
 			this.year = year;
 			this.distance = distance;
 			this.condition = condition;
 			this.driverId = driverId;
 			this.passengerIds = passengerIds;
+			this.speedFactor = speedFactor;
+			this.acceleration = acceleration;
+			this.startSpeedFactor = startSpeedFactor;
+			this.impatientThresholdNonTrafficLight = impatientThresholdNonTrafficLight;
+			this.impatientThresholdTrafficLight = impatientThresholdTrafficLight;
 		}
 	}
 }

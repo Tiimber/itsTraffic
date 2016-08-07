@@ -32,6 +32,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 	private Vector3 endVector;
 	private Vector3 startVector;
+	public Setup.VehicleSetup characteristics = null;
 
 	private WayReference CurrentWayReference { set; get; }
 	private float SpeedFactor { set; get; }
@@ -170,17 +171,28 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private void initInformationVehicle () {
 		VehicleInfo vehicleInfo = GetComponent<VehicleInfo> ();
 
+		if (characteristics != null) {
+			vehicleInfo.numberOfPassengers = characteristics.passengerIds.Count;
+			totalDrivingDistance = characteristics.distance;
+			health = startHealth * characteristics.condition;
+		}
+
 		InformationVehicle informationVehicle = GetComponent<InformationVehicle> ();
-		// TODO - Special logic if backer
-		informationVehicle.driver = gameObject.AddComponent<InformationHuman>();
+		// TODO - Special logic if backer - randomize backers?!
+		informationVehicle.driver = gameObject.AddComponent<InformationHuman> ();
 		informationVehicle.driver.passive = true;
 
-		// TODO - Passengers to be family of driver? (Same last name)
-		for (int i = 0; i < vehicleInfo.getNumberOfPassengers(); i++) {
-			InformationHuman passenger = gameObject.AddComponent<InformationHuman>();
+		// TODO - Passengers to be family of driver? (Same last name in x% of cases)
+		for (int i = 0; i < vehicleInfo.getNumberOfPassengers (); i++) {
+			InformationHuman passenger = gameObject.AddComponent<InformationHuman> ();
 			passenger.passive = true;
+			passenger.passengerIndex = i;
 			informationVehicle.passengers.Add (passenger);
 		}
+	}
+
+	public void setCharacteristics(Setup.VehicleSetup characteristics) {
+		this.characteristics = characteristics;
 	}
 
 	private static float GetAccForKmh(float currentSpeed, float targetSpeed) {
@@ -510,28 +522,46 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	}
 
 	void initVehicleProfile () {
-		// Set more vehicle profile properties here
 		float minSpeedFactor = 0.8f;
 		float maxSpeedFactor = 1.2f;
 		float speedFactorInterval = maxSpeedFactor - minSpeedFactor;
 
-		SpeedFactor = Misc.randomRange (minSpeedFactor, maxSpeedFactor);
-		Acceleration = Misc.randomRange (2f, 3f);
-		StartSpeedFactor = Misc.randomRange (0.5f, 1f);
+		if (characteristics != null && characteristics.speedFactor > 0f) {
+			SpeedFactor = characteristics.speedFactor;
+		} else {
+			SpeedFactor = Misc.randomRange (minSpeedFactor, maxSpeedFactor);
+		}
+
+		if (characteristics != null && characteristics.acceleration > 0f) {
+			Acceleration = characteristics.acceleration;
+		} else {
+			Acceleration = Misc.randomRange (2f, 3f);
+		}
+
+		if (characteristics != null && characteristics.startSpeedFactor > 0f) {
+			StartSpeedFactor = characteristics.startSpeedFactor;
+		} else {
+			StartSpeedFactor = Misc.randomRange (0.5f, 1f);
+		}
 
 		float minImpatientFactor = 0.8f;
 		float maxImpatientFactor = 1.2f;
 		float impatientFactorInterval = maxImpatientFactor - minImpatientFactor;
 
 		float impatientFactor = (speedFactorInterval - ((SpeedFactor - minSpeedFactor) / speedFactorInterval)) * impatientFactorInterval + minImpatientFactor;
-		ImpatientThresholdNonTrafficLight = IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
-		ImpatientThresholdTrafficLight = IMPATIENT_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
 
-		if (slow) {
-			SpeedFactor = Misc.randomRange (0.2f, 0.3f);
-			Acceleration = Misc.randomRange (1f, 2f);
-			StartSpeedFactor = Misc.randomRange (0.1f, 4f);
+		if (characteristics != null && characteristics.impatientThresholdNonTrafficLight > 0f) {
+			ImpatientThresholdNonTrafficLight = characteristics.impatientThresholdNonTrafficLight;
+		} else {
+			ImpatientThresholdNonTrafficLight = IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
 		}
+
+		if (characteristics != null && characteristics.impatientThresholdTrafficLight > 0f) {
+			ImpatientThresholdTrafficLight = characteristics.impatientThresholdTrafficLight;
+		} else {
+			ImpatientThresholdTrafficLight = IMPATIENT_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
+		}
+
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
 		timeOfLastMovement = Time.time;
@@ -1234,8 +1264,5 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			GUI.Label (new Rect (0, y += 20, 500, 20), "EndPos: " + EndPos.Id + "(" + NodeIndex.endPointIndex[EndPos.Id][0].Id + ")");
 		}
 	}
-
-	// TODO - Temporary stuffz
-	public bool slow = false;
 }
 

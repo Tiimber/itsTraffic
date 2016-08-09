@@ -37,7 +37,7 @@
 			<person id="20001" refOnly="true" name="Ronja Rövardotter" dob="1963-12" money="9.99" />
 			
 			<person id="20027" refOnly="false" time="-1" name="Harald Treutiger" dob="1956-06" money="12.34"
-					speedFactor="1.0" startPos="3426695523" endPos="3414497903" 
+					speedFactor="1.0" startPos="3426695523" endPos="3414497903" startVector="-6.357417,-0.1551388"
 					shirtColor="255,120,120" skinColor="255,232,168"
 			/>
 			<person id="20038" refOnly="false" time="22.5" name="Adam Alsing" dob="1968-10" money="23.45"
@@ -55,7 +55,7 @@
 			ImpatientThresholdTrafficLight = 13.6 - 20.4;
 
 		-->
-			<vehicle id="10001" time="-1" startPos="1623951731" endPos="92777329" type="Camaro" 
+			<vehicle id="10001" time="-1" startPos="1623951731" endPos="92777329" startVector="7.797,0.517" type="Camaro" 
 					 name="Sportzcar Oldsmobile" brand="Sportzcar" model="Oldsmobile" 
 					 year="2013" distance="70" condition="0.6" driverId="20007" passengerIds="20013"
 					 speedFactor="0.8" acceleration="2.0" startSpeedFactor="0.5"

@@ -130,7 +130,11 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 	}
 
 	private void positionHuman (Vector3 pos) {
-		transform.position = pos;
+		if (personality != null && personality.startVector != null) {
+			transform.position = Misc.parseVector (personality.startVector) + new Vector3 (0, 0, pos.z);
+		} else {
+			transform.position = pos;
+		}
 	}
 
 	private void rotateHuman (Vector3 target, Vector3 current) {
@@ -187,7 +191,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 		Pos secondToLastPos = path [path.Count - 2];
 
 		WayReference startWay = startInfo.Second;
-		if (startWay.hasNodes (pos1, pos2)) {
+		if (personality != null && personality.startVector != null || startWay.hasNodes (pos1, pos2)) {
 			walkPath.RemoveAt (0);
 			path.RemoveAt (0);
 		}

@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{42E1D2E0-57A8-C527-D517-89E9B0895340}</ProjectGuid>
+    <ProjectGuid>{503E008F-7CF5-DEE8-47F3-2F419E9EE51E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
@@ -67,7 +67,7 @@
      <None Include="Assets\Shaders\PlainShader.shader" />
      <None Include="Assets\Cardboard\Resources\SolidColor.shader" />
  <Reference Include="Assembly-UnityScript">
- <HintPath>/Users/robbin/itsTraffic/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
+ <HintPath>/Users/robbin/ItsTraffic/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
@@ -102,9 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{E2D5ED0D-6305-44C4-BAD5-9E52E6689369}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+      <Project>{C4758542-45A1-DC1E-D65F-9C96299CC57F}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
     <ProjectReference Include="Assembly-CSharp.csproj">
-      <Project>{3DB3CAFA-C613-C72A-AA62-B63A8B646E91}</Project>      <Name>Assembly-CSharp</Name>    </ProjectReference>
+      <Project>{553542A1-6658-73A9-6878-CA1F920C2F55}</Project>      <Name>Assembly-CSharp</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -207,6 +207,10 @@ public class Misc {
 		return Misc.random.Next (min, max);
 	}
 
+	public static object randomTime () {
+		return Misc.randomRange (0, 23) + ":" + Misc.randomRange (0, 59);
+	}
+
 	public static DateTime parseDate (string dob) {
 		string[] dateParts = dob.Split ('-');
 		return new DateTime (Convert.ToInt32 (dateParts [0]), Convert.ToInt32 (dateParts [1]), dateParts.Length > 2 ? Convert.ToInt32 (dateParts [2]) : 1);
@@ -219,5 +223,10 @@ public class Misc {
 		float b = Convert.ToInt32 (colorParts [2]) / 255f;
 
 		return new Color (r, g, b);
+	}
+
+	public static Vector3 parseVector (string startVector) {
+		string[] xy = startVector.Split (',');
+		return new Vector3 (Convert.ToSingle(xy[0]), Convert.ToSingle(xy[1]), 0);
 	}
 }

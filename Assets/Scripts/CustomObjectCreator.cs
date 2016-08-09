@@ -29,7 +29,7 @@ public class CustomObjectCreator {
 
 	public IEnumerator placeOutPeople() {
 		yield return null;
-		while (setup.people [0].time == -1) {
+		while (setup.people.Count > 0 && setup.people [0].time == -1) {
 			Setup.PersonSetup person = setup.people [0];
 			Game.instance.giveBirth (person);
 			setup.people.RemoveAt (0);
@@ -45,7 +45,7 @@ public class CustomObjectCreator {
 
 	public IEnumerator placeOutVehicles() {
 		yield return null;
-		while (setup.vehicles [0].time == -1) {
+		while (setup.vehicles.Count > 0 && setup.vehicles [0].time == -1) {
 			Setup.VehicleSetup vehicle = setup.vehicles [0];
 			Game.instance.createNewCar (vehicle);
 			setup.vehicles.RemoveAt (0);

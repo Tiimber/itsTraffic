@@ -42,6 +42,7 @@ public class Setup {
 		float time = Misc.xmlFloat(personAttributes.GetNamedItem ("time"));
 		long startPos = Misc.xmlLong(personAttributes.GetNamedItem ("startPos"));
 		long endPos = Misc.xmlLong(personAttributes.GetNamedItem ("endPos"));
+		string startVector = Misc.xmlString (personAttributes.GetNamedItem ("startVector"));
 
 		bool refOnly = Misc.xmlBool(personAttributes.GetNamedItem ("refOnly"));
 		string dob = Misc.xmlString(personAttributes.GetNamedItem ("dob"));
@@ -50,7 +51,7 @@ public class Setup {
 		string shirtColor = Misc.xmlString (personAttributes.GetNamedItem ("shirtColor"));
 		string skinColor = Misc.xmlString (personAttributes.GetNamedItem ("skinColor"));
 
-		return new PersonSetup (id, name, time, startPos, endPos, refOnly, dob, money, speedFactor, shirtColor, skinColor);
+		return new PersonSetup (id, name, time, startPos, endPos, startVector, refOnly, dob, money, speedFactor, shirtColor, skinColor);
 	}
 
 	private VehicleSetup createVehicle (XmlNode vehicleNode) {
@@ -60,6 +61,7 @@ public class Setup {
 		float time = Misc.xmlFloat(vehicleAttributes.GetNamedItem ("time"));
 		long startPos = Misc.xmlLong(vehicleAttributes.GetNamedItem ("startPos"));
 		long endPos = Misc.xmlLong(vehicleAttributes.GetNamedItem ("endPos"));
+		string startVector = Misc.xmlString (vehicleAttributes.GetNamedItem ("startVector"));
 
 		string brand = Misc.xmlString(vehicleAttributes.GetNamedItem ("brand"));
 		string model = Misc.xmlString(vehicleAttributes.GetNamedItem ("model"));
@@ -76,7 +78,7 @@ public class Setup {
 		float impatientThresholdNonTrafficLight = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("impatientThresholdNonTrafficLight"));
 		float impatientThresholdTrafficLight = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("impatientThresholdTrafficLight"));
 
-		return new VehicleSetup (id, name, time, startPos, endPos, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight);
+		return new VehicleSetup (id, name, time, startPos, endPos, startVector, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight);
 	}
 
 	public class InstanceSetup {
@@ -85,13 +87,15 @@ public class Setup {
 		public float time;
 		public long startPos;
 		public long endPos;
+		public string startVector;
 
-		public InstanceSetup(long id, string name, float time, long startPos, long endPos) {
+		public InstanceSetup(long id, string name, float time, long startPos, long endPos, string startVector) {
 			this.id = id;
 			this.name = name;
 			this.time = time;
 			this.startPos = startPos;
 			this.endPos = endPos;
+			this.startVector = startVector;
 		}
 	}
 
@@ -103,7 +107,7 @@ public class Setup {
 		public string shirtColor;
 		public string skinColor;
 
-		public PersonSetup(long id, string name, float time, long startPos, long endPos, bool refOnly, string dob, float money, float speedFactor, string shirtColor, string skinColor) : base(id, name, time, startPos, endPos) {
+		public PersonSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool refOnly, string dob, float money, float speedFactor, string shirtColor, string skinColor) : base(id, name, time, startPos, endPos, startVector) {
 			this.refOnly = refOnly;
 			this.dob = dob;
 			this.money = money;
@@ -128,7 +132,7 @@ public class Setup {
 		public float impatientThresholdNonTrafficLight;
 		public float impatientThresholdTrafficLight;
 
-		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight) : base(id, name, time, startPos, endPos) {
+		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string startVector, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight) : base(id, name, time, startPos, endPos, startVector) {
 			this.brand = brand;
 			this.model = model;
 			this.type = type;

@@ -31,7 +31,9 @@ public class Game : MonoBehaviour, IPubSub {
 
 	// TODO - Either remove or use to help with building levels
 	private static bool debugMode = false;
+	private static bool humanDebugMode = false;
 	private static List<Pos> debugDrawBetween = new List<Pos>();
+	private static List<Pos> humanDebugDrawBetween = new List<Pos>();
 
 	public static KeyValuePair<Pos, WayReference> CurrentWayReference { set; get; }
 	public static KeyValuePair<Pos, WayReference> CurrentTarget { set; get; }
@@ -135,6 +137,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private void showMenu(bool show = true) {
 		menuSystem.SetActive (show);
 		Game.paused = show;
+		pointsCamera.gameObject.SetActive (!show);
 	}
 
 	void initDataCollection ()
@@ -185,6 +188,9 @@ public class Game : MonoBehaviour, IPubSub {
 		} else if (Input.GetKeyDown(KeyCode.D)) {
 			// TODO - Temporary
 			toggleDebugMode ();
+		} else if (Input.GetKeyDown(KeyCode.S)) {
+			// TODO - Temporary
+			toggleHumanDebugMode ();
 		} else if (Input.GetKeyDown (KeyCode.F)) {
 			followCar ^= true;
 			if (!followCar) {
@@ -253,6 +259,29 @@ public class Game : MonoBehaviour, IPubSub {
 			// Draw lines!
 			if (debugDrawBetween.Count > 1) {
 				List<Pos> path = Game.calculateCurrentPath(debugDrawBetween[0], debugDrawBetween[1], true);
+				DebugFn.temporaryOverride (new Color (0.3f, 0.3f, 1f), 0.05f);
+				DebugFn.DebugPath (path);
+				DebugFn.temporaryOverride (Color.black);
+			}
+		}
+
+		if (Game.humanDebugMode) {
+			if (Input.GetMouseButtonDown (1)) {
+				Vector3 mousePosition = Input.mousePosition;
+				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mousePosition);
+				Pos pos = NodeIndex.getPosClosestTo (mouseWorldPoint, false);
+				humanDebugDrawBetween.Add (pos);
+				if (humanDebugDrawBetween.Count > 2) {
+					humanDebugDrawBetween.RemoveAt (0);
+				}
+				if (humanDebugDrawBetween.Count == 2) {
+					Debug.Log ("Position Ids: " + humanDebugDrawBetween[0].Id + " - " + humanDebugDrawBetween[1].Id);
+				}
+			}
+
+			// Draw lines!
+			if (humanDebugDrawBetween.Count > 1) {
+				List<Pos> path = Game.calculateCurrentPath(humanDebugDrawBetween[0], humanDebugDrawBetween[1], true);
 				DebugFn.temporaryOverride (new Color (0.3f, 0.3f, 1f), 0.05f);
 				DebugFn.DebugPath (path);
 				DebugFn.temporaryOverride (Color.black);
@@ -443,14 +472,20 @@ public class Game : MonoBehaviour, IPubSub {
 			Tuple3<Pos, WayReference, Vector3> startInfo = NodeIndex.humanSpawnPointsInfo[startPos];
 			Tuple3<Pos, WayReference, Vector3> endInfo = NodeIndex.humanSpawnPointsInfo[endPos];
 
+//			Vector3 position;
+//			if (data != null && data.startVector != null) {
+//				position = Misc.parseVector(data.startVector) + new Vector3 (0f, 0f, startInfo.Third.z);
+//			} else {
+//				position = startInfo.Third;
+//			}
+				
 			// Place out human
 			GameObject humanInstance = Instantiate (human, startInfo.Third, Quaternion.identity) as GameObject;
 			HumanLogic humanLogic = humanInstance.GetComponent<HumanLogic> ();
-			humanLogic.setStartAndEndInfo (startInfo, endInfo);
-
 			if (data != null) {
 				humanLogic.setPersonality (data);
 			}
+			humanLogic.setStartAndEndInfo (startInfo, endInfo);
 		}
 	}
 
@@ -479,7 +514,12 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private void makeCar(Pos pos1, Pos pos2, Setup.VehicleSetup data = null) {
 		// Pos -> Vector3
-		Vector3 position = getCameraPosition(pos1) + new Vector3(0f, 0f, -0.15f);
+		Vector3 position;
+		if (data != null && data.startVector != null) {
+			position = Misc.parseVector(data.startVector) + new Vector3 (0f, 0f, -0.15f);
+		} else {
+			position = getCameraPosition (pos1) + new Vector3 (0f, 0f, -0.15f);
+		}
 		// TODO - Replace getVehicleToInstantiate() with fetching correct car model from data (if not null)
 		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate(), position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
@@ -1212,15 +1252,18 @@ public class Game : MonoBehaviour, IPubSub {
 				HumanLogic.HumanRNG = new System.Random (loadedLevel.randomSeed);
 				Misc.setRandomSeed (loadedLevel.randomSeed);
 				CustomObjectCreator.initWithSetup (loadedLevel.setup);
+				PubSub.publish ("clock:setTime", loadedLevel.timeOfDay);
 			} else {
 				VehicleRandomizer.Create ();
 				HumanRandomizer.Create ();
 				HumanLogic.HumanRNG = new System.Random ((int)Game.randomSeed);
 				Misc.setRandomSeed ((int)Game.randomSeed);
+				PubSub.publish ("clock:setTime", Misc.randomTime());
 			}
 
 			CameraHandler.InitialZoom ();
-			pointsCamera.enabled = true;
+//			pointsCamera.enabled = true;
+			pointsCamera.gameObject.SetActive (true);
 			GenericVehicleSounds.VehicleCountChange ();
 			GenericHumanSounds.HumanCountChange ();
 		}
@@ -1346,5 +1389,13 @@ public class Game : MonoBehaviour, IPubSub {
 
 	void toggleDebugMode () {
 		Game.debugMode = !Game.debugMode;
+		Game.humanDebugMode = false;
+		Debug.Log ("Toggled vehicle debug path: " + Game.debugMode);
+	}
+
+	void toggleHumanDebugMode () {
+		Game.humanDebugMode = !Game.humanDebugMode;
+		Game.debugMode = false;
+		Debug.Log ("Toggled human debug path: " + Game.humanDebugMode);
 	}
 }

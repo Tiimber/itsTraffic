@@ -854,6 +854,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			createDangerHalo ();
 			blinkUntilClickedAndDestroy ();
 
+			stats [STAT_CRASHES].add (0.5f);
+
 			if (shouldPlayCrashSound) {
 				// Big crash - play sound
 				VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
@@ -1172,6 +1174,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private static string STAT_MINOR_COLLISSIONS = "Vehicle minor collissions";
 	private static string STAT_MAJOR_COLLISSIONS = "Vehicle major collissions";
 	private static string STAT_TOTAL_COLLISSION_AMOUNT = "Vehicle total collission force";
+	private static string STAT_CRASHES = "Vehicle crashes";
 	private Dictionary<string, DataCollector.InnerData> stats = new Dictionary<string, DataCollector.InnerData> {
 		{STAT_DRIVING_TIME, new DataCollector.InnerData()},
 		{STAT_WAITING_TIME, new DataCollector.InnerData()},
@@ -1181,7 +1184,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		{STAT_EMITTEDGAS, new DataCollector.InnerData()},
 		{STAT_MINOR_COLLISSIONS, new DataCollector.InnerData()},
 		{STAT_MAJOR_COLLISSIONS, new DataCollector.InnerData()},
-		{STAT_TOTAL_COLLISSION_AMOUNT, new DataCollector.InnerData()}
+		{STAT_TOTAL_COLLISSION_AMOUNT, new DataCollector.InnerData()},
+		{STAT_CRASHES, new DataCollector.InnerData()}
 	};
 	private IEnumerator reportStats () {
 		do {

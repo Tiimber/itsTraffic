@@ -11,38 +11,57 @@ public class Objectives {
 		foreach (XmlNode winNode in winNodes) {
 			XmlAttributeCollection winAttributes = winNode.Attributes;
 			string type = Misc.xmlString(winAttributes.GetNamedItem ("type"));
-			string value = Misc.xmlString(winAttributes.GetNamedItem ("value"));
-			winObjectives.Add (new Win (type, value));
+			float value = Misc.xmlFloat(winAttributes.GetNamedItem ("value"));
+			winObjectives.Add (new Objective (type, value));
 		}
 
 		XmlNodeList loseNodes = objectivesNode.SelectNodes("lose");
 		foreach (XmlNode loseNode in loseNodes) {
 			XmlAttributeCollection loseAttributes = loseNode.Attributes;
 			string type = Misc.xmlString(loseAttributes.GetNamedItem ("type"));
-			string value = Misc.xmlString(loseAttributes.GetNamedItem ("value"));
-			loseObjectives.Add (new Lose (type, value));
+			float value = Misc.xmlFloat(loseAttributes.GetNamedItem ("value"));
+			loseObjectives.Add (new Objective (type, value));
 		}
+
+		DataCollector.registerObjectiveReporter (this);
 	}
 
 	public class Objective {
-		public string objectiveType;
 		public string type;
-		public string value;
+		public float value;
 
-		public Objective(string objectiveType, string type, string value) {
-			this.objectiveType = objectiveType;
+		public Objective(string type, float value) {
 			this.type = type;
 			this.value = value;
 		}
 	}
 
-	class Win : Objective {
-		private static string TYPE = "WIN";
-		public Win(string type, string value) : base(TYPE, type, value) {}
-	}
+	public void reportChange() {
+		Dictionary<string, DataCollector.InnerData> data = DataCollector.Data;
+		bool haveWon = true;
+		foreach (Objective win in winObjectives) {
+			if (!data.ContainsKey (win.type) || data [win.type].value < win.value) {
+				haveWon = false;
+				break;
+			}
+		}
+		bool haveLost = false;
+		foreach (Objective lose in loseObjectives) {
+			if (data.ContainsKey (lose.type) && data [lose.type].value >= lose.value) {
+				haveLost = true;
+				break;
+			}
+		}
 
-	class Lose : Objective {
-		private static string TYPE = "LOSE";
-		public Lose(string type, string value) : base(TYPE, type, value) {}
+		if (haveLost && haveWon) {
+			// Won AND lost same frame... do what?
+			DebugFn.print ("You WON & LOST!");
+		} else if (haveWon) {
+			// Won the level!
+			DebugFn.print ("You WON!");
+		} else if (haveLost) {
+			// Won the level!
+			DebugFn.print ("You Lost!");
+		}
 	}
 }

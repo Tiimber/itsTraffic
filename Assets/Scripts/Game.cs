@@ -101,7 +101,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		StartCoroutine (MaterialManager.Init ());
 
-		CameraHandler.SetMinZoom (cameraOrtographicSize);
+		CameraHandler.SetIntroZoom (cameraOrtographicSize);
 		CameraHandler.SetMainCamera (mainCamera);
 		PubSub.subscribe ("mainCameraActivated", this);
 
@@ -150,6 +150,9 @@ public class Game : MonoBehaviour, IPubSub {
 	
 	// Update is called once per frame
 	void Update () {
+		if (Game.isRunning () && Game.isMovementEnabled()) {
+			DataCollector.Add ("Elapsed Time", Time.deltaTime);
+		}
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
 //			currentLevel = WayTypeEnum.getLower (currentLevel);
 //			filterWays ();
@@ -688,7 +691,6 @@ public class Game : MonoBehaviour, IPubSub {
 		xmlDoc.LoadXml(www.text);
 
 		loadedLevel = new Level (xmlDoc);
-
 		StartCoroutine (loadXML (loadedLevel.mapUrl, loadedLevel.configUrl));
 	}
 
@@ -748,6 +750,8 @@ public class Game : MonoBehaviour, IPubSub {
 		Map.Nodes = NodeIndex.nodes.Values.ToList();
 
 		handleRelations (xmlDoc);
+
+		createOutsideArea ();
 
 		XmlNodeList wayNodes = xmlDoc.SelectNodes("/osm/way");
 		foreach (XmlNode xmlNode in wayNodes) {
@@ -851,6 +855,13 @@ public class Game : MonoBehaviour, IPubSub {
 				standardRoof.Remove ("height");
 			}
 		}
+	}
+
+	private void createOutsideArea () {
+		GameObject landuse = Instantiate (landuseObject) as GameObject;
+		landuse.transform.position = new Vector3 (0f, 0f, -0.097f);
+		LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
+		surface.createBackgroundLanduse ();
 	}
 
 	private void initRoofStreetOrOutdoors (string type, Dictionary<string, string> properties) {

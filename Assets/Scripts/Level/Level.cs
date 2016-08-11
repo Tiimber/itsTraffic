@@ -4,6 +4,7 @@ using System.Xml;
 public class Level {
 
 	public string name;
+	public string brief;
 	public int randomSeed;
 	public string timeOfDay;
 	public string mapUrl;
@@ -34,6 +35,7 @@ public class Level {
 	private void extractLevelDetails(XmlNode levelNode) {
 		XmlAttributeCollection levelAttributes = levelNode.Attributes;
 		name = Misc.xmlString(levelAttributes.GetNamedItem ("name"));
+		brief = Misc.xmlString (levelAttributes.GetNamedItem ("brief"));
 		string randomSeedStr = Misc.xmlString(levelAttributes.GetNamedItem ("randomSeed"));
 		randomSeed = randomSeedStr.GetHashCode ();
 		timeOfDay = Misc.xmlString(levelAttributes.GetNamedItem ("timeOfDay"));

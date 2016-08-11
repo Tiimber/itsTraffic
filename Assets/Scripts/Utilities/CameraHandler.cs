@@ -2,15 +2,16 @@
 using UnityEngine;
 
 public class CameraHandler {
-	private static float MIN_ZOOM_LEVEL = 5f;
+	private static float MIN_ZOOM_LEVEL = 8f;
+	private static float INTRO_ZOOM_LEVEL = 5f;
 	private const float MAX_ZOOM_LEVEL = 0.5f; // TODO - Adjust
 
 	private static float CalculatedOptimalZoom = 3.5f; // TODO - We want this to be automatic and depending on map and/or device type
 
 	private static Camera main;
 
-	public static void SetMinZoom (float zoom) {
-		CameraHandler.MIN_ZOOM_LEVEL = zoom;
+	public static void SetIntroZoom (float zoom) {
+		CameraHandler.INTRO_ZOOM_LEVEL = zoom;
 	}
 
 	public static void SetMainCamera (Camera camera) {
@@ -18,7 +19,7 @@ public class CameraHandler {
 	}
 
 	public static void InitialZoom () {
-		float fromZoom = MIN_ZOOM_LEVEL;
+		float fromZoom = INTRO_ZOOM_LEVEL;
 		float toZoom = CalculatedOptimalZoom;
 		Singleton<Game>.Instance.StartCoroutine (ZoomFromTo(fromZoom, toZoom, 1f));
 	}
@@ -70,10 +71,13 @@ public class CameraHandler {
 
 		Vector3 targetPosition = main.transform.position + moveVector;
 		float cameraSize = main.orthographicSize;
-		float maxOffset = MIN_ZOOM_LEVEL - cameraSize;
+		float maxYOffset = MIN_ZOOM_LEVEL - cameraSize;
 
-		moveVector.x = Mathf.Clamp (targetPosition.x, -maxOffset, maxOffset) - main.transform.position.x;
-		moveVector.y = Mathf.Clamp (targetPosition.y, -maxOffset, maxOffset) - main.transform.position.y;
+		float aspectRatio = Screen.width / Screen.height;
+		float maxXOffset = MIN_ZOOM_LEVEL - cameraSize / (aspectRatio * 2);
+
+		moveVector.x = Mathf.Clamp (targetPosition.x, -maxXOffset, maxXOffset) - main.transform.position.x;
+		moveVector.y = Mathf.Clamp (targetPosition.y, -maxYOffset, maxYOffset) - main.transform.position.y;
 
 		if (doAnimate && time > 0f) {
 			while (t <= 1f) {

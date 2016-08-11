@@ -18,6 +18,12 @@ public class DebugFn
 		DebugFn.print (Game.getCameraPosition (pos));
 	}
 
+	public static void print(string message) {
+		if (enabled) {
+			Debug.Log (message);
+		}
+	}
+
 	public static void print(Vector3 vector) {
 		if (enabled) {
 			Debug.Log ("Vector3 (" + vector.x + ", " + vector.y + ", " + vector.z + ")");

@@ -13,9 +13,16 @@ public class DataCollector : MonoBehaviour {
 	private float dataDiffThreshold = 1f;
 	private bool diffCollected = false;
 
-	private static Dictionary<string, InnerData> Data = new Dictionary<string, InnerData>();
+	private static bool touched = false;
+	public static Dictionary<string, InnerData> Data = new Dictionary<string, InnerData>();
 	private static Dictionary<string, InnerData> CopyData;
 	private static Dictionary<string, float> DiffData = new Dictionary<string, float>();
+
+	private static Objectives reportTo = null;
+
+	public static void registerObjectiveReporter(Objectives objectives) {
+		DataCollector.reportTo = objectives;
+	}
 
 	private void calculateDataDiff () {
 		if (CopyData != null) {
@@ -28,6 +35,11 @@ public class DataCollector : MonoBehaviour {
 	}
 
 	void OnGUI() {
+		if (touched && reportTo != null) {
+			reportTo.reportChange ();
+			touched = false;
+		}
+
 		if (Game.isMovementEnabled() && output) {
 			if (Time.time > lastDataDiff + dataDiffThreshold) {
 				calculateDataDiff ();
@@ -57,11 +69,13 @@ public class DataCollector : MonoBehaviour {
 
 	public static void InitLabel (string label) {
 		Data.Add (label, new InnerData());
+		touched = true;
 	}
 
 	public static void Add (string label, InnerData amount) {
 		if (amount.value != 0f) {
 			Add (label, amount.value);
+			touched = true;
 		}
 	}
 
@@ -71,6 +85,7 @@ public class DataCollector : MonoBehaviour {
 		} else {
 			((InnerData)Data [label]).add (amount);
 		}
+		touched = true;
 	}
 
 	[Serializable]

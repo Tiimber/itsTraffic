@@ -27,6 +27,5 @@ public class PointAndClock : MonoBehaviour, IPubSub {
 		}
 		return PROPAGATION.DEFAULT;
 	}
-
 	#endregion
 }

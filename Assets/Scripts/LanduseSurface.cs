@@ -15,6 +15,8 @@ public class LanduseSurface : MapSurface {
 		{"cemetery", new Color (0.43f, 0.62f, 0.46f)},
 		{"platform", new Color (0.73f, 0.73f, 0.73f)},
 
+		{"background", new Color (0.03f, 0.10f, 0.05f)}, // TODO - Change
+
 		{DEFAULT_TYPE, new Color (0, 1f, 0)}
 	};
 
@@ -61,6 +63,25 @@ public class LanduseSurface : MapSurface {
 			createMeshArea (xmlNode, wayWidthFactor);
 			setLanduseMaterial (landuseType);
 		}
+	}
+
+	public void createBackgroundLanduse () {
+		this.gameObject.name = "Landuse - Background";
+		List<Vector3> backgroundBounds = new List<Vector3> {
+			new Vector3(-20f, -20f, 0),
+			new Vector3(20f, -20f, 0),
+			new Vector3(20f, 20f, 0),
+			new Vector3(-20, 20f, 0)
+		};
+		GameObject planeMeshObj = createPlaneMeshForPoints (backgroundBounds);
+		planeMeshObj.transform.parent = transform;
+
+		Material material = new Material (Shader.Find ("Custom/PlainShader"));
+		material.color = colors["background"];
+
+		MeshRenderer meshRenderer = planeMeshObj.GetComponent<MeshRenderer> ();
+		Renderer renderer = meshRenderer.GetComponent<Renderer> ();
+		renderer.material = material;
 	}
 
 	private void setLanduseMaterial (string type) {

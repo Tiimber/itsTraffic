@@ -7,6 +7,7 @@ public class Level {
 	public string brief;
 	public int randomSeed;
 	public string timeOfDay;
+	public string country;
 	public string mapUrl;
 	public string configUrl;
 
@@ -38,7 +39,9 @@ public class Level {
 		brief = Misc.xmlString (levelAttributes.GetNamedItem ("brief"));
 		string randomSeedStr = Misc.xmlString(levelAttributes.GetNamedItem ("randomSeed"));
 		randomSeed = randomSeedStr.GetHashCode ();
+		DebugFn.print ("Random seed: " + randomSeedStr + ", hash: " + randomSeed); 
 		timeOfDay = Misc.xmlString(levelAttributes.GetNamedItem ("timeOfDay"));
+		country = Misc.xmlString (levelAttributes.GetNamedItem ("country"));
 		mapUrl = Misc.xmlString(levelAttributes.GetNamedItem ("mapUrl"));
 		configUrl = Misc.xmlString(levelAttributes.GetNamedItem ("configUrl"));
 	}

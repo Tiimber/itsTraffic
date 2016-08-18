@@ -79,6 +79,7 @@
      <Compile Include="Assets\Scripts\Emission.cs" />
      <Compile Include="Assets\Scripts\FadeObjectInOut.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
+     <Compile Include="Assets\Scripts\GameTimer.cs" />
      <Compile Include="Assets\Scripts\GenericHumanSounds.cs" />
      <Compile Include="Assets\Scripts\GenericVehicleSounds.cs" />
      <Compile Include="Assets\Scripts\HumanCollider.cs" />

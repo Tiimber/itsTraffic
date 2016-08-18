@@ -10,6 +10,7 @@ public class VehicleInfo : MonoBehaviour {
 	public string model { get; set; }
 	public int year;
 	public float vehicleWidth = 0.05f;
+	public Material mainColorMaterial;
 
 	// Size is number of people in the car (including driver)
 	// Value inside each element is relative probability of each number of passengers
@@ -23,11 +24,15 @@ public class VehicleInfo : MonoBehaviour {
 	void Start () {
 		Setup.VehicleSetup data = GetComponent<Vehicle> ().characteristics;
 		if (data != null) {
-			name = data.name;
+//			name = data.name;
 			brand = data.brand;
 			model = data.model;
 			year = data.year;
 			numberOfPassengers = data.passengerIds.Count;
+			if (mainColorMaterial != null && data.color != null) {
+				Color color = Misc.parseColor (data.color);
+				mainColorMaterial.SetColor ("_Color", color);
+			}
 		} else {			
 			model = ModelGeneratorVehicles.generate (brand);
 			year = DateTime.Now.Year - Misc.randomRange (0, 10);

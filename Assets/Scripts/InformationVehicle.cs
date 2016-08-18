@@ -15,10 +15,10 @@ public class InformationVehicle : InformationBase {
 	 * Passenger(s)
 	 */
 
-	protected int year;
-	protected int distance;
-	protected string condition;
-//	protected List<InformationNode> destination; // TODO
+	public int year;
+	public int distance;
+	public string condition;
+//	public List<InformationNode> destination; // TODO
 	public InformationHuman driver;
 	public List<InformationHuman> passengers;
 

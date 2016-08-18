@@ -436,8 +436,18 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void giveBirth(Setup.PersonSetup data) {
-		long startPos = data.startPos;
-		long endPos = data.endPos;
+		long startPos;
+		if (data.startPos != 0) {
+			startPos = data.startPos;
+		} else {
+			startPos = getRandomHumanPos ();
+		}
+		long endPos;
+		if (data.endPos != 0) {
+			endPos = data.endPos;
+		} else {
+			endPos = getRandomHumanPos (startPos);
+		}
 
 		makePerson (startPos, endPos, data);
 	}
@@ -487,6 +497,9 @@ public class Game : MonoBehaviour, IPubSub {
 			HumanLogic humanLogic = humanInstance.GetComponent<HumanLogic> ();
 			if (data != null) {
 				humanLogic.setPersonality (data);
+				if (data.id > 0) {
+					humanLogic.name = "Human (id:" + data.id + ")";
+				}
 			}
 			humanLogic.setStartAndEndInfo (startInfo, endInfo);
 		}
@@ -542,6 +555,9 @@ public class Game : MonoBehaviour, IPubSub {
 
 		if (data != null) {
 			vehicleObj.setCharacteristics (data);
+			if (data.id > 0) {
+				vehicleObj.name = "Vehicle (id:" + data.id + ")";
+			}
 		}
 	}
 

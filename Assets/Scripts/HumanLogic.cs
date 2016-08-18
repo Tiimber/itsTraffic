@@ -51,7 +51,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 	}
 
 	private void initHumanProfile () {
-		if (personality != null) {
+		if (personality != null && personality.speedFactor != 0f) {
 			speedFactor = personality.speedFactor;
 		} else {
 			float minSpeedFactor = 0.8f;

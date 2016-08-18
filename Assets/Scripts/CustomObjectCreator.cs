@@ -8,11 +8,10 @@ public class CustomObjectCreator {
 	private Setup setup;
 	private Coroutine placePeople;
 	private Coroutine placeVehicles;
-	private float time;
 
 	public CustomObjectCreator (Setup setup) {
 		this.setup = setup;
-		this.time = Time.time;
+		GameTimer.resetTime();
 		if (setup.people.Count > 0) {
 			placePeople = Singleton<Game>.Instance.StartCoroutine(placeOutPeople ());
 		}
@@ -36,7 +35,7 @@ public class CustomObjectCreator {
 		}
 		while (setup.people.Count > 0) {
 			Setup.PersonSetup person = setup.people [0];
-			float inTime = person.time - (Time.time - time);
+			float inTime = person.time - GameTimer.elapsedTime();
 			yield return new WaitForSeconds (inTime);
 			Game.instance.giveBirth (person);
 			setup.people.RemoveAt (0);
@@ -52,7 +51,7 @@ public class CustomObjectCreator {
 		}
 		while (setup.vehicles.Count > 0) {
 			Setup.VehicleSetup vehicle = setup.vehicles [0];
-			float inTime = vehicle.time - (Time.time - time);
+			float inTime = vehicle.time - GameTimer.elapsedTime();
 			yield return new WaitForSeconds (inTime);
 			Game.instance.createNewCar (vehicle);
 			setup.vehicles.RemoveAt (0);

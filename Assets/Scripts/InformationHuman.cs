@@ -18,12 +18,12 @@ public class InformationHuman : InformationBase {
 	private Coroutine coroutine;
 	private List<KeyValuePair<string, object>> information;
 
-	protected DateTime dateOfBirth = notBornYet;
-	protected float money;
-	protected string mood;
-	protected float distance;
+	public DateTime dateOfBirth = notBornYet;
+	public float money;
+	public string mood;
+	public float distance;
 	public int passengerIndex = -1;
-//	protected List<InformationNode> destination; // TODO
+//	public List<InformationNode> destination; // TODO
 
 
 	// Use this for initialization
@@ -50,12 +50,35 @@ public class InformationHuman : InformationBase {
 		}
 
 		if (data != null) {
-			name = data.name;
-			dateOfBirth = Misc.parseDate (data.dob);
-			money = data.money;
+			if (data.name == null) {
+				if (data.country != null || Game.instance.loadedLevel.country != null) {
+					name = NameGenerator.generate (data.country != null ? data.country : Game.instance.loadedLevel.country);
+				} else {
+					name = NameGenerator.generate ();
+				}
+			} else {
+				name = data.name;
+			}
+			if (data.dob != null) {
+				dateOfBirth = Misc.parseDate (data.dob);
+			} else {
+				DateTime now = DateTime.Now;
+				int daysOld = Misc.randomRange (6574, 29220); // 18-80 years old in days
+				dateOfBirth = new DateTime(now.Ticks - Misc.daysToTicks(daysOld)); // Days to ticks
+			}
+			if (data.money != 0f) {
+				money = data.money;
+			} else {
+				money = Misc.randomRange (0f, 500f);
+			}
 			return;
 		} else {
-			name = NameGenerator.generate ();
+			// TODO - Also handle random names from countries specified in <person>?
+			if (Game.instance.loadedLevel != null && Game.instance.loadedLevel.country != null) {
+				name = NameGenerator.generate (Game.instance.loadedLevel.country);
+			} else {
+				name = NameGenerator.generate ();
+			}
 			// TODO - Make sure random ranges are valid dates
 			DateTime now = DateTime.Now;
 			int daysOld = Misc.randomRange (6574, 29220); // 18-80 years old in days

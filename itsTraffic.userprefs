@@ -1,28 +1,29 @@
 ﻿<Properties RefactoringSettings.EnableRefactorings="True" StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/StreamingAssets/level-robbin.xml">
     <Files>
-      <File FileName="Assets/Scripts/Game.cs" Line="488" Column="33" />
-      <File FileName="Assets/Scripts/BuildingRoof.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="182" Column="33" />
-      <File FileName="Assets/Scripts/Vehicle.cs" Line="1093" Column="39" />
-      <File FileName="Assets/Scripts/VehicleInfo.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Game.cs" Line="32" Column="5" />
+      <File FileName="Assets/StreamingAssets/level-robbin.xml" Line="73" Column="26" />
+      <File FileName="Assets/Scripts/Level/Objectives.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/InformationHuman.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Utilities/NameGenerator.cs" Line="26" Column="43" />
       <File FileName="Assets/Scripts/InformationVehicle.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/InformationHuman.cs" Line="47" Column="68" />
-      <File FileName="Assets/Scripts/Level/Setup.cs" Line="90" Column="28" />
-      <File FileName="Assets/StreamingAssets/level-robbin.xml" Line="40" Column="77" />
-      <File FileName="Assets/Scripts/CustomObjectCreator.cs" Line="11" Column="21" />
-      <File FileName="Assets/Scripts/Level/Level.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Level/Randomizer.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Level/Objectives.cs" Line="30" Column="22" />
-      <File FileName="Assets/Scripts/Utilities/DebugFn.cs" Line="96" Column="152" />
-      <File FileName="Assets/Scripts/Map/NodeIndex.cs" Line="134" Column="1" />
-      <File FileName="Assets/Scripts/HumanLogic.cs" Line="135" Column="1" />
+      <File FileName="Assets/Scripts/InformationWindow.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/InformationBase.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Level/Setup.cs" Line="84" Column="1" />
+      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/SkinLogic.cs" Line="100" Column="46" />
+      <File FileName="Assets/Scripts/Utilities/NameGeneratorNames.cs" Line="12" Column="1" />
+      <File FileName="Assets/Scripts/CustomObjectCreator.cs" Line="40" Column="37" />
+      <File FileName="Assets/Scripts/GenericHumanSounds.cs" Line="35" Column="1" />
+      <File FileName="Assets/Scripts/Vehicle.cs" Line="86" Column="43" />
+      <File FileName="Assets/Scripts/VehicleInfo.cs" Line="28" Column="23" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint enabled="false" conditionExpression="key == 246553334L" file="/Users/robbin/ItsTraffic/Assets/Scripts/WayLine.cs" line="163" column="1" />
+      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/CustomObjectCreator.cs" line="40" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

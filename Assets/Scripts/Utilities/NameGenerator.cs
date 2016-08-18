@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 public class NameGenerator {
 
-	private static string country = "se";
+	private const string DEFAULT_COUNTRY = "se";
 
-	public static string generate() {
+	public static string generate(string country = DEFAULT_COUNTRY) {
 		char sex = Random.value <= 0.5f ? 'f' : 'm';
 		string name = "";
 		if (NameGeneratorNames.firstNamesByNationalityAndSex.ContainsKey (country)) {

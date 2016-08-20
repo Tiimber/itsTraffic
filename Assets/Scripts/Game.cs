@@ -49,6 +49,9 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private string levelSetupFileName = "file:///Users/robbin/itsTraffic/Assets/StreamingAssets/level-robbin.xml";
 
+	private const float CLICK_RELEASE_TIME = 0.2f; 
+	private const float THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK = 30f;
+
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
 	public List<VehiclesDistribution> vehicles;
@@ -77,13 +80,15 @@ public class Game : MonoBehaviour, IPubSub {
 	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
 	private bool showOnlyCurrentLevel = false;
 	private bool followCar = false;
-	private Vector3 prevMousePosition;
 	private float sumVehicleFrequency;
 
 	private Dictionary<long, Dictionary<string, string>> objectProperties = new Dictionary<long, Dictionary<string, string>>();
 	private Dictionary<int, Light> dangerHalos = new Dictionary<int, Light> ();
 
 	public Level loadedLevel = null;
+	private float clickReleaseTimer = 0f;
+	private Vector3 mouseDownPosition;
+	private Vector3 prevMousePosition;
 
 	private int debugIndex = 0;
 	private List<string> debugIndexNodes = new List<string> () {
@@ -232,15 +237,24 @@ public class Game : MonoBehaviour, IPubSub {
 
 			if (!firstFrame) {
 				Vector3 diffMove = mousePosition - prevMousePosition;
-				CameraHandler.Move(diffMove);
+				CameraHandler.Move (diffMove);
+			} else {
+				mouseDownPosition = mousePosition;
 			}
 			prevMousePosition = mousePosition;
 
 			// Click logic
 			if (firstFrame) {
-				// TODO - Send click in upcoming frame if not dragged (too much)
-				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint(mousePosition);
+				clickReleaseTimer = CLICK_RELEASE_TIME;
+			} else {
+				clickReleaseTimer -= Time.deltaTime;
+			}
+		} else if (clickReleaseTimer > 0f) {
+			// Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
+			if (Misc.getDistance (mouseDownPosition, prevMousePosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {
+				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mouseDownPosition);
 				PubSub.publish ("Click", mouseWorldPoint);
+				clickReleaseTimer = 0f;
 			}
 		}
 
@@ -514,11 +528,6 @@ public class Game : MonoBehaviour, IPubSub {
 
 	public void createNewCar () {
 
-		// TODO - Temporary counter
-//		if (carNo > 1) {
-//			return;
-//		}
-
 		Pos pos1 = getRandomEndPoint ();
 		Pos pos2 = getRandomEndPoint (pos1);
 
@@ -536,14 +545,12 @@ public class Game : MonoBehaviour, IPubSub {
 		} else {
 			position = getCameraPosition (pos1) + new Vector3 (0f, 0f, -0.15f);
 		}
-		// TODO - Replace getVehicleToInstantiate() with fetching correct car model from data (if not null)
-		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate(), position, Quaternion.identity) as GameObject;
+		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate(data), position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
 
 		vehicleObj.StartPos = pos1;
 		vehicleObj.CurrentPosition = pos1;
 		vehicleObj.EndPos = pos2;
-//		vehicleObj.GetComponent<Renderer> ().material.color = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
 
 		if (followCar) {
 			mainCamera.enabled = false;
@@ -1334,9 +1341,10 @@ public class Game : MonoBehaviour, IPubSub {
 		vehicles.ForEach(vehicle => sumVehicleFrequency += vehicle.frequency);
 	}
 
-	private GameObject getVehicleToInstantiate () {
+	private GameObject getVehicleToInstantiate (Setup.VehicleSetup data = null) {
 		// Only camaros for now
 		return vehicles [0].vehicle.gameObject;
+		// TODO - fetching correct car model from data (if not null)
 		// TODO - When doing performance fixes, take this back for more car types
 		//		float randomPosition = Misc.randomRange (0f, sumVehicleFrequency);
 //		foreach (VehiclesDistribution vehicle in vehicles) {

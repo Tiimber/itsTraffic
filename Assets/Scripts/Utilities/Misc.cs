@@ -147,15 +147,25 @@ public class Misc {
 	}
 
 	// Convert string with comma separated longs to list of longs
-	public static List<long> parseLongs (string passengerIdsStr) {
+	public static List<long> parseLongs (string passengerIdsStr, char separator = ',') {
 		List<long> ids = new List<long> ();
 		if (passengerIdsStr != null) {
-			string[] idStrings = passengerIdsStr.Split (',');
+			string[] idStrings = passengerIdsStr.Split (separator);
 			foreach (string id in idStrings) {
 				ids.Add (Convert.ToInt64 (id));
 			}
 		}
 		return ids;
+	}
+
+	public static List<List<long>> parseLongMultiList (String intStrings, char listSeparator, char itemSeparator) {
+		List<List<long>> multiList = new List<List<long>> ();
+		string[] lists = intStrings.Split (listSeparator);
+		foreach (string list in lists) {
+			multiList.Add (Misc.parseLongs(list, itemSeparator));
+		}
+
+		return multiList;
 	}
 
 	public static string xmlString(XmlNode attributeNode, string defaultValue = null) {
@@ -228,5 +238,15 @@ public class Misc {
 	public static Vector3 parseVector (string startVector) {
 		string[] xy = startVector.Split (',');
 		return new Vector3 (Convert.ToSingle(xy[0]), Convert.ToSingle(xy[1]), 0);
+	}
+
+	public static Tuple2<float, float> getOffsetPctFromCenter (Vector3 zoomPoint) {
+		float centerX = Screen.width / 2f;
+		float centerY = Screen.height / 2f;
+
+		float offsetX = zoomPoint.x - centerX;
+		float offsetY = zoomPoint.y - centerY;
+
+		return new Tuple2<float, float> (offsetX / centerX, offsetY / centerY);
 	}
 }

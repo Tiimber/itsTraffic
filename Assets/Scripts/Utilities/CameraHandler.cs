@@ -33,11 +33,12 @@ public class CameraHandler {
 		}
 	}
 
-	public static void CustomZoom (float amount) {
-		Singleton<Game>.Instance.StartCoroutine (ZoomWithAmount(-amount/5f, 0.25f));
+	public static void CustomZoom (float amount, Vector3 zoomPoint) {
+		Singleton<Game>.Instance.StartCoroutine (ZoomWithAmount(-amount/5f, 0.25f, zoomPoint));
 	}
 
-	private static IEnumerator ZoomWithAmount (float amount, float time) {
+	private static IEnumerator ZoomWithAmount (float amount, float time, Vector3 zoomPoint) {
+
 		float t = 0f;
 		while (t <= 1f) {
 			t += Time.deltaTime / time;
@@ -48,8 +49,16 @@ public class CameraHandler {
 			} else {
 				targetZoom = Mathf.Max (targetZoom, MAX_ZOOM_LEVEL);
 			}
+			float zoomDelta = main.orthographicSize - targetZoom;
 			main.orthographicSize = targetZoom;
-			Singleton<Game>.Instance.StartCoroutine (MoveWithVector(Vector3.zero, 0f, false));
+
+			// Try to zoom in towards a specific point
+			Tuple2<float, float> offsetPctFromCenter = Misc.getOffsetPctFromCenter (zoomPoint);
+			float xZoomRatio = Mathf.Max((float) Screen.width / (float) Screen.height, 1f);
+			float yZoomRatio = Mathf.Max((float) Screen.height / (float) Screen.width, 1f);
+			Vector3 zoomOffsetMove = new Vector3 ((zoomDelta * xZoomRatio) * offsetPctFromCenter.First, (zoomDelta * yZoomRatio) * offsetPctFromCenter.Second, 0f);
+			Singleton<Game>.Instance.StartCoroutine (MoveWithVector(zoomOffsetMove, 0f, false));
+
 			yield return t;
 		}
 	}

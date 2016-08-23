@@ -140,6 +140,7 @@
      <Compile Include="Assets\Scripts\Utilities\PosHelper.cs" />
      <Compile Include="Assets\Scripts\Utilities\ScreenWipe.cs" />
      <Compile Include="Assets\Scripts\Utilities\Singleton.cs" />
+     <Compile Include="Assets\Scripts\Utilities\Tuple2.cs" />
      <Compile Include="Assets\Scripts\Utilities\Tuple3.cs" />
      <Compile Include="Assets\Scripts\Utilities\WayCrossing.cs" />
      <Compile Include="Assets\Scripts\Utilities\WayHelper.cs" />

@@ -8,14 +8,19 @@
 	configUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml"
 	country="gb"
 >
-	<objectives>
-		<!-- TODO - Win 2 out of 3 to win, etc. -->
-		<win type="Vehicles reached goal" value="30" /> <!-- TODO - Comparator as parameter -->
-		<!-- <win type="InformationHuman" id="20027" key="distance" value="15" />-->
-		<!-- <win type="InformationVehicle" id="10001" key="distance" value="150" />-->
-		<lose type="Vehicle crashes" value="1" />
-		<!-- <lose type="Time" value="10" />-->
+	<objectives winCombos="2,3;1,4" loseCombos="102,101">
+		<win id="1" type="Vehicles reached goal" value="30" /> <!-- TODO - Comparator as parameter -->
+		<win id="2" type="InformationHuman" targetId="20027" key="distance" value="15" />
+		<win id="3" type="InformationVehicle" targetId="10001" key="distance" value="150" />
+		<win id="4" type="Time" value="60" />
+
+		<lose id="101" type="Vehicle crashes" value="1" />
+		<lose id="102" type="Time" value="5" />
 	</objectives>
+
+	<pointCalculator>
+		<point type="Time" threshold="50" value="200"/>
+	</pointCalculator>
 
 	<humanRandomizer 
 		enabled="true" 
@@ -27,7 +32,7 @@
 	/>
 	
 	<vehicleRandomizer 
-		enabled="true" 
+		enabled="false" 
 		delay="5"
 		interval="5.5"
 		variation="1"
@@ -71,7 +76,14 @@
 					 speedFactor="0.8" acceleration="2.0" startSpeedFactor="0.5"
 					 impatientThresholdNonTrafficLight="6.4" impatientThresholdTrafficLight="13.6"
 					 color="255,255,255"
-			/><!-- TODO - Change vehicle color -->
+			/>
+			<vehicle id="10003" time="1" startPos="1623951731" endPos="92777329" startVector="7.797,0.517" type="Camaro" 
+					 name="Sportzcar Oldsmobile" brand="Sportzcar" model="Oldsmobile" 
+					 year="2013" distance="70" condition="0.6" driverId="20007" passengerIds="20013"
+					 speedFactor="0.8" acceleration="2.0" startSpeedFactor="0.5"
+					 impatientThresholdNonTrafficLight="6.4" impatientThresholdTrafficLight="13.6"
+					 color="0,0,0"
+			/>
 			<vehicle id="10002" time="17.1" startPos="1623951731" endPos="92777329" type="Camaro"
 					 name="Sportzcar Newsmobile" brand="Sportzcar" model="Newsmobile"
 					 year="2016" distance="1421" condition="0.1" driverId="20001"

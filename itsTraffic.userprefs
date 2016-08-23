@@ -1,23 +1,24 @@
 ﻿<Properties RefactoringSettings.EnableRefactorings="True" StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/StreamingAssets/level-robbin.xml">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Utilities/CameraHandler.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game.cs" Line="32" Column="5" />
+      <File FileName="Assets/Scripts/Game.cs" Line="751" Column="72" />
       <File FileName="Assets/StreamingAssets/level-robbin.xml" Line="73" Column="26" />
       <File FileName="Assets/Scripts/Level/Objectives.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InformationHuman.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/NameGenerator.cs" Line="26" Column="43" />
+      <File FileName="Assets/Scripts/Utilities/NameGenerator.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InformationVehicle.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InformationWindow.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InformationBase.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Level/Setup.cs" Line="84" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/SkinLogic.cs" Line="100" Column="46" />
-      <File FileName="Assets/Scripts/Utilities/NameGeneratorNames.cs" Line="12" Column="1" />
-      <File FileName="Assets/Scripts/CustomObjectCreator.cs" Line="40" Column="37" />
-      <File FileName="Assets/Scripts/GenericHumanSounds.cs" Line="35" Column="1" />
-      <File FileName="Assets/Scripts/Vehicle.cs" Line="86" Column="43" />
-      <File FileName="Assets/Scripts/VehicleInfo.cs" Line="28" Column="23" />
+      <File FileName="Assets/Scripts/Level/Setup.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="240" Column="1" />
+      <File FileName="Assets/Scripts/SkinLogic.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Utilities/NameGeneratorNames.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/CustomObjectCreator.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/GenericHumanSounds.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Vehicle.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/VehicleInfo.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Utilities/CameraHandler.cs" Line="66" Column="41" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

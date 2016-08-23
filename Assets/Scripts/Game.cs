@@ -308,8 +308,8 @@ public class Game : MonoBehaviour, IPubSub {
 		if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
 			float scrollAmount = Input.GetAxis ("Mouse ScrollWheel");
 //			Debug.Log (scrollAmount);
-			if (scrollOk (Input.mousePosition)) {
-				CameraHandler.CustomZoom (scrollAmount);
+			if (Game.running && scrollOk (Input.mousePosition)) {
+				CameraHandler.CustomZoom (scrollAmount, Input.mousePosition);
 			}
 		}
 
@@ -322,13 +322,17 @@ public class Game : MonoBehaviour, IPubSub {
 
 				Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
 				Vector2 touchTwoPrevPos = touchTwo.position - touchTwo.deltaPosition;
+				Vector2 centerPos = touchOne.position + (touchTwo.position - touchOne.position) / 2;
 
 				float prevTouchDeltaMag = (touchOnePrevPos - touchTwoPrevPos).magnitude;
 				float touchDeltaMag = (touchOne.position - touchTwo.position).magnitude;
 
 				float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
 
-				CameraHandler.CustomZoom (-deltaMagnitudeDiff / 100f);
+				// TODO - Scroll OK here (like above)
+				if (Game.running) {
+					CameraHandler.CustomZoom (-deltaMagnitudeDiff / 100f, centerPos);
+				}
 			}
 		}
 

@@ -10,7 +10,8 @@ public class VehicleInfo : MonoBehaviour {
 	public string model { get; set; }
 	public int year;
 	public float vehicleWidth = 0.05f;
-	public Material mainColorMaterial;
+	public string materialGameObjectName;
+	public int mainMaterialIndex;
 
 	// Size is number of people in the car (including driver)
 	// Value inside each element is relative probability of each number of passengers
@@ -29,7 +30,11 @@ public class VehicleInfo : MonoBehaviour {
 			model = data.model;
 			year = data.year;
 			numberOfPassengers = data.passengerIds.Count;
-			if (mainColorMaterial != null && data.color != null) {
+			if (materialGameObjectName != null && data.color != null) {
+				GameObject materialGameObject = transform.FindChild (materialGameObjectName).gameObject;
+				MeshRenderer meshRenderer = materialGameObject.GetComponent<MeshRenderer> ();
+
+				Material mainColorMaterial = meshRenderer.materials [mainMaterialIndex];
 				Color color = Misc.parseColor (data.color);
 				mainColorMaterial.SetColor ("_Color", color);
 			}

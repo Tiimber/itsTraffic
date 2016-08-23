@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Xml;
 using UnityEngine;
+using System;
 
 public class Objectives {
+
+	public List<List<long>> winCombos = new List<List<long>>();
+	public List<List<long>> loseCombos = new List<List<long>> ();
 	public List<Objective> winObjectives = new List<Objective>();
 	public List<Objective> loseObjectives = new List<Objective>();
 
@@ -12,74 +16,69 @@ public class Objectives {
 		XmlNodeList winNodes = objectivesNode.SelectNodes("win");
 		foreach (XmlNode winNode in winNodes) {
 			XmlAttributeCollection winAttributes = winNode.Attributes;
+			long id = Misc.xmlLong(winAttributes.GetNamedItem ("id"));
 			string type = Misc.xmlString(winAttributes.GetNamedItem ("type"));
-			long id = Misc.xmlLong (winAttributes.GetNamedItem ("id"));
+			long targetId = Misc.xmlLong (winAttributes.GetNamedItem ("targetId"));
 			string key = Misc.xmlString (winAttributes.GetNamedItem ("key"));
 			float value = Misc.xmlFloat(winAttributes.GetNamedItem ("value"));
-			winObjectives.Add (new Objective (type, id, key, value));
+			winObjectives.Add (new Objective (id, type, targetId, key, value));
 		}
 
 		XmlNodeList loseNodes = objectivesNode.SelectNodes("lose");
 		foreach (XmlNode loseNode in loseNodes) {
 			XmlAttributeCollection loseAttributes = loseNode.Attributes;
+			long id = Misc.xmlLong(loseAttributes.GetNamedItem ("id"));
 			string type = Misc.xmlString(loseAttributes.GetNamedItem ("type"));
-			long id = Misc.xmlLong (loseAttributes.GetNamedItem ("id"));
+			long targetId = Misc.xmlLong (loseAttributes.GetNamedItem ("targetId"));
 			string key = Misc.xmlString (loseAttributes.GetNamedItem ("key"));
 			float value = Misc.xmlFloat(loseAttributes.GetNamedItem ("value"));
-			loseObjectives.Add (new Objective (type, id, key, value));
+			loseObjectives.Add (new Objective (id, type, targetId, key, value));
 		}
+
+		XmlAttributeCollection objectiveAttributes = objectivesNode.Attributes;
+		if (objectiveAttributes.GetNamedItem ("winCombos") != null) {
+			winCombos = Misc.parseLongMultiList (Misc.xmlString(objectiveAttributes.GetNamedItem ("winCombos")), ';', ',');
+		} else {
+			List<long> winCombo = new List<long> ();
+			foreach (Objective winObjective in winObjectives) {
+				winCombo.Add (winObjective.id);
+			}
+			winCombos.Add (winCombo);
+		}
+
+		if (objectiveAttributes.GetNamedItem ("loseCombos") != null) {
+			loseCombos = Misc.parseLongMultiList (Misc.xmlString(objectiveAttributes.GetNamedItem ("loseCombos")), ';', ',');
+		} else {
+			foreach (Objective loseObjective in loseObjectives) {
+				loseCombos.Add (new List<long> () {
+					loseObjective.id
+				});
+			}
+		}
+
 
 		DataCollector.registerObjectiveReporter (this);
 	}
 
 	public class Objective {
-		public string type;
 		public long id;
+		public string type;
+		public long targetId;
 		public string key;
 		public float value;
 
-		public Objective(string type, long id, string key, float value) {
-			this.type = type;
+		public Objective(long id, string type, long targetId, string key, float value) {
 			this.id = id;
+			this.type = type;
+			this.targetId = targetId;
 			this.key = key;
 			this.value = value;
 		}
 	}
 
 	public void reportChange() {
-		Dictionary<string, DataCollector.InnerData> data = DataCollector.Data;
-		bool haveWon = true;
-		foreach (Objective win in winObjectives) {
-			if (SpecialObjectives.TYPES.Contains (win.type)) {
-				if (!SpecialObjectives.check (win)) {
-					haveWon = false;
-					break;
-				} else {
-					continue;
-				}
-			}
-
-			if (!data.ContainsKey (win.type) || data [win.type].value < win.value) {
-				haveWon = false;
-				break;
-			}
-		}
-		bool haveLost = false;
-		foreach (Objective lose in loseObjectives) {
-			if (SpecialObjectives.TYPES.Contains (lose.type)) {
-				if (SpecialObjectives.check (lose)) {
-					haveLost = true;
-					break;
-				} else {
-					continue;
-				}
-			}
-
-			if (data.ContainsKey (lose.type) && data [lose.type].value >= lose.value) {
-				haveLost = true;
-				break;
-			}
-		}
+		bool haveWon = checkCombos(winCombos, "win");
+		bool haveLost = checkCombos(loseCombos, "lose");
 
 		if (haveLost && haveWon) {
 			// Won AND lost same frame... do what?
@@ -91,6 +90,37 @@ public class Objectives {
 			// Won the level!
 			DebugFn.print ("You Lost!");
 		}
+	}
+
+	private List<Objective> getObjectives (string type, List<long> ids) {
+		return (type == "win" ? winObjectives : loseObjectives).FindAll(i => ids.Contains(i.id));
+	}
+
+	private bool checkCombos(List<List<long>> combos, string type) {
+		Dictionary<string, DataCollector.InnerData> data = DataCollector.Data;
+		foreach (List<long> combo in combos) {
+			List<Objective> checkObjectives = getObjectives (type, combo);
+			bool haveMetAll = true;
+			foreach (Objective objective in checkObjectives) {
+				if (SpecialObjectives.TYPES.Contains (objective.type)) {
+					if (!SpecialObjectives.check (objective)) {
+						haveMetAll = false;
+						break;
+					} else {
+						continue;
+					}
+				}
+
+				if (!data.ContainsKey (objective.type) || data [objective.type].value < objective.value) {
+					haveMetAll = false;
+					break;
+				}
+			}
+			if (haveMetAll) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private class SpecialObjectives {
@@ -124,55 +154,55 @@ public class Objectives {
 		}
 
 		private static bool checkInformationHuman(Objective objective) {
-			InformationHuman human = getInformationHuman (objective.id);
+			InformationHuman human = getInformationHuman (objective.targetId);
 			if (human != null) {
 				switch (objective.key) {
 					case "distance":
-					return human.distance >= objective.value;
+						return human.distance >= objective.value;
 					// TODO - More here - money, mood?
 				}
 			}
 			return false;
 		}
 
-		private static InformationHuman getInformationHuman(long id) {
-			if (!cachedHumans.ContainsKey (id)) {
-				GameObject human = GameObject.Find ("Human (id:" + id + ")");
+		private static InformationHuman getInformationHuman(long targetId) {
+			if (!cachedHumans.ContainsKey (targetId)) {
+				GameObject human = GameObject.Find ("Human (id:" + targetId + ")");
 				if (human != null) {
 					InformationHuman informationHuman = human.GetComponent<InformationHuman> ();
-					cachedHumans.Add (id, informationHuman);
+					cachedHumans.Add (targetId, informationHuman);
 					informationHuman.getInformation ();
 				}
 			}
-			if (cachedHumans.ContainsKey (id)) {
-				return cachedHumans [id];
+			if (cachedHumans.ContainsKey (targetId)) {
+				return cachedHumans [targetId];
 			}
 			return null;
 		}
 
 		private static bool checkInformationVehicle(Objective objective) {
-			InformationVehicle vehicle = getInformationVehicle (objective.id);
+			InformationVehicle vehicle = getInformationVehicle (objective.targetId);
 			if (vehicle != null) {
 				switch (objective.key) {
-				case "distance":
-					return vehicle.distance >= objective.value;
+					case "distance":
+						return vehicle.distance >= objective.value;
 					// TODO - More here - condition...?
 				}
 			}
 			return false;
 		}
 
-		private static InformationVehicle getInformationVehicle(long id) {
-			if (!cachedVehicles.ContainsKey (id)) {
-				GameObject human = GameObject.Find ("Vehicle (id:" + id + ")");
+		private static InformationVehicle getInformationVehicle(long targetId) {
+			if (!cachedVehicles.ContainsKey (targetId)) {
+				GameObject human = GameObject.Find ("Vehicle (id:" + targetId + ")");
 				if (human != null) {
 					InformationVehicle informationVehicle = human.GetComponent<InformationVehicle> ();
-					cachedVehicles.Add (id, informationVehicle);
+					cachedVehicles.Add (targetId, informationVehicle);
 					informationVehicle.getInformation ();
 				}
 			}
-			if (cachedVehicles.ContainsKey (id)) {
-				return cachedVehicles [id];
+			if (cachedVehicles.ContainsKey (targetId)) {
+				return cachedVehicles [targetId];
 			}
 			return null;
 		}

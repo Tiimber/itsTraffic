@@ -1,16 +1,16 @@
-using UnityEngine;
-using System.Collections;
-using System.Xml;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using SystemRandom = System.Random;
-
-// Longitude = x
-// Latitude = y
-using UnityStandardAssets.Cameras;
+using System.Xml;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+
+// TODO - Next time - When restarting level:
+// - Game is paused, need to press "P" (Pause) twice
+// - Game clock is not set to setup level time
+// - Level data is not applied (need reset of CustomObjectCreator, Objectives...?)
 
 public class Game : MonoBehaviour, IPubSub {
 
@@ -108,6 +108,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 		CameraHandler.SetIntroZoom (cameraOrtographicSize);
 		CameraHandler.SetMainCamera (mainCamera);
+        CameraHandler.SetPerspectiveCamera (introCamera);
+        CameraHandler.SetRestoreState ();
 		PubSub.subscribe ("mainCameraActivated", this);
 
 //		Time.timeScale = 0.1f;
@@ -120,6 +122,29 @@ public class Game : MonoBehaviour, IPubSub {
 		// Subscribe to when crashed vehicles are removed, to remove the danger halo
 		PubSub.subscribe("Vehicle:removeDangerHalo", this);
 	}
+
+    private void exitLevel() {
+        showMenu();
+
+        running = false;
+        paused = false;
+        frozen = false;
+
+        GameObject[] mapObjects = GameObject.FindGameObjectsWithTag("MapObject");
+        foreach (GameObject mapObject in mapObjects) {
+            Destroy(mapObject);
+        }
+
+        objectProperties.Clear();
+
+        CameraHandler.Restore();
+        Map.Clear();
+        NodeIndex.Clear();
+        DataCollector.Clear();
+        initDataCollection();
+
+        loadedLevel = null;
+    }
 
 	public void startGame() {
 		if (paused) {
@@ -147,7 +172,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 	void initDataCollection ()
 	{
-		DataCollector.InitLabel ("Total # of vehicles");
+        DataCollector.InitLabel ("Elapsed Time");
+        DataCollector.InitLabel ("Total # of vehicles");
 		DataCollector.InitLabel ("Total # of people");
 		DataCollector.InitLabel ("Vehicles reached goal");
 		DataCollector.InitLabel ("Manual traffic light switches");
@@ -849,6 +875,7 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 		// TODO move this to after all materials have finished loading
 		List<GameObject> allBuldingRoofs = Misc.NameStartsWith ("BuildingRoof (");
+        // TODO - This doesn't seem to apply materials correct (not loaded) on level start
 		foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
 			GameObject buildingRoofObj = GameObject.Find ("BuildingRoof (" + objectEntry.Key + ")");
 			if (buildingRoofObj != null) {
@@ -1291,6 +1318,12 @@ public class Game : MonoBehaviour, IPubSub {
 				Misc.setRandomSeed (loadedLevel.randomSeed);
 				CustomObjectCreator.initWithSetup (loadedLevel.setup);
 				PubSub.publish ("clock:setTime", loadedLevel.timeOfDay);
+
+				bool showBrief = true; // TODO - Setting
+				if (showBrief) {
+					freezeGame (true);
+					PubSub.publish ("brief:display", loadedLevel);
+				}
 			} else {
 				VehicleRandomizer.Create ();
 				HumanRandomizer.Create ();
@@ -1383,10 +1416,11 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private void menuStartVisible(bool show) {
+        GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "StartSubmenu").gameObject;
 		if (show) {
 			menuOptionsVisible (false);
+            subMenu.GetComponent<LevelDataUpdater>().updateLevelStars();
 		}
-		GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "StartSubmenu").gameObject;
 		subMenu.SetActive (show);
 	}
 
@@ -1417,10 +1451,14 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 	}
 
-	void toggleFreezeGame () {
-		Game.frozen = !Game.frozen;
-		Time.timeScale = Game.frozen ? 0f : 1f;
+	public void toggleFreezeGame () {
+        freezeGame(!Game.frozen);
 	}
+
+    public void freezeGame (bool freeze) {
+        Game.frozen = freeze;
+        Time.timeScale = freeze ? 0f : 1f;
+    }
 
 	public static bool isMovementEnabled() {
 		return Game.instance != null && !Game.frozen;
@@ -1436,5 +1474,61 @@ public class Game : MonoBehaviour, IPubSub {
 		Game.humanDebugMode = !Game.humanDebugMode;
 		Game.debugMode = false;
 		Debug.Log ("Toggled human debug path: " + Game.humanDebugMode);
+	}
+
+    public void gameEnd(string type, Objectives objectives) {
+        // We should have all we need in Objectives, PointCalculator and DataCollector, to determine points
+        PointCalculator pointCalculator = loadedLevel.pointCalculator;
+
+        freezeGame(true);
+        int pointsBefore = GameObject.FindGameObjectWithTag("Points").GetComponent<Points>().points;
+
+        List<PointCalculator.Point> alreadyIncludedPoints = pointCalculator.getPoints(true);
+        List<PointCalculator.Point> notYetIncludedPoints = pointCalculator.getPoints(false, objectives);
+
+        // TODO - Present result of play with "alreadyIncluded" stated
+
+        int points = pointsBefore;
+
+        foreach (PointCalculator.Point point in notYetIncludedPoints) {
+            // TODO - Present each part of the points
+            points += point.calculatedValue;
+        }
+
+        int numberOfStars = pointCalculator.getNumberOfStars(points);
+        Debug.Log(points + ": " + numberOfStars);
+
+        // Save stats - if not already exists with higher value
+        bool newHighscore = saveScore(points, numberOfStars);
+
+        // TODO - Present new highscore and play serenade
+
+        // TODO - When summary popup closes with "exit"/"close" or similar, call this
+        exitLevel();
+    }
+
+	private bool saveScore(int points, int numberOfStars) {
+        bool shouldSaveNewScore = true;
+
+		string levelKeyPrefix = "level_" + loadedLevel.id;
+        if (PlayerPrefs.HasKey(levelKeyPrefix + "_points")) {
+            int prevPoints = PlayerPrefs.GetInt (levelKeyPrefix + "_points");
+            int prevStars = PlayerPrefs.GetInt (levelKeyPrefix + "_stars");
+			if (prevPoints >= points && prevStars >= numberOfStars) {
+                shouldSaveNewScore = false;
+            }
+        }
+
+        if (shouldSaveNewScore) {
+            PlayerPrefs.SetInt (levelKeyPrefix + "_points", points);
+			PlayerPrefs.SetInt (levelKeyPrefix + "_stars", numberOfStars);
+			PlayerPrefs.Save ();
+
+            // Update level info for shown levels in menu
+            GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "StartSubmenu").gameObject;
+            subMenu.GetComponent<LevelDataUpdater>().updateLevelStars();
+        }
+
+        return shouldSaveNewScore;
 	}
 }

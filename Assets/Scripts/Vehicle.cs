@@ -1128,11 +1128,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		yield return null;
 		Destroy (this.gameObject);
 		if (health > 0f) {
-			// TODO - Calculate points based on time, distance, or whatever...
-			PubSub.publish ("points:inc", 100);
+			PubSub.publish ("points:inc", PointCalculator.vehicleDestinationPoints);
 			DataCollector.Add ("Vehicles reached goal", 1f);
 		} else {
-			DataCollector.Add ("Vehicles destroyed", 1f);
+			DataCollector.Add ("Vehicles:destroy", 1f);
 		}
 		numberOfCars--;
 		GenericVehicleSounds.VehicleCountChange();
@@ -1170,7 +1169,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private static string STAT_DRIVING_DISTANCE = "Vehicles driving distance";
 	private static string STAT_PASSED_CROSSINGS = "Vehicles passed crossings";
 	private static string STAT_PASSED_TRAFFICLIGHT = "Vehicles passed traffic lights";
-	private static string STAT_EMITTEDGAS = "Vehicle gas emitted";
+	private static string STAT_EMITTEDGAS = "Vehicle:emission";
 	private static string STAT_MINOR_COLLISSIONS = "Vehicle minor collissions";
 	private static string STAT_MAJOR_COLLISSIONS = "Vehicle major collissions";
 	private static string STAT_TOTAL_COLLISSION_AMOUNT = "Vehicle total collission force";

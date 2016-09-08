@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Points : MonoBehaviour, IPubSub {
 
-	private int points = 0;
+	public int points = 0;
 	private int showNumbers = 6;
 
 	private float charWidth = 0.30f;

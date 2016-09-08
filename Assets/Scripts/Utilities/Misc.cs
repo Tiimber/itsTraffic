@@ -158,7 +158,7 @@ public class Misc {
 		return ids;
 	}
 
-	public static List<List<long>> parseLongMultiList (String intStrings, char listSeparator, char itemSeparator) {
+	public static List<List<long>> parseLongMultiList (string intStrings, char listSeparator, char itemSeparator) {
 		List<List<long>> multiList = new List<List<long>> ();
 		string[] lists = intStrings.Split (listSeparator);
 		foreach (string list in lists) {

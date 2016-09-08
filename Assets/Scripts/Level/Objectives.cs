@@ -60,12 +60,23 @@ public class Objectives {
 		DataCollector.registerObjectiveReporter (this);
 	}
 
+    public List<Objective> getAll() {
+        List<Objective> allObjectives = winObjectives.GetRange(0, winObjectives.Count);
+        allObjectives.AddRange(loseObjectives.GetRange(0, loseObjectives.Count));
+        return allObjectives;
+    }
+
+    public Objective get(long id) {
+        return getAll().Find(i => i.id == id);
+    }
+
 	public class Objective {
 		public long id;
 		public string type;
 		public long targetId;
 		public string key;
 		public float value;
+        public bool isMet = false;
 
 		public Objective(long id, string type, long targetId, string key, float value) {
 			this.id = id;
@@ -77,17 +88,22 @@ public class Objectives {
 	}
 
 	public void reportChange() {
+        checkObjectives();
 		bool haveWon = checkCombos(winCombos, "win");
 		bool haveLost = checkCombos(loseCombos, "lose");
 
-		if (haveLost && haveWon) {
+/*		if (haveLost && haveWon) {
 			// Won AND lost same frame... do what?
+            Game.instance.gameEnd("win", this);
 			DebugFn.print ("You WON & LOST!");
-		} else if (haveWon) {
+		} else */
+        if (haveWon) {
 			// Won the level!
+            Game.instance.gameEnd("win", this);
 			DebugFn.print ("You WON!");
 		} else if (haveLost) {
 			// Won the level!
+            Game.instance.gameEnd("lose", this);
 			DebugFn.print ("You Lost!");
 		}
 	}
@@ -96,29 +112,41 @@ public class Objectives {
 		return (type == "win" ? winObjectives : loseObjectives).FindAll(i => ids.Contains(i.id));
 	}
 
+
+    private void checkObjectives() {
+        Dictionary<string, DataCollector.InnerData> data = DataCollector.Data;
+        List<Objective> allObjectives = getAll();
+        foreach (Objective objective in allObjectives) {
+            if (objective.isMet) {
+                continue;
+            }
+
+            if (SpecialObjectives.TYPES.Contains (objective.type)) {
+                if (SpecialObjectives.check (objective)) {
+                    objective.isMet = true;
+                }
+				continue;
+            }
+
+            if (data.ContainsKey (objective.type) && data [objective.type].value >= objective.value) {
+                objective.isMet = true;
+            }
+        }
+    }
+
 	private bool checkCombos(List<List<long>> combos, string type) {
-		Dictionary<string, DataCollector.InnerData> data = DataCollector.Data;
 		foreach (List<long> combo in combos) {
 			List<Objective> checkObjectives = getObjectives (type, combo);
-			bool haveMetAll = true;
+            bool metAllInCombo = true;
 			foreach (Objective objective in checkObjectives) {
-				if (SpecialObjectives.TYPES.Contains (objective.type)) {
-					if (!SpecialObjectives.check (objective)) {
-						haveMetAll = false;
-						break;
-					} else {
-						continue;
-					}
-				}
-
-				if (!data.ContainsKey (objective.type) || data [objective.type].value < objective.value) {
-					haveMetAll = false;
-					break;
-				}
+                if (!objective.isMet) {
+                    metAllInCombo = false;
+                    break;
+                }
 			}
-			if (haveMetAll) {
-				return true;
-			}
+            if (metAllInCombo) {
+                return true;
+            }
 		}
 		return false;
 	}

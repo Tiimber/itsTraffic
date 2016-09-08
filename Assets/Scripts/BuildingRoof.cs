@@ -134,5 +134,9 @@ public class BuildingRoof : MapSurface, IPubSub {
 		}
 		return PROPAGATION.DEFAULT;
 	}
+
+    void OnDestroy() {
+        PubSub.unsubscribeAllForSubscriber(this);
+    }
 }
 	

@@ -39,7 +39,7 @@ public class MapSurface : MonoBehaviour {
 			Vector2[] vertices2D = new Vector2[nodeRefs.Count * 2];
 			List<Vector2> forwardPoints = new List<Vector2> ();
 			List<Vector2> backwardPoints = new List<Vector2> ();
-			Vector2 prev = Misc.getWorldPos (nodeRefs.Item (0));;
+			Vector2 prev = Misc.getWorldPos (nodeRefs.Item (0));
 			Vector2 next = Misc.getWorldPos (nodeRefs.Item (1));
 
 			Quaternion deg90 = Quaternion.Euler(0, 0, 90);
@@ -144,6 +144,7 @@ public class MapSurface : MonoBehaviour {
 
 	private static GameObject createPlaneMeshForVector2 (Vector2[] points, Vector3 offset) {
 		GameObject planeMesh = new GameObject ("Plane Mesh For Points");
+        planeMesh.tag = "MapObject";
 		
 		addMeshToGameObject(planeMesh, points);
 		

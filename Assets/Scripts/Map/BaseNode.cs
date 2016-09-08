@@ -1,5 +1,2 @@
-﻿using UnityEngine;
-using System.Collections;
-
-public class BaseNode {
+﻿public class BaseNode {
 }

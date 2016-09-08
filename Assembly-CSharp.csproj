@@ -69,6 +69,7 @@
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\UnityEditorDevice.cs" />
      <Compile Include="Assets\Clock\Scripts\Clock.cs" />
      <Compile Include="Assets\Scripts\AutomaticMaterialObject.cs" />
+     <Compile Include="Assets\Scripts\BriefPopup.cs" />
      <Compile Include="Assets\Scripts\BuildingRoof.cs" />
      <Compile Include="Assets\Scripts\CollisionObjects\CollisionObj.cs" />
      <Compile Include="Assets\Scripts\CollisionObjects\HumanCollisionObj.cs" />
@@ -95,8 +96,11 @@
      <Compile Include="Assets\Scripts\LanduseSurface.cs" />
      <Compile Include="Assets\Scripts\Level\Level.cs" />
      <Compile Include="Assets\Scripts\Level\Objectives.cs" />
+     <Compile Include="Assets\Scripts\Level\PointCalculator.cs" />
      <Compile Include="Assets\Scripts\Level\Randomizer.cs" />
      <Compile Include="Assets\Scripts\Level\Setup.cs" />
+     <Compile Include="Assets\Scripts\LevelDataUpdater.cs" />
+     <Compile Include="Assets\Scripts\LevelInfo.cs" />
      <Compile Include="Assets\Scripts\LightLogic.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
      <Compile Include="Assets\Scripts\Map\BaseNode.cs" />
@@ -120,6 +124,7 @@
      <Compile Include="Assets\Scripts\PointDigit.cs" />
      <Compile Include="Assets\Scripts\Points.cs" />
      <Compile Include="Assets\Scripts\PolygonTester.cs" />
+     <Compile Include="Assets\Scripts\PopupWindowStyles.cs" />
      <Compile Include="Assets\Scripts\Settings.cs" />
      <Compile Include="Assets\Scripts\ShirtLogic.cs" />
      <Compile Include="Assets\Scripts\SkinLogic.cs" />

@@ -166,8 +166,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 
 		Destroy (this.gameObject);
 //		if (health > 0f) {
-//			// TODO - Calculate points based on time, distance, or whatever...
-			PubSub.publish ("points:inc", 50);
+			PubSub.publish ("points:inc", PointCalculator.humanDestinationPoints);
 			DataCollector.Add ("Humans reached goal", 1f);
 //		}
 		numberOfHumans--;

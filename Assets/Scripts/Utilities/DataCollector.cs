@@ -9,22 +9,27 @@ public class DataCollector : MonoBehaviour {
 
 	private bool output = true;
 
-	private float lastDataDiff = 0f;
-	private float dataDiffThreshold = 1f;
-	private bool diffCollected = false;
+	private static float lastDataDiff = 0f;
+	private static float dataDiffThreshold = 1f;
+	private static bool diffCollected = false;
 
 	private static bool touched = false;
 	public static Dictionary<string, InnerData> Data = new Dictionary<string, InnerData>();
 	private static Dictionary<string, InnerData> CopyData;
 	private static Dictionary<string, float> DiffData = new Dictionary<string, float>();
 
-	private static Objectives reportTo = null;
+	private static Objectives reportObjectivesData = null;
+	private static PointCalculator pointCalculator = null;
 
 	public static void registerObjectiveReporter(Objectives objectives) {
-		DataCollector.reportTo = objectives;
+		DataCollector.reportObjectivesData = objectives;
 	}
 
-	private void calculateDataDiff () {
+    public static void registerPointCalculator(PointCalculator pointCalculator) {
+        DataCollector.pointCalculator = pointCalculator;
+    }
+
+    private void calculateDataDiff () {
 		if (CopyData != null) {
 			foreach (string key in CopyData.Keys) {
 				DiffData [key] = Data [key].value - CopyData [key].value;
@@ -34,9 +39,21 @@ public class DataCollector : MonoBehaviour {
 		CopyData = Misc.DeepClone(Data);
 	}
 
+    public static float GetValue(string key) {
+        if (Data.ContainsKey(key)) {
+            return Data[key].value;
+        }
+        return 0f;
+    }
+
 	void OnGUI() {
-		if (touched && reportTo != null) {
-			reportTo.reportChange ();
+		if (touched) {
+            if (reportObjectivesData != null) {
+				reportObjectivesData.reportChange ();
+            }
+            if (pointCalculator != null) {
+                pointCalculator.reportElapsedTime (Data["Elapsed Time"].value);
+            }
 			touched = false;
 		}
 
@@ -66,6 +83,19 @@ public class DataCollector : MonoBehaviour {
 			}
 		}
 	}
+
+    public static void Clear () {
+        lastDataDiff = 0f;
+        diffCollected = false;
+
+        touched = false;
+        Data.Clear();
+        CopyData.Clear();
+        DiffData.Clear();
+
+        reportObjectivesData = null;
+        pointCalculator = null;
+    }
 
 	public static void InitLabel (string label) {
 		Data.Add (label, new InnerData());

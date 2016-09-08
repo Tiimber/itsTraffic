@@ -4,16 +4,12 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-public class InformationWindow : MonoBehaviour, IPubSub {
+public class InformationWindow : PopupWindowStyles, IPubSub {
 
 	private bool show = false;
 	private Vector2 scrollPosition = Vector2.zero;
 	private InformationBase informationObject;
 	private List<KeyValuePair<string, object>> information;
-	private GUIStyle borderStyle;
-	private GUIStyle windowStyle;
-	private GUIStyle titleStyle;
-	private GUIStyle subtitleStyle;
 	private Rect windowRect;
 
 	void Start () {
@@ -70,27 +66,8 @@ public class InformationWindow : MonoBehaviour, IPubSub {
 		return windowRect;
 	}
 
-	public void OnGUI() {
-		if (windowStyle == null) {
-			windowStyle = new GUIStyle(GUI.skin.box);
-			windowStyle.normal.background = Misc.MakeTex(2, 2, new Color(0.3f, 0.3f, 0.3f, 0.8f));
-		}
-		if (borderStyle == null) {
-			borderStyle = new GUIStyle(GUI.skin.box);
-			borderStyle.normal.background = Misc.MakeTex(2, 2, new Color(0.1f, 0.1f, 0.1f, 0.9f));
-		}
-		if (titleStyle == null) {
-			titleStyle = new GUIStyle();
-			titleStyle.fontStyle = FontStyle.Bold;
-			titleStyle.fontSize = 24;
-			titleStyle.normal.textColor = Color.white;
-		}
-		if (subtitleStyle == null) {
-			subtitleStyle = new GUIStyle();
-			subtitleStyle.fontStyle = FontStyle.Bold;
-			subtitleStyle.fontSize = 18;
-			subtitleStyle.normal.textColor = Color.white;
-		}
+	public new void OnGUI() {
+		base.OnGUI ();
 
 		if (show) {
 			float informationWindowWidth = Screen.width / 5f;
@@ -110,7 +87,7 @@ public class InformationWindow : MonoBehaviour, IPubSub {
 				if (GUI.Button (new Rect (informationWindowWidth - 35f, 5f, 20f, 20f), "X")) {
 					hideInformation ();
 				}
-			}; 
+			}
 		}
 	}
 
@@ -123,7 +100,7 @@ public class InformationWindow : MonoBehaviour, IPubSub {
 			GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), string.Format ("{0}", (int)info.Value));
 		} else if (type == typeof(DateTime)) {
 			GUI.Label (new Rect (5f, 5f + y, windowWidth / 3f, 25f), info.Key + ":");
-			GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), String.Format ("{0:MMM yyyy}", (DateTime)info.Value));
+			GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), string.Format ("{0:MMM yyyy}", (DateTime)info.Value));
 		} else if (type == typeof(InformationHuman)) {
 			EditorGUIx.DrawLine (new Vector2 (5f, 5f + y), new Vector2 (5f + windowWidth - 10f, 5f + y), 2f);
 

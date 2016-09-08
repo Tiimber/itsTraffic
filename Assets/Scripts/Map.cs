@@ -1,5 +1,3 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class Map {
@@ -10,4 +8,10 @@ public class Map {
 	static Map () {
 		Ways = new List<Way> ();
 	}
+
+    public static void Clear() {
+        Nodes.Clear();
+        Ways.Clear();
+        WayIndex.Clear();
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraHandler {
@@ -9,6 +10,12 @@ public class CameraHandler {
 	private static float CalculatedOptimalZoom = 3.5f; // TODO - We want this to be automatic and depending on map and/or device type
 
 	private static Camera main;
+    private static Vector3 mainRestorePosition;
+    private static float mainRestoreSize;
+
+	private static Camera perspectiveCamera;
+    private static Vector3 perspectiveRestorePosition;
+    private static float perspectiveRestoreFieldOfView;
 
 	public static void SetIntroZoom (float zoom) {
 		CameraHandler.INTRO_ZOOM_LEVEL = zoom;
@@ -17,6 +24,26 @@ public class CameraHandler {
 	public static void SetMainCamera (Camera camera) {
 		main = camera;
 	}
+
+    public static void SetPerspectiveCamera (Camera camera) {
+        perspectiveCamera = camera;
+    }
+
+    public static void SetRestoreState () {
+		mainRestorePosition = main.transform.position;
+        mainRestoreSize = main.orthographicSize;
+
+        perspectiveRestorePosition = perspectiveCamera.transform.position;
+        perspectiveRestoreFieldOfView = perspectiveCamera.fieldOfView;
+    }
+
+    public static void Restore () {
+		main.transform.position = mainRestorePosition;
+        main.orthographicSize = mainRestoreSize;
+
+        perspectiveCamera.transform.position = perspectiveRestorePosition;
+        perspectiveCamera.fieldOfView = perspectiveRestoreFieldOfView;
+    }
 
 	public static void InitialZoom () {
 		float fromZoom = INTRO_ZOOM_LEVEL;

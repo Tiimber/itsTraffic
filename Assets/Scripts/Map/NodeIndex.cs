@@ -24,7 +24,24 @@ public class NodeIndex
 
 	public static List<long> buildingWayIds = new List<long> ();
 	public static HashSet<long> nodeIdsForBuildingWays = new HashSet<long> ();
-	
+
+    public static void Clear () {
+        nodes.Clear();
+        nodesOfInterest.Clear();
+        uninterestingNodeId.Clear();
+        nodeWayIndex.Clear();
+        endPointIndex.Clear();
+        straightWayIndex.Clear();
+        intersectionWayIndex.Clear();
+        endPointDriveWayIndex.Clear();
+        nodeWayWalkPathIndex.Clear();
+        walkNodes.Clear();
+        humanSpawnPointsInfo.Clear();
+        buildingOutlines.Clear();
+        buildingWayIds.Clear();
+        nodeIdsForBuildingWays.Clear();
+    }
+
 	public static void addWayReferenceToNode (long id, WayReference partOfWay) {
 		if (!nodeWayIndex.ContainsKey (id)) {
 			nodeWayIndex.Add(id, new List<WayReference>());

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Xml;
-using System;
+﻿using System.Xml;
 
 public class Randomizer {
 

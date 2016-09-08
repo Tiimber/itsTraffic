@@ -1,30 +1,18 @@
 ﻿<Properties RefactoringSettings.EnableRefactorings="True" StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Utilities/CameraHandler.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Level/Level.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game.cs" Line="751" Column="72" />
-      <File FileName="Assets/StreamingAssets/level-robbin.xml" Line="73" Column="26" />
-      <File FileName="Assets/Scripts/Level/Objectives.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/InformationHuman.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/NameGenerator.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/InformationVehicle.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Game.cs" Line="1" Column="1" />
+      <File FileName="Assets/StreamingAssets/level-robbin.xml" Line="1" Column="1" />
       <File FileName="Assets/Scripts/InformationWindow.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/InformationBase.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Level/Setup.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="240" Column="1" />
-      <File FileName="Assets/Scripts/SkinLogic.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/NameGeneratorNames.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/CustomObjectCreator.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/GenericHumanSounds.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Vehicle.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/VehicleInfo.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/CameraHandler.cs" Line="66" Column="41" />
+      <File FileName="Assets/Scripts/BriefPopup.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/PopupWindowStyles.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Level/Level.cs" Line="22" Column="25" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint enabled="false" conditionExpression="key == 246553334L" file="/Users/robbin/ItsTraffic/Assets/Scripts/WayLine.cs" line="163" column="1" />
-      <Breakpoint file="/Users/robbin/ItsTraffic/Assets/Scripts/CustomObjectCreator.cs" line="40" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

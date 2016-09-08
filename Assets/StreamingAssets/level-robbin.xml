@@ -1,25 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<level 
+<level
+	id="test_custom_level_01"
 	name="This is my level!" 
-	brief="People are in a hurry! Please\n* Guide 30 cars to their destination\n* Cause no crashes"
+	brief="People are in a hurry! Please\n* Guide 30 cars to their destination\n* Cause no crashes\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello"
 	randomSeed="MAH LÄVÄL" 
 	timeOfDay="13:30"
 	mapUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm"
 	configUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml"
+	iconUrl="file:///Users/robbin/ItsTraffic/Assets/Standard Assets/Images/mission.png"
 	country="gb"
 >
 	<objectives winCombos="2,3;1,4" loseCombos="102,101">
 		<win id="1" type="Vehicles reached goal" value="30" /> <!-- TODO - Comparator as parameter -->
-		<win id="2" type="InformationHuman" targetId="20027" key="distance" value="15" />
-		<win id="3" type="InformationVehicle" targetId="10001" key="distance" value="150" />
+		<win id="2" type="InformationHuman" targetId="20027" key="distance" value="8" />
+		<win id="3" type="InformationVehicle" targetId="10001" key="distance" value="100" />
 		<win id="4" type="Time" value="60" />
+		<!-- TODO - Score as win condition -->
 
 		<lose id="101" type="Vehicle crashes" value="1" />
 		<lose id="102" type="Time" value="5" />
 	</objectives>
 
-	<pointCalculator>
-		<point type="Time" threshold="50" value="200"/>
+	<pointCalculator oneStar="250" twoStars="300" threeStars="500">
+        <point type="Vehicle" value="79"/>
+        <point type="Human" value="37"/>
+        <point type="Time" threshold="10" value="2"/>
+
+        <point type="Vehicle:destroy" value="-99"/>
+        <point type="Vehicle:emission" value="-20"/>
+
+        <point type="Objective" id="2" value="131"/>
+        <point type="Objective" id="102" value="-17"/>
+		<point type="SummaryTime" threshold="13" value="200"/>
+        <point type="SummaryTime" threshold="15" value="-33"/>
 	</pointCalculator>
 
 	<humanRandomizer 

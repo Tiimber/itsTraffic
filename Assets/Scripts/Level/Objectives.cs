@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 using UnityEngine;
-using System;
 
 public class Objectives {
 
@@ -57,6 +55,7 @@ public class Objectives {
 		}
 
 
+        SpecialObjectives.clearCache();
 		DataCollector.registerObjectiveReporter (this);
 	}
 
@@ -164,6 +163,11 @@ public class Objectives {
 
 		private static Dictionary<long, InformationHuman> cachedHumans = new Dictionary<long, InformationHuman> ();
 		private static Dictionary<long, InformationVehicle> cachedVehicles = new Dictionary<long, InformationVehicle> ();
+
+        public static void clearCache() {
+            cachedHumans.Clear();
+            cachedVehicles.Clear();
+        }
 
 		public static bool check(Objective objective) {
 			switch (objective.type) {

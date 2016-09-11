@@ -8,9 +8,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // TODO - Next time - When restarting level:
-// - Game is paused, need to press "P" (Pause) twice
-// - Game clock is not set to setup level time
-// - Level data is not applied (need reset of CustomObjectCreator, Objectives...?)
+// - Game clock ticks before it's set
 
 public class Game : MonoBehaviour, IPubSub {
 
@@ -748,6 +746,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private IEnumerator loadXML (string mapFileName, string configFileName) {
+        freezeGame(false);
 		introCamera.enabled = true;
 		introCamera.gameObject.SetActive (true);
 		showMenu (false);
@@ -1312,7 +1311,7 @@ public class Game : MonoBehaviour, IPubSub {
 			Game.running = true;
 
 			if (loadedLevel != null) {
-				VehicleRandomizer.Create (loadedLevel.vehicleRandomizer, loadedLevel);
+                VehicleRandomizer.Create (loadedLevel.vehicleRandomizer, loadedLevel);
 				HumanRandomizer.Create (loadedLevel.humanRandomizer, loadedLevel);
 				HumanLogic.HumanRNG = new System.Random (loadedLevel.randomSeed);
 				Misc.setRandomSeed (loadedLevel.randomSeed);
@@ -1479,6 +1478,17 @@ public class Game : MonoBehaviour, IPubSub {
     public void gameEnd(string type, Objectives objectives) {
         // We should have all we need in Objectives, PointCalculator and DataCollector, to determine points
         PointCalculator pointCalculator = loadedLevel.pointCalculator;
+
+        // Hide potential information window
+        PubSub.publish("InformationWindow:hide");
+
+        // Destroy the randomizers
+        VehicleRandomizer.Destroy();
+        HumanRandomizer.Destroy();
+        CustomObjectCreator.Destroy();
+
+        // Reset number of animationItemsInQueue
+        animationItemsQueue = 0;
 
         freezeGame(true);
         int pointsBefore = GameObject.FindGameObjectWithTag("Points").GetComponent<Points>().points;

@@ -14,6 +14,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 	void Start () {
 		PubSub.subscribe ("Click", this, 20);
+        PubSub.subscribe ("InformationWindow:hide", this);
 	}
 
 	public PROPAGATION onMessage (string message, object data) {
@@ -42,7 +43,9 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 				return PROPAGATION.STOP_IMMEDIATELY;
 
 			}
-		}
+		} else if (message == "InformationWindow:hide") {
+            hideInformation();
+        }
 		return PROPAGATION.DEFAULT;
 	}
 
@@ -54,8 +57,10 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 	}
 
 	public void hideInformation() {
-		informationObject.disposeInformation ();
-		show = false;
+        if (informationObject != null) {
+            informationObject.disposeInformation ();
+			show = false;
+        }
 	}
 
 	public bool isShown() {

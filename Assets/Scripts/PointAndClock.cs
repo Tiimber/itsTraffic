@@ -24,6 +24,7 @@ public class PointAndClock : MonoBehaviour, IPubSub {
 			clock.hour = Convert.ToInt32 (timeParts [0]);
 			clock.minutes = Convert.ToInt32 (timeParts [1]);
 			clock.clockSpeed = 1f;
+            clock.Restart();
 		}
 		return PROPAGATION.DEFAULT;
 	}

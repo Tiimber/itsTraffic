@@ -20,7 +20,7 @@ public class ObjectRandomizer {
 		}
 		if (delay > 0f) {
 			this.delay = delay;
-		}
+        }
 		this.interval = interval;
 		this.randomVariation = randomVariation;
 		this.minInterval = minInterval;

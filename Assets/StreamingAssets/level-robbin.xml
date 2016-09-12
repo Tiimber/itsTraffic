@@ -5,9 +5,9 @@
 	brief="People are in a hurry! Please\n* Guide 30 cars to their destination\n* Cause no crashes\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello"
 	randomSeed="MAH LÄVÄL" 
 	timeOfDay="13:30"
-	mapUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm"
-	configUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml"
-	iconUrl="file:///Users/robbin/ItsTraffic/Assets/Standard Assets/Images/mission.png"
+	mapUrl="file:///Users/robbin/itsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm"
+	configUrl="file:///Users/robbin/itsTraffic/Assets/StreamingAssets/testmap08-config.xml"
+	iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission.png"
 	country="gb"
 >
 	<objectives winCombos="2,3;1,4" loseCombos="102,101">

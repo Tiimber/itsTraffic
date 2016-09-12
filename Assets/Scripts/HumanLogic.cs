@@ -353,14 +353,18 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 
 	private void setVehicleInVision (VehicleCollisionObj vehicleCollisionObj) {
 		string subscriptionId = "Vehicle#" + vehicleCollisionObj.Vehicle.vehicleId + ":Irritation";
-		vehiclesInVision.Add (vehicleCollisionObj.Vehicle, subscriptionId);
-		PubSub.subscribe (subscriptionId, this);
+		if (!vehiclesInVision.ContainsKey(vehicleCollisionObj.Vehicle)) {
+            vehiclesInVision.Add (vehicleCollisionObj.Vehicle, subscriptionId);
+			PubSub.subscribe (subscriptionId, this);
+        }
 	}
 
 	private void removeVehicleInVision (VehicleCollisionObj vehicleCollisionObj) {
 		string subscriptionId = vehiclesInVision [vehicleCollisionObj.Vehicle];
-		vehiclesInVision.Remove (vehicleCollisionObj.Vehicle);
-		PubSub.unsubscribe (subscriptionId, this);
+        if (vehiclesInVision.ContainsKey(vehicleCollisionObj.Vehicle)) {
+            vehiclesInVision.Remove (vehicleCollisionObj.Vehicle);
+			PubSub.unsubscribe (subscriptionId, this);
+        }
 	}
 
 	private void removeAllVehiclesInVision () {

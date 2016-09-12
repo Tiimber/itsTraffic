@@ -1357,13 +1357,13 @@ public class Game : MonoBehaviour, IPubSub {
 
 	public IEnumerator destroyEmission (ParticleSystem emission, bool addToCameraEmission = true) {
 		yield return new WaitForSeconds (emission.duration);
-		if (addToCameraEmission) {
+		if (addToCameraEmission && emission != null && emission.gameObject != null) {
 			Emission emissionObject = emission.gameObject.GetComponent<Emission> ();
 			if (emissionObject != null) {
 	            cameraEmission += emissionObject.Amount;
             }
+			Destroy (emission.gameObject);
 		}
-		Destroy (emission.gameObject);
 	}
 
 	public static bool isRunning () {
@@ -1597,8 +1597,10 @@ public class Game : MonoBehaviour, IPubSub {
         HumanLogic.Reset ();
         GenericVehicleSounds.VehicleCountChange ();
         GenericVehicleSounds.stopAmbientSound(0);
+        GenericVehicleSounds.numberOfActiveChannels = 0;
         GenericHumanSounds.HumanCountChange ();
         GenericHumanSounds.stopAmbientSound(0);
+        GenericHumanSounds.numberOfActiveChannels = 0;
 
         freezeGame(true);
         int pointsBefore = GameObject.FindGameObjectWithTag("Points").GetComponent<Points>().points;

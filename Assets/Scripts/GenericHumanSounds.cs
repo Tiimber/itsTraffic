@@ -11,7 +11,7 @@ public class GenericHumanSounds : MonoBehaviour, IPubSub {
 	public static GenericHumanSounds instance;
 
 	private static int humansPerChannel = 20;
-	private static int numberOfActiveChannels = 0;
+	public static int numberOfActiveChannels = 0;
 	private static List<AudioSource> ambientSoundSources;
 
 	void Start () {

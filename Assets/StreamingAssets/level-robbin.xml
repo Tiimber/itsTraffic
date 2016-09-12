@@ -10,7 +10,7 @@
 	iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission.png"
 	country="gb"
 >
-	<objectives winCombos="2,3;1,4" loseCombos="102,101">
+	<objectives winCombos="2,3,4,1;1,4" loseCombos="102,101">
 		<win id="1" type="Vehicles reached goal" value="30" /> <!-- TODO - Comparator as parameter -->
 		<win id="2" type="InformationHuman" targetId="20027" key="distance" value="8" />
 		<win id="3" type="InformationVehicle" targetId="10001" key="distance" value="100" />
@@ -18,7 +18,7 @@
 		<!-- TODO - Score as win condition -->
 
 		<lose id="101" type="Vehicle crashes" value="1" />
-		<lose id="102" type="Time" value="5" />
+		<lose id="102" type="Time" value="500" />
 	</objectives>
 
 	<pointCalculator oneStar="250" twoStars="300" threeStars="500">

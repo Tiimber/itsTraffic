@@ -47,7 +47,7 @@ public class GenericHumanSounds : MonoBehaviour, IPubSub {
 		numberOfActiveChannels = wantedNumberOfChannels;
 	}
 
-	private static void stopAmbientSound(int n) {
+	public static void stopAmbientSound(int n) {
 		GenericHumanSounds.ambientSoundSources [n].Pause ();
 	}
 

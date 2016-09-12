@@ -51,7 +51,7 @@ public class GenericVehicleSounds : MonoBehaviour, IPubSub {
 		numberOfActiveChannels = wantedNumberOfChannels;
 	}
 
-	private static void stopAmbientSound(int n) {
+	public static void stopAmbientSound(int n) {
 		GenericVehicleSounds.ambientSoundSources [n].Pause ();
 	}
 

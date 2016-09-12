@@ -117,6 +117,8 @@
      <Compile Include="Assets\Scripts\MapSurface.cs" />
      <Compile Include="Assets\Scripts\MaterialManager.cs" />
      <Compile Include="Assets\Scripts\Math3d.cs" />
+     <Compile Include="Assets\Scripts\Menu.cs" />
+     <Compile Include="Assets\Scripts\MenuValue.cs" />
      <Compile Include="Assets\Scripts\MissionStarAmount.cs" />
      <Compile Include="Assets\Scripts\NodeDistance.cs" />
      <Compile Include="Assets\Scripts\ObjectRandomizer.cs" />

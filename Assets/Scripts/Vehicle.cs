@@ -94,6 +94,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	private static float IMPATIENT_TRAFFIC_LIGHT_THRESHOLD = 17f;
 	private static float IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD = 8f;
 
+    public static void Reset() {
+        Vehicle.numberOfCars = 0;
+        Vehicle.vehicleInstanceCount = 0;
+    }
+
 	public void setDebug() {
 		grabCamera ();
 		Vehicle.debug = this;
@@ -446,8 +451,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			} else {
 				if (UnityEngine.Random.value < 0.5f) {
 					vehicleSounds.honk (startAction);
+                    DataCollector.Add("Vehicle:honk", 1.0f);
 				} else {
 					flashHeadlights ();
+                    DataCollector.Add("Vehicle:flash headlight", 1.0f);
 				}
 
 				// If seeing human and no other slowdown - send signal to Human
@@ -463,6 +470,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			AwarenessBreakFactor = -0.15f;
 			backingCounterSeconds = 0.8f;
 			stopBreaklights ();
+            DataCollector.Add("Vehicle:backing", 1.0f);
 		}
 	}
 
@@ -1109,6 +1117,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		fadeObject.DoneMessage = "destroy";
 		fadeObject.FadeOut (0.5f);
 	}
+
+    void OnDestroy() {
+        PubSub.unsubscribe ("Click", this);
+    }
 
 	public void onFadeMessage (string message) {
 		if (message == "destroy") {

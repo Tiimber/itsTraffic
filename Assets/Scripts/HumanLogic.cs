@@ -31,6 +31,11 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 	public static int numberOfHumans = 0;
 	public static int humanInstanceCount = 0;
 
+    public static void Reset() {
+        HumanLogic.numberOfHumans = 0;
+        HumanLogic.humanInstanceCount = 0;
+    }
+
 	// TODO - This is for debugging (press T to increase, Shift+T to reset)
 	public static float TURBO = 1f;
 
@@ -362,6 +367,10 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 		PubSub.unsubscribeAllForSubscriber (this);
 		vehiclesInVision.Clear ();
 	}
+
+    void OnDestroy() {
+        removeAllVehiclesInVision();
+    }
 
 	public PROPAGATION onMessage (string message, object data) {
 		vehicleIrritationAction ((Vehicle)data);

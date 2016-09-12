@@ -7,6 +7,7 @@ using System;
 
 public class DataCollector : MonoBehaviour {
 
+    private const string ACCUMULATED_DATA_PREFIX = "AccumulatedData:";
 	private bool output = true;
 
 	private static float lastDataDiff = 0f;
@@ -117,6 +118,29 @@ public class DataCollector : MonoBehaviour {
 		}
 		touched = true;
 	}
+
+    public static void saveStats() {
+        // Save these numbers to the total stats (used for eg. achievements...)
+        foreach (KeyValuePair<string, InnerData> dataEntry in Data) {
+            string key = dataEntry.Key;
+            string storedEntryKey = ACCUMULATED_DATA_PREFIX + key;
+
+            float value = dataEntry.Value.value;
+			if (PlayerPrefs.HasKey(storedEntryKey)) {
+                value += PlayerPrefs.GetFloat(storedEntryKey);
+            }
+            PlayerPrefs.SetFloat(storedEntryKey, value);
+        }
+    }
+
+    public static void saveWinLoseStat(string type) {
+        string key = ACCUMULATED_DATA_PREFIX + "WinLose:" + type;
+        int value = 1;
+        if (PlayerPrefs.HasKey(key)) {
+            value += PlayerPrefs.GetInt(key);
+        }
+        PlayerPrefs.SetInt(key, value);
+    }
 
 	[Serializable]
 	public class InnerData {

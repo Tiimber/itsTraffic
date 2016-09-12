@@ -1358,7 +1358,10 @@ public class Game : MonoBehaviour, IPubSub {
 	public IEnumerator destroyEmission (ParticleSystem emission, bool addToCameraEmission = true) {
 		yield return new WaitForSeconds (emission.duration);
 		if (addToCameraEmission) {
-			cameraEmission += emission.gameObject.GetComponent<Emission> ().Amount;
+			Emission emissionObject = emission.gameObject.GetComponent<Emission> ();
+			if (emissionObject != null) {
+	            cameraEmission += emissionObject.Amount;
+            }
 		}
 		Destroy (emission.gameObject);
 	}
@@ -1423,32 +1426,122 @@ public class Game : MonoBehaviour, IPubSub {
 		subMenu.SetActive (show);
 	}
 
-	public void musicVolumeChanged() {
-//		GameObject slider = EventSystem.current.currentSelectedGameObject;
-//		float value = slider.GetComponent<Slider>().value;
+    private void savePlayerPrefs(MenuValue menuValue, object value) {
+        // Key to store value with
+        string key = menuValue.key;
 
-		// TODO
+        // Get stored keys
+		string storedKeysStr = PlayerPrefs.GetString ("Menu:storedKeys");
+        if (storedKeysStr != null && storedKeysStr != "") {
+	        string[] storedKeys = storedKeysStr.Split(',');
+            if (!storedKeys.Contains(key)) {
+                storedKeysStr += "," + key;
+            }
+        } else {
+            storedKeysStr = key;
+        }
+
+        PlayerPrefs.SetString("Menu:storedKeys", storedKeysStr);
+
+        // Save actual value
+        Type valueType = value.GetType();
+        if (valueType == typeof(float)) {
+            PlayerPrefs.SetFloat(key, (float) value);
+        } else if (valueType == typeof(int)) {
+            PlayerPrefs.SetInt(key, (int) value);
+        } else if (valueType == typeof(string)) {
+            PlayerPrefs.SetString(key, (string) value);
+        }
+    }
+
+	public void musicVolumeChanged() {
+		GameObject slider = getCurrentSelectedGameObject();
+        if (slider != null) {
+			float value = slider.GetComponent<Slider>().value;
+
+			MenuValue menuValue = slider.GetComponent<MenuValue>();
+			savePlayerPrefs(menuValue, value);
+
+			// TODO
+        }
 
 	}
 
 	public void ambientSoundVolumeChanged() {
-		EventSystem current = EventSystem.current;
-		if (current != null) {
-			GameObject slider = current.currentSelectedGameObject;
+		GameObject slider = getCurrentSelectedGameObject();
+		if (slider != null) {
 			float value = slider.GetComponent<Slider> ().value;
+
+			MenuValue menuValue = slider.GetComponent<MenuValue>();
+			savePlayerPrefs(menuValue, value);
+
 			PubSub.publish ("Volume:ambient", value);
 		}
 	}
 
 	public void soundEffectsVolumeChanged() {
-		EventSystem current = EventSystem.current;
-		if (current != null) {
-			GameObject slider = current.currentSelectedGameObject;
+		GameObject slider = getCurrentSelectedGameObject();
+		if (slider != null) {
 			float value = slider.GetComponent<Slider> ().value;
+
+			MenuValue menuValue = slider.GetComponent<MenuValue>();
+			savePlayerPrefs(menuValue, value);
+
 			soundEffectsVolume = value;
 			PubSub.publish ("Volume:effects", value);
 		}
 	}
+
+    // TODO - Put this in correct place (top of this file) or even make this dynamically loadable from languages DB/File
+    private List<string> languages = new List<string>() {
+        "English",
+        "Svenska",
+        "Deutsch",
+        "François",
+        "Español"
+    };
+    public void toggleLanguage() {
+        Text languageText = GetText("Options:language");
+        if (languageText != null) {
+            string previousValue = languageText.text;
+			string nextValue = getNextLanguage(previousValue);
+
+			MenuValue menuValue = languageText.GetComponent<MenuValue>();
+			savePlayerPrefs(menuValue, nextValue);
+
+			languageText.text = nextValue;
+
+//            PubSub.publish ("Language:set", nextValue);
+        }
+    }
+
+    private string getNextLanguage(string prevLanguage) {
+        return languages[(languages.IndexOf(prevLanguage) + 1) % languages.Count];
+    }
+
+    int clearClickCount = 0;
+    public void clearAllData() {
+        clearClickCount++;
+        GameObject parent = GameObject.Find("Reset All");
+        int childCount = parent.transform.childCount;
+        if (clearClickCount >= childCount - 1) {
+            PlayerPrefs.DeleteAll();
+        }
+        if (clearClickCount < childCount) {
+            parent.transform.GetChild(Math.Min(2, clearClickCount-1)).gameObject.SetActive(false);
+            parent.transform.GetChild(Math.Min(2, clearClickCount)).gameObject.SetActive(true);
+        }
+    }
+
+    private Text GetText (string menuValueKey) {
+        MenuValue[] menuValueObjects = Resources.FindObjectsOfTypeAll<MenuValue>();
+        foreach (MenuValue menuValueObject in menuValueObjects) {
+            if (menuValueObject.key == menuValueKey) {
+                return menuValueObject.GetComponent<Text>();
+            }
+        }
+        return null;
+    }
 
 	public void toggleFreezeGame () {
         freezeGame(!Game.frozen);
@@ -1476,6 +1569,10 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
     public void gameEnd(string type, Objectives objectives) {
+
+        DataCollector.saveStats();
+        DataCollector.saveWinLoseStat(type);
+
         // We should have all we need in Objectives, PointCalculator and DataCollector, to determine points
         PointCalculator pointCalculator = loadedLevel.pointCalculator;
 
@@ -1489,6 +1586,19 @@ public class Game : MonoBehaviour, IPubSub {
 
         // Reset number of animationItemsInQueue
         animationItemsQueue = 0;
+
+        // Reset emission levels and danger halos
+        cameraEmission = 0f;
+        dangerHalos.Clear();
+        StopCoroutine ("pulsateDangerHalos");
+
+        // Reset humans and vehicles stats, and ambient sounds for them
+        Vehicle.Reset ();
+        HumanLogic.Reset ();
+        GenericVehicleSounds.VehicleCountChange ();
+        GenericVehicleSounds.stopAmbientSound(0);
+        GenericHumanSounds.HumanCountChange ();
+        GenericHumanSounds.stopAmbientSound(0);
 
         freezeGame(true);
         int pointsBefore = GameObject.FindGameObjectWithTag("Points").GetComponent<Points>().points;
@@ -1540,5 +1650,13 @@ public class Game : MonoBehaviour, IPubSub {
         }
 
         return shouldSaveNewScore;
+	}
+
+	public GameObject getCurrentSelectedGameObject() {
+        EventSystem eventSystem = EventSystem.current;
+        if (eventSystem != null) {
+            return eventSystem.currentSelectedGameObject;
+        }
+		return null;
 	}
 }

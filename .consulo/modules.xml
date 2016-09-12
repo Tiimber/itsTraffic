@@ -294,6 +294,8 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/MaterialManager.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Math3d.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Math3d.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Menu.cs" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/MenuValue.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/MissionStarAmount.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/MissionStarAmount.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/NodeDistance.cs" />

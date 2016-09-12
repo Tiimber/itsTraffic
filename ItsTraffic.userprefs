@@ -1,31 +1,18 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game.cs">
+﻿<Properties RefactoringSettings.EnableRefactorings="True" StartupItem="Assembly-CSharp.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Level/Level.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game.cs" Line="577" Column="47" />
-      <File FileName="Assets/Scripts/BuildingRoof.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Utilities/Misc.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Game.cs" Line="1" Column="1" />
+      <File FileName="Assets/StreamingAssets/level-robbin.xml" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/InformationWindow.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/BriefPopup.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/PopupWindowStyles.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Level/Level.cs" Line="22" Column="25" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True">
-          <Node name="Assembly-CSharp" expanded="True">
-            <Node name="Scripts" expanded="True">
-              <Node name="Map" expanded="True" />
-              <Node name="Utilities" expanded="True" />
-              <Node name="Game.cs" selected="True" />
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-      <Pad Id="MonoDevelop.Debugger.WatchPad">
-        <State />
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint enabled="false" file="/Users/robbin/ItsTraffic/Assets/Scripts/WayLine.cs" line="163" conditionExpression="key == 246553334L" />
+      <Breakpoint enabled="false" conditionExpression="key == 246553334L" file="/Users/robbin/ItsTraffic/Assets/Scripts/WayLine.cs" line="163" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

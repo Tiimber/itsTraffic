@@ -1,8 +1,7 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System;
+using UnityEngine;
 
 public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
@@ -83,8 +82,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 	public Camera vehicleCameraObj;
 	private static Vehicle debug;
-	private static Camera debugCamera = null;
-	
+	public static Camera debugCamera = null;
+    public bool isOwningCamera = false;
+    public bool switchingCameraInProgress = false;
+
 	private Vector3 vehicleMovement;
 	public int vehicleId;
 
@@ -107,7 +108,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	public static void detachCurrentCamera () {
 		if (Vehicle.debugCamera != null) {
 			Vehicle.debugCamera.enabled = false;
-			Destroy (Vehicle.debugCamera.gameObject);
+			Vehicle vehicle = Vehicle.debugCamera.transform.parent.GetComponent<Vehicle> ();
+			vehicle.isOwningCamera = false;
+
+            vehicle.switchFromToCamera(Vehicle.debugCamera, Game.instance.mainCamera, true);
 		}
 	}
 
@@ -115,13 +119,37 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 	{
 		Vehicle.detachCurrentCamera ();
 
+        isOwningCamera = true;
 		// Instantiate camera in vehicle
 		Vehicle.debugCamera = Instantiate (vehicleCameraObj, Vector3.zero, vehicleCameraObj.transform.rotation) as Camera;
 		Vehicle.debugCamera.transform.parent = this.transform;
 		Vehicle.debugCamera.transform.localPosition = new Vector3(0f, 0f, -1f);
-		Vehicle.debugCamera.enabled = true;
+
+        this.switchFromToCamera(Game.instance.mainCamera, Vehicle.debugCamera);
+    }
+
+    private void switchFromToCamera (Camera from, Camera to, bool destroyFromCameraAfter = false) {
+        StartCoroutine( animateBetweenCameras(from, to, destroyFromCameraAfter) );
 	}
-	
+
+    private IEnumerator animateBetweenCameras(Camera from, Camera to, bool destroyFromCameraAfter) {
+        float time = 0.3f;
+
+        switchingCameraInProgress = true;
+
+        yield return ScreenWipe.use.CrossFadePro (from, to, time);
+
+        Misc.MoveAudioListenerFromTo(from, to);
+
+        yield return new WaitForSeconds(time);
+
+        switchingCameraInProgress = false;
+
+        if (destroyFromCameraAfter) {
+            Destroy (from.gameObject);
+        }
+    }
+
 	private enum TurnState {
 		NONE,
 		FAC,
@@ -1112,6 +1140,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
 		lights.turnAllOff ();
+
+        // If camera attached, detatch
+        if (isOwningCamera) {
+            detachCurrentCamera();
+        }
 
 		FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
 		fadeObject.DoneMessage = "destroy";

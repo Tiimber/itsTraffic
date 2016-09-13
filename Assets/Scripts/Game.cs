@@ -41,11 +41,11 @@ public class Game : MonoBehaviour, IPubSub {
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap08.osm";
 //	private string mapFileName = "file:///home/anders/Programmering/itsTraffic/Assets/StreamingAssets/testmap01.osm";
 //	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap09.osm";
-	private string mapFileName = "file:///Users/robbin/itsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm";
+	private string mapFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm";
 //	private string configFileName = "http://samlingar.com/itsTraffic/testmap03-config.xml";
-	private string configFileName = "file:///Users/robbin/itsTraffic/Assets/StreamingAssets/testmap08-config.xml";
+	private string configFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
-	private string levelSetupFileName = "file:///Users/robbin/itsTraffic/Assets/StreamingAssets/level-robbin.xml";
+	private string levelSetupFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml";
 
 	private const float CLICK_RELEASE_TIME = 0.2f; 
 	private const float THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK = 30f;
@@ -77,7 +77,7 @@ public class Game : MonoBehaviour, IPubSub {
 	
 	private float currentLevel = WayTypeEnum.WayTypes.First<float>();
 	private bool showOnlyCurrentLevel = false;
-	private bool followCar = false;
+//	private bool followCar = false;
 	private float sumVehicleFrequency;
 
 	private Dictionary<long, Dictionary<string, string>> objectProperties = new Dictionary<long, Dictionary<string, string>>();
@@ -223,12 +223,12 @@ public class Game : MonoBehaviour, IPubSub {
 		} else if (Input.GetKeyDown(KeyCode.S)) {
 			// TODO - Temporary
 			toggleHumanDebugMode ();
-		} else if (Input.GetKeyDown (KeyCode.F)) {
-			followCar ^= true;
-			if (!followCar) {
-				Vehicle.detachCurrentCamera ();
-				mainCamera.enabled = true;
-			}
+//		} else if (Input.GetKeyDown (KeyCode.F)) {
+//			followCar ^= true;
+//			if (!followCar) {
+//				Vehicle.detachCurrentCamera ();
+//				mainCamera.enabled = true;
+//			}
 		} else if (Input.GetKeyDown (KeyCode.Q)) {
 			PubSub.publish ("points:inc", 13579);
 		} else if (Input.GetKeyDown (KeyCode.W)) {
@@ -580,13 +580,13 @@ public class Game : MonoBehaviour, IPubSub {
 		vehicleObj.CurrentPosition = pos1;
 		vehicleObj.EndPos = pos2;
 
-		if (followCar) {
-			mainCamera.enabled = false;
-			vehicleObj.setDebug ();
-		} else {
-			Vehicle.detachCurrentCamera();
-			mainCamera.enabled = true;
-		}
+//		if (followCar) {
+//			mainCamera.enabled = false;
+//			vehicleObj.setDebug ();
+//		} else {
+//			Vehicle.detachCurrentCamera();
+//			mainCamera.enabled = true;
+//		}
 
 		if (data != null) {
 			vehicleObj.setCharacteristics (data);

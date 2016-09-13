@@ -249,4 +249,31 @@ public class Misc {
 
 		return new Tuple2<float, float> (offsetX / centerX, offsetY / centerY);
 	}
+
+    public static void MoveAudioListenerFromTo(Camera from, Camera to) {
+        AudioListenerHolder fromAudioListenerHolder = Misc.FindAudioListenerHolder(from.gameObject);
+        AudioListenerHolder toAudioListenerHolder = Misc.FindAudioListenerHolder(to.gameObject);
+
+        if (fromAudioListenerHolder != null && toAudioListenerHolder != null) {
+	        AudioListener audioListener = fromAudioListenerHolder.GetComponentInChildren<AudioListener>();
+   			if (audioListener != null) {
+                audioListener.transform.parent = toAudioListenerHolder.transform;
+                audioListener.transform.localPosition = toAudioListenerHolder.relativePos;
+            }
+        }
+    }
+
+	public static AudioListenerHolder FindAudioListenerHolder(GameObject gameObject) {
+        AudioListenerHolder audioListenerHolder = gameObject.GetComponent<AudioListenerHolder> ();
+        if (audioListenerHolder != null) {
+            return audioListenerHolder;
+        }
+        for (int child = 0; child < gameObject.transform.childCount; child++) {
+            audioListenerHolder = Misc.FindAudioListenerHolder(gameObject.transform.GetChild(child).gameObject);
+            if (audioListenerHolder != null) {
+                return audioListenerHolder;
+            }
+        }
+        return null;
+	}
 }

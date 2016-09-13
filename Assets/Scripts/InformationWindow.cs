@@ -59,8 +59,8 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 	public void hideInformation() {
         if (informationObject != null) {
             informationObject.disposeInformation ();
-			show = false;
         }
+		show = false;
 	}
 
 	public bool isShown() {
@@ -92,6 +92,12 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 				if (GUI.Button (new Rect (informationWindowWidth - 35f, 5f, 20f, 20f), "X")) {
 					hideInformation ();
 				}
+                // TODO - If we should keep this, make some text/image
+                if (informationObject != null && informationObject.GetType() == typeof(InformationVehicle) && !informationObject.GetComponent<Vehicle>().destroying) {
+                    if (GUI.Button (new Rect (informationWindowWidth - 35f, 35f, 20f, 20f), "")) {
+						switchCamera ();
+					}
+                }
 			}
 		}
 	}
@@ -143,4 +149,17 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 		GUI.Label (new Rect (5f, 5f + y, -5f + windowWidth, titleStyle.fontSize + 6f), title, titleStyle);
 		y += titleStyle.fontSize + 6f;
 	}
+
+    private void switchCamera() {
+        if (informationObject != null) {
+            Vehicle vehicle = informationObject.GetComponent<Vehicle>();
+            if (!vehicle.switchingCameraInProgress) {
+                if (!vehicle.isOwningCamera) {
+					vehicle.grabCamera();
+				} else {
+					Vehicle.detachCurrentCamera();
+				}
+            }
+        }
+    }
 }

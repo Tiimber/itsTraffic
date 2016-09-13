@@ -68,6 +68,7 @@
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\CardboardiOSDevice.cs" />
      <Compile Include="Assets\Cardboard\Scripts\VRDevices\UnityEditorDevice.cs" />
      <Compile Include="Assets\Clock\Scripts\Clock.cs" />
+     <Compile Include="Assets\Scripts\AudioListenerHolder.cs" />
      <Compile Include="Assets\Scripts\AutomaticMaterialObject.cs" />
      <Compile Include="Assets\Scripts\BriefPopup.cs" />
      <Compile Include="Assets\Scripts\BuildingRoof.cs" />

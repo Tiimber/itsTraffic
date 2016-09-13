@@ -199,6 +199,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Cardboard/Scripts/VRDevices/UnityEditorDevice.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Clock/Scripts/Clock.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Clock/Scripts/Clock.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AudioListenerHolder.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AutomaticMaterialObject.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AutomaticMaterialObject.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/BriefPopup.cs" />

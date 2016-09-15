@@ -276,6 +276,7 @@ public class Game : MonoBehaviour, IPubSub {
 		} else if (clickReleaseTimer > 0f) {
 			// Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
 			if (Misc.getDistance (mouseDownPosition, prevMousePosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {
+                // TODO - Click when zoomed into vehicle - should show information window again
 				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mouseDownPosition);
 				PubSub.publish ("Click", mouseWorldPoint);
 				clickReleaseTimer = 0f;

@@ -121,9 +121,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
         isOwningCamera = true;
 		// Instantiate camera in vehicle
-		Vehicle.debugCamera = Instantiate (vehicleCameraObj, Vector3.zero, vehicleCameraObj.transform.rotation) as Camera;
+		Vehicle.debugCamera = Instantiate (vehicleCameraObj, Vector3.zero, Quaternion.identity) as Camera;
 		Vehicle.debugCamera.transform.parent = this.transform;
-		Vehicle.debugCamera.transform.localPosition = new Vector3(0f, 0f, -1f);
+		Vehicle.debugCamera.transform.localPosition = new Vector3(0f, 0f, vehicleCameraObj.transform.position.z);
+        Vehicle.debugCamera.transform.localScale = Vector3.one;
 
         this.switchFromToCamera(Game.instance.mainCamera, Vehicle.debugCamera);
     }
@@ -137,9 +138,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
         switchingCameraInProgress = true;
 
-        yield return ScreenWipe.use.CrossFadePro (from, to, time);
-
-        Misc.MoveAudioListenerFromTo(from, to);
+//        yield return ScreenWipe.use.CrossFadePro (from, to, time);
+        yield return Singleton<CameraSwitch>.Instance.animate(from, to, time, !destroyFromCameraAfter);
 
         yield return new WaitForSeconds(time);
 
@@ -249,6 +249,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 
 	// Update is called once per frame
 	void Update () {
+        if (isOwningCamera && Vehicle.debugCamera != null) {
+            Vehicle.debugCamera.transform.rotation = Quaternion.identity;
+        }
 		if (Game.isMovementEnabled()) {
 			if (!destroying) {
 				if (TurnToRoad != null && CurrentWayReference != null) {

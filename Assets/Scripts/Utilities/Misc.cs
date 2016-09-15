@@ -250,6 +250,7 @@ public class Misc {
 		return new Tuple2<float, float> (offsetX / centerX, offsetY / centerY);
 	}
 
+/*
     public static void MoveAudioListenerFromTo(Camera from, Camera to) {
         AudioListenerHolder fromAudioListenerHolder = Misc.FindAudioListenerHolder(from.gameObject);
         AudioListenerHolder toAudioListenerHolder = Misc.FindAudioListenerHolder(to.gameObject);
@@ -262,6 +263,7 @@ public class Misc {
             }
         }
     }
+*/
 
 	public static AudioListenerHolder FindAudioListenerHolder(GameObject gameObject) {
         AudioListenerHolder audioListenerHolder = gameObject.GetComponent<AudioListenerHolder> ();
@@ -276,4 +278,35 @@ public class Misc {
         }
         return null;
 	}
+
+	public static IEnumerator _WaitForRealSeconds(float aTime) {
+		while (aTime > 0f) {
+			aTime -= Mathf.Clamp (Time.unscaledDeltaTime, 0, 0.2f);
+            yield return null;
+		}
+	}
+
+	public static Coroutine WaitForRealSeconds(float aTime) {
+		Game gameSingleton = Singleton<Game>.Instance;
+        return gameSingleton.StartCoroutine (_WaitForRealSeconds (aTime));
+	}
+
+    public static Vector3 getWorldPos(Transform transform) {
+        Vector3 worldPosition = transform.localPosition;
+        while (transform.parent != null) {
+            transform = transform.parent;
+            worldPosition += transform.localPosition;
+        }
+        return worldPosition;
+    }
+
+    public static Quaternion getWorldRotation(Transform transform) {
+        return transform.rotation;
+//        Quaternion worldRotation = transform.localRotation;
+//        while (transform.parent != null) {
+//            transform = transform.parent;
+//            worldRotation += transform.localRotation;
+//        }
+//        return worldRotation;
+    }
 }

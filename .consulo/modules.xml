@@ -4,7 +4,7 @@
     <modules>
       <module name="ItsTraffic" dirurl="file://$PROJECT_DIR$" current-layer="Default">
         <module-layer name="Default">
-          <extension id="unity3d" sdk-module-name="" sdk-name="Unity3D 5.3.5 (predefined)">
+          <extension id="unity3d" sdk-module-name="" sdk-name="Unity3D 5.4.1 (predefined)">
             <define>UNITY_EDITOR</define>
             <define>DEBUG</define>
             <define>TRACE</define>
@@ -327,6 +327,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Triangulator.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/CameraHandler.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/CameraHandler.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/CameraSwitch.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/CircleTouch.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/CircleTouch.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/DataCollector.cs" />

@@ -9,6 +9,7 @@ public class Level {
 	public int randomSeed;
 	public string timeOfDay;
 	public string country;
+	public string fileUrl;
 	public string mapUrl;
 	public string configUrl;
 	public string iconUrl;
@@ -50,6 +51,7 @@ public class Level {
 		timeOfDay = Misc.xmlString(levelAttributes.GetNamedItem ("timeOfDay"));
 		country = Misc.xmlString (levelAttributes.GetNamedItem ("country"));
 		mapUrl = Misc.xmlString(levelAttributes.GetNamedItem ("mapUrl"));
+		fileUrl = Misc.xmlString(levelAttributes.GetNamedItem ("fileUrl"));
 		configUrl = Misc.xmlString(levelAttributes.GetNamedItem ("configUrl"));
 		iconUrl = Misc.xmlString (levelAttributes.GetNamedItem ("iconUrl"));
 	}

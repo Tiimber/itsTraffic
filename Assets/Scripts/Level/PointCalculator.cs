@@ -80,6 +80,8 @@ public class PointCalculator {
         public const string TYPE_OBJECTIVE = "Objective";
         public const string TYPE_SUMMARY_TIME = "SummaryTime";
 
+        public const string TYPE_TOTAL_POINTS = "Total Points";
+
         public static List<string> includedPoints = new List<string>() {
             TYPE_VEHICLE,
             TYPE_HUMAN,
@@ -87,38 +89,78 @@ public class PointCalculator {
         };
 
         public string type;
+        public string label;
         public long id;
         public long threshold;
         public int value;
 
+        public float amount;
         public int calculatedValue;
 
         public Point(XmlNode pointNode) {
             XmlAttributeCollection pointAttributes = pointNode.Attributes;
             type = Misc.xmlString (pointAttributes.GetNamedItem ("type"));
+            label = Misc.xmlString (pointAttributes.GetNamedItem ("label"));
             id = Misc.xmlLong (pointAttributes.GetNamedItem ("id"), -1L);
             threshold = Misc.xmlLong (pointAttributes.GetNamedItem ("threshold"), -1L);
             value = Misc.xmlInt (pointAttributes.GetNamedItem ("value"));
         }
 
+        public Point(string type, string label, int calculatedValue) {
+            this.type = type;
+            this.label = label;
+            this.calculatedValue = calculatedValue;
+        }
+
+        public bool hasOwnAmountCalculation() {
+            switch(type) {
+                case TYPE_SUMMARY_TIME:
+                case TYPE_TOTAL_POINTS:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public float getOwnAmount() {
+            float ownAmount = 0f;
+            switch(type) {
+                case TYPE_SUMMARY_TIME:
+                    bool isNegative = value < 0f;
+                    if (isNegative) {
+                        ownAmount = amount > threshold ? (amount - threshold) : 0f;
+                    } else {
+                        ownAmount = amount < threshold ? (threshold - amount) : 0f;
+                    }
+                    break;
+                case TYPE_TOTAL_POINTS:
+                    ownAmount = -1f;
+                    break;
+            }
+            return ownAmount;
+        }
+
         public void calculate(Objectives objectives) {
             switch(type) {
                 case TYPE_TIME:
-                    calculatedValue = Mathf.FloorToInt(DataCollector.GetValue("Elapsed Time") / threshold) * value;
+                    amount = DataCollector.GetValue ("Elapsed Time");
+                    calculatedValue = Mathf.FloorToInt(amount / threshold) * value;
                     break;
                 case TYPE_VEHICLE:
-                    calculatedValue = (int) DataCollector.GetValue("Vehicles reached goal") * value;
+                    amount = DataCollector.GetValue ("Vehicles reached goal");
+                    calculatedValue = (int) amount * value;
                     break;
                 case TYPE_HUMAN:
-                    calculatedValue = (int) DataCollector.GetValue("Humans reached goal") * value;
+                    amount = DataCollector.GetValue ("Humans reached goal");
+                    calculatedValue = (int) amount * value;
                     break;
                 case TYPE_SUMMARY_TIME:
                     bool isNegative = value < 0f;
-                    float elapsedTime = DataCollector.GetValue("Elapsed Time");
+                    amount = DataCollector.GetValue("Elapsed Time");
                     if (isNegative) {
-                        calculatedValue = elapsedTime > threshold ? Mathf.FloorToInt((elapsedTime - threshold) * value) : 0;
+                        calculatedValue = amount > threshold ? Mathf.FloorToInt((amount - threshold) * value) : 0;
                     } else {
-                        calculatedValue = elapsedTime < threshold ? Mathf.FloorToInt((threshold - elapsedTime) * value) : 0;
+                        calculatedValue = amount < threshold ? Mathf.FloorToInt((threshold - amount) * value) : 0;
                     }
                     break;
                 case TYPE_OBJECTIVE:
@@ -127,12 +169,12 @@ public class PointCalculator {
                     }
                     break;
                 case TYPE_EMISSION:
-                    float emissionLetOut = DataCollector.GetValue("Vehicle:emission");
-                    calculatedValue = Mathf.FloorToInt(emissionLetOut * value);
+                    amount = DataCollector.GetValue("Vehicle:emission");
+                    calculatedValue = Mathf.FloorToInt(amount * value);
                     break;
                 case TYPE_VEHICLE_DESTROY:
-                    float vehiclesDestroyed = DataCollector.GetValue("Vehicles:destroy");
-                    calculatedValue = Mathf.FloorToInt(vehiclesDestroyed * value);
+                    amount = DataCollector.GetValue("Vehicles:destroy");
+                    calculatedValue = Mathf.FloorToInt(amount * value);
                     break;
             }
         }

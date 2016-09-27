@@ -250,21 +250,6 @@ public class Misc {
 		return new Tuple2<float, float> (offsetX / centerX, offsetY / centerY);
 	}
 
-/*
-    public static void MoveAudioListenerFromTo(Camera from, Camera to) {
-        AudioListenerHolder fromAudioListenerHolder = Misc.FindAudioListenerHolder(from.gameObject);
-        AudioListenerHolder toAudioListenerHolder = Misc.FindAudioListenerHolder(to.gameObject);
-
-        if (fromAudioListenerHolder != null && toAudioListenerHolder != null) {
-	        AudioListener audioListener = fromAudioListenerHolder.GetComponentInChildren<AudioListener>();
-   			if (audioListener != null) {
-                audioListener.transform.parent = toAudioListenerHolder.transform;
-                audioListener.transform.localPosition = toAudioListenerHolder.relativePos;
-            }
-        }
-    }
-*/
-
 	public static AudioListenerHolder FindAudioListenerHolder(GameObject gameObject) {
         AudioListenerHolder audioListenerHolder = gameObject.GetComponent<AudioListenerHolder> ();
         if (audioListenerHolder != null) {
@@ -309,4 +294,48 @@ public class Misc {
 //        }
 //        return worldRotation;
     }
+
+    public static string maxDecimals(float value, int decimals = 2) {
+        if (value != 0f) {
+            return value.ToString("#." + getDecimalSpots(decimals));
+        } else {
+            return value.ToString("0." + getDecimalSpots(decimals));
+        }
+    }
+
+    private static string getDecimalSpots(int decimals) {
+        string decimalChars = "";
+        for (int i = 0; i < decimals; i++) {
+            decimalChars += "#";
+        }
+        return decimalChars;
+    }
+
+    public class Size {
+        public int width;
+        public int height;
+    }
+
+	public static Size getImageSize(int width, int height, int targetWidth, int targetHeight) {
+        Size size = new Size ();
+		float ratioX = (float) width / targetWidth;
+		float ratioY = (float) height/ targetHeight;
+        if (ratioX > 1f || ratioY > 1f) {
+			float scaleFactor = Mathf.Max(ratioX, ratioY);
+            size.width = Mathf.RoundToInt(targetWidth / scaleFactor);
+            size.height = Mathf.RoundToInt(targetHeight / scaleFactor);
+        } else {
+            size.width = width;
+            size.height = height;
+        }
+		return size;
+	}
+
+	public static AudioListener getAudioListener() {
+        AudioListener[] audioListener = Resources.FindObjectsOfTypeAll<AudioListener>();
+        if (audioListener != null && audioListener.Length > 0) {
+            return audioListener[0];
+        }
+        return null;
+	}
 }

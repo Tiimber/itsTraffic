@@ -121,7 +121,13 @@ public class Game : MonoBehaviour, IPubSub {
 		PubSub.subscribe("Vehicle:removeDangerHalo", this);
 	}
 
-    private void exitLevel() {
+    public void restartLevel() {
+        string levelFileUrl = loadedLevel.fileUrl;
+		exitLevel();
+        startMission(levelFileUrl);
+    }
+
+    public void exitLevel() {
         showMenu();
 
         running = false;
@@ -140,6 +146,7 @@ public class Game : MonoBehaviour, IPubSub {
         NodeIndex.Clear();
         DataCollector.Clear();
         initDataCollection();
+        PubSub.publish("points:clear");
 
         loadedLevel = null;
     }
@@ -157,7 +164,9 @@ public class Game : MonoBehaviour, IPubSub {
 		StartCoroutine (loadXML (mapFileName, configFileName));
 	}
 
-	public void startMission() {
+	public void startMission(string levelSetupFileUrl = null) {
+        // TODO - Next line to be removed later
+        levelSetupFileUrl = levelSetupFileUrl == null ? levelSetupFileName : levelSetupFileUrl;
 		introCamera.enabled = true;
 		StartCoroutine (loadLevelSetup (levelSetupFileName));
 	}
@@ -1526,7 +1535,7 @@ public class Game : MonoBehaviour, IPubSub {
         GameObject parent = GameObject.Find("Reset All");
         int childCount = parent.transform.childCount;
         if (clearClickCount >= childCount - 1) {
-            PlayerPrefs.DeleteAll();
+            PlayerPrefsData.DeleteAll();
         }
         if (clearClickCount < childCount) {
             parent.transform.GetChild(Math.Min(2, clearClickCount-1)).gameObject.SetActive(false);
@@ -1609,43 +1618,35 @@ public class Game : MonoBehaviour, IPubSub {
         List<PointCalculator.Point> alreadyIncludedPoints = pointCalculator.getPoints(true);
         List<PointCalculator.Point> notYetIncludedPoints = pointCalculator.getPoints(false, objectives);
 
-        // TODO - Present result of play with "alreadyIncluded" stated
-
         int points = pointsBefore;
 
         foreach (PointCalculator.Point point in notYetIncludedPoints) {
-            // TODO - Present each part of the points
             points += point.calculatedValue;
         }
 
         int numberOfStars = pointCalculator.getNumberOfStars(points);
-        Debug.Log(points + ": " + numberOfStars);
 
         // Save stats - if not already exists with higher value
         bool newHighscore = saveScore(points, numberOfStars);
 
-        // TODO - Present new highscore and play serenade
-
-        // TODO - When summary popup closes with "exit"/"close" or similar, call this
-        exitLevel();
+		Summary summary = new Summary (loadedLevel.name, type, pointsBefore, objectives, alreadyIncludedPoints, notYetIncludedPoints, numberOfStars, newHighscore);
+        PubSub.publish("summary:display", summary);
     }
 
 	private bool saveScore(int points, int numberOfStars) {
         bool shouldSaveNewScore = true;
 
-		string levelKeyPrefix = "level_" + loadedLevel.id;
-        if (PlayerPrefs.HasKey(levelKeyPrefix + "_points")) {
-            int prevPoints = PlayerPrefs.GetInt (levelKeyPrefix + "_points");
-            int prevStars = PlayerPrefs.GetInt (levelKeyPrefix + "_stars");
-			if (prevPoints >= points && prevStars >= numberOfStars) {
-                shouldSaveNewScore = false;
-            }
+        int prevPoints = PlayerPrefsData.GetLevelPoints(loadedLevel.id);
+        int prevStars = PlayerPrefsData.GetLevelStars(loadedLevel.id);
+        if (prevPoints >= points && prevStars >= numberOfStars) {
+            shouldSaveNewScore = false;
         }
 
+
         if (shouldSaveNewScore) {
-            PlayerPrefs.SetInt (levelKeyPrefix + "_points", points);
-			PlayerPrefs.SetInt (levelKeyPrefix + "_stars", numberOfStars);
-			PlayerPrefs.Save ();
+            PlayerPrefsData.SetLevelPoints(loadedLevel.id, points);
+            PlayerPrefsData.SetLevelStars(loadedLevel.id, numberOfStars);
+			PlayerPrefsData.Save ();
 
             // Update level info for shown levels in menu
             GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "StartSubmenu").gameObject;

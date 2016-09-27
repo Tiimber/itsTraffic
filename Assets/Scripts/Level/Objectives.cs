@@ -16,10 +16,11 @@ public class Objectives {
 			XmlAttributeCollection winAttributes = winNode.Attributes;
 			long id = Misc.xmlLong(winAttributes.GetNamedItem ("id"));
 			string type = Misc.xmlString(winAttributes.GetNamedItem ("type"));
+			string label = Misc.xmlString(winAttributes.GetNamedItem ("label"));
 			long targetId = Misc.xmlLong (winAttributes.GetNamedItem ("targetId"));
 			string key = Misc.xmlString (winAttributes.GetNamedItem ("key"));
 			float value = Misc.xmlFloat(winAttributes.GetNamedItem ("value"));
-			winObjectives.Add (new Objective (id, type, targetId, key, value));
+			winObjectives.Add (new Objective (id, type, label, targetId, key, value));
 		}
 
 		XmlNodeList loseNodes = objectivesNode.SelectNodes("lose");
@@ -27,10 +28,11 @@ public class Objectives {
 			XmlAttributeCollection loseAttributes = loseNode.Attributes;
 			long id = Misc.xmlLong(loseAttributes.GetNamedItem ("id"));
 			string type = Misc.xmlString(loseAttributes.GetNamedItem ("type"));
+			string label = Misc.xmlString(loseAttributes.GetNamedItem ("label"));
 			long targetId = Misc.xmlLong (loseAttributes.GetNamedItem ("targetId"));
 			string key = Misc.xmlString (loseAttributes.GetNamedItem ("key"));
 			float value = Misc.xmlFloat(loseAttributes.GetNamedItem ("value"));
-			loseObjectives.Add (new Objective (id, type, targetId, key, value));
+			loseObjectives.Add (new Objective (id, type, label, targetId, key, value));
 		}
 
 		XmlAttributeCollection objectiveAttributes = objectivesNode.Attributes;
@@ -72,14 +74,16 @@ public class Objectives {
 	public class Objective {
 		public long id;
 		public string type;
+        public string label;
 		public long targetId;
 		public string key;
 		public float value;
         public bool isMet = false;
 
-		public Objective(long id, string type, long targetId, string key, float value) {
+		public Objective(long id, string type, string label, long targetId, string key, float value) {
 			this.id = id;
 			this.type = type;
+			this.label = label;
 			this.targetId = targetId;
 			this.key = key;
 			this.value = value;

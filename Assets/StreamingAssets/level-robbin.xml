@@ -1,38 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <level
 	id="test_custom_level_01"
-	name="This is my level!" 
-	brief="People are in a hurry! Please\n* Guide 30 cars to their destination\n* Cause no crashes\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello"
-	randomSeed="MAH LÄVÄL" 
+	name="This is my level!"
+    fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+	iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission.png"
+
 	timeOfDay="13:30"
+	country="gb"
+
+	brief="People are in a hurry! Please\n* Guide 30 cars to their destination\n* Cause no crashes\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello\n* Hello"
+	randomSeed="MAH LÄVÄL"
+
 	mapUrl="file:///Users/robbin/itsTraffic/Assets/StreamingAssets/djakne-kvarteret.osm"
 	configUrl="file:///Users/robbin/itsTraffic/Assets/StreamingAssets/testmap08-config.xml"
-	iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission.png"
-	country="gb"
+
 >
-	<objectives winCombos="2,3,4,1;1,4" loseCombos="102,101">
-		<win id="1" type="Vehicles reached goal" value="30" /> <!-- TODO - Comparator as parameter -->
-		<win id="2" type="InformationHuman" targetId="20027" key="distance" value="8" />
-		<win id="3" type="InformationVehicle" targetId="10001" key="distance" value="100" />
-		<win id="4" type="Time" value="60" />
+	<objectives winCombos="2,3;1,4" loseCombos="102,101">
+		<win id="1" type="Vehicles reached goal" value="30" label="30 cars reached goal" /> <!-- TODO - Comparator as parameter -->
+		<win id="2" type="InformationHuman" targetId="20027" key="distance" value="13" label="Harald walked 8 meters" />
+		<win id="3" type="InformationVehicle" targetId="10001" key="distance" value="150" label="White car drove 100m" />
+		<win id="4" type="Time" value="60" label="Managed play 60s" />
 		<!-- TODO - Score as win condition -->
 
-		<lose id="101" type="Vehicle crashes" value="1" />
-		<lose id="102" type="Time" value="500" />
+		<lose id="101" type="Vehicle crashes" value="1" label="Vehicles crashed?" />
+		<lose id="102" type="Time" value="500" label="Took long time" />
 	</objectives>
 
 	<pointCalculator oneStar="250" twoStars="300" threeStars="500">
-        <point type="Vehicle" value="79"/>
-        <point type="Human" value="37"/>
-        <point type="Time" threshold="10" value="2"/>
+        <point type="Vehicle" value="79" label="Vehicles reached goal"/>
+        <point type="Human" value="37" label="People finished routes"/>
+        <point type="Time" threshold="10" value="2" label="Time is points"/>
 
-        <point type="Vehicle:destroy" value="-99"/>
-        <point type="Vehicle:emission" value="-20"/>
+        <point type="Vehicle:destroy" value="-99" label="Vehicle crashes"/>
+        <point type="Vehicle:emission" value="-20" label="Emission charge"/>
 
-        <point type="Objective" id="2" value="131"/>
-        <point type="Objective" id="102" value="-17"/>
-		<point type="SummaryTime" threshold="13" value="200"/>
-        <point type="SummaryTime" threshold="15" value="-33"/>
+        <point type="Objective" id="2" value="131" label="Harald walked 8 meters"/>
+        <point type="Objective" id="102" value="-17" label="Took loong time"/>
+		<point type="SummaryTime" threshold="13" value="200" label="Time bonus"/>
+        <point type="SummaryTime" threshold="15" value="-33" label="Time penalty"/>
 	</pointCalculator>
 
 	<humanRandomizer 

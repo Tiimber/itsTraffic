@@ -45,27 +45,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Cardboard\Editor\CardboardEditor.cs" />
-     <Compile Include="Assets\Cardboard\Editor\StereoControllerEditor.cs" />
      <Compile Include="Assets\Editor\CrossPlatformInput\CrossPlatformInputInitialize.cs" />
-     <None Include="Assets\Cardboard\Resources\SkyboxMesh.shader" />
-     <None Include="Assets\Cardboard\Distortion\CardboardDistortion.cginc" />
      <None Include="Assets\TODO\todo.txt" />
      <None Include="Assets\GameObjects\clouds\material\shader\CloudShader.shader" />
      <None Include="Assets\Shaders\FadeShader.shader" />
-     <None Include="Assets\Cardboard\Resources\UnlitTexture.shader" />
      <None Include="Assets\StreamingAssets\testmap08-config.xml" />
      <None Include="Assets\StreamingAssets\level-robbin.xml" />
-     <None Include="Assets\Cardboard\Legacy\Resources\GUIScreen.shader" />
      <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\StreamingAssets\testmap03-config.xml" />
      <None Include="Assets\StreamingAssets\testmap06-config.xml" />
      <None Include="Assets\Shaders\OutlineDiffuse.shader" />
-     <None Include="Assets\Cardboard\Resources\RadialUndistortionEffect.shader" />
      <None Include="Assets\Standard Assets\Cameras\CameraGuidelines.txt" />
      <None Include="Assets\Shaders\PlainShader.shader" />
-     <None Include="Assets\Cardboard\Resources\SolidColor.shader" />
  <Reference Include="Assembly-UnityScript">
  <HintPath>/Users/robbin/ItsTraffic/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
  </Reference>

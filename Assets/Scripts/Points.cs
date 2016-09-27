@@ -86,6 +86,7 @@ public class Points : MonoBehaviour, IPubSub {
 	{
 		if (message == "points:clear") {
 			points = 0;
+            pointsUpdated ();
 			return PROPAGATION.DEFAULT;
 		}
 

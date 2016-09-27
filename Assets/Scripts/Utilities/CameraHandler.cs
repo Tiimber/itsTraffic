@@ -117,7 +117,7 @@ public class CameraHandler {
 
 		if (doAnimate && time > 0f) {
 			while (t <= 1f) {
-				t += Time.deltaTime / time;
+				t += Time.unscaledDeltaTime / time;
 				Vector3 newPosition = Vector3.SmoothDamp (lastPosition, moveVector, ref velocity, time, Mathf.Infinity, t);
 				main.transform.position += newPosition - lastPosition;
 				lastPosition = newPosition;

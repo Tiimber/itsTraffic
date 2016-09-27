@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class LevelInfo : MonoBehaviour {
 
@@ -16,12 +15,9 @@ public class LevelInfo : MonoBehaviour {
 	}
 
     public void fetchData() {
-        string levelStarsKey = "level_" + id + "_stars";
-        if (PlayerPrefs.HasKey(levelStarsKey)) {
-			int stars = PlayerPrefs.GetInt(levelStarsKey);
-            MissionStarAmount missionStarAmount = GetComponent<MissionStarAmount>();
-	        // TODO - Initial fetch should call "setInitialStarAmount"
-            missionStarAmount.setStarAmount(stars);
-        }
+        int stars = PlayerPrefsData.GetLevelStars(id);
+        MissionStarAmount missionStarAmount = GetComponent<MissionStarAmount>();
+        // TODO - Initial fetch should call "setInitialStarAmount"
+        missionStarAmount.setStarAmount(stars);
     }
 }

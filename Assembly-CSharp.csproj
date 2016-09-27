@@ -45,32 +45,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Cardboard\Legacy\Scripts\CardboardOnGUI.cs" />
-     <Compile Include="Assets\Cardboard\Legacy\Scripts\CardboardOnGUIMouse.cs" />
-     <Compile Include="Assets\Cardboard\Legacy\Scripts\CardboardOnGUIWindow.cs" />
-     <Compile Include="Assets\Cardboard\Legacy\Scripts\SkyboxMesh.cs" />
-     <Compile Include="Assets\Cardboard\Legacy\Scripts\StereoLensFlare.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\Cardboard.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\CardboardEye.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\CardboardHead.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\CardboardPostRender.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\CardboardPreRender.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\CardboardProfile.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\GazeInputModule.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\Pose3D.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\RadialUndistortionEffect.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\StereoController.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\StereoRenderEffect.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\VRDevices\BaseAndroidDevice.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\VRDevices\BaseCardboardDevice.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\VRDevices\BaseVRDevice.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\VRDevices\CardboardAndroidDevice.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\VRDevices\CardboardiOSDevice.cs" />
-     <Compile Include="Assets\Cardboard\Scripts\VRDevices\UnityEditorDevice.cs" />
      <Compile Include="Assets\Clock\Scripts\Clock.cs" />
      <Compile Include="Assets\Scripts\AudioListenerHolder.cs" />
      <Compile Include="Assets\Scripts\AutomaticMaterialObject.cs" />
-     <Compile Include="Assets\Scripts\BriefPopup.cs" />
+     <Compile Include="Assets\Scripts\BriefAndSummaryPopup.cs" />
      <Compile Include="Assets\Scripts\BuildingRoof.cs" />
      <Compile Include="Assets\Scripts\CollisionObjects\CollisionObj.cs" />
      <Compile Include="Assets\Scripts\CollisionObjects\HumanCollisionObj.cs" />
@@ -83,6 +61,7 @@
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\GameTimer.cs" />
      <Compile Include="Assets\Scripts\GenericHumanSounds.cs" />
+     <Compile Include="Assets\Scripts\GenericSoundEffects.cs" />
      <Compile Include="Assets\Scripts\GenericVehicleSounds.cs" />
      <Compile Include="Assets\Scripts\HumanCollider.cs" />
      <Compile Include="Assets\Scripts\HumanLogic.cs" />
@@ -100,6 +79,7 @@
      <Compile Include="Assets\Scripts\Level\PointCalculator.cs" />
      <Compile Include="Assets\Scripts\Level\Randomizer.cs" />
      <Compile Include="Assets\Scripts\Level\Setup.cs" />
+     <Compile Include="Assets\Scripts\Level\Summary.cs" />
      <Compile Include="Assets\Scripts\LevelDataUpdater.cs" />
      <Compile Include="Assets\Scripts\LevelInfo.cs" />
      <Compile Include="Assets\Scripts\LightLogic.cs" />
@@ -123,6 +103,7 @@
      <Compile Include="Assets\Scripts\MissionStarAmount.cs" />
      <Compile Include="Assets\Scripts\NodeDistance.cs" />
      <Compile Include="Assets\Scripts\ObjectRandomizer.cs" />
+     <Compile Include="Assets\Scripts\PlaySoundEffectOnce.cs" />
      <Compile Include="Assets\Scripts\PointAndClock.cs" />
      <Compile Include="Assets\Scripts\PointDigit.cs" />
      <Compile Include="Assets\Scripts\Points.cs" />
@@ -146,6 +127,7 @@
      <Compile Include="Assets\Scripts\Utilities\ModelGeneratorVehicles.cs" />
      <Compile Include="Assets\Scripts\Utilities\NameGenerator.cs" />
      <Compile Include="Assets\Scripts\Utilities\NameGeneratorNames.cs" />
+     <Compile Include="Assets\Scripts\Utilities\PlayerPrefsData.cs" />
      <Compile Include="Assets\Scripts\Utilities\PosHelper.cs" />
      <Compile Include="Assets\Scripts\Utilities\ScreenWipe.cs" />
      <Compile Include="Assets\Scripts\Utilities\Singleton.cs" />
@@ -166,24 +148,18 @@
      <Compile Include="Assets\Scripts\WayLine.cs" />
      <Compile Include="Assets\Scripts\WayReference.cs" />
      <Compile Include="Assets\Sources\LightningBolt.cs" />
-     <None Include="Assets\Cardboard\Resources\SkyboxMesh.shader" />
-     <None Include="Assets\Cardboard\Distortion\CardboardDistortion.cginc" />
      <None Include="Assets\TODO\todo.txt" />
      <None Include="Assets\GameObjects\clouds\material\shader\CloudShader.shader" />
      <None Include="Assets\Shaders\FadeShader.shader" />
-     <None Include="Assets\Cardboard\Resources\UnlitTexture.shader" />
      <None Include="Assets\StreamingAssets\testmap08-config.xml" />
      <None Include="Assets\StreamingAssets\level-robbin.xml" />
-     <None Include="Assets\Cardboard\Legacy\Resources\GUIScreen.shader" />
      <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\StreamingAssets\testmap03-config.xml" />
      <None Include="Assets\StreamingAssets\testmap06-config.xml" />
      <None Include="Assets\Shaders\OutlineDiffuse.shader" />
-     <None Include="Assets\Cardboard\Resources\RadialUndistortionEffect.shader" />
      <None Include="Assets\Standard Assets\Cameras\CameraGuidelines.txt" />
      <None Include="Assets\Shaders\PlainShader.shader" />
-     <None Include="Assets\Cardboard\Resources\SolidColor.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

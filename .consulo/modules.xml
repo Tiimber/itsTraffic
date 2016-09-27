@@ -202,8 +202,8 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AudioListenerHolder.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AutomaticMaterialObject.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AutomaticMaterialObject.cs.meta" />
-          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/BriefPopup.cs" />
-          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/BriefPopup.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/BriefAndSummaryPopup.cs" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/BriefAndSummaryPopup.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/BuildingRoof.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/BuildingRoof.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/CollisionObjects/CollisionObj.cs" />
@@ -228,6 +228,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/GameTimer.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/GenericHumanSounds.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/GenericHumanSounds.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/GenericSoundEffects.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/GenericVehicleSounds.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/GenericVehicleSounds.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/HumanCollider.cs" />
@@ -261,6 +262,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Randomizer.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Setup.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Setup.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Summary.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/LevelDataUpdater.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/LevelInfo.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/LightLogic.cs" />
@@ -303,6 +305,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/NodeDistance.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/ObjectRandomizer.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/ObjectRandomizer.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/PlaySoundEffectOnce.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/PointAndClock.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/PointAndClock.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/PointDigit.cs" />
@@ -348,6 +351,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/NameGenerator.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/NameGeneratorNames.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/NameGeneratorNames.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/PlayerPrefsData.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/PosHelper.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/PosHelper.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/ScreenWipe.cs" />

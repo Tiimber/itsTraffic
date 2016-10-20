@@ -8,7 +8,7 @@ using System;
 public class DataCollector : MonoBehaviour {
 
     private const string ACCUMULATED_DATA_PREFIX = "AccumulatedData:";
-	private bool output = true;
+	private bool output = false;
 
 	private static float lastDataDiff = 0f;
 	private static float dataDiffThreshold = 1f;
@@ -91,7 +91,9 @@ public class DataCollector : MonoBehaviour {
 
         touched = false;
         Data.Clear();
-        CopyData.Clear();
+        if (CopyData != null) {
+            CopyData.Clear();
+        }
         DiffData.Clear();
 
         reportObjectivesData = null;

@@ -135,9 +135,15 @@ public class WayLine : MonoBehaviour {
 		return MapSurface.createPlaneMeshForPoints (fromPos, toPos);
 	}
 
+    private static Material whiteMaterial = null;
 	private static void SetWhiteMaterial (GameObject line) {
-		MeshRenderer meshRenderer = line.GetComponent<MeshRenderer> ();
-		meshRenderer.material.color = new Color (1f, 1f, 1f);
+        MeshRenderer meshRenderer = line.GetComponent<MeshRenderer> ();
+		if (whiteMaterial == null) {
+            meshRenderer.material.color = new Color (1f, 1f, 1f);
+            whiteMaterial = meshRenderer.material;
+        } else {
+            meshRenderer.material = whiteMaterial;
+        }
 	}
 
 	public static void CreateCurved (GameObject parent, long key, List<WayReference> wayReferences) {

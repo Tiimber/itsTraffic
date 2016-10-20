@@ -15,7 +15,7 @@ public class CameraSwitch : MonoBehaviour {
         float toSize = to.orthographicSize;
 
         // Copy "from" camera
-        GameObject cameraCopy = GameObject.Instantiate(copyFromCamera ? from.gameObject : to.gameObject);
+        GameObject cameraCopy = GameObject.Instantiate (copyFromCamera ? from.gameObject : to.gameObject);
         cameraCopy.transform.parent = null;
         cameraCopy.transform.position = fromWorldPosition;
         Camera cameraCopyCamera = cameraCopy.GetComponent<Camera>();

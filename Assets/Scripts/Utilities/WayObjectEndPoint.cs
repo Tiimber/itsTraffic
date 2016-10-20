@@ -16,6 +16,7 @@ public class WayObjectEndPoint {
 		endPointObj.name = "End of way (" + key + ")";
 		Vector3 zOffset = endPoint.way.CarWay ? new Vector3 (0, 0, -0.1f) : new Vector3 (0, 0, -0.099f);
 		endPointObj.transform.position = endPointObj.transform.position + zOffset - (isNode1 ? Vector3.zero : endPoint.transform.rotation * new Vector3 (originalScale.y / 2f, 0f, 0f));
+        endPointObj.transform.parent = Game.instance.waysParent;
 		endPointObj.transform.rotation = endPoint.transform.rotation;
 		AutomaticMaterialObject endPointMaterialObject = endPointObj.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
 		endPointMaterialObject.requestMaterial (materialId, null); // TODO - Default material

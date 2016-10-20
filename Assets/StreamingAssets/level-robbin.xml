@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <level
-	id="test_custom_level_01"
-	name="This is my level!"
+	id="bundled_level_01"
+	name="Djäkne"
     fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
 	iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission.png"
 
@@ -15,7 +15,7 @@
 	configUrl="file:///Users/robbin/itsTraffic/Assets/StreamingAssets/testmap08-config.xml"
 
 >
-	<objectives winCombos="2,3;1,4" loseCombos="102,101">
+	<objectives winCombos="2,3,4,1;1,4" loseCombos="102,101">
 		<win id="1" type="Vehicles reached goal" value="30" label="30 cars reached goal" /> <!-- TODO - Comparator as parameter -->
 		<win id="2" type="InformationHuman" targetId="20027" key="distance" value="13" label="Harald walked 8 meters" />
 		<win id="3" type="InformationVehicle" targetId="10001" key="distance" value="150" label="White car drove 100m" />

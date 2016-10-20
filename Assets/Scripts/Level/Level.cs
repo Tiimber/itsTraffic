@@ -4,15 +4,19 @@ public class Level {
 
 	public string id;
 	public string name;
+	public string fileUrl;
+	public string iconUrl;
+    public string countryCode;
+    public float lon;
+    public float lat;
+
 	public string brief;
 	public string randomSeedStr;
 	public int randomSeed;
 	public string timeOfDay;
 	public string country;
-	public string fileUrl;
 	public string mapUrl;
 	public string configUrl;
-	public string iconUrl;
 
 	public Objectives objectives;
 	public PointCalculator pointCalculator;
@@ -40,19 +44,29 @@ public class Level {
 		setup = new Setup (setupNode);
 	}
 
+    public Level(XmlNode levelNode) {
+        extractLevelDetails (levelNode);
+    }
+
 	private void extractLevelDetails(XmlNode levelNode) {
 		XmlAttributeCollection levelAttributes = levelNode.Attributes;
 		id = Misc.xmlString(levelAttributes.GetNamedItem ("id"));
 		name = Misc.xmlString(levelAttributes.GetNamedItem ("name"));
+        fileUrl = Misc.xmlString(levelAttributes.GetNamedItem ("fileUrl"));
+        iconUrl = Misc.xmlString (levelAttributes.GetNamedItem ("iconUrl"));
+        countryCode = Misc.xmlString (levelAttributes.GetNamedItem("countrycode"));
+        lon = Misc.xmlFloat (levelAttributes.GetNamedItem("lon"));
+        lat = Misc.xmlFloat (levelAttributes.GetNamedItem("lat"));
+
 		brief = Misc.xmlString (levelAttributes.GetNamedItem ("brief"));
 		randomSeedStr = Misc.xmlString(levelAttributes.GetNamedItem ("randomSeed"));
-		randomSeed = randomSeedStr.GetHashCode ();
-		DebugFn.print ("Random seed: " + randomSeedStr + ", hash: " + randomSeed); 
+        if (randomSeedStr != null) {
+            randomSeed = randomSeedStr.GetHashCode ();
+//		    DebugFn.print ("Random seed: " + randomSeedStr + ", hash: " + randomSeed);
+        }
 		timeOfDay = Misc.xmlString(levelAttributes.GetNamedItem ("timeOfDay"));
 		country = Misc.xmlString (levelAttributes.GetNamedItem ("country"));
 		mapUrl = Misc.xmlString(levelAttributes.GetNamedItem ("mapUrl"));
-		fileUrl = Misc.xmlString(levelAttributes.GetNamedItem ("fileUrl"));
 		configUrl = Misc.xmlString(levelAttributes.GetNamedItem ("configUrl"));
-		iconUrl = Misc.xmlString (levelAttributes.GetNamedItem ("iconUrl"));
 	}
 }

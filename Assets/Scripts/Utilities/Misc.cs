@@ -146,6 +146,38 @@ public class Misc {
 		return null;
 	}
 
+    // Get child to a GameObject with tag
+    public static GameObject GetGameObjectWithMenuValue(Transform parent) {
+        GameObject gameObjectWithTag = null;
+
+        // Get all MenuValue GameObjects
+        MenuValue[] menuValueObjects = Resources.FindObjectsOfTypeAll<MenuValue>();
+
+        // Check which one has the sent in parent
+        foreach (MenuValue menuValueObject in menuValueObjects) {
+            GameObject gameObject = menuValueObject.gameObject;
+            if (Misc.HasParent(gameObject, parent)) {
+                gameObjectWithTag = gameObject;
+                break;
+            }
+        }
+
+
+        return gameObjectWithTag;
+    }
+
+    public static bool HasParent(GameObject gameObject, Transform parent) {
+        Transform transform = gameObject.transform;
+        while (transform != null) {
+            if (transform == parent) {
+                return true;
+            }
+            transform = transform.parent;
+        }
+
+		return false;
+    }
+
 	// Convert string with comma separated longs to list of longs
 	public static List<long> parseLongs (string passengerIdsStr, char separator = ',') {
 		List<long> ids = new List<long> ();
@@ -338,4 +370,37 @@ public class Misc {
         }
         return null;
 	}
+
+	public static MeshFilter[] FilterCarWays(MeshFilter[] allWayFilters) {
+        List<MeshFilter> filtered = new List<MeshFilter> ();
+        foreach (MeshFilter wayFilter in allWayFilters) {
+            if (!(wayFilter.name.StartsWith("CarWay (") || wayFilter.name.StartsWith("NonCarWay ("))) {
+                filtered.Add(wayFilter);
+            }
+        }
+		return filtered.ToArray();
+	}
+
+    public static float ToRadians(float degrees) {
+        return (Mathf.PI / 180f) * degrees;
+    }
+
+    public static float ToDegrees(float radians) {
+        return 180f * radians / Mathf.PI;
+    }
+
+    public static float getDistanceBetweenEarthCoordinates (float lon1, float lat1, float lon2, float lat2) {
+        float R = 6371e3f; // metres
+		float φ1 = ToRadians (lat1);
+		float φ2 = ToRadians (lat2);
+		float Δφ = ToRadians (lat2 - lat1);
+		float Δλ = ToRadians (lon2 - lon1);
+
+		float a = Mathf.Sin (Δφ / 2f) * Mathf.Sin (Δφ / 2f) +
+			Mathf.Cos (φ1) * Mathf.Cos (φ2) *
+			Mathf.Sin (Δλ / 2f) * Mathf.Sin (Δλ / 2f);
+        float c = 2f * Mathf.Atan2(Mathf.Sqrt(a), Mathf.Sqrt(1f-a));
+
+        return R * c;
+    }
 }

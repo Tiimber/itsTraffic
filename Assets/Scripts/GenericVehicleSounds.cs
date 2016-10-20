@@ -63,7 +63,9 @@ public class GenericVehicleSounds : MonoBehaviour, IPubSub {
 		if (message == "Volume:ambient") {
 			float volume = (float) data;
 			foreach (AudioSource audioSource in ambientSoundSources) {
-				audioSource.volume = volume;
+                if (audioSource != null) {
+                    audioSource.volume = volume;
+                }
 			}
 		}
 

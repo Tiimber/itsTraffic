@@ -5,11 +5,73 @@
       <module name="ItsTraffic" dirurl="file://$PROJECT_DIR$" current-layer="Default">
         <module-layer name="Default">
           <extension id="unity3d" sdk-module-name="" sdk-name="Unity3D 5.4.1 (predefined)">
-            <define>UNITY_EDITOR</define>
             <define>DEBUG</define>
+            <define>DEVELOPMENT_BUILD</define>
+            <define>ENABLE_ANDROID_ATLAS_ETC1_COMPRESSION</define>
+            <define>ENABLE_AUDIO</define>
+            <define>ENABLE_CACHING</define>
+            <define>ENABLE_CLOTH</define>
+            <define>ENABLE_CLOUD_HUB</define>
+            <define>ENABLE_CLOUD_LICENSE</define>
+            <define>ENABLE_CLOUD_PROJECT_ID</define>
+            <define>ENABLE_CLOUD_SERVICES</define>
+            <define>ENABLE_CLOUD_SERVICES_ADS</define>
+            <define>ENABLE_CLOUD_SERVICES_ANALYTICS</define>
+            <define>ENABLE_CLOUD_SERVICES_BUILD</define>
+            <define>ENABLE_CLOUD_SERVICES_COLLAB</define>
+            <define>ENABLE_CLOUD_SERVICES_CRASH_REPORTING</define>
+            <define>ENABLE_CLOUD_SERVICES_PURCHASING</define>
+            <define>ENABLE_CLOUD_SERVICES_UNET</define>
+            <define>ENABLE_CRUNCH_TEXTURE_COMPRESSION</define>
+            <define>ENABLE_EDITOR_METRICS</define>
+            <define>ENABLE_EDITOR_METRICS_CACHING</define>
+            <define>ENABLE_EDITOR_RETINA</define>
+            <define>ENABLE_EDITOR_TESTS_RUNNER</define>
+            <define>ENABLE_FRAME_DEBUGGER</define>
+            <define>ENABLE_GENERICS</define>
+            <define>ENABLE_HOME_SCREEN</define>
+            <define>ENABLE_IL2CPP</define>
+            <define>ENABLE_IMAGEEFFECTS</define>
+            <define>ENABLE_LIGHT_PROBES_LEGACY</define>
+            <define>ENABLE_LOCALIZATION</define>
+            <define>ENABLE_MULTIPLE_DISPLAYS</define>
+            <define>ENABLE_NEW_BUGREPORTER</define>
+            <define>ENABLE_PHYSICS</define>
+            <define>ENABLE_PLUGIN_INSPECTOR</define>
+            <define>ENABLE_PROFILER</define>
+            <define>ENABLE_RETINA_GUISTYLES</define>
+            <define>ENABLE_SHADOWS</define>
+            <define>ENABLE_SPRITERENDERER_FLIPPING</define>
+            <define>ENABLE_SPRITES</define>
+            <define>ENABLE_SPRITE_POLYGON</define>
+            <define>ENABLE_TERRAIN</define>
+            <define>ENABLE_TEXTUREID_MAP</define>
+            <define>ENABLE_UNET</define>
+            <define>ENABLE_UNITYEVENTS</define>
+            <define>ENABLE_UNITYWEBREQUEST</define>
+            <define>ENABLE_VR</define>
+            <define>ENABLE_WEBCAM</define>
+            <define>ENABLE_WWW</define>
+            <define>INCLUDE_DIRECTX12</define>
+            <define>INCLUDE_DYNAMIC_GI</define>
+            <define>INCLUDE_GI</define>
+            <define>INCLUDE_IL2CPP</define>
+            <define>INCLUDE_PUBNUB</define>
+            <define>RENDER_SOFTWARE_CURSOR</define>
             <define>TRACE</define>
-            <define>UNITY_5_0</define>
-            <define>UNITY_5_3</define>
+            <define>UNITY_5</define>
+            <define>UNITY_5_3_OR_NEWER</define>
+            <define>UNITY_5_4</define>
+            <define>UNITY_5_4_1</define>
+            <define>UNITY_5_4_OR_NEWER</define>
+            <define>UNITY_ASSERTIONS</define>
+            <define>UNITY_DISABLE_WEB_VERIFICATION</define>
+            <define>UNITY_EDITOR</define>
+            <define>UNITY_EDITOR_64</define>
+            <define>UNITY_EDITOR_OSX</define>
+            <define>UNITY_TEAM_LICENSE</define>
+            <define>UNITY_WEBGL</define>
+            <define>UNITY_WEBGL_API</define>
           </extension>
           <content url="file://$MODULE_DIR$">
             <content-folder type="EXCLUDED" url="file://$MODULE_DIR$/.consulo" />
@@ -199,6 +261,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Cardboard/Scripts/VRDevices/UnityEditorDevice.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Clock/Scripts/Clock.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Clock/Scripts/Clock.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/CombineMeshes.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AudioListenerHolder.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AutomaticMaterialObject.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AutomaticMaterialObject.cs.meta" />
@@ -255,6 +318,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/LanduseSurface.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Level.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Level.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Levels.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Objectives.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Objectives.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/PointCalculator.cs" />

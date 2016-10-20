@@ -1,15 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Menu : MonoBehaviour {
 
+    public static bool haveInitialized = false;
+
 	// Use this for initialization
 	void Start () {
-		loadPlayerPrefs();
+        StartCoroutine(loadPlayerPrefs());
 	}
 
-    public void loadPlayerPrefs() {
+    public IEnumerator loadPlayerPrefs() {
+        while (Game.instance == null) {
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+
         string storedKeysStr = PlayerPrefs.GetString("Menu:storedKeys");
        	if (storedKeysStr != null && storedKeysStr != "") {
             // Get all MenuValue items
@@ -40,5 +46,9 @@ public class Menu : MonoBehaviour {
                 }
             }
         }
+
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        Menu.haveInitialized = true;
     }
 }

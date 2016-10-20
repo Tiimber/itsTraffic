@@ -18,9 +18,13 @@ public class Game : MonoBehaviour, IPubSub {
 	public Camera introCamera;
 	public Camera pointsCamera;
 
+    public Transform waysParent;
+    public Transform buildingsParent;
+
 	public static Game instance;
 	private int animationItemsQueue = 0;
 	private float cameraEmission = 0f;
+    public float graphicsQuality = 0.8f;
 
 	public static long randomSeed = Misc.currentTimeMillis ();
 	private static bool running = false;
@@ -46,6 +50,9 @@ public class Game : MonoBehaviour, IPubSub {
 	private string configFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/testmap08-config.xml";
 
 	private string levelSetupFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml";
+
+    public string endpointBaseUrl = "http://localhost:4002/";
+    public string customLevelsRelativeUrl = "custom-levels";
 
 	private const float CLICK_RELEASE_TIME = 0.2f; 
 	private const float THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK = 30f;
@@ -93,8 +100,17 @@ public class Game : MonoBehaviour, IPubSub {
 		"none", "endpoint", "straightWay", "intersections", "all"
 	};
 
+    public float lon;
+    public float lat;
+
 	// Use this for initialization
 	void Start () {
+        // TODO - Proper geo fetching for desktop + client
+//        StartCoroutine(getUserLocation());
+        // TODO - Temporary
+        lat = 55.605385f;
+        lon = 13.00514f;
+
 		showMenu ();
 		paused = false;
 		initDataCollection ();
@@ -191,6 +207,17 @@ public class Game : MonoBehaviour, IPubSub {
 		if (Game.isRunning () && Game.isMovementEnabled()) {
 			DataCollector.Add ("Elapsed Time", Time.deltaTime);
 		}
+
+        // TODO - These are tamporary
+		if (Input.GetKeyDown (KeyCode.Plus)) {
+            searchDistance = LevelDataUpdater.getNextDistance(searchDistance);
+			customSearch(true);
+		}
+		if (Input.GetKeyDown (KeyCode.Minus)) {
+            searchDistance = LevelDataUpdater.getPreviousDistance(searchDistance);
+			customSearch(true);
+		}
+
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
 //			currentLevel = WayTypeEnum.getLower (currentLevel);
 //			filterWays ();
@@ -583,7 +610,7 @@ public class Game : MonoBehaviour, IPubSub {
 		} else {
 			position = getCameraPosition (pos1) + new Vector3 (0f, 0f, -0.15f);
 		}
-		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate(data), position, Quaternion.identity) as GameObject;
+		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate (data), position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
 
 		vehicleObj.StartPos = pos1;
@@ -981,6 +1008,7 @@ public class Game : MonoBehaviour, IPubSub {
 		if (way.Building) {
 			GameObject building = Instantiate (buildingObject) as GameObject;
 			building.transform.position = new Vector3 (0f, 0f, -0.098f);
+            building.transform.parent = buildingsParent;
 			BuildingRoof roof = building.GetComponent<BuildingRoof> ();
 			roof.createBuildingWithXMLNode (xmlNode);
 		} else if (way.LandUse) {
@@ -1025,7 +1053,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 					GameObject building = Instantiate (buildingObject) as GameObject;
 					building.transform.position = new Vector3 (0f, 0f, -0.098f);
-					BuildingRoof roof = building.GetComponent<BuildingRoof> ();
+                    building.transform.parent = buildingsParent;
+                    BuildingRoof roof = building.GetComponent<BuildingRoof> ();
 					roof.createBuildingWithXMLNode (wayNode);
 				}
 			}
@@ -1057,10 +1086,12 @@ public class Game : MonoBehaviour, IPubSub {
 		if (wayObject.CarWay) {
 			way = Instantiate (partOfWay, position, rotation) as GameObject;
 			originalScale = partOfWay.transform.localScale;
+            way.transform.parent = waysParent;
 			way.name = "CarWay (" + previousPos.Id + ", " + currentPos.Id + ")";
 		} else {
 			way = Instantiate (partOfNonCarWay, position, rotation) as GameObject;
 			originalScale = partOfNonCarWay.transform.localScale;
+            way.transform.parent = waysParent;
 			way.name = "NonCarWay (" + previousPos.Id + ", " + currentPos.Id + ")";
 		}
 		WayReference wayReference = way.GetComponent<WayReference> ();
@@ -1168,6 +1199,7 @@ public class Game : MonoBehaviour, IPubSub {
 		} else {
 			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.099f);
 		}
+        middleOfWay.transform.parent = waysParent;
 		// TODO - Config for material
 		// Small ways are not drawn with material or meshes
 		if (!wayReference.SmallWay || !wayReference.way.CarWay) {
@@ -1332,6 +1364,9 @@ public class Game : MonoBehaviour, IPubSub {
 				if (showBrief) {
 					freezeGame (true);
 					PubSub.publish ("brief:display", loadedLevel);
+                    // Combine meshes in ways and buildings
+					CombineMeshes combineWayMeshes = waysParent.GetComponent<CombineMeshes> ();
+                    combineWayMeshes.combineMeshes();
 				}
 			} else {
 				VehicleRandomizer.Create ();
@@ -1417,6 +1452,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private void menuOptionsVisible(bool show) {
 		if (show) {
 			menuStartVisible (false);
+            menuCustomVisible (false);
 		}
 		GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "OptionsSubmenu").gameObject;
 		subMenu.SetActive (show);
@@ -1429,56 +1465,101 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private void menuStartVisible(bool show) {
         GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "StartSubmenu").gameObject;
+		subMenu.SetActive (show);
 		if (show) {
 			menuOptionsVisible (false);
-            subMenu.GetComponent<LevelDataUpdater>().updateLevelStars();
+            menuCustomVisible (false);
+            subMenu.GetComponent<LevelDataUpdater>().refresh();
 		}
-		subMenu.SetActive (show);
 	}
 
-    private void savePlayerPrefs(MenuValue menuValue, object value) {
-        // Key to store value with
-        string key = menuValue.key;
+	public void toggleCustomSubmenu() {
+		GameObject customSubMenu = Misc.FindDeepChild(menuSystem.transform, "CustomSubmenu").gameObject;
+		menuCustomVisible(!customSubMenu.activeSelf);
+	}
 
-        // Get stored keys
-		string storedKeysStr = PlayerPrefs.GetString ("Menu:storedKeys");
-        if (storedKeysStr != null && storedKeysStr != "") {
-	        string[] storedKeys = storedKeysStr.Split(',');
-            if (!storedKeys.Contains(key)) {
-                storedKeysStr += "," + key;
-            }
+	private void menuCustomVisible(bool show) {
+        GameObject customSubMenu = Misc.FindDeepChild(menuSystem.transform, "CustomSubmenu").gameObject;
+        customSubMenu.SetActive (show);
+		if (show) {
+			menuOptionsVisible (false);
+            menuStartVisible (false);
+            customSubMenu.GetComponent<LevelDataUpdater>().refresh();
+		}
+	}
+
+    // TODO - Temporary for filter distance
+    public float searchDistance = 500f;
+    public void customSearch(bool distanceFilterOnly = false) {
+        Debug.Log("Custom distance: " + searchDistance);
+        GameObject customSubMenu = Misc.FindDeepChild(menuSystem.transform, "CustomSubmenu").gameObject;
+        GameObject searchField = Misc.FindDeepChild(customSubMenu.transform, "Search field").gameObject;
+        customSubMenu.GetComponent<LevelDataUpdater>().setFilter(searchField.GetComponent<InputField>().text);
+        if (distanceFilterOnly) {
+            customSubMenu.GetComponent<LevelDataUpdater>().updateLevelGameObjects();
         } else {
-            storedKeysStr = key;
+            customSubMenu.GetComponent<LevelDataUpdater>().refresh();
         }
+    }
 
-        PlayerPrefs.SetString("Menu:storedKeys", storedKeysStr);
+    private void savePlayerPrefs(MenuValue menuValue, object value) {
+        if (Menu.haveInitialized) {
+   			// Key to store value with
+			string key = menuValue.key;
 
-        // Save actual value
-        Type valueType = value.GetType();
-        if (valueType == typeof(float)) {
-            PlayerPrefs.SetFloat(key, (float) value);
-        } else if (valueType == typeof(int)) {
-            PlayerPrefs.SetInt(key, (int) value);
-        } else if (valueType == typeof(string)) {
-            PlayerPrefs.SetString(key, (string) value);
+			// Get stored keys
+			string storedKeysStr = PlayerPrefs.GetString ("Menu:storedKeys");
+			if (storedKeysStr != null && storedKeysStr != "") {
+				string[] storedKeys = storedKeysStr.Split(',');
+				if (!storedKeys.Contains(key)) {
+					storedKeysStr += "," + key;
+				}
+			} else {
+				storedKeysStr = key;
+			}
+
+			PlayerPrefs.SetString("Menu:storedKeys", storedKeysStr);
+
+			// Save actual value
+			Type valueType = value.GetType();
+			if (valueType == typeof(float)) {
+				PlayerPrefs.SetFloat(key, (float) value);
+			} else if (valueType == typeof(int)) {
+				PlayerPrefs.SetInt(key, (int) value);
+			} else if (valueType == typeof(string)) {
+				PlayerPrefs.SetString(key, (string) value);
+			}
+
+            PlayerPrefsData.Save ();
+        }
+    }
+
+    public void graphicsQualityChanged() {
+        GameObject slider = getCurrentSelectedGameObject("Graphics Quality");
+        if (slider != null) {
+            float value = slider.GetComponent<Slider>().value;
+
+            MenuValue menuValue = slider.GetComponent<MenuValue>();
+            savePlayerPrefs(menuValue, value);
+
+            graphicsQuality = value;
         }
     }
 
 	public void musicVolumeChanged() {
-		GameObject slider = getCurrentSelectedGameObject();
+		GameObject slider = getCurrentSelectedGameObject("Music");
         if (slider != null) {
 			float value = slider.GetComponent<Slider>().value;
 
 			MenuValue menuValue = slider.GetComponent<MenuValue>();
 			savePlayerPrefs(menuValue, value);
 
-			// TODO
+            PubSub.publish ("Volume:music", value); // TODO
         }
-
 	}
 
 	public void ambientSoundVolumeChanged() {
-		GameObject slider = getCurrentSelectedGameObject();
+		GameObject slider = getCurrentSelectedGameObject("Ambient Sounds");
 		if (slider != null) {
 			float value = slider.GetComponent<Slider> ().value;
 
@@ -1490,7 +1571,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void soundEffectsVolumeChanged() {
-		GameObject slider = getCurrentSelectedGameObject();
+		GameObject slider = getCurrentSelectedGameObject("Sound Effects");
 		if (slider != null) {
 			float value = slider.GetComponent<Slider> ().value;
 
@@ -1648,19 +1729,55 @@ public class Game : MonoBehaviour, IPubSub {
             PlayerPrefsData.SetLevelStars(loadedLevel.id, numberOfStars);
 			PlayerPrefsData.Save ();
 
-            // Update level info for shown levels in menu
+            // Update level info for shown levels in menu - bundled & custom
             GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "StartSubmenu").gameObject;
-            subMenu.GetComponent<LevelDataUpdater>().updateLevelStars();
+            if (subMenu != null) {
+                subMenu.GetComponent<LevelDataUpdater>().updateLevelStars();
+            }
+            GameObject customSubMenu = Misc.FindDeepChild(menuSystem.transform, "CustomSubmenu").gameObject;
+            if (customSubMenu != null) {
+                customSubMenu.GetComponent<LevelDataUpdater>().updateLevelStars();
+            }
         }
 
         return shouldSaveNewScore;
 	}
 
-	public GameObject getCurrentSelectedGameObject() {
-        EventSystem eventSystem = EventSystem.current;
-        if (eventSystem != null) {
-            return eventSystem.currentSelectedGameObject;
+	public GameObject getCurrentSelectedGameObject(String fallbackGameObjectName) {
+        if (EventSystem.current != null) {
+			// Try to resolve gameObject
+			Transform optionsSubmenuTransform = Misc.FindDeepChild (menuSystem.transform, "OptionsSubmenu");
+			Transform changedGameObjectParent = Misc.FindDeepChild (optionsSubmenuTransform, fallbackGameObjectName);
+			GameObject settingsGameObject = Misc.GetGameObjectWithMenuValue(changedGameObjectParent);
+			return settingsGameObject;
         }
-		return null;
+        return null;
+	}
+
+	private IEnumerator getUserLocation() {
+        // Location services enabled
+        // Input.location.lastData.longitude
+        Debug.Log("Enabled? " + Input.location.isEnabledByUser);
+
+        Input.location.Start(10f, 1f);
+
+        int maxWait = 20;
+        while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
+        {
+            yield return new WaitForSeconds(1);
+            maxWait--;
+        }
+        if (Input.location.status == LocationServiceStatus.Failed) {
+			Debug.Log("ERROR: Location could not be fetched");
+        } else {
+			Debug.Log(Input.location.lastData.longitude + " - " + Input.location.lastData.latitude);
+			lon = Input.location.lastData.longitude;
+			lat = Input.location.lastData.latitude;
+
+			Debug.Log("You - Lund: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 13.1910f, 55.7047f));
+			Debug.Log("You - Jönköping: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 14.1618f, 57.7826f));
+
+			Input.location.Stop();
+        }
 	}
 }

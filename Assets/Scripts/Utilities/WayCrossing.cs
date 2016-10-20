@@ -25,6 +25,7 @@ public class WayCrossing {
 			Vector3 lineCenter = startPosition + orthoCrossingRotation * new Vector3 (i * stepLength - lineHeight / 2f, 0, 0);
 			GameObject line = MonoBehaviour.Instantiate (crossingLine, lineCenter, crossingRotation) as GameObject;
 			line.transform.localScale = new Vector3 (lineWidth, crossingLine.transform.localScale.y, crossingLine.transform.localScale.z);
+            line.transform.parent = Game.instance.waysParent;
 		}
 	}
 }

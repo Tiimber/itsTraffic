@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<levels>
+    <level
+            id="bundled_level_01"
+            name="Djäkne"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission.png"
+    />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+    />
+    <!-- TODO -->
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+    <level
+            id="bundled_level_02"
+            name="New York"
+            fileUrl="file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml"
+            iconUrl="file:///Users/robbin/itsTraffic/Assets/Standard Assets/Images/mission2.png"
+            />
+</levels>

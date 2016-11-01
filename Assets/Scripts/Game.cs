@@ -208,16 +208,6 @@ public class Game : MonoBehaviour, IPubSub {
 			DataCollector.Add ("Elapsed Time", Time.deltaTime);
 		}
 
-        // TODO - These are tamporary
-		if (Input.GetKeyDown (KeyCode.Plus)) {
-            searchDistance = LevelDataUpdater.getNextDistance(searchDistance);
-			customSearch(true);
-		}
-		if (Input.GetKeyDown (KeyCode.Minus)) {
-            searchDistance = LevelDataUpdater.getPreviousDistance(searchDistance);
-			customSearch(true);
-		}
-
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
 //			currentLevel = WayTypeEnum.getLower (currentLevel);
 //			filterWays ();
@@ -1426,18 +1416,18 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private GameObject getVehicleToInstantiate (Setup.VehicleSetup data = null) {
-		// Only camaros for now
-		return vehicles [0].vehicle.gameObject;
+//		// Only camaros for now
+//		return vehicles [0].vehicle.gameObject;
 		// TODO - fetching correct car model from data (if not null)
 		// TODO - When doing performance fixes, take this back for more car types
-		//		float randomPosition = Misc.randomRange (0f, sumVehicleFrequency);
-//		foreach (VehiclesDistribution vehicle in vehicles) {
-//			randomPosition -= vehicle.frequency;
-//			if (randomPosition <= 0f) {
-//				return vehicle.vehicle.gameObject;
-//			}
-//		}
-//		return null;
+		float randomPosition = Misc.randomRange (0f, sumVehicleFrequency);
+		foreach (VehiclesDistribution vehicle in vehicles) {
+			randomPosition -= vehicle.frequency;
+			if (randomPosition <= 0f) {
+				return vehicle.vehicle.gameObject;
+			}
+		}
+		return null;
 	}
 
 	public void quitApp() {
@@ -1489,9 +1479,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
     // TODO - Temporary for filter distance
-    public float searchDistance = 500f;
     public void customSearch(bool distanceFilterOnly = false) {
-        Debug.Log("Custom distance: " + searchDistance);
         GameObject customSubMenu = Misc.FindDeepChild(menuSystem.transform, "CustomSubmenu").gameObject;
         GameObject searchField = Misc.FindDeepChild(customSubMenu.transform, "Search field").gameObject;
         customSubMenu.GetComponent<LevelDataUpdater>().setFilter(searchField.GetComponent<InputField>().text);

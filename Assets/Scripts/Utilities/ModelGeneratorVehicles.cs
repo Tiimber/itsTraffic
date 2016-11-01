@@ -16,7 +16,7 @@
 		}, {
 			"Wolvo", new List<string> {"TI-81", "C64", "N64", "11-7", "X36.0", "X1", "X2000"}
 		}, {
-			"", new List<string> {""}
+			"Midza", new List<string> {"Carola", "Bettan", "Rachel", "Brittany", "Robin", "Athena", "Domino"}
 		}
 	};
 }

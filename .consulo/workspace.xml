@@ -8,7 +8,7 @@
     <file path="/Level.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1476684809652" ignored="false" />
     <file path="/PointCalculator.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1474351780022" ignored="false" />
     <file path="/level-robbin.xml" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1475126818992" ignored="false" />
-    <file path="/a.dummy" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1476682319044" ignored="false" />
+    <file path="/a.dummy" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1477984591476" ignored="false" />
     <file path="/Vehicle.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473920482012" ignored="false" />
     <file path="/HumanLogic.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473674076593" ignored="false" />
     <file path="/DataCollector.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1475733776608" ignored="false" />
@@ -19,7 +19,7 @@
     <file path="/a.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473916512581" ignored="false" />
     <file path="/LevelDataCollector.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473141955488" ignored="false" />
     <file path="/LevelInfo.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1475473195479" ignored="false" />
-    <file path="/LevelDataUpdater.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1476771556824" ignored="false" />
+    <file path="/LevelDataUpdater.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1476943527206" ignored="false" />
     <file path="/InformationWindow.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473752320244" ignored="false" />
     <file path="/Misc.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1476682587616" ignored="false" />
     <file path="/NodeIndex.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473312649821" ignored="false" />
@@ -73,14 +73,12 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Game.cs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Game.cs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Game.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="121">
-              <caret line="212" column="0" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="162">
+              <caret line="1417" column="39" selection-start-line="1417" selection-start-column="39" selection-end-line="1417" selection-end-column="39" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -105,16 +103,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BriefAndSummaryPopup.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/BriefAndSummaryPopup.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="14" column="40" selection-start-line="14" selection-start-column="27" selection-end-line="14" selection-end-column="40" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="WayHelper.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/WayHelper.cs">
           <provider selected="true" editor-type-id="text-editor">
@@ -128,18 +116,18 @@
       <file leaf-file-name="Misc.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Misc.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
-              <caret line="401" column="20" selection-start-line="401" selection-start-column="20" selection-end-line="401" selection-end-column="20" />
+            <state relative-caret-position="5760">
+              <caret line="391" column="24" selection-start-line="391" selection-start-column="24" selection-end-line="391" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LevelDataUpdater.cs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="LevelDataUpdater.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelDataUpdater.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="83" column="47" selection-start-line="83" selection-start-column="47" selection-end-line="83" selection-end-column="47" />
+            <state relative-caret-position="166">
+              <caret line="76" column="8" selection-start-line="76" selection-start-column="8" selection-end-line="76" selection-end-column="8" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -147,10 +135,40 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="ModelGeneratorVehicles.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/ModelGeneratorVehicles.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="330">
+              <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Vehicle.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Vehicle.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="144">
+              <caret line="480" column="31" selection-start-line="480" selection-start-column="31" selection-end-line="480" selection-end-column="31" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="VehicleSounds.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/VehicleSounds.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="22" column="35" selection-start-line="22" selection-start-column="24" selection-end-line="22" selection-end-column="35" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="Level.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Level/Level.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="246">
+            <state relative-caret-position="870">
               <caret line="58" column="62" selection-start-line="58" selection-start-column="62" selection-end-line="58" selection-end-column="62" />
               <folding />
             </state>
@@ -162,7 +180,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/Assets/Scripts/Map/Tag.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Map/NodeWithTags.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Map/Way.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Map/Pos.cs" />
@@ -211,8 +228,9 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/DataCollector.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/Misc.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Level/Level.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Game.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/LevelDataUpdater.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/ModelGeneratorVehicles.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Game.cs" />
       </list>
     </option>
   </component>
@@ -544,7 +562,12 @@
       <envs />
       <method />
     </configuration>
-    <configuration default="true" type="#UnityAttachApplication" factoryName="Unity Attach">
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
       <method />
     </configuration>
     <configuration default="true" type="#DotNetConfigurationType" factoryName=".NET Application">
@@ -559,6 +582,11 @@
       <option name="showConsoleOnStdErr" value="false" />
       <option name="showConsoleOnStdOut" value="false" />
       <option name="workingDirectory" value="" />
+      <coverage enabled="false" sample_coverage="true" />
+      <method />
+    </configuration>
+    <configuration default="true" type="#NUnitConfigurationType" factoryName="NUnit">
+      <module name="" />
       <coverage enabled="false" sample_coverage="true" />
       <method />
     </configuration>
@@ -581,19 +609,6 @@
       </option>
       <envs />
       <patterns />
-      <method />
-    </configuration>
-    <configuration default="true" type="#NUnitConfigurationType" factoryName="NUnit">
-      <module name="" />
-      <coverage enabled="false" sample_coverage="true" />
-      <method />
-    </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
       <method />
     </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Consulo In Sandbox">
@@ -665,35 +680,36 @@
       <workItem from="1476076427036" duration="359000" />
       <workItem from="1476336813561" duration="2811000" />
       <workItem from="1476451285095" duration="4000" />
-      <workItem from="1476681911026" duration="5213000" />
+      <workItem from="1476681911026" duration="7998000" />
+      <workItem from="1477984568924" duration="654000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="94235000" />
+    <option name="totallyTimeSpent" value="97674000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.0880902" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292978" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3292978" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.0880902" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32808718" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24947146" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.4479419" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39951575" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3062954" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -765,26 +781,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="dotnet-line-breakpoint">
-          <url>file://$PROJECT_DIR$/Assets/Scripts/Game.cs</url>
-          <line>620</line>
-          <properties />
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="dotnet-line-breakpoint">
-          <url>file://$PROJECT_DIR$/Assets/Scripts/Game.cs</url>
-          <line>212</line>
-          <properties />
-          <option name="timeStamp" value="80" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="dotnet-line-breakpoint">
-          <url>file://$PROJECT_DIR$/Assets/Scripts/Game.cs</url>
-          <line>216</line>
-          <properties />
-          <option name="timeStamp" value="81" />
-        </line-breakpoint>
-      </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
@@ -798,20 +794,6 @@
     <option name="MODULE_GROUPING" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/CustomObjectCreator.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="930">
-          <caret line="62" column="0" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/ObjectRandomizer.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="25" column="35" selection-start-line="25" selection-start-column="35" selection-end-line="25" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/PointAndClock.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -879,13 +861,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Vehicle.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9285">
-          <caret line="619" column="34" selection-start-line="619" selection-start-column="16" selection-end-line="619" selection-end-column="34" />
         </state>
       </provider>
     </entry>
@@ -1131,39 +1106,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Misc.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="401" column="20" selection-start-line="401" selection-start-column="20" selection-end-line="401" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Level/Level.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
+        <state relative-caret-position="870">
           <caret line="58" column="62" selection-start-line="58" selection-start-column="62" selection-end-line="58" selection-end-column="62" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Game.cs">
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Misc.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="121">
-          <caret line="212" column="0" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
+        <state relative-caret-position="5760">
+          <caret line="391" column="24" selection-start-line="391" selection-start-column="24" selection-end-line="391" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/ModelGeneratorVehicles.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Vehicle.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="480" column="31" selection-start-line="480" selection-start-column="31" selection-end-line="480" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/VehicleSounds.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="22" column="35" selection-start-line="22" selection-start-column="24" selection-end-line="22" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelDataUpdater.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="166">
+          <caret line="76" column="8" selection-start-line="76" selection-start-column="8" selection-end-line="76" selection-end-column="8" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelDataUpdater.cs">
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Game.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="83" column="47" selection-start-line="83" selection-start-column="47" selection-end-line="83" selection-end-column="47" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="162">
+          <caret line="1417" column="39" selection-start-line="1417" selection-start-column="39" selection-end-line="1417" selection-end-column="39" />
+          <folding />
         </state>
       </provider>
     </entry>

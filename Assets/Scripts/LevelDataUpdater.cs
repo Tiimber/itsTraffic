@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelDataUpdater : MonoBehaviour {
 
@@ -62,38 +63,37 @@ public class LevelDataUpdater : MonoBehaviour {
         // Add distances to each result in list
         Distances.Clear();
         foreach (Level level in levels.levels) {
-            Distances.Add(Misc.getDistanceBetweenEarthCoordinates(Game.instance.lon, Game.instance.lat, level.lon, level.lat));
-            Distances.Sort();
+            float distance = Misc.getDistanceBetweenEarthCoordinates (Game.instance.lon, Game.instance.lat, level.lon, level.lat);
+            if (Distances.Contains(distance)) {
+                Distances.Add(distance);
+            }
         }
+        Distances.Sort();
+
+        sort();
+    }
+
+    public void sort() {
+        Dropdown sort = Misc.FindDeepChild (transform, "Sort Dropdown").GetComponent<Dropdown> ();
+        string sortValue = sort.options [sort.value].text;
+
+        if (sortValue == "Nearest you") {
+            levels.levels.Sort((a, b) => Mathf.RoundToInt(getDistanceTo(a) - getDistanceTo(b)));
+        } else if (sortValue == "Name A-Z") {
+            levels.levels.Sort((a, b) => a.name.CompareTo(b.name));
+        } else if (sortValue == "Name Z-A") {
+            levels.levels.Sort((a, b) => b.name.CompareTo(a.name));
+        }
+        /**
+         * TODO:
+         *
+         * - Most popular
+         * - Levels I can improve
+         * - Unplayed levels
+         * - Random
+         */
 
         updateLevelGameObjects();
-    }
-
-    public static float getNextDistance(float currentDistance) {
-        bool returnNext = false;
-        foreach (float distance in Distances) {
-            if (returnNext) {
-                return distance;
-            }
-            if (distance > currentDistance) {
-                return distance;
-            }else if (distance == currentDistance) {
-                returnNext = true;
-            }
-        }
-        return Distances [Distances.Count - 1];
-    }
-
-    public static float getPreviousDistance(float currentDistance) {
-        for (int i = Distances.Count - 1; i > 0; i--) {
-            float distance = Distances [i];
-            if (distance < currentDistance) {
-                return Distances [i];
-            } else if (distance == currentDistance) {
-                return Distances [i - 1];
-            }
-        }
-        return Distances [0];
     }
 
     public void updateLevelGameObjects() {
@@ -109,15 +109,9 @@ public class LevelDataUpdater : MonoBehaviour {
 
         foreach (Level level in levels.levels) {
 
-            float distance = Game.instance.searchDistance;
-            if (Misc.getDistanceBetweenEarthCoordinates(Game.instance.lon, Game.instance.lat, level.lon, level.lat) > distance) {
-                continue;
-            }
-
-
             GameObject mission = Instantiate (missionTemplate, transform, false) as GameObject;
             if (levelType == LEVEL_TYPES.CUSTOM) {
-                mission.transform.localPosition += new Vector3(0f, -missionTemplate.transform.position.y - 34f, 0f); // -34f for search input
+                mission.transform.localPosition += new Vector3(0f, -missionTemplate.transform.position.y - 68f, 0f); // -68f for search input + sort dropdown
             }
             mission.transform.localPosition += new Vector3(column * MISSION_BLOCK_SIZE.x, row * MISSION_BLOCK_SIZE.y, 0f);
             mission.name = levelType + "-" + level.id;
@@ -146,6 +140,10 @@ public class LevelDataUpdater : MonoBehaviour {
         foreach (GameObject level in shownLevels) {
             Destroy(level);
         }
+    }
+
+    public float getDistanceTo(Level level) {
+        return Misc.getDistanceBetweenEarthCoordinates(Game.instance.lon, Game.instance.lat, level.lon, level.lat);
     }
 
 }

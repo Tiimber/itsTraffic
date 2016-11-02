@@ -986,7 +986,7 @@ public class Game : MonoBehaviour, IPubSub {
 			foreach (XmlAttribute refAttribute in nodeRefs) {
 				Pos pos = NodeIndex.nodes [Convert.ToInt64 (refAttribute.Value)];
 				if (prev != null) {
-					if (!way.Building) {
+					if (!way.Building && way.getTagValue("highway") != null) {
 						WayReference wayReference = createPartOfWay (prev, pos, way);
 						NodeIndex.addWayReferenceToNode (prev.Id, wayReference);
 						NodeIndex.addWayReferenceToNode (pos.Id, wayReference);

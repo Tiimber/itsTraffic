@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using UnityEngine;
 
 public class VehicleInfo : MonoBehaviour {
 
@@ -41,10 +41,12 @@ public class VehicleInfo : MonoBehaviour {
 			if (materialGameObjectName != null && data.color != null) {
 				GameObject materialGameObject = transform.FindChild (materialGameObjectName).gameObject;
 				MeshRenderer meshRenderer = materialGameObject.GetComponent<MeshRenderer> ();
-
-				Material mainColorMaterial = (Material) meshRenderer.materials [mainMaterialIndex];
-				Color color = Misc.parseColor (data.color);
-				mainColorMaterial.SetColor ("_Color", color);
+                
+				Material mainColorMaterial = getMainColorMaterial(meshRenderer.materials);
+                if (mainColorMaterial != null) {
+                    Color color = Misc.parseColor (data.color);
+					mainColorMaterial.SetColor ("_Color", color);
+                }
 			}
 		} else {			
 			model = ModelGeneratorVehicles.generate (brand);
@@ -77,5 +79,9 @@ public class VehicleInfo : MonoBehaviour {
 			randomizeNumberOfPassengers ();
 		}
 		return numberOfPassengers;
+	}
+
+	public Material getMainColorMaterial(Material[] materials) {
+		return Array.Find<Material> (materials, material => Regex.IsMatch (material.name, "((^car.*)|(.*_car))(\\s\\(Instance\\))?", RegexOptions.IgnoreCase));
 	}
 }

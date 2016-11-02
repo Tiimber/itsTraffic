@@ -1416,10 +1416,15 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private GameObject getVehicleToInstantiate (Setup.VehicleSetup data = null) {
-//		// Only camaros for now
-//		return vehicles [0].vehicle.gameObject;
-		// TODO - fetching correct car model from data (if not null)
-		// TODO - When doing performance fixes, take this back for more car types
+        // First try and find the correct car for the data setup
+        if (data != null && data.brand != null) {
+			VehiclesDistribution foundVehicle = vehicles.Find (vehicle => vehicle.brand == data.brand);
+            if (foundVehicle != null) {
+                return foundVehicle.vehicle.gameObject;
+            }
+        }
+
+        // If no data setup, or no matching brand, select randomly with the setup vehicle distribution
 		float randomPosition = Misc.randomRange (0f, sumVehicleFrequency);
 		foreach (VehiclesDistribution vehicle in vehicles) {
 			randomPosition -= vehicle.frequency;

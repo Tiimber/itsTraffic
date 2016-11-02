@@ -27,14 +27,22 @@ public class VehicleInfo : MonoBehaviour {
 		if (data != null) {
 //			name = data.name;
 			brand = data.brand;
-			model = data.model;
-			year = data.year;
+            if (data.model != null) {
+                model = data.model;
+            } else {
+                model = ModelGeneratorVehicles.generate (brand);
+            }
+            if (data.year != 0) {
+				year = data.year;
+			} else {
+                year = DateTime.Now.Year - Misc.randomRange (0, 10);
+            }
 			numberOfPassengers = data.passengerIds.Count;
 			if (materialGameObjectName != null && data.color != null) {
 				GameObject materialGameObject = transform.FindChild (materialGameObjectName).gameObject;
 				MeshRenderer meshRenderer = materialGameObject.GetComponent<MeshRenderer> ();
 
-				Material mainColorMaterial = meshRenderer.materials [mainMaterialIndex];
+				Material mainColorMaterial = (Material) meshRenderer.materials [mainMaterialIndex];
 				Color color = Misc.parseColor (data.color);
 				mainColorMaterial.SetColor ("_Color", color);
 			}

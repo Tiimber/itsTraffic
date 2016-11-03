@@ -1022,6 +1022,19 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	void handleRelations (XmlDocument xmlDoc) {
+        // Bus lines
+        HashSet<string> busLines = new HashSet<string>();
+        XmlNodeList relationRoutes = xmlDoc.SelectNodes("/osm/relation[./tag[@k='route' and @v='bus']]");
+        foreach (XmlNode relationRoute in relationRoutes) {
+            string xmlNodeId = relationRoute.Attributes ["id"].Value;
+            XmlAttribute tagAttribute = (XmlAttribute) relationRoute.SelectSingleNode ("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='ref']/@v");
+            string tagValue = tagAttribute.Value;
+            if (tagValue != null) {
+                busLines.Add(" - " + tagValue);
+            }
+        }
+        ModelGeneratorVehicles.setBusLines(busLines.ToList());
+
 		XmlNodeList relationNodes = xmlDoc.SelectNodes("/osm/relation");
 		foreach (XmlNode xmlNode in relationNodes) {
 

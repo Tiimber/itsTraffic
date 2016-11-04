@@ -38,19 +38,41 @@ public class VehicleInfo : MonoBehaviour {
                 year = DateTime.Now.Year - Misc.randomRange (0, 10);
             }
 			numberOfPassengers = data.passengerIds.Count;
-			if (materialGameObjectName != null && data.color != null) {
-				GameObject materialGameObject = transform.FindChild (materialGameObjectName).gameObject;
-				MeshRenderer meshRenderer = materialGameObject.GetComponent<MeshRenderer> ();
-                
-				Material mainColorMaterial = getMainColorMaterial(meshRenderer.materials);
-                if (mainColorMaterial != null) {
-                    Color color = Misc.parseColor (data.color);
+
+            // Set color
+			GameObject materialGameObject = transform.FindChild (materialGameObjectName).gameObject;
+			MeshRenderer meshRenderer = materialGameObject.GetComponent<MeshRenderer> ();
+
+			Material mainColorMaterial = getMainColorMaterial (meshRenderer.materials);
+			if (mainColorMaterial != null) {
+				if (data.color != null) {
+					Color color = Misc.parseColor (data.color);
+					// Parse and set this color from data
 					mainColorMaterial.SetColor ("_Color", color);
-                }
+				} else {
+					// Try to get color to use from level setup - if not specified, will use default color
+					Color color = Misc.parseColor (Game.instance.loadedLevel.vehicleColors.getRandomColorForBrand(brand));
+					if (color != null) {
+						mainColorMaterial.SetColor ("_Color", color);
+					}
+				}
 			}
-		} else {			
+		} else {
 			model = ModelGeneratorVehicles.generate (brand);
 			year = DateTime.Now.Year - Misc.randomRange (0, 10);
+
+			// Parse and set this color from data
+			GameObject materialGameObject = transform.FindChild (materialGameObjectName).gameObject;
+			MeshRenderer meshRenderer = materialGameObject.GetComponent<MeshRenderer> ();
+
+			Material mainColorMaterial = getMainColorMaterial (meshRenderer.materials);
+			if (mainColorMaterial != null) {
+				// Try to get color to use from level setup - if not specified, will use default color
+				Color color = Misc.parseColor (Game.instance.loadedLevel.vehicleColors.getRandomColorForBrand(brand));
+				if (color != null) {
+					mainColorMaterial.SetColor ("_Color", color);
+				}
+			}
 		}
 	}
 	

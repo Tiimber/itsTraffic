@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.Xml;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 
@@ -258,8 +259,8 @@ public class Misc {
 		return new DateTime (Convert.ToInt32 (dateParts [0]), Convert.ToInt32 (dateParts [1]), dateParts.Length > 2 ? Convert.ToInt32 (dateParts [2]) : 1);
 	}
 
-	public static Color parseColor (string skinColor) {
-		string[] colorParts = skinColor.Split (',');
+	public static Color parseColor (string color) {
+		string[] colorParts = color.Split (',');
 		float r = Convert.ToInt32 (colorParts [0]) / 255f;
 		float g = Convert.ToInt32 (colorParts [1]) / 255f;
 		float b = Convert.ToInt32 (colorParts [2]) / 255f;
@@ -403,4 +404,8 @@ public class Misc {
 
         return R * c;
     }
+
+	public static List<int> splitInts(string str) {
+		return str.Split (',').Select<string, int>(int.Parse).ToList<int>();
+	}
 }

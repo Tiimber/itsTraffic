@@ -41,7 +41,6 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 			if (clickedInformationBase != null) {
 				showInformation (clickedInformationBase);
 				return PROPAGATION.STOP_IMMEDIATELY;
-
 			}
 		} else if (message == "InformationWindow:hide") {
             hideInformation();
@@ -57,6 +56,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 	}
 
 	public void hideInformation() {
+        switchCamera (true);
         if (informationObject != null) {
             informationObject.disposeInformation ();
         }
@@ -150,11 +150,11 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 		y += titleStyle.fontSize + 6f;
 	}
 
-    private void switchCamera() {
+    private void switchCamera(bool forceDetach = false) {
         if (informationObject != null) {
             Vehicle vehicle = informationObject.GetComponent<Vehicle>();
             if (!vehicle.switchingCameraInProgress) {
-                if (!vehicle.isOwningCamera) {
+                if (!vehicle.isOwningCamera && !forceDetach) {
 					vehicle.grabCamera();
 				} else {
 					Vehicle.detachCurrentCamera();

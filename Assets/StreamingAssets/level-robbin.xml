@@ -58,6 +58,28 @@
 		intervalDecreaseRate="0.02"
 	/>
 
+    <vehicleColors>
+        <vehicle brand="Sportzcar">
+            <color value="204,190,16" span="30,20,10" frequency="70"/>
+            <color value="227,0,0" span="0,60,0" frequency="15"/>
+            <color value="0,171,227" span="255,40,30" frequency="5"/>
+            <color value="0,128,69" span="70,50,30" frequency="10"/>
+        </vehicle>
+        <vehicle brand="Midza">
+            <color value="168,213,210" span="40,20,20" frequency="70"/>
+            <color value="171,125,82" span="20,15,25" frequency="20"/>
+            <color value="109,255,116" span="30,40,25" frequency="10"/>
+        </vehicle>
+        <vehicle brand="Handaj">
+            <color value="255,255,255" span="55,55,55" frequency="60"/>
+            <color value="0,111,69" span="90,20,50" frequency="20"/>
+            <color value="66,42,128" span="30,40,50" frequency="20"/>
+        </vehicle>
+        <vehicle brand="Bus">
+            <color value="53,144,41" span="0,0,0" frequency="75"/>
+            <color value="222,162,6" span="0,0,0" frequency="25"/>
+        </vehicle>
+    </vehicleColors>
 
 	<setup>
 		<people>

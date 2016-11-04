@@ -82,6 +82,7 @@
      <Compile Include="Assets\Scripts\Level\Randomizer.cs" />
      <Compile Include="Assets\Scripts\Level\Setup.cs" />
      <Compile Include="Assets\Scripts\Level\Summary.cs" />
+     <Compile Include="Assets\Scripts\Level\VehicleColors.cs" />
      <Compile Include="Assets\Scripts\LevelDataUpdater.cs" />
      <Compile Include="Assets\Scripts\LevelInfo.cs" />
      <Compile Include="Assets\Scripts\LightLogic.cs" />

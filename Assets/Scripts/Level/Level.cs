@@ -20,6 +20,7 @@ public class Level {
 
 	public Objectives objectives;
 	public PointCalculator pointCalculator;
+    public VehicleColors vehicleColors;
 	public Randomizer humanRandomizer;
 	public Randomizer vehicleRandomizer;
 	public Setup setup;
@@ -33,6 +34,9 @@ public class Level {
 
         XmlNode pointCalculatorNode = xmlDoc.SelectSingleNode("/level/pointCalculator");
         pointCalculator = new PointCalculator(pointCalculatorNode);
+
+		XmlNode vehicleColorsNode = xmlDoc.SelectSingleNode ("/level/vehicleColors");
+        vehicleColors = new VehicleColors (vehicleColorsNode);
 
 		XmlNode humanRandomizerNode = xmlDoc.SelectSingleNode ("/level/humanRandomizer");
 		humanRandomizer = new Randomizer (humanRandomizerNode, "human");

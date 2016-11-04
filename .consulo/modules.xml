@@ -327,6 +327,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Setup.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Setup.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/Summary.cs" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Level/VehicleColors.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/LevelDataUpdater.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/LevelInfo.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/LightLogic.cs" />

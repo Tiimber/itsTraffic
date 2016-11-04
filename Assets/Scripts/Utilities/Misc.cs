@@ -408,4 +408,8 @@ public class Misc {
 	public static List<int> splitInts(string str) {
 		return str.Split (',').Select<string, int>(int.Parse).ToList<int>();
 	}
+
+	public static Texture getCountryFlag(string countryCode) {
+        return Resources.Load("Graphics/flags/" + countryCode) as Texture;
+	}
 }

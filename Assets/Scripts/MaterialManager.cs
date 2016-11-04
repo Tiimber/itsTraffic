@@ -7,7 +7,7 @@ public class MaterialManager {
 
 	private static string downloadedMaterialsFolder = Application.persistentDataPath + "/downloadedMaterials/";
 	private static string localMaterialBaseUrl = "file://" + Application.persistentDataPath + "/downloadedMaterials/";
-	private static string remoteMaterialBaseUrl = "http://samlingar.com/itsTraffic/";
+	private static string remoteMaterialBaseUrl = "http://localhost:4002/static/materials/";
 	private static string[] MaterialTypes = new string[]{"Outdoors", "Roof", "Street", "Wall"};
 
 	// Materials that we have available in the app

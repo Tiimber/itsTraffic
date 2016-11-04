@@ -51,8 +51,9 @@ public class VehicleInfo : MonoBehaviour {
 					mainColorMaterial.SetColor ("_Color", color);
 				} else {
 					// Try to get color to use from level setup - if not specified, will use default color
-					Color color = Misc.parseColor (Game.instance.loadedLevel.vehicleColors.getRandomColorForBrand(brand));
-					if (color != null) {
+					string colorForBrand = Game.instance.loadedLevel.vehicleColors.getRandomColorForBrand (brand);
+					if (colorForBrand != null) {
+						Color color = Misc.parseColor (colorForBrand);
 						mainColorMaterial.SetColor ("_Color", color);
 					}
 				}
@@ -68,8 +69,9 @@ public class VehicleInfo : MonoBehaviour {
 			Material mainColorMaterial = getMainColorMaterial (meshRenderer.materials);
 			if (mainColorMaterial != null) {
 				// Try to get color to use from level setup - if not specified, will use default color
-				Color color = Misc.parseColor (Game.instance.loadedLevel.vehicleColors.getRandomColorForBrand(brand));
-				if (color != null) {
+				string colorForBrand = Game.instance.loadedLevel.vehicleColors.getRandomColorForBrand (brand);
+				if (colorForBrand != null) {
+					Color color = Misc.parseColor (colorForBrand);
 					mainColorMaterial.SetColor ("_Color", color);
 				}
 			}

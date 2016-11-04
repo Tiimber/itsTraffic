@@ -39,11 +39,11 @@ public class CameraSwitch : MonoBehaviour {
 
         yield return doAnimate(cameraCopy.GetComponent<Camera>(), to.transform, toSize, audioListener, audioListenerMoveVector, time);
 
-        Debug.Log("Audio listener before pos: " + Misc.getWorldPos(audioListener.transform));
+//        Debug.Log("Audio listener before pos: " + Misc.getWorldPos(audioListener.transform));
         audioListener.transform.parent = toAudioListenerHolder.transform;
         audioListener.transform.localPosition = toAudioListenerHolder.relativePos;
-        Debug.Log("To camera pos: " + Misc.getWorldPos(to.transform));
-        Debug.Log("Audio listener after pos: " + Misc.getWorldPos(audioListener.transform));
+//        Debug.Log("To camera pos: " + Misc.getWorldPos(to.transform));
+//        Debug.Log("Audio listener after pos: " + Misc.getWorldPos(audioListener.transform));
 
         to.enabled = true;
         to.gameObject.SetActive(true);

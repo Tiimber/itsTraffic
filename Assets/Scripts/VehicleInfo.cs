@@ -40,7 +40,7 @@ public class VehicleInfo : MonoBehaviour {
 			numberOfPassengers = data.passengerIds.Count;
 
             // Set color
-			GameObject materialGameObject = transform.FindChild (materialGameObjectName).gameObject;
+			GameObject materialGameObject = transform.Find (materialGameObjectName).gameObject;
 			MeshRenderer meshRenderer = materialGameObject.GetComponent<MeshRenderer> ();
 
 			Material mainColorMaterial = getMainColorMaterial (meshRenderer.materials);
@@ -62,7 +62,7 @@ public class VehicleInfo : MonoBehaviour {
 			year = DateTime.Now.Year - Misc.randomRange (0, 10);
 
 			// Parse and set this color from data
-			GameObject materialGameObject = transform.FindChild (materialGameObjectName).gameObject;
+			GameObject materialGameObject = transform.Find (materialGameObjectName).gameObject;
 			MeshRenderer meshRenderer = materialGameObject.GetComponent<MeshRenderer> ();
 
 			Material mainColorMaterial = getMainColorMaterial (meshRenderer.materials);

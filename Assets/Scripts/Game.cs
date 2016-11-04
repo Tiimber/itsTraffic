@@ -769,7 +769,8 @@ public class Game : MonoBehaviour, IPubSub {
 		xmlDoc.LoadXml(www.text);
 
 		loadedLevel = new Level (xmlDoc);
-		StartCoroutine (loadXML (loadedLevel.mapUrl, loadedLevel.configUrl));
+        calculateVehicleFrequency ();
+        StartCoroutine (loadXML (loadedLevel.mapUrl, loadedLevel.configUrl));
 	}
 
 	private IEnumerator loadXML (string mapFileName, string configFileName) {
@@ -1425,7 +1426,11 @@ public class Game : MonoBehaviour, IPubSub {
 	private void calculateVehicleFrequency ()
 	{
 		sumVehicleFrequency = 0f;
-		vehicles.ForEach(vehicle => sumVehicleFrequency += vehicle.frequency);
+        if (loadedLevel != null && loadedLevel.vehiclesDistribution != null && loadedLevel.vehiclesDistribution.Count > 0) {
+            loadedLevel.vehiclesDistribution.ForEach(vehicle => sumVehicleFrequency += vehicle.frequency);
+        } else {
+            vehicles.ForEach(vehicle => sumVehicleFrequency += vehicle.frequency);
+        }
 	}
 
 	private GameObject getVehicleToInstantiate (Setup.VehicleSetup data = null) {
@@ -1439,7 +1444,11 @@ public class Game : MonoBehaviour, IPubSub {
 
         // If no data setup, or no matching brand, select randomly with the setup vehicle distribution
 		float randomPosition = Misc.randomRange (0f, sumVehicleFrequency);
-		foreach (VehiclesDistribution vehicle in vehicles) {
+
+        bool haveLevelDistributionSetup = loadedLevel != null && loadedLevel.vehiclesDistribution != null && loadedLevel.vehiclesDistribution.Count > 0;
+        List<VehiclesDistribution> vehicleDistributionSetup = haveLevelDistributionSetup ? loadedLevel.vehiclesDistribution : vehicles;
+
+		foreach (VehiclesDistribution vehicle in vehicleDistributionSetup) {
 			randomPosition -= vehicle.frequency;
 			if (randomPosition <= 0f) {
 				return vehicle.vehicle.gameObject;

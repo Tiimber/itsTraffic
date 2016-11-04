@@ -81,6 +81,13 @@
         </vehicle>
     </vehicleColors>
 
+    <vehicleDistributions>
+        <vehicle brand="Sportzcar" frequency="3"/>
+        <vehicle brand="Midza" frequency="15"/>
+        <vehicle brand="Handaj" frequency="25"/>
+        <vehicle brand="Bus" frequency="11"/>
+    </vehicleDistributions>
+
 	<setup>
 		<people>
 			<person id="20007" refOnly="true" name="Per Persson" dob="1946-08" money="133.7" /> <!-- TODO - Enter backers from country or close distance from location -->

@@ -18,10 +18,10 @@
     <file path="/Points.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1472708730667" ignored="false" />
     <file path="/a.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473916512581" ignored="false" />
     <file path="/LevelDataCollector.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473141955488" ignored="false" />
-    <file path="/LevelInfo.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478262739758" ignored="false" />
+    <file path="/LevelInfo.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478264764745" ignored="false" />
     <file path="/LevelDataUpdater.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1476943527206" ignored="false" />
     <file path="/InformationWindow.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478246511990" ignored="false" />
-    <file path="/Misc.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478262125766" ignored="false" />
+    <file path="/Misc.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478264632070" ignored="false" />
     <file path="/NodeIndex.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473312649821" ignored="false" />
     <file path="/MapSurface.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473313097366" ignored="false" />
     <file path="$PROJECT_DIR$/.consulo/workspace.xml" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473313267187" ignored="false" />
@@ -57,7 +57,7 @@
     <file path="/dummy.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478091900048" ignored="false" />
     <file path="/ModelGeneratorVehicles.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478160564071" ignored="false" />
     <file path="/VehicleColors.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478182404382" ignored="false" />
-    <file path="/a.regexp" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478254205197" ignored="false" />
+    <file path="/a.regexp" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478264831979" ignored="false" />
     <file path="/CrossPlatformInputInitialize.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478251644671" ignored="false" />
     <file path="/MaterialManager.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478255046113" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -81,11 +81,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Game.cs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Game.cs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Game.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="626">
-              <caret line="1262" column="13" selection-start-line="1262" selection-start-column="13" selection-end-line="1262" selection-end-column="13" />
+            <state relative-caret-position="314">
+              <caret line="762" column="18" selection-start-line="762" selection-start-column="18" selection-end-line="762" selection-end-column="27" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -125,11 +125,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LevelInfo.cs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="LevelInfo.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="440">
-              <caret line="41" column="5" selection-start-line="41" selection-start-column="5" selection-end-line="41" selection-end-column="5" />
+            <state relative-caret-position="485">
+              <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -140,8 +140,8 @@
       <file leaf-file-name="Misc.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Misc.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="767">
-              <caret line="411" column="40" selection-start-line="411" selection-start-column="26" selection-end-line="411" selection-end-column="40" />
+            <state relative-caret-position="455">
+              <caret line="393" column="36" selection-start-line="393" selection-start-column="36" selection-end-line="393" selection-end-column="36" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -858,12 +858,12 @@
       <workItem from="1476681911026" duration="7998000" />
       <workItem from="1477984568924" duration="654000" />
       <workItem from="1478076356222" duration="4659000" />
-      <workItem from="1478092287258" duration="20127000" />
+      <workItem from="1478092287258" duration="20787000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="122460000" />
+    <option name="totallyTimeSpent" value="123120000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="2560" height="1440" extended-state="0" />
@@ -1308,16 +1308,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Game.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="626">
-          <caret line="1262" column="13" selection-start-line="1262" selection-start-column="13" selection-end-line="1262" selection-end-column="13" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/MaterialManager.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="297">
@@ -1356,8 +1346,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Misc.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="767">
-          <caret line="411" column="40" selection-start-line="411" selection-start-column="26" selection-end-line="411" selection-end-column="40" />
+        <state relative-caret-position="455">
+          <caret line="393" column="36" selection-start-line="393" selection-start-column="36" selection-end-line="393" selection-end-column="36" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -1366,10 +1356,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="41" column="5" selection-start-line="41" selection-start-column="5" selection-end-line="41" selection-end-column="5" />
+        <state relative-caret-position="485">
+          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Game.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="314">
+          <caret line="762" column="18" selection-start-line="762" selection-start-column="18" selection-end-line="762" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>

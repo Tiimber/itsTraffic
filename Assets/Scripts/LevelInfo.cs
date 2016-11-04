@@ -61,5 +61,6 @@ public class LevelInfo : MonoBehaviour {
         GameObject flag = Misc.FindDeepChild (transform, "flag").gameObject;
         RawImage flagImage = flag.GetComponent<RawImage>();
         flagImage.texture = Misc.getCountryFlag(countryCode);
+        flagImage.color = Color.white;
     }
 }

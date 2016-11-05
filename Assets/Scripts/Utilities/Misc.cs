@@ -412,4 +412,38 @@ public class Misc {
 	public static Texture getCountryFlag(string countryCode) {
         return Resources.Load("Graphics/flags/" + countryCode) as Texture;
 	}
+
+    // Readable in format "1s", "5m 30s" (always number + suffix grouped, parts separated with spaces)
+	public static long getTsForReadable(string readable) {
+        long ms = 0;
+        string[] parts = readable.Split(' ');
+
+		foreach (string part in parts) {
+            if (part.EndsWith("ms")) {
+                ms += long.Parse(part.Substring(0, part.Length - 2));
+            } else if (part.EndsWith("s")) {
+                ms += long.Parse(part.Substring(0, part.Length - 1)) * 1000;
+            } else if (part.EndsWith("m")) {
+                ms += long.Parse(part.Substring(0, part.Length - 1)) * 1000 * 60;
+            } else if (part.EndsWith("h")) {
+                ms += long.Parse(part.Substring(0, part.Length - 1)) * 1000 * 60 * 60;
+            } else if (part.EndsWith("d")) {
+                ms += long.Parse(part.Substring(0, part.Length - 1)) * 1000 * 60 * 60 * 24;
+            }
+        }
+
+        return ms;
+	}
+
+//	https://github.com/fiorix/freegeoip/releases (need https://golang.org?)
+    public static IEnumerator getGeoLocation() {
+		WWW www = CacheWWW.Get(Game.instance.endpointBaseUrl + Game.instance.getLocationRelativeUrl, Misc.getTsForReadable("5m"));
+        yield return www;
+
+        XmlDocument xmlDoc = new XmlDocument();
+        xmlDoc.LoadXml(www.text);
+
+        Game.instance.lat = Convert.ToSingle (xmlDoc.SelectSingleNode ("/geoData/lat").InnerText);
+        Game.instance.lon = Convert.ToSingle (xmlDoc.SelectSingleNode ("/geoData/lon").InnerText);
+    }
 }

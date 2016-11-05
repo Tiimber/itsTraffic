@@ -53,6 +53,7 @@ public class Game : MonoBehaviour, IPubSub {
 
     public string endpointBaseUrl = "http://localhost:4002/";
     public string customLevelsRelativeUrl = "custom-levels";
+    public string getLocationRelativeUrl = "get-location";
 
 	private const float CLICK_RELEASE_TIME = 0.2f; 
 	private const float THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK = 30f;
@@ -105,18 +106,15 @@ public class Game : MonoBehaviour, IPubSub {
 
 	// Use this for initialization
 	void Start () {
-        // TODO - Proper geo fetching for desktop + client
-//        StartCoroutine(getUserLocation());
-        // TODO - Temporary
-        lat = 55.605385f;
-        lon = 13.00514f;
+        Game.instance = this;
+
+        StartCoroutine(getUserLocation());
 
 		showMenu ();
 		paused = false;
 		initDataCollection ();
 		calculateVehicleFrequency ();
 
-		Game.instance = this;
 
 		StartCoroutine (MaterialManager.Init ());
 
@@ -760,6 +758,7 @@ public class Game : MonoBehaviour, IPubSub {
 		introCamera.gameObject.SetActive (true);
 		showMenu (false);
 
+//        WWW www = CacheWWW.Get(levelFileName, Misc.getTsForReadable("5m"));
 		WWW www = new WWW (levelFileName);
 
 		yield return www;
@@ -779,6 +778,7 @@ public class Game : MonoBehaviour, IPubSub {
 		introCamera.gameObject.SetActive (true);
 		showMenu (false);
 
+//        WWW www = CacheWWW.Get(mapFileName, Misc.getTsForReadable("5m"));
 		WWW www = new WWW (mapFileName);
 		
 		yield return www;
@@ -1770,29 +1770,34 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private IEnumerator getUserLocation() {
-        // Location services enabled
-        // Input.location.lastData.longitude
-        Debug.Log("Enabled? " + Input.location.isEnabledByUser);
 
-        Input.location.Start(10f, 1f);
-
-        int maxWait = 20;
-        while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
-        {
-            yield return new WaitForSeconds(1);
-            maxWait--;
-        }
-        if (Input.location.status == LocationServiceStatus.Failed) {
-			Debug.Log("ERROR: Location could not be fetched");
+        if (!Input.location.isEnabledByUser) {
+            // Get location by IP
+            yield return Misc.getGeoLocation();
         } else {
-			Debug.Log(Input.location.lastData.longitude + " - " + Input.location.lastData.latitude);
-			lon = Input.location.lastData.longitude;
-			lat = Input.location.lastData.latitude;
+	        // Location services enabled
+            Input.location.Start(10f, 1f);
 
-			Debug.Log("You - Lund: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 13.1910f, 55.7047f));
-			Debug.Log("You - Jönköping: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 14.1618f, 57.7826f));
+            int maxWait = 20;
+            while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
+            {
+                yield return new WaitForSeconds(1f);
+                maxWait--;
+            }
+            if (Input.location.status == LocationServiceStatus.Failed) {
+                Debug.Log("ERROR: Location could not be fetched, will try to fetch by IP instead");
+                yield return Misc.getGeoLocation();
+            } else {
+                Debug.Log(Input.location.lastData.longitude + " - " + Input.location.lastData.latitude);
+                lon = Input.location.lastData.longitude;
+                lat = Input.location.lastData.latitude;
 
-			Input.location.Stop();
+                Input.location.Stop();
+            }
         }
-	}
+
+        Debug.Log("Your geo location: " + lon + " , " + lat);
+        Debug.Log("You - Lund: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 13.1910f, 55.7047f));
+        Debug.Log("You - Jönköping: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 14.1618f, 57.7826f));
+    }
 }

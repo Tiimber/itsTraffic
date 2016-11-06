@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviour {
 
@@ -12,8 +13,16 @@ public class Menu : MonoBehaviour {
 	}
 
     public IEnumerator loadPlayerPrefs() {
-        while (Game.instance == null) {
+        // Wait for game instance being assigned and input methods scanned
+        while (Game.instance == null && !Misc.haveScannedInputs) {
             yield return new WaitForSecondsRealtime(0.5f);
+        }
+
+        // Controller default value
+        List<string> availableInputNames = Misc.getInputMethodNames();
+        Text controllerText = Misc.GetMenuValueTextForKey("Options:controller");
+        if (controllerText != null) {
+            controllerText.text = availableInputNames[0];
         }
 
         string storedKeysStr = PlayerPrefs.GetString("Menu:storedKeys");
@@ -42,6 +51,14 @@ public class Menu : MonoBehaviour {
                     } else {
                         continue;
                     }
+
+                    // Sanity check for controller
+                    if (storedKey == "Options:controller") {
+                        if (!availableInputNames.Contains((string)value)) {
+                            continue;
+                        }
+                    }
+
                     menuValueObject.setValue(value);
                 }
             }

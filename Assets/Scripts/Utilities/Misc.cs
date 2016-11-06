@@ -1,16 +1,20 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System;
-using System.Xml;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class Misc {
 
 	public static System.Random random = new System.Random();
+    public static bool haveScannedInputs = false;
+    public static bool hasMouse = true;
+    public static List<Joystick> joysticks = new List<Joystick>();
 
 	public static byte[] GetBytes(string str)
 	{
@@ -445,5 +449,42 @@ public class Misc {
 
         Game.instance.lat = Convert.ToSingle (xmlDoc.SelectSingleNode ("/geoData/lat").InnerText);
         Game.instance.lon = Convert.ToSingle (xmlDoc.SelectSingleNode ("/geoData/lon").InnerText);
+    }
+
+	public static void refreshInputMethods() {
+		Misc.hasMouse = Input.mousePresent;
+
+        joysticks.Clear();
+        int index = 0;
+
+		string[] joystickNames = Input.GetJoystickNames();
+		Array.ForEach<string>(joystickNames, name => joysticks.Add(new Joystick(index++, name)));
+
+        haveScannedInputs = true;
+	}
+
+    public static Text GetMenuValueTextForKey(string menuValueKey) {
+        MenuValue[] menuValueObjects = Resources.FindObjectsOfTypeAll<MenuValue>();
+        foreach (MenuValue menuValueObject in menuValueObjects) {
+            if (menuValueObject.key == menuValueKey) {
+                return menuValueObject.GetComponent<Text>();
+            }
+        }
+        return null;
+    }
+
+	public static List<string> getInputMethodNames() {
+        List<string> inputNames = new List<string>();
+        if (!hasMouse && joysticks.Count == 0) {
+            inputNames.Add(Joystick.GetUnavailableName());
+        } else {
+			if (Misc.hasMouse) {
+				inputNames.Add(Joystick.GetMouseAndKeyboardName());
+			}
+            if (Misc.joysticks.Count > 0) {
+				inputNames.Add(Misc.joysticks[0].getName());
+			}
+        }
+        return inputNames;
     }
 }

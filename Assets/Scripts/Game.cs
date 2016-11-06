@@ -108,6 +108,8 @@ public class Game : MonoBehaviour, IPubSub {
 	void Start () {
         Game.instance = this;
 
+        Misc.refreshInputMethods();
+
         StartCoroutine(getUserLocation());
 
 		showMenu ();
@@ -1607,7 +1609,7 @@ public class Game : MonoBehaviour, IPubSub {
         "Español"
     };
     public void toggleLanguage() {
-        Text languageText = GetText("Options:language");
+        Text languageText = Misc.GetMenuValueTextForKey("Options:language");
         if (languageText != null) {
             string previousValue = languageText.text;
 			string nextValue = getNextLanguage(previousValue);
@@ -1625,6 +1627,30 @@ public class Game : MonoBehaviour, IPubSub {
         return languages[(languages.IndexOf(prevLanguage) + 1) % languages.Count];
     }
 
+    public void toggleController() {
+		Text controllerText = Misc.GetMenuValueTextForKey("Options:controller");
+		if (controllerText != null) {
+			string previousValue = controllerText.text;
+			string nextValue = getNextController(previousValue);
+
+			MenuValue menuValue = controllerText.GetComponent<MenuValue>();
+			savePlayerPrefs(menuValue, nextValue);
+
+			controllerText.text = nextValue;
+
+//            PubSub.publish ("Language:set", nextValue);
+		}
+	}
+
+    private string getNextController(string prevController) {
+		List<string> controllerNames = Misc.getInputMethodNames();
+        if (controllerNames.Contains(prevController)) {
+            return controllerNames[(controllerNames.IndexOf(prevController) + 1) % controllerNames.Count];
+        } else {
+            return controllerNames[0];
+        }
+    }
+
     int clearClickCount = 0;
     public void clearAllData() {
         clearClickCount++;
@@ -1637,16 +1663,6 @@ public class Game : MonoBehaviour, IPubSub {
             parent.transform.GetChild(Math.Min(2, clearClickCount-1)).gameObject.SetActive(false);
             parent.transform.GetChild(Math.Min(2, clearClickCount)).gameObject.SetActive(true);
         }
-    }
-
-    private Text GetText (string menuValueKey) {
-        MenuValue[] menuValueObjects = Resources.FindObjectsOfTypeAll<MenuValue>();
-        foreach (MenuValue menuValueObject in menuValueObjects) {
-            if (menuValueObject.key == menuValueKey) {
-                return menuValueObject.GetComponent<Text>();
-            }
-        }
-        return null;
     }
 
 	public void toggleFreezeGame () {

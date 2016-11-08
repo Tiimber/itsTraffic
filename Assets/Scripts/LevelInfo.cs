@@ -34,27 +34,23 @@ public class LevelInfo : MonoBehaviour {
     }
 
 
-    public void fetchData() {
+    public void fetchData(bool newRecord = false) {
         int stars = PlayerPrefsData.GetLevelStars(id);
         MissionStarAmount missionStarAmount = GetComponent<MissionStarAmount>();
-        // TODO - Initial fetch should call "setInitialStarAmount"
-        missionStarAmount.setStarAmount(stars);
+        missionStarAmount.setStarAmount(stars, newRecord);
     }
 
     private IEnumerator loadImage(Level level) {
 
-        WWW www = new WWW (level.iconUrl);
+        WWW www = CacheWWW.Get(level.iconUrl, Misc.getTsForReadable("5m"));
         yield return www;
         Texture2D materialTexture = new Texture2D (256, 256);
         www.LoadImageIntoTexture (materialTexture);
-
-        // TODO - Cache downloaded icons (at least for bundled levels)
 
         Sprite imageSprite = Sprite.Create(materialTexture, new Rect(0, 0, 256, 256), Vector3.zero);
 
         Image image = GetComponent<Image> ();
         image.sprite = imageSprite;
-
 
         // Flag icon
         string countryCode = level.countryCode;

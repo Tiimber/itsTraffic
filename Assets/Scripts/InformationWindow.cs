@@ -153,7 +153,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
     private void switchCamera(bool forceDetach = false) {
         if (informationObject != null) {
             Vehicle vehicle = informationObject.GetComponent<Vehicle>();
-            if (!vehicle.switchingCameraInProgress) {
+            if (vehicle != null && !vehicle.switchingCameraInProgress) {
                 if (!vehicle.isOwningCamera && !forceDetach) {
 					vehicle.grabCamera();
 				} else {

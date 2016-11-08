@@ -31,10 +31,10 @@ public class LevelDataUpdater : MonoBehaviour {
     }
 
 
-    public void updateLevelStars() {
+    public void updateLevelStars(bool newRecord = false) {
 		LevelInfo[] levelInfos = GetComponentsInChildren<LevelInfo>();
         foreach (LevelInfo levelInfo in levelInfos) {
-            levelInfo.fetchData();
+            levelInfo.fetchData(newRecord);
         }
     }
 
@@ -48,9 +48,8 @@ public class LevelDataUpdater : MonoBehaviour {
     }
 
     private IEnumerator loadLevels (string levelListUrl) {
-        // TODO - Prevent DDOS attack, cache locally for a while before making request subsequential times
         // TODO - Loading spinner
-        WWW www = new WWW (levelListUrl);
+        WWW www = CacheWWW.Get(levelListUrl, Misc.getTsForReadable("1m"));
 
         yield return www;
 

@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{3DB3CAFA-C613-C72A-AA62-B63A8B646E91}</ProjectGuid>
+    <ProjectGuid>{553542A1-6658-73A9-6878-CA1F920C2F55}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -126,7 +126,6 @@
      <Compile Include="Assets\Scripts\Utilities\DebugFn.cs" />
      <Compile Include="Assets\Scripts\Utilities\EditorGUIx.cs" />
      <Compile Include="Assets\Scripts\Utilities\FPSDisplay.cs" />
-     <Compile Include="Assets\Scripts\Utilities\GeoLocationData.cs" />
      <Compile Include="Assets\Scripts\Utilities\InspectorButton.cs" />
      <Compile Include="Assets\Scripts\Utilities\Joystick.cs" />
      <Compile Include="Assets\Scripts\Utilities\Misc.cs" />
@@ -176,7 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{E2D5ED0D-6305-44C4-BAD5-9E52E6689369}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+      <Project>{C4758542-45A1-DC1E-D65F-9C96299CC57F}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

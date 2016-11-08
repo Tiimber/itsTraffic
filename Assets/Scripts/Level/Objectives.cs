@@ -88,6 +88,17 @@ public class Objectives {
 			this.key = key;
 			this.value = value;
 		}
+
+        public string ToString() {
+            return "Objective: {\n" +
+                   "\tid: " + id + "\n" +
+                   "\ttype: " + type + "\n" +
+                   "\tlabel: " + label + "\n" +
+                   "\tkey: " + key + "\n" +
+                   "\tvalue: " + value + "\n" +
+                   "\tisMet? " + isMet + "\n" +
+                   "}";
+        }
 	}
 
 	public void reportChange() {
@@ -120,6 +131,7 @@ public class Objectives {
         Dictionary<string, DataCollector.InnerData> data = DataCollector.Data;
         List<Objective> allObjectives = getAll();
         foreach (Objective objective in allObjectives) {
+//            Debug.Log(objective.ToString());
             if (objective.isMet) {
                 continue;
             }

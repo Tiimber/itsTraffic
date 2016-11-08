@@ -37,7 +37,7 @@ public class CacheWWW {
 
         public WWWrapper(string url, long cacheTimeMs) {
             expire = Stopwatch.GetTimestamp() + cacheTimeMs;
-            www = new WWW(url);
+            www = new WWW (url);
         }
 
         public bool isValid() {

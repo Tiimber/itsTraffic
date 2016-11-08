@@ -38,11 +38,11 @@ public class MaterialManager {
 			File.AppendAllText(downloadedMaterialsFolder + "list.txt", listInitData);
 		}
 
-		WWW downloadedMaterialsList = new WWW (localMaterialBaseUrl + "list.txt");
+		WWW downloadedMaterialsList = CacheWWW.Get(localMaterialBaseUrl + "list.txt", Misc.getTsForReadable("1m"));
 		yield return downloadedMaterialsList;
 		GetListOfRemoteMaterials (downloadedMaterialsList, false);
 
-		WWW remoteMaterialsList = new WWW (remoteMaterialBaseUrl + "list.txt");
+		WWW remoteMaterialsList = CacheWWW.Get(remoteMaterialBaseUrl + "list.txt", Misc.getTsForReadable("5m"));
 		yield return remoteMaterialsList;
 		GetListOfRemoteMaterials (remoteMaterialsList);
 	}
@@ -65,7 +65,7 @@ public class MaterialManager {
 					bool isAvailableLocally = MaterialAvailableLocally.Contains (materialKey);
 					string baseUrl = isAvailableLocally ? localMaterialBaseUrl : remoteMaterialBaseUrl;
 
-					WWW connection = new WWW (baseUrl + MaterialAvailable[materialKey]);
+					WWW connection = CacheWWW.Get(baseUrl + MaterialAvailable[materialKey], Misc.getTsForReadable("10m"));
 					yield return connection;
 
 					DownloadAndCreateMaterial (connection, id, type, MaterialAvailable [materialKey], materialKey, !isAvailableLocally);

@@ -184,7 +184,7 @@ public class Game : MonoBehaviour, IPubSub {
         // TODO - Next line to be removed later
         levelSetupFileUrl = levelSetupFileUrl == null ? levelSetupFileName : levelSetupFileUrl;
 		introCamera.enabled = true;
-		StartCoroutine (loadLevelSetup (levelSetupFileName));
+		StartCoroutine (loadLevelSetup (levelSetupFileUrl));
 	}
 		
 	private void showMenu(bool show = true) {
@@ -760,8 +760,7 @@ public class Game : MonoBehaviour, IPubSub {
 		introCamera.gameObject.SetActive (true);
 		showMenu (false);
 
-//        WWW www = CacheWWW.Get(levelFileName, Misc.getTsForReadable("5m"));
-		WWW www = new WWW (levelFileName);
+        WWW www = CacheWWW.Get(levelFileName, Misc.getTsForReadable("5m"));
 
 		yield return www;
 
@@ -780,9 +779,8 @@ public class Game : MonoBehaviour, IPubSub {
 		introCamera.gameObject.SetActive (true);
 		showMenu (false);
 
-//        WWW www = CacheWWW.Get(mapFileName, Misc.getTsForReadable("5m"));
-		WWW www = new WWW (mapFileName);
-		
+        WWW www = CacheWWW.Get(mapFileName, Misc.getTsForReadable("5m"));
+
 		yield return www;
 
 		XmlDocument xmlDoc = new XmlDocument();
@@ -880,7 +878,7 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 			
 		// Read config
-		WWW wwwConfig = new WWW (configFileName);
+		WWW wwwConfig = CacheWWW.Get(configFileName, Misc.getTsForReadable("5m"));
 		
 		yield return wwwConfig;
 
@@ -1767,7 +1765,7 @@ public class Game : MonoBehaviour, IPubSub {
             }
             GameObject customSubMenu = Misc.FindDeepChild(menuSystem.transform, "CustomSubmenu").gameObject;
             if (customSubMenu != null) {
-                customSubMenu.GetComponent<LevelDataUpdater>().updateLevelStars();
+                customSubMenu.GetComponent<LevelDataUpdater>().updateLevelStars(true);
             }
         }
 

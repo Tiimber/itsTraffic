@@ -21,18 +21,17 @@ public class MissionStarAmount : MonoBehaviour {
 		setStarAmount (amount);
 	}
 
-	public void setStarAmount(int amount) {
+	public void setStarAmount(int amount, bool newRecord = false) {
 		currentStarAmount = amount;
-		updateStars ();
+		updateStars (newRecord);
 	}
 
-	private void updateStars() {
-		// TODO - animate in when initialStarAmount and currentStarAmount differs
+	private void updateStars(bool newRecord = false) {
 		initialStarAmount = currentStarAmount;
 		for (int i = 1; i <= 5; i++) {
 			GameObject starObject = transform.FindChild ("star_" + i).gameObject;
 			StarImageToggle starToggle = starObject.GetComponent<StarImageToggle> ();
-			starToggle.setActiveState (currentStarAmount >= i);
+			starToggle.setActiveState (currentStarAmount >= i, newRecord);
 		}
 	}
 }

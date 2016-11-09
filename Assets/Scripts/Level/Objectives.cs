@@ -89,7 +89,7 @@ public class Objectives {
 			this.value = value;
 		}
 
-        public string ToString() {
+        public override string ToString() {
             return "Objective: {\n" +
                    "\tid: " + id + "\n" +
                    "\ttype: " + type + "\n" +

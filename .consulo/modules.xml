@@ -153,6 +153,8 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Clock/Scripts/Clock.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/CombineMeshes.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/CombineMeshes.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AchievementInfo.cs" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AchievementUpdater.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AudioListenerHolder.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AudioListenerHolder.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/AutomaticMaterialObject.cs" />
@@ -295,6 +297,7 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/TrafficLightToggle.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Triangulator.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Triangulator.cs.meta" />
+          <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/Achievements.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/CacheWWW.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/CacheWWW.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/Utilities/CameraHandler.cs" />

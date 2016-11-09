@@ -91,13 +91,15 @@ public class CameraHandler {
 	}
 
 	public static void Move(Vector3 move) {
-		float cameraSize = main.orthographicSize;
-		float screenHeight = Screen.height;
-		float screenDisplayFactor = cameraSize * 2f / screenHeight;
+        if (main.gameObject.activeSelf) {
+			float cameraSize = main.orthographicSize;
+			float screenHeight = Screen.height;
+			float screenDisplayFactor = cameraSize * 2f / screenHeight;
 
-		Vector3 adjustedMove = move * -1f;
+			Vector3 adjustedMove = move * -1f;
 
-		Singleton<Game>.Instance.StartCoroutine (MoveWithVector(adjustedMove * screenDisplayFactor, 0.3f));
+			Singleton<Game>.Instance.StartCoroutine (MoveWithVector(adjustedMove * screenDisplayFactor, 0.3f));
+        }
 	}
 
 	private static IEnumerator MoveWithVector (Vector3 moveVector, float time, bool doAnimate = true) {

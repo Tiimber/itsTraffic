@@ -8,18 +8,18 @@
     <file path="/Level.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478250384906" ignored="false" />
     <file path="/PointCalculator.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1474351780022" ignored="false" />
     <file path="/level-robbin.xml" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478248343212" ignored="false" />
-    <file path="/a.dummy" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478602100426" ignored="false" />
+    <file path="/a.dummy" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478641981464" ignored="false" />
     <file path="/Vehicle.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473920482012" ignored="false" />
     <file path="/HumanLogic.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473674076593" ignored="false" />
-    <file path="/DataCollector.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1475733776608" ignored="false" />
-    <file path="/Objectives.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478600311936" ignored="false" />
-    <file path="/Game.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478603417203" ignored="false" />
+    <file path="/DataCollector.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478615056289" ignored="false" />
+    <file path="/Objectives.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478630615092" ignored="false" />
+    <file path="/Game.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478638730005" ignored="false" />
     <file path="/BriefPopup.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1474264902787" ignored="false" />
     <file path="/Points.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1472708730667" ignored="false" />
     <file path="/a.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473916512581" ignored="false" />
     <file path="/LevelDataCollector.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473141955488" ignored="false" />
     <file path="/LevelInfo.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478603460803" ignored="false" />
-    <file path="/LevelDataUpdater.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478603448809" ignored="false" />
+    <file path="/LevelDataUpdater.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478638222335" ignored="false" />
     <file path="/InformationWindow.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478598972928" ignored="false" />
     <file path="/Misc.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478445109246" ignored="false" />
     <file path="/NodeIndex.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473312649821" ignored="false" />
@@ -27,7 +27,7 @@
     <file path="$PROJECT_DIR$/.consulo/workspace.xml" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473313267187" ignored="false" />
     <file path="/Map.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473313910494" ignored="false" />
     <file path="/BuildingRoof.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473314912500" ignored="false" />
-    <file path="/CameraHandler.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1474521462778" ignored="false" />
+    <file path="/CameraHandler.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478635273259" ignored="false" />
     <file path="/ObjectRandomizer.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473582230531" ignored="false" />
     <file path="/PointAndClock.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473583348430" ignored="false" />
     <file path="/Clock.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1473583243080" ignored="false" />
@@ -64,7 +64,11 @@
     <file path="/Joystick.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478444507956" ignored="false" />
     <file path="/a.txt" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478601198396" ignored="false" />
     <file path="/MissionStarAmount.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478603491426" ignored="false" />
-    <file path="/StarImageToggle.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478608428743" ignored="false" />
+    <file path="/StarImageToggle.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478611660253" ignored="false" />
+    <file path="/Achievements.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478640414676" ignored="false" />
+    <file path="/ScreenWipe.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478630583705" ignored="false" />
+    <file path="/AchievementUpdater.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478679082228" ignored="false" />
+    <file path="/AchievementInfo.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478642590539" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,60 +93,32 @@
       <file leaf-file-name="Game.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Game.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="321">
-              <caret line="1767" column="75" selection-start-line="1767" selection-start-column="75" selection-end-line="1767" selection-end-column="75" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LevelInfo.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="39" column="32" selection-start-line="39" selection-start-column="32" selection-end-line="39" selection-end-column="32" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MissionStarAmount.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/MissionStarAmount.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="353">
-              <caret line="33" column="32" selection-start-line="33" selection-start-column="32" selection-end-line="33" selection-end-column="32" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Misc.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Misc.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="304" column="0" selection-start-line="304" selection-start-column="0" selection-end-line="304" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CameraSwitch.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/CameraSwitch.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="410">
-              <caret line="69" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="StarImageToggle.cs" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/StarImageToggle.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="173">
-              <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
+            <state relative-caret-position="381">
+              <caret line="1523" column="12" selection-start-line="1523" selection-start-column="12" selection-end-line="1523" selection-end-column="12" />
               <folding>
-                <element signature="e#0#25#0" expanded="true" />
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CameraHandler.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/CameraHandler.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="206">
+              <caret line="93" column="41" selection-start-line="93" selection-start-column="41" selection-end-line="93" selection-end-column="41" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Achievements.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Achievements.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-405">
+              <caret line="4" column="60" selection-start-line="4" selection-start-column="60" selection-end-line="4" selection-end-column="60" />
+              <folding>
+                <element signature="e#0#33#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -151,31 +127,9 @@
       <file leaf-file-name="Objectives.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Level/Objectives.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="115" column="28" selection-start-line="115" selection-start-column="28" selection-end-line="115" selection-end-column="28" />
+            <state relative-caret-position="180">
+              <caret line="91" column="24" selection-start-line="91" selection-start-column="24" selection-end-line="91" selection-end-column="24" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MaterialManager.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/MaterialManager.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="67" column="122" selection-start-line="67" selection-start-column="122" selection-end-line="67" selection-end-column="122" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CacheWWW.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/CacheWWW.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="318">
-              <caret line="39" column="26" selection-start-line="39" selection-start-column="26" selection-end-line="39" selection-end-column="26" />
-              <folding>
-                <element signature="e#0#33#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -183,9 +137,43 @@
       <file leaf-file-name="LevelDataUpdater.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelDataUpdater.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="33" column="16" selection-start-line="33" selection-start-column="16" selection-end-line="33" selection-end-column="16" />
+            <state relative-caret-position="345">
+              <caret line="120" column="17" selection-start-line="120" selection-start-column="17" selection-end-line="120" selection-end-column="17" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LevelInfo.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="105">
+              <caret line="9" column="22" selection-start-line="0" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AchievementUpdater.cs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/AchievementUpdater.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="450">
+              <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#33#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AchievementInfo.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/AchievementInfo.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="97">
+              <caret line="7" column="74" selection-start-line="7" selection-start-column="74" selection-end-line="7" selection-end-column="74" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -195,16 +183,11 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/Assets/Clock/Scripts/Clock.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/PointAndClock.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/HumanCollider.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/HumanLogic.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/AudioListenerHolder.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Vehicle.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/BriefPopup.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Level/PointCalculator.cs" />
         <option value="$USER_HOME$/New Unity Project 1/Assets/Cube.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/CameraHandler.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/PopupWindowStyles.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/GenericSoundEffects.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Level/Summary.cs" />
@@ -222,7 +205,6 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/WayCrossing.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/WayHelper.cs" />
         <option value="$PROJECT_DIR$/Assets/CombineMeshes.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/DataCollector.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/WayObjectStraight.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Level/VehicleColors.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/ModelGeneratorVehicles.cs" />
@@ -238,14 +220,20 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/Misc.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Menu.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/InformationWindow.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Level/Objectives.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/CacheWWW.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/MaterialManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Game.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/LevelDataUpdater.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/MissionStarAmount.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/StarImageToggle.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/DataCollector.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/ScreenWipe.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Level/Objectives.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/CameraHandler.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/LevelDataUpdater.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Game.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/Achievements.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/AchievementInfo.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/AchievementUpdater.cs" />
       </list>
     </option>
   </component>
@@ -569,12 +557,12 @@
       <workItem from="1478435185027" duration="7568000" />
       <workItem from="1478501510025" duration="49000" />
       <workItem from="1478597938877" duration="35000" />
-      <workItem from="1478597987185" duration="7221000" />
+      <workItem from="1478597987185" duration="22208000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="148513000" />
+    <option name="totallyTimeSpent" value="163500000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
@@ -588,11 +576,11 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.12966879" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32687652" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32687652" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24931075" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25665858" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25544795" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -672,7 +660,7 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="129" />
+      <option name="time" value="132" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -682,41 +670,6 @@
     <option name="MODULE_GROUPING" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/MenuValue.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="30" column="41" selection-start-line="30" selection-start-column="41" selection-end-line="30" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/GenericHumanSounds.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="27" column="47" selection-start-line="27" selection-start-column="47" selection-end-line="27" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/GenericVehicleSounds.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="915">
-          <caret line="63" column="40" selection-start-line="63" selection-start-column="40" selection-end-line="63" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/PlayerPrefsData.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="33" selection-start-line="17" selection-start-column="33" selection-end-line="17" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/WayObjectEndPoint.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="18" column="64" selection-start-line="18" selection-start-column="64" selection-end-line="18" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/WayCrossing.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -742,13 +695,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="9" column="18" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/DataCollector.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
         </state>
       </provider>
     </entry>
@@ -850,13 +796,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/ScreenWipe.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1170">
-          <caret line="79" column="0" selection-start-line="79" selection-start-column="0" selection-end-line="79" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Editor/CrossPlatformInput/CrossPlatformInputInitialize.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="708">
@@ -913,13 +852,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Math3d.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="446">
-          <caret line="172" column="23" selection-start-line="172" selection-start-column="23" selection-end-line="172" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Menu.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
@@ -970,14 +902,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/InformationWindow.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="126" column="19" selection-start-line="126" selection-start-column="19" selection-end-line="126" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/CacheWWW.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="318">
@@ -1012,14 +936,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="39" column="32" selection-start-line="39" selection-start-column="32" selection-end-line="39" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/MissionStarAmount.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="353">
@@ -1028,36 +944,124 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/StarImageToggle.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-22">
+          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/DataCollector.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="146" column="23" selection-start-line="146" selection-start-column="23" selection-end-line="146" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/ScreenWipe.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="307" column="41" selection-start-line="307" selection-start-column="41" selection-end-line="307" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Level/Objectives.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="115" column="28" selection-start-line="115" selection-start-column="28" selection-end-line="115" selection-end-column="28" />
+        <state relative-caret-position="180">
+          <caret line="91" column="24" selection-start-line="91" selection-start-column="24" selection-end-line="91" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/CameraHandler.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="206">
+          <caret line="93" column="41" selection-start-line="93" selection-start-column="41" selection-end-line="93" selection-end-column="41" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/Game.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="321">
-          <caret line="1767" column="75" selection-start-line="1767" selection-start-column="75" selection-end-line="1767" selection-end-column="75" />
-          <folding />
+        <state relative-caret-position="381">
+          <caret line="1523" column="12" selection-start-line="1523" selection-start-column="12" selection-end-line="1523" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Achievements.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-405">
+          <caret line="4" column="60" selection-start-line="4" selection-start-column="60" selection-end-line="4" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelDataUpdater.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="33" column="16" selection-start-line="33" selection-start-column="16" selection-end-line="33" selection-end-column="16" />
+        <state relative-caret-position="345">
+          <caret line="120" column="17" selection-start-line="120" selection-start-column="17" selection-end-line="120" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/StarImageToggle.cs">
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
+        <state relative-caret-position="105">
+          <caret line="9" column="22" selection-start-line="0" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/SkinLogic.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="53" column="83" selection-start-line="53" selection-start-column="70" selection-end-line="53" selection-end-column="83" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Math3d.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="102" column="30" selection-start-line="102" selection-start-column="30" selection-end-line="102" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/AchievementInfo.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="97">
+          <caret line="7" column="74" selection-start-line="7" selection-start-column="74" selection-end-line="7" selection-end-column="74" />
           <folding>
-            <element signature="e#0#25#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/InformationWindow.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="182">
+          <caret line="84" column="102" selection-start-line="84" selection-start-column="102" selection-end-line="84" selection-end-column="102" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/AchievementUpdater.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
           </folding>
         </state>
       </provider>

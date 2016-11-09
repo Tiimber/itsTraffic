@@ -47,6 +47,8 @@
   <ItemGroup>
      <Compile Include="Assets\Clock\Scripts\Clock.cs" />
      <Compile Include="Assets\CombineMeshes.cs" />
+     <Compile Include="Assets\Scripts\AchievementInfo.cs" />
+     <Compile Include="Assets\Scripts\AchievementUpdater.cs" />
      <Compile Include="Assets\Scripts\AudioListenerHolder.cs" />
      <Compile Include="Assets\Scripts\AutomaticMaterialObject.cs" />
      <Compile Include="Assets\Scripts\BriefAndSummaryPopup.cs" />
@@ -118,6 +120,7 @@
      <Compile Include="Assets\Scripts\StarImageToggle.cs" />
      <Compile Include="Assets\Scripts\TrafficLightToggle.cs" />
      <Compile Include="Assets\Scripts\Triangulator.cs" />
+     <Compile Include="Assets\Scripts\Utilities\Achievements.cs" />
      <Compile Include="Assets\Scripts\Utilities\CacheWWW.cs" />
      <Compile Include="Assets\Scripts\Utilities\CameraHandler.cs" />
      <Compile Include="Assets\Scripts\Utilities\CameraSwitch.cs" />

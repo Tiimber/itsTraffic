@@ -144,6 +144,15 @@ public class DataCollector : MonoBehaviour {
         PlayerPrefs.SetInt(key, value);
     }
 
+    public static void saveNumberOfStarsStat(int numberOfStars) {
+        string key = ACCUMULATED_DATA_PREFIX + "Stars:" + numberOfStars;
+        int value = 1;
+        if (PlayerPrefs.HasKey(key)) {
+            value += PlayerPrefs.GetInt(key);
+        }
+        PlayerPrefs.SetInt(key, value);
+    }
+
 	[Serializable]
 	public class InnerData {
 		public float value;

@@ -117,6 +117,7 @@ public class Game : MonoBehaviour, IPubSub {
 		initDataCollection ();
 		calculateVehicleFrequency ();
 
+        Achievements.testAll(true);
 
 		StartCoroutine (MaterialManager.Init ());
 
@@ -1470,6 +1471,7 @@ public class Game : MonoBehaviour, IPubSub {
 		if (show) {
 			menuStartVisible (false);
             menuCustomVisible (false);
+            menuAchievementsVisible (false);
 		}
 		GameObject subMenu = Misc.FindDeepChild(menuSystem.transform, "OptionsSubmenu").gameObject;
 		subMenu.SetActive (show);
@@ -1486,6 +1488,7 @@ public class Game : MonoBehaviour, IPubSub {
 		if (show) {
 			menuOptionsVisible (false);
             menuCustomVisible (false);
+            menuAchievementsVisible (false);
             subMenu.GetComponent<LevelDataUpdater>().refresh();
 		}
 	}
@@ -1501,9 +1504,26 @@ public class Game : MonoBehaviour, IPubSub {
 		if (show) {
 			menuOptionsVisible (false);
             menuStartVisible (false);
+            menuAchievementsVisible (false);
             customSubMenu.GetComponent<LevelDataUpdater>().refresh();
 		}
 	}
+
+    public void toggleAchievementsSubmenu() {
+        GameObject achievementsSubMenu = Misc.FindDeepChild(menuSystem.transform, "AchievementsSubmenu").gameObject;
+        menuAchievementsVisible(!achievementsSubMenu.activeSelf);
+    }
+
+    private void menuAchievementsVisible(bool show) {
+        GameObject achievementsSubMenu = Misc.FindDeepChild(menuSystem.transform, "AchievementsSubmenu").gameObject;
+        achievementsSubMenu.SetActive (show);
+        if (show) {
+            menuOptionsVisible (false);
+            menuStartVisible (false);
+            menuCustomVisible (false);
+			achievementsSubMenu.GetComponent<AchievementUpdater> ().refresh();
+        }
+    }
 
     // TODO - Temporary for filter distance
     public void customSearch(bool distanceFilterOnly = false) {
@@ -1736,11 +1756,15 @@ public class Game : MonoBehaviour, IPubSub {
 
         int numberOfStars = pointCalculator.getNumberOfStars(points);
 
+        DataCollector.saveNumberOfStarsStat(numberOfStars);
+
         // Save stats - if not already exists with higher value
         bool newHighscore = saveScore(points, numberOfStars);
 
 		Summary summary = new Summary (loadedLevel.name, type, pointsBefore, objectives, alreadyIncludedPoints, notYetIncludedPoints, numberOfStars, newHighscore);
         PubSub.publish("summary:display", summary);
+
+        Achievements.testAll();
     }
 
 	private bool saveScore(int points, int numberOfStars) {

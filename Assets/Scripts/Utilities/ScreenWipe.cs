@@ -76,8 +76,8 @@ public class ScreenWipe : MonoBehaviour
 			this.enabled = true;
 		}
 		
-		cam1.gameObject.active = cam1Active;
-		cam2.gameObject.active = true;
+		cam1.gameObject.SetActive(cam1Active);
+		cam2.gameObject.SetActive(true);
 		AudioListener listener = cam2.GetComponent<AudioListener>();
 		
 		if (listener)
@@ -93,7 +93,7 @@ public class ScreenWipe : MonoBehaviour
 		if (listener && reEnableListener) {
 			listener.enabled = true;
 		}
-		cam1.gameObject.active = false;
+		cam1.gameObject.SetActive(false);
 		this.enabled = false;
 	}
 
@@ -250,7 +250,7 @@ public class ScreenWipe : MonoBehaviour
 		otherCam.depth = useCam.depth+1;
 		otherCam.clearFlags = CameraClearFlags.Depth;
 
-		shape.gameObject.active = true;
+		shape.gameObject.SetActive(true);
 		(shape.GetComponent<MeshFilter>() as MeshFilter).mesh = mesh;
 		shape.position = otherCam.transform.position + otherCam.transform.forward * (otherCam.nearClipPlane+.01f);
 		shape.parent = otherCam.transform;
@@ -305,7 +305,7 @@ public class ScreenWipe : MonoBehaviour
 		otherCam.depth = originalDepth;
 		CameraCleanup (cam1, cam2);
 		shape.parent = null;
-		shape.gameObject.active = false;
+		shape.gameObject.SetActive(false);
 	}
 
 	IEnumerator SquishWipe ( Camera cam1 ,   Camera cam2 ,   float time ,   TransitionType transitionType  )

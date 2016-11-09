@@ -73,8 +73,12 @@ public class LevelDataUpdater : MonoBehaviour {
     }
 
     public void sort() {
-        Dropdown sort = Misc.FindDeepChild (transform, "Sort Dropdown").GetComponent<Dropdown> ();
-        string sortValue = sort.options [sort.value].text;
+        string sortValue = "Nearest you";
+        Transform sortDropdown = Misc.FindDeepChild (transform, "Sort Dropdown");
+        if (sortDropdown != null) {
+            Dropdown sort = sortDropdown.GetComponent<Dropdown> ();
+            sortValue = sort.options [sort.value].text;
+        }
 
         if (sortValue == "Nearest you") {
             levels.levels.Sort((a, b) => Mathf.RoundToInt(getDistanceTo(a) - getDistanceTo(b)));

@@ -43,4 +43,8 @@ public class AchievementInfo : MonoBehaviour {
 	            break;
         }
     }
+
+	public void hideLine() {
+        Misc.FindDeepChild (transform, "Line").gameObject.SetActive(false);
+    }
 }

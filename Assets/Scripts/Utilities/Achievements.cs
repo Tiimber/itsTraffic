@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Achievements {
     private static string SECRET_LABEL = "Secret achievement";
+    private static string SECRET_SUBLABEL = "???";
 
     private static int totalAchievementPoints = 1000;
     private static List<Achievement> achievements = new List<Achievement>(){
@@ -70,7 +71,7 @@ public class Achievements {
         List<Tuple3<string, string, int>> fulfilled = new List<Tuple3<string, string, int>>();
         foreach (Achievement achievement in achievements) {
             if (!achievement.fulfilled && achievement.secret) {
-                fulfilled.Add(new Tuple3<string, string, int>(Achievements.SECRET_LABEL, null, achievement.points));
+                fulfilled.Add(new Tuple3<string, string, int>(Achievements.SECRET_LABEL, Achievements.SECRET_SUBLABEL, achievement.points));
             }
         }
         return fulfilled;

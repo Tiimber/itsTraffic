@@ -28,6 +28,9 @@ public class AchievementUpdater : MonoBehaviour {
             achievementObj.name = "Achievement #" + row;
             AchievementInfo achievementInfo = achievementObj.GetComponent<AchievementInfo> ();
             achievementInfo.setMetaData (achievement, type);
+            if (row == 0) {
+                achievementInfo.hideLine();
+            }
             shownAchievements.Add (achievementObj);
             row = row + 1;
         }

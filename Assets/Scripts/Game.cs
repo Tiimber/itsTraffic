@@ -1776,6 +1776,10 @@ public class Game : MonoBehaviour, IPubSub {
             shouldSaveNewScore = false;
         }
 
+        if (numberOfStars > prevStars) {
+            int diffStars = numberOfStars - prevStars;
+            DataCollector.saveNumberOfTotalStarsStat(diffStars);
+        }
 
         if (shouldSaveNewScore) {
             PlayerPrefsData.SetLevelPoints(loadedLevel.id, points);

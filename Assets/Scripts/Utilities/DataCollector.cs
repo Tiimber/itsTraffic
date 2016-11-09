@@ -153,7 +153,16 @@ public class DataCollector : MonoBehaviour {
         PlayerPrefs.SetInt(key, value);
     }
 
-	[Serializable]
+    public static void saveNumberOfTotalStarsStat(int additionalStars) {
+        string key = ACCUMULATED_DATA_PREFIX + "TotalStars";
+        int value = additionalStars;
+        if (PlayerPrefs.HasKey(key)) {
+            value += PlayerPrefs.GetInt(key);
+        }
+        PlayerPrefs.SetInt(key, value);
+    }
+
+    [Serializable]
 	public class InnerData {
 		public float value;
 

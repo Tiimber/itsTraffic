@@ -8,29 +8,37 @@ public class AchievementInfo : MonoBehaviour {
     private static Color unfulfilledColor = new Color(0.77f, 0.77f, 0.77f);
     private static Color secretColor = new Color(0.77f, 0.77f, 0.77f);
 
-    public void setMetaData (string label, int points, string type) {
+    public void setMetaData (Tuple3<string, string, int> achievementData, string type) {
         // Update achievement label
 		Transform labelTransform = Misc.FindDeepChild (transform, "Label");
         Text labelText = labelTransform.GetComponent<Text> ();
-        labelText.text = label;
+        labelText.text = achievementData.First;
+
+        // Update achievement sublabel
+		Transform subLabelTransform = Misc.FindDeepChild (transform, "SubLabel");
+        Text subLabelText = subLabelTransform.GetComponent<Text> ();
+        subLabelText.text = achievementData.Second;
 
         // Update achievement points
         Transform pointsTransform = Misc.FindDeepChild (transform, "Points");
         Text pointsText = pointsTransform.GetComponentInChildren<Text> ();
-        pointsText.text = "" + points;
+        pointsText.text = "" + achievementData.Third;
 
         switch (type) {
             case "unfulfilled":
                 labelText.color = unfulfilledColor;
+                subLabelText.color = unfulfilledColor;
                 pointsText.color = unfulfilledColor;
             	break;
             case "secret":
                 labelText.color = secretColor;
+                subLabelText.color = secretColor;
                 pointsText.color = secretColor;
             	break;
             case "fulfilled":
             default:
                 labelText.color = fulfilledColor;
+                subLabelText.color = fulfilledColor;
                 pointsText.color = fulfilledColor;
 	            break;
         }

@@ -3,16 +3,16 @@ using UnityEngine;
 
 public class AchievementUpdater : MonoBehaviour {
 
-    private static float ACHIEVEMENT_HEIGHT_WITH_MARGIN = 42f;
+    private static float ACHIEVEMENT_HEIGHT_WITH_MARGIN = 44f;
     public GameObject achievementTemplate;
     private List<GameObject> shownAchievements = new List<GameObject>();
 
     public void refresh() {
         clearOldAchievements();
 
-		List<KeyValuePair<string, int>> fulfilledAchievements = Achievements.GetFulfilledAchievements ();
-		List<KeyValuePair<string, int>> unfulfilledAchievements = Achievements.GetNonSecretUnfulfilledAchievements ();
-		List<KeyValuePair<string, int>> secretAchievements = Achievements.GetSecretUnfulfilledAchievements ();
+		List<Tuple3<string, string, int>> fulfilledAchievements = Achievements.GetFulfilledAchievements ();
+		List<Tuple3<string, string, int>> unfulfilledAchievements = Achievements.GetNonSecretUnfulfilledAchievements ();
+		List<Tuple3<string, string, int>> secretAchievements = Achievements.GetSecretUnfulfilledAchievements ();
 
         float row = 0;
         addAchievements(fulfilledAchievements, "fullfilled", ref row);
@@ -20,14 +20,14 @@ public class AchievementUpdater : MonoBehaviour {
         addAchievements(secretAchievements, "secret", ref row);
     }
 
-    private void addAchievements(System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, int>> achievements, string type, ref float row) {
+    private void addAchievements(System.Collections.Generic.List<Tuple3<string, string, int>> achievements, string type, ref float row) {
         Transform contentTransform = transform.FindChild("Viewport/Content");
-        foreach (KeyValuePair<string, int> achievement in achievements) {
+        foreach (Tuple3<string, string, int> achievement in achievements) {
             GameObject achievementObj = Instantiate (achievementTemplate, contentTransform, false) as GameObject;
             achievementObj.transform.localPosition += new Vector3 (0f, row * -ACHIEVEMENT_HEIGHT_WITH_MARGIN, 0f);
             achievementObj.name = "Achievement #" + row;
             AchievementInfo achievementInfo = achievementObj.GetComponent<AchievementInfo> ();
-            achievementInfo.setMetaData (achievement.Key, achievement.Value, type);
+            achievementInfo.setMetaData (achievement, type);
             shownAchievements.Add (achievementObj);
             row = row + 1;
         }

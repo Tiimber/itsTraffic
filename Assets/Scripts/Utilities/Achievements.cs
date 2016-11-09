@@ -5,35 +5,40 @@ public class Achievements {
     private static string SECRET_LABEL = "Secret achievement";
 
     private static int totalAchievementPoints = 1000;
-    private static Dictionary<string, Achievement> achievements = new Dictionary<string, Achievement>(){
-        {"Played your first minute!", new AchievementFloat("AccumulatedData:Elapsed Time", 60f, 10)},
-        {"Played for an hour!", new AchievementFloat("AccumulatedData:Elapsed Time", 3600f, 30)},
-        {"Guided 100 humans!", new AchievementFloat("AccumulatedData:Humans reached goal", 100f, 10)},
-        {"250 vehicles reached their goal!", new AchievementFloat("AccumulatedData:Vehicles reached goal", 250f, 10)},
-        {"Toggled 500 traffic lights!", new AchievementFloat("AccumulatedData:Manual traffic light switches", 500f, 10, secret: true)},
-        {"People have walked 10km!", new AchievementFloat("AccumulatedData:People walking distance", 10000f, 10)},
-        {"Have seen 5000 people!", new AchievementFloat("AccumulatedData:Total # of people", 5000f, 10, secret: true)},
-        {"Have seen 10000 cars!", new AchievementFloat("AccumulatedData:Total # of vehicles", 10000f, 10, secret: true)},
-        {"Wrecked 500 cars!", new AchievementFloat("AccumulatedData:Vehicle crashes", 500f, 10, secret: true)},
-        {"Big carbon footprint!", new AchievementFloat("AccumulatedData:Vehicle:emission", 1000f, 10)},
-        {"Huge carbon footprint!", new AchievementFloat("AccumulatedData:Vehicle:emission", 5000f, 30)},
-        {"200 flashed headlights!", new AchievementFloat("AccumulatedData:Vehicle:flash headlight", 200f, 30, secret: true)},
-        {"500 honks!", new AchievementFloat("AccumulatedData:Vehicle:honk", 500f, 30, secret: true)},
-        {"Played with lowest graphics quality!", new AchievementFloat("Options:graphics_quality", 0f, 10, op: Operator.EQ, secret: true)},
+    private static List<Achievement> achievements = new List<Achievement>(){
+        // Achievement (Achievement title, Achievement subtitle, Storage label, Threshold amount, Points, operator && || secret)
+        { new AchievementFloat ("Beginner", "Played your first minute", "AccumulatedData:Elapsed Time", 60f, 10) },
+        { new AchievementFloat ("Getting the hang of it", "Played for an hour", "AccumulatedData:Elapsed Time", 3600f, 30)},
+        { new AchievementFloat ("Get a life", "Played 24 hours", "AccumulatedData:Elapsed Time", 86400f, 50)},
+        { new AchievementFloat ("Herder", "Guided 100 humans to their goals", "AccumulatedData:Humans reached goal", 100f, 10)},
+        { new AchievementFloat ("Traffic controller", "250 vehicles reached their goal", "AccumulatedData:Vehicles reached goal", 250f, 10)},
+        { new AchievementFloat ("Oooh, they flash", "Toggled 500 traffic lights", "AccumulatedData:Manual traffic light switches", 500f, 10, secret: true)},
+        { new AchievementFloat ("Walkathon", "People have walked 10km", "AccumulatedData:People walking distance", 10000f, 10)},
+        { new AchievementFloat ("Remember them all?", "Have seen 5000 people", "AccumulatedData:Total # of people", 5000f, 10, secret: true)},
+        { new AchievementFloat ("Punchbuggy red", "Have seen 10000 cars", "AccumulatedData:Total # of vehicles", 10000f, 10, secret: true)},
+        { new AchievementFloat ("Terminator", "Wrecked 500 cars", "AccumulatedData:Vehicle crashes", 500f, 10, secret: true)},
+        { new AchievementFloat ("Big carbon footprint", "Let out a lot of emission", "AccumulatedData:Vehicle:emission", 1000f, 10)},
+        { new AchievementFloat ("Where are we, China?", "Emission overload", "AccumulatedData:Vehicle:emission", 5000f, 30, secret: true)},
+        { new AchievementFloat ("Irritation", "200 flashed headlights", "AccumulatedData:Vehicle:flash headlight", 200f, 30, secret: true)},
+        { new AchievementFloat ("Roadrage", "500 honks from vehicles" ,"AccumulatedData:Vehicle:honk", 500f, 30, secret: true)},
+        { new AchievementFloat ("Welcome to 1983", "Played with lowest graphics quality", "Options:graphics_quality", 0f, 10, op: Operator.EQ, secret: true)},
 
-        {"Got 1 Star!", new AchievementInt("AccumulatedData:Stars:1", 1, 1)},
-        {"Got 2 Stars!", new AchievementInt("AccumulatedData:Stars:2", 1, 2)},
-        {"Got 3 Stars!", new AchievementInt("AccumulatedData:Stars:3", 1, 3)},
-        {"Got hidden 4th star!", new AchievementInt("AccumulatedData:Stars:4", 1, 10, secret: true)},
-        {"Ok, there is 5 stars!", new AchievementInt("AccumulatedData:Stars:5", 1, 20, secret: true)},
-        {"Lost 10 games!", new AchievementInt("AccumulatedData:WinLose:lose", 10, 10)},
-        {"Lost 50 games!", new AchievementInt("AccumulatedData:WinLose:lose", 50, 10, secret: true)},
-        {"Won 10 games!", new AchievementInt("AccumulatedData:WinLose:win", 10, 10)},
-        {"Won 50 games!", new AchievementInt("AccumulatedData:WinLose:win", 50, 10)},
-        {"Won 500 games!", new AchievementInt("AccumulatedData:WinLose:win", 500, 10, secret: true)},
-        {"Won 2000 games!", new AchievementInt("AccumulatedData:WinLose:win", 2000, 10, secret: true)},
+        { new AchievementInt("Better than nothing", "Got 1 star on a level", "AccumulatedData:Stars:1", 1, 1)},
+        { new AchievementInt("Almost there", "Got 2 stars on a level", "AccumulatedData:Stars:2", 1, 2)},
+        { new AchievementInt("You've done it", "Got 3 stars on a level", "AccumulatedData:Stars:3", 1, 3)},
+        { new AchievementInt("Level master", "Got the hidden 4th star on a level", "AccumulatedData:Stars:4", 1, 10, secret: true)},
+        { new AchievementInt("Is this even possible?", "Ok... there is 5 stars on some levels", "AccumulatedData:Stars:5", 1, 20, secret: true)},
+        { new AchievementInt("Twinkle, twinkle...", "Got a total of 10 stars", "AccumulatedData:TotalStars", 10, 10)},
+        { new AchievementInt("Gold star", "Got a total of 100 stars", "AccumulatedData:TotalStars", 100, 20, secret: true)},
+        { new AchievementInt("Sometimes you have to fail", "Lost 10 games", "AccumulatedData:WinLose:lose", 10, 10)},
+        { new AchievementInt("A loser is you", "Lost 50 games", "AccumulatedData:WinLose:lose", 50, 10, secret: true)},
+        { new AchievementInt("You win", "Won 10 games", "AccumulatedData:WinLose:win", 10, 10)},
+        { new AchievementInt("You're on a streak", "Won 50 games", "AccumulatedData:WinLose:win", 50, 10)},
+        { new AchievementInt("A winner is you", "Won 500 games", "AccumulatedData:WinLose:win", 500, 30, secret: true)},
+        { new AchievementInt("Never though anyone would play this much", "Won 2000 games", "AccumulatedData:WinLose:win", 2000, 50, secret: true)},
 
         // TODO - Uploaded 1, 5, 25 level(s)
+        // TODO - Achievements based on several criterias
     };
 
     public static void InitAchievements() {
@@ -41,31 +46,31 @@ public class Achievements {
 
     }
 
-    public static List<KeyValuePair<string, int>> GetFulfilledAchievements() {
-        List<KeyValuePair<string, int>> fulfilled = new List<KeyValuePair<string, int>>();
-        foreach (KeyValuePair<string, Achievement> achievement in achievements) {
-            if (achievement.Value.fulfilled) {
-                fulfilled.Add(new KeyValuePair<string, int>(achievement.Key, achievement.Value.points));
+    public static List<Tuple3<string, string, int>> GetFulfilledAchievements() {
+        List<Tuple3<string, string, int>> fulfilled = new List<Tuple3<string, string, int>>();
+        foreach (Achievement achievement in achievements) {
+            if (achievement.fulfilled) {
+                fulfilled.Add(new Tuple3<string, string, int>(achievement.title, achievement.subtitle, achievement.points));
             }
         }
         return fulfilled;
     }
 
-    public static List<KeyValuePair<string, int>> GetNonSecretUnfulfilledAchievements() {
-        List<KeyValuePair<string, int>> fulfilled = new List<KeyValuePair<string, int>>();
-        foreach (KeyValuePair<string, Achievement> achievement in achievements) {
-            if (!achievement.Value.fulfilled && !achievement.Value.secret) {
-                fulfilled.Add(new KeyValuePair<string, int>(achievement.Key, achievement.Value.points));
+    public static List<Tuple3<string, string, int>> GetNonSecretUnfulfilledAchievements() {
+        List<Tuple3<string, string, int>> fulfilled = new List<Tuple3<string, string, int>>();
+        foreach (Achievement achievement in achievements) {
+            if (!achievement.fulfilled && !achievement.secret) {
+                fulfilled.Add(new Tuple3<string, string, int>(achievement.title, achievement.subtitle, achievement.points));
             }
         }
         return fulfilled;
     }
 
-    public static List<KeyValuePair<string, int>> GetSecretUnfulfilledAchievements() {
-        List<KeyValuePair<string, int>> fulfilled = new List<KeyValuePair<string, int>>();
-        foreach (KeyValuePair<string, Achievement> achievement in achievements) {
-            if (!achievement.Value.fulfilled && achievement.Value.secret) {
-                fulfilled.Add(new KeyValuePair<string, int>(Achievements.SECRET_LABEL, achievement.Value.points));
+    public static List<Tuple3<string, string, int>> GetSecretUnfulfilledAchievements() {
+        List<Tuple3<string, string, int>> fulfilled = new List<Tuple3<string, string, int>>();
+        foreach (Achievement achievement in achievements) {
+            if (!achievement.fulfilled && achievement.secret) {
+                fulfilled.Add(new Tuple3<string, string, int>(Achievements.SECRET_LABEL, null, achievement.points));
             }
         }
         return fulfilled;
@@ -76,8 +81,8 @@ public class Achievements {
             Achievements.InitAchievements ();
         }
 
-        foreach (KeyValuePair<string, Achievement> achievement in achievements) {
-            bool becameFullfilled = achievement.Value.test();
+        foreach (Achievement achievement in achievements) {
+            bool becameFullfilled = achievement.test();
             if (becameFullfilled && !init) {
 //                Debug.Log("Achievement met: " + achievement.Key);
                 // TODO - New achievement met - publish (+register listener)
@@ -94,7 +99,8 @@ public class Achievements {
 
     private enum Type {
         INTEGER,
-        FLOAT
+        FLOAT,
+        ACHIEVEMENTS
     }
 
     private class TypedValue {
@@ -145,6 +151,8 @@ public class Achievements {
         private static string FullfilledHashesKey = "Achievements:Fullfilled";
         private static string FullfilledHashesData = null;
 
+        public string title;
+        public string subtitle;
         public string key;
         public TypedValue amount;
         public int points;
@@ -153,7 +161,9 @@ public class Achievements {
         public bool secret;
         public bool fulfilled = false;
 
-        public Achievement(string key, int points, bool secret, Operator op) {
+        public Achievement(string title, string subtitle, string key, int points, bool secret, Operator op) {
+            this.title = title;
+            this.subtitle = subtitle;
             this.key = key;
             this.points = points;
             this.op = op;
@@ -204,14 +214,14 @@ public class Achievements {
     }
 
     private class AchievementInt : Achievement {
-        public AchievementInt(string key, int amount, int points, bool secret = false, Operator op = Operator.GTE) : base(key, points, secret, op) {
+        public AchievementInt(string title, string subtitle, string key, int amount, int points, bool secret = false, Operator op = Operator.GTE) : base(title, subtitle, key, points, secret, op) {
             this.amount = new TypedValue(amount);
             checkIfPreviouslyFullfilled();
         }
     }
 
     private class AchievementFloat : Achievement {
-        public AchievementFloat(string key, float amount, int points, bool secret = false, Operator op = Operator.GTE) : base(key, points, secret, op) {
+        public AchievementFloat(string title, string subtitle, string key, float amount, int points, bool secret = false, Operator op = Operator.GTE) : base(title, subtitle, key, points, secret, op) {
             this.amount = new TypedValue(amount);
             checkIfPreviouslyFullfilled();
         }

@@ -6,7 +6,7 @@ public class Achievements {
     private static string SECRET_SUBLABEL = "???";
 
     private static int totalAchievementPoints = 1000;
-    private static List<Achievement> achievements = new List<Achievement>(){
+    private static List<AchievementBase> achievements = new List<AchievementBase>(){
         // Achievement (Achievement title, Achievement subtitle, Storage label, Threshold amount, Points, operator && || secret)
         { new AchievementFloat ("Beginner", "Played your first minute", "AccumulatedData:Elapsed Time", 60f, 10) },
         { new AchievementFloat ("Getting the hang of it", "Played for an hour", "AccumulatedData:Elapsed Time", 3600f, 30)},
@@ -24,22 +24,29 @@ public class Achievements {
         { new AchievementFloat ("Roadrage", "500 honks from vehicles" ,"AccumulatedData:Vehicle:honk", 500f, 30, secret: true)},
         { new AchievementFloat ("Welcome to 1983", "Played with lowest graphics quality", "Options:graphics_quality", 0f, 10, op: Operator.EQ, secret: true)},
 
-        { new AchievementInt("Better than nothing", "Got 1 star on a level", "AccumulatedData:Stars:1", 1, 1)},
-        { new AchievementInt("Almost there", "Got 2 stars on a level", "AccumulatedData:Stars:2", 1, 2)},
-        { new AchievementInt("You've done it", "Got 3 stars on a level", "AccumulatedData:Stars:3", 1, 3)},
-        { new AchievementInt("Level master", "Got the hidden 4th star on a level", "AccumulatedData:Stars:4", 1, 10, secret: true)},
-        { new AchievementInt("Is this even possible?", "Ok... there is 5 stars on some levels", "AccumulatedData:Stars:5", 1, 20, secret: true)},
-        { new AchievementInt("Twinkle, twinkle...", "Got a total of 10 stars", "AccumulatedData:TotalStars", 10, 10)},
-        { new AchievementInt("Gold star", "Got a total of 100 stars", "AccumulatedData:TotalStars", 100, 20, secret: true)},
-        { new AchievementInt("Sometimes you have to fail", "Lost 10 games", "AccumulatedData:WinLose:lose", 10, 10)},
-        { new AchievementInt("A loser is you", "Lost 50 games", "AccumulatedData:WinLose:lose", 50, 10, secret: true)},
-        { new AchievementInt("You win", "Won 10 games", "AccumulatedData:WinLose:win", 10, 10)},
-        { new AchievementInt("You're on a streak", "Won 50 games", "AccumulatedData:WinLose:win", 50, 10)},
-        { new AchievementInt("A winner is you", "Won 500 games", "AccumulatedData:WinLose:win", 500, 30, secret: true)},
-        { new AchievementInt("Never though anyone would play this much", "Won 2000 games", "AccumulatedData:WinLose:win", 2000, 50, secret: true)},
+        { new AchievementInt ("Better than nothing", "Got 1 star on a level", "AccumulatedData:Stars:1", 1, 1)},
+        { new AchievementInt ("Almost there", "Got 2 stars on a level", "AccumulatedData:Stars:2", 1, 2)},
+        { new AchievementInt ("You've done it", "Got 3 stars on a level", "AccumulatedData:Stars:3", 1, 3)},
+        { new AchievementInt ("Level master", "Got the hidden 4th star on a level", "AccumulatedData:Stars:4", 1, 10, secret: true)},
+        { new AchievementInt ("Is this even possible?", "Ok... there is 5 stars on some levels", "AccumulatedData:Stars:5", 1, 20, secret: true)},
+        { new AchievementInt ("Twinkle, twinkle...", "Got a total of 10 stars", "AccumulatedData:TotalStars", 10, 10)},
+        { new AchievementInt ("Gold star", "Got a total of 100 stars", "AccumulatedData:TotalStars", 100, 20, secret: true)},
+        { new AchievementInt ("Sometimes you have to fail", "Lost 10 games", "AccumulatedData:WinLose:lose", 10, 10)},
+        { new AchievementInt ("A loser is you", "Lost 50 games", "AccumulatedData:WinLose:lose", 50, 10, secret: true)},
+        { new AchievementInt ("You win", "Won 10 games", "AccumulatedData:WinLose:win", 10, 10)},
+        { new AchievementInt ("You're on a streak", "Won 50 games", "AccumulatedData:WinLose:win", 50, 10)},
+        { new AchievementInt ("A winner is you", "Won 500 games", "AccumulatedData:WinLose:win", 500, 30, secret: true)},
+        { new AchievementInt ("Never though anyone would play this much", "Won 2000 games", "AccumulatedData:WinLose:win", 2000, 50, secret: true)},
+
+        {
+            new AchievementCombo ("Soundeffects!", "Playing with only soundeffects (no music)", new List<AchievementBase>(){
+                new AchievementFloat (null, null, "Options:music_vol", 0f, -1, op: Operator.EQ, isInner: true),
+                new AchievementFloat (null, null, "Options:ambient_vol", 0f, -1, op: Operator.EQ, isInner: true),
+                new AchievementFloat (null, null, "Options:sound_vol", 0f, -1, op: Operator.GT, isInner: true),
+            }, 10, secret: true)
+        }
 
         // TODO - Uploaded 1, 5, 25 level(s)
-        // TODO - Achievements based on several criterias
     };
 
     public static void InitAchievements() {
@@ -49,7 +56,7 @@ public class Achievements {
 
     public static List<Tuple3<string, string, int>> GetFulfilledAchievements() {
         List<Tuple3<string, string, int>> fulfilled = new List<Tuple3<string, string, int>>();
-        foreach (Achievement achievement in achievements) {
+        foreach (AchievementBase achievement in achievements) {
             if (achievement.fulfilled) {
                 fulfilled.Add(new Tuple3<string, string, int>(achievement.title, achievement.subtitle, achievement.points));
             }
@@ -59,7 +66,7 @@ public class Achievements {
 
     public static List<Tuple3<string, string, int>> GetNonSecretUnfulfilledAchievements() {
         List<Tuple3<string, string, int>> fulfilled = new List<Tuple3<string, string, int>>();
-        foreach (Achievement achievement in achievements) {
+        foreach (AchievementBase achievement in achievements) {
             if (!achievement.fulfilled && !achievement.secret) {
                 fulfilled.Add(new Tuple3<string, string, int>(achievement.title, achievement.subtitle, achievement.points));
             }
@@ -69,7 +76,7 @@ public class Achievements {
 
     public static List<Tuple3<string, string, int>> GetSecretUnfulfilledAchievements() {
         List<Tuple3<string, string, int>> fulfilled = new List<Tuple3<string, string, int>>();
-        foreach (Achievement achievement in achievements) {
+        foreach (AchievementBase achievement in achievements) {
             if (!achievement.fulfilled && achievement.secret) {
                 fulfilled.Add(new Tuple3<string, string, int>(Achievements.SECRET_LABEL, Achievements.SECRET_SUBLABEL, achievement.points));
             }
@@ -82,9 +89,9 @@ public class Achievements {
             Achievements.InitAchievements ();
         }
 
-        foreach (Achievement achievement in achievements) {
-            bool becameFullfilled = achievement.test();
-            if (becameFullfilled && !init) {
+        foreach (AchievementBase achievement in achievements) {
+            bool becameFulfilled = achievement.test();
+            if (becameFulfilled && !init) {
 //                Debug.Log("Achievement met: " + achievement.Key);
                 // TODO - New achievement met - publish (+register listener)
                 // TODO - This one could use eg. Xbox/PS/Steam achievement system (or Gamecenter for IOS)...
@@ -95,6 +102,7 @@ public class Achievements {
 
     private enum Operator {
         EQ,
+        GT,
         GTE
     }
 
@@ -143,88 +151,141 @@ public class Achievements {
             return a.getValue() >= b.getValue();
         }
 
+        public static bool operator> (TypedValue a, TypedValue b) {
+            return a.getValue() > b.getValue();
+        }
+
         public static bool operator<= (TypedValue a, TypedValue b) {
             return a.getValue() <= b.getValue();
         }
+
+        public static bool operator< (TypedValue a, TypedValue b) {
+            return a.getValue() < b.getValue();
+        }
     }
 
-    private abstract class Achievement {
-        private static string FullfilledHashesKey = "Achievements:Fullfilled";
-        private static string FullfilledHashesData = null;
+    private abstract class AchievementBase {
+        private static string FulfilledHashesKey = "Achievements:Fulfilled";
+        private static string FulfilledHashesData = null;
 
         public string title;
         public string subtitle;
-        public string key;
-        public TypedValue amount;
         public int points;
-        public Operator op;
-        public Type type;
         public bool secret;
         public bool fulfilled = false;
 
-        public Achievement(string title, string subtitle, string key, int points, bool secret, Operator op) {
+        public AchievementBase(string title, string subtitle, int points, bool secret) {
             this.title = title;
             this.subtitle = subtitle;
-            this.key = key;
             this.points = points;
-            this.op = op;
             this.secret = secret;
         }
 
-        public bool test() {
-            TypedValue registeredValue = new TypedValue(amount.type == Type.FLOAT ? PlayerPrefs.GetFloat(key) : PlayerPrefs.GetInt(key));
-//            Debug.Log("Test: " + key + " ? " + fulfilled + " " + registeredValue.getValue() + " / " + amount.getValue());
-            if (!fulfilled) {
-                if (
-                    (op == Operator.GTE && registeredValue >= amount) ||
-                    (op == Operator.EQ && registeredValue == amount)
-                ) {
-                    fulfilled = true;
-                    Debug.Log("FULLFILLED!");
-                    saveFullfilled();
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private void saveFullfilled() {
+        protected void saveFulfilled() {
             int hashCode = this.getHash ();
-            if (!FullfilledHashesData.Contains(";" + hashCode + ";")) {
-                FullfilledHashesData += hashCode + ";";
-                PlayerPrefs.SetString(FullfilledHashesKey, FullfilledHashesData);
+            if (!FulfilledHashesData.Contains(";" + hashCode + ";")) {
+                FulfilledHashesData += hashCode + ";";
+                PlayerPrefs.SetString(FulfilledHashesKey, FulfilledHashesData);
                 PlayerPrefs.Save();
             }
         }
 
-        protected void checkIfPreviouslyFullfilled() {
-            if (FullfilledHashesData == null) {
-                FullfilledHashesData = PlayerPrefs.HasKey(FullfilledHashesKey) ? PlayerPrefs.GetString(FullfilledHashesKey) : ";";
+        protected void checkIfPreviouslyFulfilled() {
+            if (FulfilledHashesData == null) {
+                FulfilledHashesData = PlayerPrefs.HasKey(FulfilledHashesKey) ? PlayerPrefs.GetString(FulfilledHashesKey) : ";";
             }
 
             int hashCode = this.getHash ();
-            if (FullfilledHashesData.Contains(";" + hashCode + ";")) {
+            if (FulfilledHashesData.Contains(";" + hashCode + ";")) {
 //                Debug.Log("Fulfilled already: " + key + " " + amount.getValue());
                 fulfilled = true;
             }
         }
 
         public int getHash() {
-            return (key + amount.getValue() + op.ToString()).GetHashCode();
+            return (title + subtitle + points.ToString()).GetHashCode();
+        }
+
+        public abstract bool test();
+    }
+
+    private abstract class Achievement : AchievementBase {
+        public string key;
+        public TypedValue amount;
+        public Operator op;
+        public bool isInner;
+        public Type type;
+
+        public Achievement(string title, string subtitle, string key, int points, bool secret, Operator op, bool isInner) : base(title, subtitle, points, secret) {
+            this.key = key;
+            this.op = op;
+            this.isInner = isInner;
+        }
+
+        public override bool test() {
+            TypedValue registeredValue = new TypedValue(amount.type == Type.FLOAT ? PlayerPrefs.GetFloat(key) : PlayerPrefs.GetInt(key));
+//            Debug.Log("Test: " + key + " ? " + fulfilled + " " + registeredValue.getValue() + " / " + amount.getValue());
+            if (!fulfilled) {
+                if (
+                    (op == Operator.GTE && registeredValue >= amount) ||
+                    (op == Operator.GT && registeredValue > amount) ||
+                    (op == Operator.EQ && registeredValue == amount)
+                ) {
+                    fulfilled = true;
+                    Debug.Log("FULLFILLED!");
+                    if (!isInner) {
+                        saveFulfilled ();
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
     private class AchievementInt : Achievement {
-        public AchievementInt(string title, string subtitle, string key, int amount, int points, bool secret = false, Operator op = Operator.GTE) : base(title, subtitle, key, points, secret, op) {
+        public AchievementInt(string title, string subtitle, string key, int amount, int points, bool secret = false, Operator op = Operator.GTE, bool isInner = false) : base(title, subtitle, key, points, secret, op, isInner) {
             this.amount = new TypedValue(amount);
-            checkIfPreviouslyFullfilled();
+            if (!isInner) {
+                checkIfPreviouslyFulfilled ();
+            }
         }
     }
 
     private class AchievementFloat : Achievement {
-        public AchievementFloat(string title, string subtitle, string key, float amount, int points, bool secret = false, Operator op = Operator.GTE) : base(title, subtitle, key, points, secret, op) {
+        public AchievementFloat(string title, string subtitle, string key, float amount, int points, bool secret = false, Operator op = Operator.GTE, bool isInner = false) : base(title, subtitle, key, points, secret, op, isInner) {
             this.amount = new TypedValue(amount);
-            checkIfPreviouslyFullfilled();
+            if (!isInner) {
+                checkIfPreviouslyFulfilled ();
+            }
+        }
+    }
+
+    private class AchievementCombo : AchievementBase {
+        public List<AchievementBase> parts;
+        public AchievementCombo(string title, string subtitle, List<AchievementBase> parts, int points, bool secret = false) : base(title, subtitle, points, secret) {
+            this.parts = parts;
+            checkIfPreviouslyFulfilled ();
+        }
+
+        public override bool test() {
+//            Debug.Log("Test: " + title + " ; " + subtitle + " ? " + fulfilled);
+            if (!fulfilled) {
+                bool allFulfilled = true;
+                foreach (AchievementBase part in parts) {
+                    if (!part.fulfilled && !part.test()) {
+                        allFulfilled = false;
+                        break;
+                    }
+                }
+                if (allFulfilled) {
+                    fulfilled = true;
+                    Debug.Log("FULLFILLED!");
+                    saveFulfilled ();
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

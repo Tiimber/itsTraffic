@@ -65,7 +65,7 @@
     <file path="/a.txt" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478601198396" ignored="false" />
     <file path="/MissionStarAmount.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478603491426" ignored="false" />
     <file path="/StarImageToggle.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478611660253" ignored="false" />
-    <file path="/Achievements.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478687537746" ignored="false" />
+    <file path="/Achievements.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478776853143" ignored="false" />
     <file path="/ScreenWipe.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478630583705" ignored="false" />
     <file path="/AchievementUpdater.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478687581814" ignored="false" />
     <file path="/AchievementInfo.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478687615879" ignored="false" />
@@ -132,11 +132,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Achievements.cs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Achievements.cs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Achievements.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="48" selection-start-line="5" selection-start-column="48" selection-end-line="5" selection-end-column="48" />
+            <state relative-caret-position="236">
+              <caret line="186" column="54" selection-start-line="186" selection-start-column="54" selection-end-line="186" selection-end-column="54" />
               <folding>
                 <element signature="e#0#33#0" expanded="true" />
               </folding>
@@ -186,11 +186,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AchievementInfo.cs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AchievementInfo.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/AchievementInfo.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="427">
-              <caret line="47" column="73" selection-start-line="47" selection-start-column="73" selection-end-line="47" selection-end-column="73" />
+            <state relative-caret-position="577">
+              <caret line="39" column="49" selection-start-line="39" selection-start-column="49" selection-end-line="39" selection-end-column="49" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -251,9 +251,9 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/LevelInfo.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Game.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/DataCollector.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/Achievements.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/AchievementUpdater.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/AchievementInfo.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Utilities/Achievements.cs" />
       </list>
     </option>
   </component>
@@ -577,12 +577,12 @@
       <workItem from="1478435185027" duration="7568000" />
       <workItem from="1478501510025" duration="49000" />
       <workItem from="1478597938877" duration="35000" />
-      <workItem from="1478597987185" duration="26017000" />
+      <workItem from="1478597987185" duration="28847000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="167309000" />
+    <option name="totallyTimeSpent" value="170139000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
@@ -1058,16 +1058,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Achievements.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="48" selection-start-line="5" selection-start-column="48" selection-end-line="5" selection-end-column="48" />
-          <folding>
-            <element signature="e#0#33#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/AchievementUpdater.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
@@ -1080,10 +1070,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/Scripts/AchievementInfo.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="427">
-          <caret line="47" column="73" selection-start-line="47" selection-start-column="73" selection-end-line="47" selection-end-column="73" />
+        <state relative-caret-position="577">
+          <caret line="39" column="49" selection-start-line="39" selection-start-column="49" selection-end-line="39" selection-end-column="49" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Utilities/Achievements.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="236">
+          <caret line="186" column="54" selection-start-line="186" selection-start-column="54" selection-end-line="186" selection-end-column="54" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
           </folding>
         </state>
       </provider>

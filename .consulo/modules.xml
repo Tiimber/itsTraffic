@@ -368,6 +368,9 @@
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Scripts/WayReference.cs.meta" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Sources/LightningBolt.cs" />
           <content url="file://$USER_HOME$/ItsTraffic/Assets/Sources/LightningBolt.cs.meta" />
+          <content url="file://$USER_HOME$/Programmering/ItsTraffic/Assets/Scripts/AchievementInfo.cs" />
+          <content url="file://$USER_HOME$/Programmering/ItsTraffic/Assets/Scripts/AchievementUpdater.cs" />
+          <content url="file://$USER_HOME$/Programmering/ItsTraffic/Assets/Scripts/Utilities/Achievements.cs" />
           <orderEntry type="sourceFolder" />
           <orderEntry type="module" module-name="Assembly-UnityScript-firstpass" />
           <orderEntry type="module" module-name="Assembly-CSharp-firstpass" />

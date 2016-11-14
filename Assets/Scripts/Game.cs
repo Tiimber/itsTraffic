@@ -1743,7 +1743,7 @@ public class Game : MonoBehaviour, IPubSub {
         GenericHumanSounds.numberOfActiveChannels = 0;
 
         freezeGame(true);
-        int pointsBefore = GameObject.FindGameObjectWithTag("Points").GetComponent<Points>().points;
+        int pointsBefore = GameObject.FindGameObjectWithTag("Points").GetComponent<Points3D>().points;
 
         List<PointCalculator.Point> alreadyIncludedPoints = pointCalculator.getPoints(true);
         List<PointCalculator.Point> notYetIncludedPoints = pointCalculator.getPoints(false, objectives);

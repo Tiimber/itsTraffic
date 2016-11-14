@@ -112,6 +112,7 @@
      <Compile Include="Assets\Scripts\PointAndClock.cs" />
      <Compile Include="Assets\Scripts\PointDigit.cs" />
      <Compile Include="Assets\Scripts\Points.cs" />
+     <Compile Include="Assets\Scripts\Points3D.cs" />
      <Compile Include="Assets\Scripts\PolygonTester.cs" />
      <Compile Include="Assets\Scripts\PopupWindowStyles.cs" />
      <Compile Include="Assets\Scripts\Settings.cs" />

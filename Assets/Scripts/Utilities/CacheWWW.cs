@@ -8,10 +8,10 @@ public class CacheWWW {
     public static WWW Get(string url, long cacheTimeMs = 0) {
         WWW www;
         if (cacheTimeMs > 0 && CacheWWW.HasValidCache(url)) {
-            UnityEngine.Debug.Log("CACHED");
+//            UnityEngine.Debug.Log("CACHED");
             www = Cache[url].www;
         } else {
-            UnityEngine.Debug.Log("NOT CACHED");
+//            UnityEngine.Debug.Log("NOT CACHED");
             WWWrapper wwwrapper = new WWWrapper(url, cacheTimeMs);
             Cache.Add(url, wwwrapper);
             www = wwwrapper.www;

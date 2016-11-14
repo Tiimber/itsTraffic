@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+// TODO - Remove - not used!
 public class Points : MonoBehaviour, IPubSub {
 
 	public int points = 0;
@@ -73,7 +74,7 @@ public class Points : MonoBehaviour, IPubSub {
 	}
 
 	void updatePart (int position, int value) {
-		parts [position].GetComponent<PointDigit> ().setDigit (value);
+//		parts [position].GetComponent<PointDigit> ().setDigit (value);
 	}
 
 	void destroyPart (int i) {

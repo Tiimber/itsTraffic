@@ -1,49 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9180368f-7fa4-4567-a676-38938f02503f" name="Default" comment="Change itsTraffic to ItsTraffic.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_0.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_1.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_2.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_3.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_4.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_5.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_6.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_7.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_8.blend1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_8.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_9.blend" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_base.blend1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Assets/Blender/number_base.blend" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/metadata/00/00000000000000004000000000000000" afterPath="$PROJECT_DIR$/Library/metadata/00/00000000000000004000000000000000" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/metadata/00/00000000000000006100000000000000" afterPath="$PROJECT_DIR$/Library/metadata/00/00000000000000006100000000000000" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/metadata/52/5229908ee7fbd4d18b4dd6fb8e2dcf77" afterPath="$PROJECT_DIR$/Library/metadata/52/5229908ee7fbd4d18b4dd6fb8e2dcf77" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/metadata/6f/6f0ec0a3c72164c8da90f4bc68de5b45" afterPath="$PROJECT_DIR$/Library/metadata/6f/6f0ec0a3c72164c8da90f4bc68de5b45" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/metadata/8e/8e8aee186216d4d85849c50d3d136342" afterPath="$PROJECT_DIR$/Library/metadata/8e/8e8aee186216d4d85849c50d3d136342" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll.mdb" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll.mdb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll.mdb" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll.mdb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll.mdb" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll.mdb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-CSharp.dll" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-UnityScript.dll.mdb" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-UnityScript.dll.mdb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-UnityScript.dll" afterPath="$PROJECT_DIR$/Library/ScriptAssemblies/Assembly-UnityScript.dll" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/CurrentMaximizeLayout.dwlt" afterPath="$PROJECT_DIR$/Library/CurrentMaximizeLayout.dwlt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/InspectorExpandedItems.asset" afterPath="$PROJECT_DIR$/Library/InspectorExpandedItems.asset" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Assets/MainScene.unity" afterPath="$PROJECT_DIR$/Assets/MainScene.unity" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/metadata/a0/a0db1abd93ee249b28d0c9538ec77b24" afterPath="$PROJECT_DIR$/Library/metadata/a0/a0db1abd93ee249b28d0c9538ec77b24" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/assetDatabase3" afterPath="$PROJECT_DIR$/Library/assetDatabase3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/metadata/dc/dcbed6ecd98f447c2b3096be0be574d6" afterPath="$PROJECT_DIR$/Library/metadata/dc/dcbed6ecd98f447c2b3096be0be574d6" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Library/expandedItems" afterPath="$PROJECT_DIR$/Library/expandedItems" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj" afterPath="$PROJECT_DIR$/Assembly-CSharp.csproj" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Assets/Scripts/Utilities/CacheWWW.cs" afterPath="$PROJECT_DIR$/Assets/Scripts/Utilities/CacheWWW.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Assets/Scripts/Game.cs" afterPath="$PROJECT_DIR$/Assets/Scripts/Game.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Assets/Scripts/PointAndClock.cs" afterPath="$PROJECT_DIR$/Assets/Scripts/PointAndClock.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Assets/Scripts/PointDigit.cs" afterPath="$PROJECT_DIR$/Assets/Scripts/PointDigit.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Assets/Scripts/Points.cs" afterPath="$PROJECT_DIR$/Assets/Scripts/Points.cs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/itsTraffic.sln" afterPath="$PROJECT_DIR$/itsTraffic.sln" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.consulo/modules.xml" afterPath="$PROJECT_DIR$/.consulo/modules.xml" />
+    <list default="true" id="9180368f-7fa4-4567-a676-38938f02503f" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.consulo/workspace.xml" afterPath="$PROJECT_DIR$/.consulo/workspace.xml" />
     </list>
     <ignored path=".consulo/workspace.xml" />
@@ -112,7 +70,7 @@
     <file path="/ScreenWipe.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478630583705" ignored="false" />
     <file path="/AchievementUpdater.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478687581814" ignored="false" />
     <file path="/AchievementInfo.cs" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1478687615879" ignored="false" />
-    <file path="/Dummy.txt" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1479106715332" ignored="false" />
+    <file path="/Dummy.txt" changelist="9180368f-7fa4-4567-a676-38938f02503f" time="1479106749694" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -661,12 +619,17 @@
       <workItem from="1478501510025" duration="49000" />
       <workItem from="1478597938877" duration="35000" />
       <workItem from="1478597987185" duration="28963000" />
-      <workItem from="1479105933904" duration="679000" />
+      <workItem from="1479105933904" duration="716000" />
     </task>
+    <task id="LOCAL-00001" summary="numbers">
+      <created>1479106745622</created>
+      <updated>1479106745622</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="170934000" />
+    <option name="totallyTimeSpent" value="170971000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
@@ -675,7 +638,7 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23185341" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32808718" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32808718" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329429" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292978" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -743,7 +706,7 @@
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge?!" />
+    <option name="LAST_COMMIT_MESSAGE" value="numbers" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -761,6 +724,7 @@
     <MESSAGE value="My git file." />
     <MESSAGE value="Change itsTraffic to ItsTraffic." />
     <MESSAGE value="Merge?!" />
+    <MESSAGE value="numbers" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -1,8 +1,9 @@
-.idea/
+.idea/**/*
 itsTraffic.iml
+itsTraffic.sln
+ItsTraffic.sln
 out/
 Temp
 builds/
 *.bin
 *.log
-

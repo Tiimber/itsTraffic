@@ -33,14 +33,20 @@ public class PubSub {
 	}
 
 	public static void unsubscribeAllForSubscriber (IPubSub subscriber) {
+        List<KeyValuePair<string, IPubSub>> unsubscribes = new List<KeyValuePair<string, IPubSub>>();
+
 		foreach (KeyValuePair<string, List<IPubSub>> messageEntries in subscriptions) {
 			foreach (IPubSub subscribeObj in messageEntries.Value) {
 				if (subscribeObj == subscriber) {
-					unsubscribe (messageEntries.Key, subscriber);
+                    unsubscribes.Add(new KeyValuePair<string, IPubSub>(messageEntries.Key, subscriber));
 					break;
 				}
 			}
 		}
+
+		foreach (KeyValuePair<string, IPubSub> doUnsubscribe in unsubscribes) {
+            unsubscribe(doUnsubscribe.Key, doUnsubscribe.Value);
+        }
 	}
 
 	public static void publish (string message, object data = null) {

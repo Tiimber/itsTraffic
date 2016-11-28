@@ -29,6 +29,8 @@ public class ModelGeneratorVehicles {
 			"Handaj", new List<string> {"Croissant", "Innuendo", "Nontendo", "Bisou", "Citrouille", "Irusu", "Eikel"}
 		}, {
         	"Bus", new List<string> {""}
+        }, {
+        	"Truck", new List<string> {"Sconea", "Evico", "Gluse", "Marcides-Bonz"}
         }
 	};
 }

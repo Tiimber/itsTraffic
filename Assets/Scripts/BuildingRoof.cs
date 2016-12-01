@@ -49,9 +49,10 @@ public class BuildingRoof : MapSurface, IPubSub {
 		if (xmlNode != null) {
 			this.gameObject.name = "BuildingRoof (" + xmlNode.Attributes.GetNamedItem ("id").Value + ")";
 			createMesh (xmlNode);
+            createMeshCollider(false);
 		}
 	}
-	
+
 	private void raiseBuilding () {
 		transform.position = new Vector3(transform.position.x, transform.position.y, -constructionHeight);
 	}
@@ -134,6 +135,10 @@ public class BuildingRoof : MapSurface, IPubSub {
 		}
 		return PROPAGATION.DEFAULT;
 	}
+
+    public float getTargetHeight() {
+        return height;
+    }
 
     void OnDestroy() {
         PubSub.unsubscribeAllForSubscriber(this);

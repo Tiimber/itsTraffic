@@ -51,9 +51,11 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private string levelSetupFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml";
 
-    public string endpointBaseUrl = "http://localhost:4002/";
-    public string customLevelsRelativeUrl = "custom-levels";
-    public string getLocationRelativeUrl = "get-location";
+    public static string endpointBaseUrl = "http://localhost:4002/";
+    public static string customLevelsRelativeUrl = "custom-levels";
+    public static string getLocationRelativeUrl = "get-location";
+    public static string countryMetaDataRelativeUrl = "countries";
+    public static string countryCodeDataQuerystringPrefix = "?country=";
 
 	private const float CLICK_RELEASE_TIME = 0.2f; 
 	private const float THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK = 30f;
@@ -70,6 +72,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public GameObject vehicleHalo;
 	public GameObject wayCrossing;
 	public GameObject human;
+    public GameObject poiObject;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;
@@ -103,15 +106,21 @@ public class Game : MonoBehaviour, IPubSub {
 
     public float lon;
     public float lat;
+    public string countryCode;
+    public string country;
 
-	// Use this for initialization
-	void Start () {
+    void Awake () {
         Game.instance = this;
+
+//        Physics.gravity = new Vector3(0f, 0f, 9.81f);
 
         Misc.refreshInputMethods();
 
         StartCoroutine(getUserLocation());
+    }
 
+	// Use this for initialization
+	void Start () {
 		showMenu ();
 		paused = false;
 		initDataCollection ();
@@ -914,7 +923,11 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 
-		if (allBuldingRoofs.Count > 0) {
+        foreach (Pos node in NodeIndex.nodes.Values) {
+            POIIcon.createPotentialPOI(node);
+        }
+
+        if (allBuldingRoofs.Count > 0) {
 			Dictionary<string, string> standardRoof = new Dictionary<string, string> ();
 			standardRoof.Add ("material", "2");
 			standardRoof.Add ("wall", "1000");
@@ -1241,6 +1254,11 @@ public class Game : MonoBehaviour, IPubSub {
 
 	public static Vector3 getCameraPosition (Pos pos)
 	{
+        return getCameraPosition(pos, Game.mapBounds, Game.cameraBounds);
+	}
+
+	public static Vector3 getCameraPosition (Pos pos, Rect mapBounds, Rect cameraBounds)
+	{
 		float posX = pos.Lon;
 		float posY = pos.Lat;
 
@@ -1249,7 +1267,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		return new Vector3 (cameraPosX, cameraPosY, 0);
 	}
-	
+
 	public void OnGUI () {
 		int y = -20;
 		GUI.Label(new Rect(0, y+=20, 100, 20), debugIndexNodes[debugIndex]);
@@ -1638,6 +1656,21 @@ public class Game : MonoBehaviour, IPubSub {
 			languageText.text = nextValue;
 
 //            PubSub.publish ("Language:set", nextValue);
+        }
+    }
+
+    public void changeLocation() {
+        Text locationText = Misc.GetMenuValueTextForKey("Options:location");
+        if (locationText != null) {
+            string previousValue = locationText.text;
+			string nextValue = getNextLanguage(previousValue);
+
+			MenuValue menuValue = locationText.GetComponent<MenuValue>();
+			savePlayerPrefs(menuValue, nextValue);
+
+			locationText.text = nextValue;
+
+//            PubSub.publish ("Location:set", nextValue);
         }
     }
 

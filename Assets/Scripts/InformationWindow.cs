@@ -27,7 +27,11 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 			foreach (InformationBase informationBaseObject in informationBaseObjects) {
 				if (!informationBaseObject.passive) {
-					CircleTouch informationObjectTouch = new CircleTouch (informationBaseObject.transform.position, 0.1f * 3f); // Click 0.1 (vehicle length) multiplied by three
+                    float thresholdSurroundingArea = 0.1f * 3f; // Click 0.1 (vehicle length) multiplied by three
+                    if (informationBaseObject.type == InformationBase.TYPE_POI) {
+                        thresholdSurroundingArea = 0.07f; // Click area around POI is smaller
+                    }
+					CircleTouch informationObjectTouch = new CircleTouch (informationBaseObject.transform.position, thresholdSurroundingArea);
 					if (informationObjectTouch.isInside (clickPos)) {
 
 						if (informationObjectTouch.isCloser (clickPos, clickedCircleTouch)) {

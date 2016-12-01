@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class NodeWithTags : IdNode {
 	public List<Tag> tags = new List<Tag> ();
@@ -9,6 +10,15 @@ public class NodeWithTags : IdNode {
 	public List<Tag> getTags () {
 		return tags;
 	}
+
+    public bool hasTag(string key) {
+        return getTagValue(key) != null;
+    }
+
+    public bool hasTagWithValues(string key, params string[] values) {
+		string tagValue = getTagValue (key);
+        return Array.IndexOf(values, tagValue) != -1;
+    }
 
 	public string getTagValue(string key) {
 		string value = null;

@@ -29,6 +29,10 @@ public class MapSurface : MonoBehaviour {
 		addMeshToGameObject (gameObject, vertices2D);
 	}
 
+    public void createMeshCollider(bool convex = true) {
+        MeshCollider meshCollider = this.gameObject.AddComponent<MeshCollider> ();
+        meshCollider.convex = convex;
+    }
 
 
 	protected void createMeshArea(XmlNode xmlNode, float wayWidthFactor) {
@@ -81,7 +85,7 @@ public class MapSurface : MonoBehaviour {
 		for (int i=0; i<vertices.Length; i++) {
 			vertices[i] = new Vector3(vertices2D[i].x, vertices2D[i].y, 0);
 		}
-		
+
 		// Create the mesh
 		Mesh msh = new Mesh();
 		msh.vertices = vertices;
@@ -89,6 +93,9 @@ public class MapSurface : MonoBehaviour {
 		msh.uv = vertices2D;
 		msh.RecalculateNormals();
 		msh.RecalculateBounds();
+
+        float area = Misc.getMeshArea(msh);
+        gameObject.AddComponent<MeshArea>().area = area;
 
 //		Vector3[] normals = msh.normals;
 //		for (int i = 0; i < normals.Length; i++) {

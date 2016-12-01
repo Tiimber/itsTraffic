@@ -39,7 +39,7 @@ public class LevelDataUpdater : MonoBehaviour {
     }
 
     private void loadLevelList() {
-        string customLevelsUrl = Game.instance.endpointBaseUrl + Game.instance.customLevelsRelativeUrl;
+        string customLevelsUrl = Game.endpointBaseUrl + Game.customLevelsRelativeUrl;
         if (filter != "") {
             customLevelsUrl += "?filter=" + Uri.EscapeUriString(filter);
         }

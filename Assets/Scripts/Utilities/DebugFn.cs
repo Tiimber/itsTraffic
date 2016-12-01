@@ -26,7 +26,7 @@ public class DebugFn
 
 	public static void print(Vector3 vector) {
 		if (enabled) {
-			Debug.Log ("Vector3 (" + vector.x + ", " + vector.y + ", " + vector.z + ")");
+			Debug.Log (getVectorString(vector));
 		}
 	}
 
@@ -157,5 +157,9 @@ public class DebugFn
 
 	static Color getColor (Color color) {
 		return DebugFn.overrideTime > 0f ? DebugFn.overrideColor : color;
+	}
+
+	public static string getVectorString(Vector3 vector) {
+		return "Vector3 (" + vector.x + ", " + vector.y + ", " + vector.z + ")";
 	}
 }

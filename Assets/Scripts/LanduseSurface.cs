@@ -16,6 +16,8 @@ public class LanduseSurface : MapSurface {
 		{"platform", new Color (0.73f, 0.73f, 0.73f)},
 
 		{"background", new Color (0.03f, 0.10f, 0.05f)}, // TODO - Change
+		{"_country", new Color(0.51f, 0.76f, 0.28f)},
+		{"_sea", new Color(0.13f, 0.47f, 0.76f)},
 
 		{DEFAULT_TYPE, new Color (0, 1f, 0)}
 	};
@@ -40,6 +42,7 @@ public class LanduseSurface : MapSurface {
 			}
 			this.gameObject.name = "Landuse - " + landuseType + " (" + way.printTags () + ")";
 			createMesh (xmlNode);
+//            createMeshCollider();
 			setLanduseMaterial (landuseType);
 		}
 	}
@@ -62,6 +65,8 @@ public class LanduseSurface : MapSurface {
 			this.gameObject.name = "Landuse - " + landuseType + " (" + way.printTags () + ")";
 			createMeshArea (xmlNode, wayWidthFactor);
 			setLanduseMaterial (landuseType);
+
+//            createMeshCollider();
 		}
 	}
 
@@ -82,7 +87,9 @@ public class LanduseSurface : MapSurface {
 		MeshRenderer meshRenderer = planeMeshObj.GetComponent<MeshRenderer> ();
 		Renderer renderer = meshRenderer.GetComponent<Renderer> ();
 		renderer.material = material;
-	}
+
+//        createMeshCollider();
+    }
 
 	private void setLanduseMaterial (string type) {
 		Material material = new Material (Shader.Find ("Custom/PlainShader"));

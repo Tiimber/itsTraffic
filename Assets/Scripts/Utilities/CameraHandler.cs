@@ -5,7 +5,7 @@ using UnityEngine;
 public class CameraHandler {
 	private static float MIN_ZOOM_LEVEL = 8f;
 	private static float INTRO_ZOOM_LEVEL = 5f;
-	private const float MAX_ZOOM_LEVEL = 0.5f; // TODO - Adjust
+	private static float MAX_ZOOM_LEVEL = 0.5f; // TODO - Adjust
 
 	private static float CalculatedOptimalZoom = 3.5f; // TODO - We want this to be automatic and depending on map and/or device type
 
@@ -24,6 +24,11 @@ public class CameraHandler {
 	public static void SetMainCamera (Camera camera) {
 		main = camera;
 	}
+
+    public static void SetZoomLevels(float min = 8f, float max = 0.5f) {
+        MIN_ZOOM_LEVEL = min;
+        MAX_ZOOM_LEVEL = max;
+    }
 
     public static void SetPerspectiveCamera (Camera camera) {
         perspectiveCamera = camera;
@@ -48,7 +53,7 @@ public class CameraHandler {
 	public static void InitialZoom () {
 		float fromZoom = INTRO_ZOOM_LEVEL;
 		float toZoom = CalculatedOptimalZoom;
-		Singleton<Game>.Instance.StartCoroutine (ZoomFromTo(fromZoom, toZoom, 1f));
+		Singleton<SingletonInstance>.Instance.StartCoroutine (ZoomFromTo(fromZoom, toZoom, 1f));
 	}
 
 	private static IEnumerator ZoomFromTo (float start, float end, float time) {
@@ -61,7 +66,7 @@ public class CameraHandler {
 	}
 
 	public static void CustomZoom (float amount, Vector3 zoomPoint) {
-		Singleton<Game>.Instance.StartCoroutine (ZoomWithAmount(-amount/5f, 0.25f, zoomPoint));
+		Singleton<SingletonInstance>.Instance.StartCoroutine (ZoomWithAmount(-amount/5f, 0.25f, zoomPoint));
 	}
 
 	private static IEnumerator ZoomWithAmount (float amount, float time, Vector3 zoomPoint) {
@@ -84,7 +89,7 @@ public class CameraHandler {
 			float xZoomRatio = Mathf.Max((float) Screen.width / (float) Screen.height, 1f);
 			float yZoomRatio = Mathf.Max((float) Screen.height / (float) Screen.width, 1f);
 			Vector3 zoomOffsetMove = new Vector3 ((zoomDelta * xZoomRatio) * offsetPctFromCenter.First, (zoomDelta * yZoomRatio) * offsetPctFromCenter.Second, 0f);
-			Singleton<Game>.Instance.StartCoroutine (MoveWithVector(zoomOffsetMove, 0f, false));
+			Singleton<SingletonInstance>.Instance.StartCoroutine (MoveWithVector(zoomOffsetMove, 0f, false));
 
 			yield return t;
 		}
@@ -98,7 +103,7 @@ public class CameraHandler {
 
 			Vector3 adjustedMove = move * -1f;
 
-			Singleton<Game>.Instance.StartCoroutine (MoveWithVector(adjustedMove * screenDisplayFactor, 0.3f));
+			Singleton<SingletonInstance>.Instance.StartCoroutine (MoveWithVector(adjustedMove * screenDisplayFactor, 0.3f));
         }
 	}
 

@@ -6,8 +6,12 @@ using System.Reflection;
 public class InformationBase : MonoBehaviour {
 
 	public bool passive = false;
-	protected string type;
+	public string type;
 	protected new string name;
+
+    public const string TYPE_POI = "Point Of Interest";
+    public const string TYPE_HUMAN = "Human";
+    public const string TYPE_VEHICLE = "Vehicle";
 
 	// Use this for initialization
 	void Start () {

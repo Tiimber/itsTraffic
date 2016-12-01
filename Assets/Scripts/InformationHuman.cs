@@ -32,7 +32,7 @@ public class InformationHuman : InformationBase {
 	}
 
 	public void initInformation() {
-		type = "Human";
+		type = TYPE_HUMAN;
 		// Check for stored information in HumanLogic
 		HumanLogic human = GetComponent<HumanLogic>();
 		Vehicle vehicle = GetComponent<Vehicle> ();

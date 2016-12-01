@@ -240,10 +240,14 @@ public class Misc {
 		}
 		return defaultValue;
 	}
-		
+
 	public static void setRandomSeed (int randomSeed) {
 		Misc.random = new System.Random (randomSeed);
 	}
+
+    public static float randomPlusMinus(float medium, float plusMinus) {
+        return randomRange(medium - plusMinus, medium + plusMinus);
+    }
 
 	public static float randomRange(float min, float max) {
 		double value = Misc.random.NextDouble ();
@@ -441,7 +445,7 @@ public class Misc {
 
 //	https://github.com/fiorix/freegeoip/releases (need https://golang.org?)
     public static IEnumerator getGeoLocation() {
-		WWW www = CacheWWW.Get(Game.instance.endpointBaseUrl + Game.instance.getLocationRelativeUrl, Misc.getTsForReadable("5m"));
+		WWW www = CacheWWW.Get(Game.endpointBaseUrl + Game.getLocationRelativeUrl, Misc.getTsForReadable("5m"));
         yield return www;
 
         XmlDocument xmlDoc = new XmlDocument();
@@ -449,6 +453,8 @@ public class Misc {
 
         Game.instance.lat = Convert.ToSingle (xmlDoc.SelectSingleNode ("/geoData/lat").InnerText);
         Game.instance.lon = Convert.ToSingle (xmlDoc.SelectSingleNode ("/geoData/lon").InnerText);
+        Game.instance.countryCode = Convert.ToString (xmlDoc.SelectSingleNode ("/geoData/countryCode").InnerText);
+        Game.instance.country = Convert.ToString (xmlDoc.SelectSingleNode ("/geoData/country").InnerText);
     }
 
 	public static void refreshInputMethods() {
@@ -487,4 +493,50 @@ public class Misc {
         }
         return inputNames;
     }
+
+	public static float getMeshArea(Mesh mesh) {
+		return VolumeOfMesh(mesh);
+	}
+
+	private static float SignedVolumeOfTriangle(Vector3 p1, Vector3 p2, Vector3 p3) {
+		float v321 = p3.x * p2.y;
+		float v231 = p2.x * p3.y;
+		float v312 = p3.x * p1.y;
+		float v132 = p1.x * p3.y;
+		float v213 = p2.x * p1.y;
+		float v123 = p1.x * p2.y;
+		return (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
+	}
+
+	private static float VolumeOfMesh(Mesh mesh) {
+		float volume = 0;
+		Vector3[] vertices = mesh.vertices;
+		int[] triangles = mesh.triangles;
+		for (int i = 0; i < mesh.triangles.Length; i += 3)
+		{
+			Vector3 p1 = vertices [triangles [i + 0]];
+			Vector3 p2 = vertices [triangles [i + 1]];
+			Vector3 p3 = vertices [triangles [i + 2]];
+			volume += SignedVolumeOfTriangle (p1, p2, p3);
+		}
+		return Mathf.Abs (volume);
+	}
+
+	public static bool CompareVectorLists(List<Vector3> vec1, List<Vector3> vec2) {
+        if (vec1 == vec2) {
+            return true;
+        }
+
+        if (vec1.Count != vec2.Count) {
+        	return false;
+        }
+
+        for (int i = 0; i < vec1.Count; i++) {
+            if (!vec1[i].Equals(vec2[i])) {
+                return false;
+            }
+        }
+
+		return true;
+	}
 }

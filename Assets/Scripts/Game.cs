@@ -219,6 +219,13 @@ public class Game : MonoBehaviour, IPubSub {
 			DataCollector.Add ("Elapsed Time", Time.deltaTime);
 		}
 
+        // TODO - Temporary - testing sun
+		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
+			changeSunTime(15);
+		} else if (Input.GetKeyDown (KeyCode.Minus) || Input.GetKeyDown (KeyCode.M)) {
+            changeSunTime(-15);
+		}
+
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
 //			currentLevel = WayTypeEnum.getLower (currentLevel);
 //			filterWays ();
@@ -1881,6 +1888,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public void setSunProperties() {
         Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
         sun.transform.rotation = Misc.getSunRotation (sunPosition ["azimuth"]);
+		sun.GetComponentInChildren<Light>().intensity = Misc.getSunIntensity (sunPosition ["elevation"]);
 
 //        Debug.Log("Sun elevation: " + sunPosition["elevation"]);
 //        Debug.Log("Sun azimuth: " + sunPosition["azimuth"]);
@@ -1896,5 +1904,16 @@ public class Game : MonoBehaviour, IPubSub {
 			dt = dt.AddMinutes(15);
 		}
 */
+    }
+
+    private void changeSunTime (int minutesToAdd) {
+        DateTime dt = loadedLevel.dateTime;
+        dt = dt.AddMinutes(minutesToAdd);
+        loadedLevel.dateTime = dt;
+
+        Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
+//        Debug.Log(dt.ToString("HH:mm") + " - " + sunPosition["elevation"] + " = " + Misc.getSunIntensity (sunPosition ["elevation"]));
+
+        setSunProperties();
     }
 }

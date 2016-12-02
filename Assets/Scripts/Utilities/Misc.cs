@@ -672,22 +672,34 @@ public class Misc {
         return Quaternion.Euler(getSunRotationX(azimuth), getSunRotationY(azimuth), 0f);
     }
 
-    private static float getSunRotationX (float azimuth) {
+    private static float getSunRotationX(float azimuth) {
         float x = azimuth;
         float a = 44.76907f;
         float b = 0.2250797f;
         float c = -0.01406229f;
         float d = 0.0000746504f;
-        float e = -1.036811f * Mathf.Pow(10f, -7f);
+        float e = -1.036811f * Mathf.Pow (10f, -7f);
         return a + b * x + c * Mathf.Pow (x, 2f) + d * Mathf.Pow (x, 3f) + e * Mathf.Pow (x, 4f);
     }
 
-    private static float getSunRotationY (float azimuth) {
+    private static float getSunRotationY(float azimuth) {
         float x = azimuth;
         float a = 1.974222f;
         float b = -1.320782f;
         float c = 0.01091512f;
         float d = -0.00002021318f;
         return a + b * x + c * Mathf.Pow (x, 2f) + d * Mathf.Pow (x, 3f);
+    }
+
+    public static float getSunIntensity(float elevation) {
+        float x = elevation;
+        float a = -0.1f;
+        float b = 0.06783333f;
+        float c = -0.002375f;
+        float d = 0.00007083333f;
+        float e = -0.00000125f;
+        float f = 8.333333f * Mathf.Pow (10f, -9f);
+        return Mathf.Clamp(a + b * x + c * Mathf.Pow(x, 2f) + d * Mathf.Pow(x, 3f) + e * Mathf.Pow(x, 4f) + f * Mathf.Pow(x, 5f), 0f, 1f);
+        // y = -0.1 + 0.06783333*x - 0.002375*x^2 + 0.00007083333*x^3 - 0.00000125*x^4 + 8.333333e-9*x^5
     }
 }

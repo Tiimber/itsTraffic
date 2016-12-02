@@ -3,17 +3,21 @@ using System.Collections;
 
 public class PopupWindowStyles : MonoBehaviour {
 
-	protected GUIStyle borderStyle;
-	protected GUIStyle windowStyle;
-	protected GUIStyle titleStyle;
-	protected GUIStyle subtitleStyle;
-	protected GUIStyle subtitleStyleRight;
-	protected GUIStyle textStyle;
-	protected GUIStyle textStyleRight;
+	protected static GUIStyle borderStyle;
+	protected static GUIStyle windowStyle;
+	protected static GUIStyle titleStyle;
+	protected static GUIStyle subtitleStyle;
+	protected static GUIStyle subtitleStyleRight;
+	protected static GUIStyle textStyle;
+	protected static GUIStyle textStyleRight;
 
-    protected Texture2D starFilled;
-    protected Texture2D starOutlined;
-    protected Texture2D highscoreStamp;
+    public static GUIStyle VERTICAL_SCROLLBAR_VISIBLE;
+    public static GUIStyle HORIZONTAL_SCROLLBAR_VISIBLE;
+    public static GUIStyle SCROLLBAR_NOT_VISIBLE;
+
+    protected static Texture2D starFilled;
+    protected static Texture2D starOutlined;
+    protected static Texture2D highscoreStamp;
 
     void Awake() {
         starFilled = Resources.Load<Texture2D>("Graphics/filled_star");
@@ -60,6 +64,15 @@ public class PopupWindowStyles : MonoBehaviour {
 			subtitleStyleRight.normal.textColor = Color.white;
 			subtitleStyleRight.alignment = TextAnchor.MiddleRight;
 		}
+        if (VERTICAL_SCROLLBAR_VISIBLE == null) {
+            VERTICAL_SCROLLBAR_VISIBLE = GUI.skin.verticalScrollbar;
+        }
+        if (HORIZONTAL_SCROLLBAR_VISIBLE == null) {
+            HORIZONTAL_SCROLLBAR_VISIBLE = GUI.skin.horizontalScrollbar;
+        }
+        if (SCROLLBAR_NOT_VISIBLE == null) {
+            SCROLLBAR_NOT_VISIBLE = GUIStyle.none;
+        }
 	}
 
 }

@@ -12,7 +12,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 	private List<KeyValuePair<string, object>> information;
 	private Rect windowRect;
 
-	void Start () {
+    void Start () {
 		PubSub.subscribe ("Click", this, 20);
         PubSub.subscribe ("InformationWindow:hide", this);
 	}
@@ -80,13 +80,13 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 		if (show) {
 			float informationWindowWidth = Screen.width / 5f;
-			float contentHeight = Screen.height * 2;//information.Count * 25; // TODO - calculate precise information height
+			float contentHeight = calculateContentHeight(informationWindowWidth); // TODO - calculate precise information height
 			windowRect = new Rect (0, 0, informationWindowWidth, Screen.height);
-			Rect viewRect = new Rect (0, 0, Screen.width / 5f, contentHeight);
+			Rect viewRect = new Rect (0, 0, Screen.width / 5f + 10, contentHeight);
 
 			GUI.Box (windowRect, "", windowStyle);
 
-			using (var scrollScope = new GUI.ScrollViewScope (windowRect, scrollPosition, viewRect)) {
+			using (GUI.ScrollViewScope scrollScope = new GUI.ScrollViewScope (windowRect, scrollPosition, viewRect, SCROLLBAR_NOT_VISIBLE, VERTICAL_SCROLLBAR_VISIBLE)) {
 				scrollPosition = scrollScope.scrollPosition;
 
 				float y = 0;
@@ -103,29 +103,43 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 					}
                 }
 			}
-		}
+        }
 	}
 
-	private void printKeyValuePair (KeyValuePair<string, object> info, ref float y, float windowWidth) {
+    private float calculateContentHeight(float informationWindowWidth) {
+        float y = 0;
+        foreach (KeyValuePair<string, object> infoRow in information) {
+            // TODO - Don't really like this one, "onlyCalculation"
+            printKeyValuePair (infoRow, ref y, informationWindowWidth, onlyCalculation: true);
+        }
+        return y;
+    }
+
+	private void printKeyValuePair (KeyValuePair<string, object> info, ref float y, float windowWidth, bool onlyCalculation = false) {
 		float itemHeight = 25f;
 
 		Type type = info.Value.GetType ();
 		if (type == typeof(int)) {
-			GUI.Label (new Rect (5f, 5f + y, windowWidth / 3f, 25f), info.Key + ":");
-			GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), string.Format ("{0}", (int)info.Value));
+            if (!onlyCalculation) {
+                GUI.Label (new Rect (5f, 5f + y, windowWidth / 3f, 25f), info.Key + ":");
+				GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), string.Format ("{0}", (int)info.Value));
+            }
 		} else if (type == typeof(DateTime)) {
-			GUI.Label (new Rect (5f, 5f + y, windowWidth / 3f, 25f), info.Key + ":");
-			GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), string.Format ("{0:MMM yyyy}", (DateTime)info.Value));
-		} else if (type == typeof(InformationHuman)) {
-			EditorGUIx.DrawLine (new Vector2 (5f, 5f + y), new Vector2 (5f + windowWidth - 10f, 5f + y), 2f);
-
+            if (!onlyCalculation) {
+				GUI.Label (new Rect (5f, 5f + y, windowWidth / 3f, 25f), info.Key + ":");
+				GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), string.Format ("{0:MMM yyyy}", (DateTime)info.Value));
+			}
+        } else if (type == typeof(InformationHuman)) {
+            if (!onlyCalculation) {
+				EditorGUIx.DrawLine (new Vector2 (5f, 5f + y), new Vector2 (5f + windowWidth - 10f, 5f + y), 2f);
+			}
 			y += 7f;
 
-			printTitle (info.Key, ref y, windowWidth, subtitleStyle);
+			printTitle (info.Key, ref y, windowWidth, subtitleStyle, onlyCalculation);
 
 			List<KeyValuePair<string, object>> information = ((InformationHuman)info.Value).getInformation ();
 			foreach (KeyValuePair<string, object> infoRow in information) {
-				printKeyValuePair (infoRow, ref y, windowWidth);
+				printKeyValuePair (infoRow, ref y, windowWidth, onlyCalculation);
 			}
 
 			return;
@@ -134,23 +148,27 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 			int count = value.Count;
 			for (int i = 0; i < count; i++) {
 				KeyValuePair<string, object> listEntry = new KeyValuePair<string, object>(info.Key + (count > 1 ? " " + (i+1) : ""), value[i]);
-				printKeyValuePair (listEntry, ref y, windowWidth);
+				printKeyValuePair (listEntry, ref y, windowWidth, onlyCalculation);
 			}
 		} else {
 			// Strings (and the "rest")
 			if (y == 0) {
-				printTitle (info.Value.ToString(), ref y, windowWidth, titleStyle);
+				printTitle (info.Value.ToString(), ref y, windowWidth, titleStyle, onlyCalculation);
 			} else {
-				GUI.Label (new Rect (5f, 5f + y, windowWidth / 3f, 25f), info.Key + ":");
-				GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), "" + info.Value);
+                if (!onlyCalculation) {
+					GUI.Label (new Rect (5f, 5f + y, windowWidth / 3f, 25f), info.Key + ":");
+					GUI.Label (new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f), "" + info.Value);
+				}
 			}
 		}
 
 		y += itemHeight;
 	}
 
-	private void printTitle (string title, ref float y, float windowWidth, GUIStyle titleStyle) {
-		GUI.Label (new Rect (5f, 5f + y, -5f + windowWidth, titleStyle.fontSize + 6f), title, titleStyle);
+	private void printTitle (string title, ref float y, float windowWidth, GUIStyle titleStyle, bool onlyCalculation) {
+        if (!onlyCalculation) {
+			GUI.Label (new Rect (5f, 5f + y, -5f + windowWidth, titleStyle.fontSize + 6f), title, titleStyle);
+		}
 		y += titleStyle.fontSize + 6f;
 	}
 

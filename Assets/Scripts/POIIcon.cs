@@ -152,14 +152,16 @@ public class POIIcon : MonoBehaviour {
             }
         } else {
             if (showingSmall) {
-                if (Game.instance.mainCamera.orthographicSize < THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
+                // Show big icons if main camera is not active or main camera is zoomed in enough
+                if (!Game.instance.mainCamera.gameObject.activeSelf || Game.instance.mainCamera.orthographicSize < THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
                     // Swap to big
                     showingSmall = false;
                     bigIcon.GetComponent<FadeObjectInOut>().FadeIn();
                     smallIcon.GetComponent<FadeObjectInOut>().FadeOut();
                 }
             } else {
-                if (Game.instance.mainCamera.orthographicSize >= THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
+                // Show small icons if main camera is active and not zoomed in enough
+                if (Game.instance.mainCamera.gameObject.activeSelf && Game.instance.mainCamera.orthographicSize >= THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
                     // Swap to small
                     showingSmall = true;
                     bigIcon.GetComponent<FadeObjectInOut>().FadeOut();

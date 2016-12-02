@@ -73,6 +73,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public GameObject wayCrossing;
 	public GameObject human;
     public GameObject poiObject;
+    public GameObject sun;
 
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;
@@ -780,6 +781,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		loadedLevel = new Level (xmlDoc);
         calculateVehicleFrequency ();
+        setSunProperties ();
         StartCoroutine (loadXML (loadedLevel.mapUrl, loadedLevel.configUrl));
 	}
 
@@ -1385,7 +1387,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 				bool showBrief = true; // TODO - Setting
 				if (showBrief) {
-					freezeGame (true);
+                    freezeGame (true);
 					PubSub.publish ("brief:display", loadedLevel);
                     // Combine meshes in ways and buildings
 					CombineMeshes combineWayMeshes = waysParent.GetComponent<CombineMeshes> ();
@@ -1874,5 +1876,25 @@ public class Game : MonoBehaviour, IPubSub {
         Debug.Log("Your geo location: " + lon + " , " + lat);
         Debug.Log("You - Lund: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 13.1910f, 55.7047f));
         Debug.Log("You - Jönköping: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 14.1618f, 57.7826f));
+    }
+
+	public void setSunProperties() {
+        Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
+        sun.transform.rotation = Misc.getSunRotation (sunPosition ["azimuth"]);
+
+//        Debug.Log("Sun elevation: " + sunPosition["elevation"]);
+//        Debug.Log("Sun azimuth: " + sunPosition["azimuth"]);
+
+/*
+		DateTime dt = new DateTime(2016, 12, 02, 0, 0, 0, 0);
+		int safety = 1000;
+		while (dt.Day == 2 && safety-- > 0) {
+			Debug.Log(dt.ToString("yyyy-MM-dd HH:mm"));
+			Dictionary<string, float> sunPositionAtTime = Misc.getSunPosition (dt, loadedLevel.lon, loadedLevel.lat);
+			Debug.Log("Sun elevation: " + sunPositionAtTime["elevation"]);
+			Debug.Log("Sun azimuth: " + sunPositionAtTime["azimuth"]);
+			dt = dt.AddMinutes(15);
+		}
+*/
     }
 }

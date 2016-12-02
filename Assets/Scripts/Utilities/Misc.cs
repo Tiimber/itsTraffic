@@ -22,7 +22,7 @@ public class Misc {
 		System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 		return bytes;
 	}
-	
+
 	public static string GetString(byte[] bytes)
 	{
 		char[] chars = new char[bytes.Length / sizeof(char)];
@@ -54,7 +54,7 @@ public class Misc {
 	public static Vector3 getWorldPos (XmlNode xmlNode) {
 		Pos pos = NodeIndex.nodes [Convert.ToInt64 (xmlNode.Value)];
 		return Game.getCameraPosition (pos);
-	} 
+	}
 
 	public static bool isAngleAccepted (float angle1, float angle2, float acceptableAngleDiff, float fullAmountDegrees = 360f) {
 		float angleDiff = Mathf.Abs (angle1 - angle2);
@@ -134,7 +134,7 @@ public class Misc {
 	}
 
 	public static float getDistance (Vector3 from, Vector3 to) {
-		return (from - to).magnitude; 
+		return (from - to).magnitude;
 	}
 
 	//Breadth-first search
@@ -266,6 +266,24 @@ public class Misc {
 		string[] dateParts = dob.Split ('-');
 		return new DateTime (Convert.ToInt32 (dateParts [0]), Convert.ToInt32 (dateParts [1]), dateParts.Length > 2 ? Convert.ToInt32 (dateParts [2]) : 1);
 	}
+
+    public static DateTime parseDateTime (string date, string time) {
+        DateTime dateTime = DateTime.Now;
+        if (date != null) {
+            string[] dateParts = date.Split ('-');
+            dateTime = dateTime.AddYears(Convert.ToInt32 (dateParts [0]) - dateTime.Year);
+            dateTime = dateTime.AddMonths(Convert.ToInt32 (dateParts [1]) - dateTime.Month);
+            dateTime = dateTime.AddDays(Convert.ToInt32 (dateParts [2]) - dateTime.Day);
+        }
+        if (time != null) {
+            string[] timeParts = time.Split (':');
+            dateTime = dateTime.AddHours(Convert.ToInt32 (timeParts [0]) - dateTime.Hour);
+            dateTime = dateTime.AddMinutes(Convert.ToInt32 (timeParts [1]) - dateTime.Minute);
+            dateTime = dateTime.AddSeconds(timeParts.Length > 2 ? Convert.ToInt32 (timeParts [2]) - dateTime.Second : -dateTime.Second);
+            dateTime = dateTime.AddMilliseconds(-dateTime.Millisecond);
+        }
+		return dateTime;
+    }
 
 	public static Color parseColor (string color) {
 		string[] colorParts = color.Split (',');
@@ -539,4 +557,137 @@ public class Misc {
 
 		return true;
 	}
+
+    // Below code ported from http://stackoverflow.com/a/8764866
+    public static Dictionary<string, float> getSunPosition(DateTime dateTime, float lon, float lat) {
+        int year = dateTime.Year;
+        int dayOfYear = dateTime.DayOfYear;
+        float hour = (float)dateTime.Hour;
+        int min = dateTime.Minute;
+        int sec = dateTime.Second;
+
+        float twopi = 2f * Mathf.PI;
+        float deg2rad = Mathf.PI / 180f;
+
+        // Get Julian date - 2400000
+        hour = hour + min / 60 + sec / 3600; // hour plus fraction
+        int delta = year - 1949;
+        int leap = (int)Math.Truncate (delta / 4f); // former leapyears
+        float jd = 32916.5f + delta * 365 + leap + dayOfYear + hour / 24f;
+
+        // The input to the Atronomer's almanach is the difference between
+        // the Julian date and JD 2451545.0 (noon, 1 January 2000)
+        float time = jd - 51545f;
+
+        // Ecliptic coordinates
+
+        // Mean longitude
+        float mnlon = 280.46f + 0.9856474f * time;
+        mnlon = mnlon % 360f;
+        if (mnlon < 0) {
+            mnlon += 360f;
+        }
+
+        // Mean anomaly
+        float mnanom = 357.528f + 0.9856003f * time;
+        mnanom = mnanom % 360f;
+        if (mnanom < 0) {
+            mnanom += 360f;
+        }
+        mnanom = mnanom * deg2rad;
+
+        // Ecliptic longitude and obliquity of ecliptic
+        float eclon = mnlon + 1.915f * Mathf.Sign (mnanom) + 0.02f * Mathf.Sin (2f * mnanom);
+        eclon = eclon % 360f;
+        if (eclon < 0) {
+            eclon += 360f;
+        }
+        float oblqec = 23.439f - 0.0000004f * time;
+        eclon = eclon * deg2rad;
+        oblqec = oblqec * deg2rad;
+
+        // Celestial coordinates
+        // Right ascension and declination
+        float num = Mathf.Cos (oblqec) * Mathf.Sin (eclon);
+        float den = Mathf.Cos (eclon);
+        float ra = Mathf.Atan (num / den);
+        if (den < 0) {
+            ra += Mathf.PI;
+        } else if (den >= 0 && num < 0) {
+            ra += twopi;
+        }
+        float dec = Mathf.Asin (Mathf.Sin (oblqec) * Mathf.Sin (eclon));
+
+        // Local coordinates
+        // Greenwich mean sidereal time
+        float gmst = 6.697375f + 0.0657098242f * time + hour;
+        gmst = gmst % 24f;
+        if (gmst < 0) {
+            gmst += 24f;
+        }
+
+        // Local mean sidereal time
+        float lmst = gmst + lon / 15f;
+        lmst = lmst % 24f;
+        if (lmst < 0) {
+            lmst += 24f;
+        }
+        lmst = lmst * 15f * deg2rad;
+
+        // Hour angle
+        float ha = lmst - ra;
+        if (ha < -Mathf.PI) {
+            ha += twopi;
+        } else if (ha > Mathf.PI) {
+            ha -= twopi;
+        }
+
+        // Latitude to radians
+        lat = lat * deg2rad;
+
+        // Azimuth and elevation
+        float el = Mathf.Asin (Mathf.Sin (dec) * Mathf.Sin (lat) + Mathf.Cos (dec) * Mathf.Cos (lat) * Mathf.Cos (ha));
+        float az = Mathf.Asin (-Mathf.Cos (dec) * Mathf.Sin (ha) / Mathf.Cos (el));
+
+        // For logic and names, see Spencer, J.W. 1989. Solar Energy. 42(4):353
+        bool cosAzPos = 0 <= Mathf.Sin (dec) - Mathf.Sin (el) * Mathf.Sin (lat);
+        bool sinAzNeg = Mathf.Sin (az) < 0;
+        if (cosAzPos && sinAzNeg) {
+            az += twopi;
+        } else if (!cosAzPos) {
+            az = Mathf.PI - az;
+        }
+
+        el = el / deg2rad;
+        az = az / deg2rad;
+        lat = lat / deg2rad;
+
+        return new Dictionary<string, float> () {
+            {"elevation", el},
+            {"azimuth", az}
+        };
+    }
+
+    public static Quaternion getSunRotation (float azimuth) {
+        return Quaternion.Euler(getSunRotationX(azimuth), getSunRotationY(azimuth), 0f);
+    }
+
+    private static float getSunRotationX (float azimuth) {
+        float x = azimuth;
+        float a = 44.76907f;
+        float b = 0.2250797f;
+        float c = -0.01406229f;
+        float d = 0.0000746504f;
+        float e = -1.036811f * Mathf.Pow(10f, -7f);
+        return a + b * x + c * Mathf.Pow (x, 2f) + d * Mathf.Pow (x, 3f) + e * Mathf.Pow (x, 4f);
+    }
+
+    private static float getSunRotationY (float azimuth) {
+        float x = azimuth;
+        float a = 1.974222f;
+        float b = -1.320782f;
+        float c = 0.01091512f;
+        float d = -0.00002021318f;
+        return a + b * x + c * Mathf.Pow (x, 2f) + d * Mathf.Pow (x, 3f);
+    }
 }

@@ -151,9 +151,10 @@ public class POIIcon : MonoBehaviour {
                 fallSpeed += fallSpeed * (0.1f * Time.unscaledDeltaTime);
             }
         } else {
+            bool isMainOrIntroCameraActive = Game.instance.mainCamera.gameObject.activeSelf || Game.instance.introCamera.gameObject.activeSelf;
             if (showingSmall) {
                 // Show big icons if main camera is not active or main camera is zoomed in enough
-                if (!Game.instance.mainCamera.gameObject.activeSelf || Game.instance.mainCamera.orthographicSize < THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
+                if (!isMainOrIntroCameraActive || Game.instance.mainCamera.orthographicSize < THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
                     // Swap to big
                     showingSmall = false;
                     bigIcon.GetComponent<FadeObjectInOut>().FadeIn();
@@ -161,7 +162,7 @@ public class POIIcon : MonoBehaviour {
                 }
             } else {
                 // Show small icons if main camera is active and not zoomed in enough
-                if (Game.instance.mainCamera.gameObject.activeSelf && Game.instance.mainCamera.orthographicSize >= THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
+                if (isMainOrIntroCameraActive && Game.instance.mainCamera.orthographicSize >= THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
                     // Swap to small
                     showingSmall = true;
                     bigIcon.GetComponent<FadeObjectInOut>().FadeOut();

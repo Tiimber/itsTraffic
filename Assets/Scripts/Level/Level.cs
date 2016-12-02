@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml;
 
 public class Level {
@@ -14,6 +15,8 @@ public class Level {
     public string brief;
     public string randomSeedStr;
     public int randomSeed;
+    public DateTime dateTime;
+    public string date;
     public string timeOfDay;
     public string country;
     public string mapUrl;
@@ -90,7 +93,9 @@ public class Level {
             randomSeed = randomSeedStr.GetHashCode ();
             //		    DebugFn.print ("Random seed: " + randomSeedStr + ", hash: " + randomSeed);
         }
+        date = Misc.xmlString (levelAttributes.GetNamedItem ("date"));
         timeOfDay = Misc.xmlString (levelAttributes.GetNamedItem ("timeOfDay"));
+        dateTime = Misc.parseDateTime(date, timeOfDay);
         country = Misc.xmlString (levelAttributes.GetNamedItem ("country"));
         mapUrl = Misc.xmlString (levelAttributes.GetNamedItem ("mapUrl"));
         configUrl = Misc.xmlString (levelAttributes.GetNamedItem ("configUrl"));

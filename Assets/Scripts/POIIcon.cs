@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class POIIcon : MonoBehaviour {
+public class POIIcon : MonoBehaviour, IPubSub {
 
     private static Dictionary<string, GameObject> groups = new Dictionary<string, GameObject> ();
 
@@ -33,7 +33,7 @@ public class POIIcon : MonoBehaviour {
                 }
 
                 GameObject poi = Instantiate(Game.instance.poiObject, Game.getCameraPosition(node) + Game.instance.poiObject.transform.position, Game.instance.poiObject.transform.rotation, groups [group].transform) as GameObject;
-                poi.name = node.hasTag ("name") ? node.getTagValue ("name") : "" + node.Id;
+                poi.name = (node.hasTag ("name") ? node.getTagValue ("name") : "") + "(POI:" + node.Id + ")";
                 POIIcon poiIcon = poi.GetComponent<POIIcon> ();
                 poiIcon.node = node;
                 poiIcon.group = group;
@@ -74,6 +74,7 @@ public class POIIcon : MonoBehaviour {
         return null;
     }
 
+    private List<InformationHuman> peopleGoingHere = new List<InformationHuman>();
     private Pos node;
     private string group;
     private bool isFalling;
@@ -86,6 +87,10 @@ public class POIIcon : MonoBehaviour {
     void Start() {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.forward, out hit, 30f)) {
+            // Subscribe to know who are going here
+            PubSub.subscribe("TargetPOI(" + node.Id + "):Add", this);
+            PubSub.subscribe("TargetPOI(" + node.Id + "):Remove", this);
+
             // Add InformationPOI, since we now have inited this icon
             this.gameObject.AddComponent<InformationPOI>();
 
@@ -139,6 +144,10 @@ public class POIIcon : MonoBehaviour {
         return address;
     }
 
+    public List<InformationHuman> getPeopleGoingHere() {
+        return peopleGoingHere;
+    }
+
     void Update() {
         if (isFalling) {
             float newZ = transform.position.z + fallSpeed * Time.unscaledDeltaTime;
@@ -183,5 +192,18 @@ public class POIIcon : MonoBehaviour {
                 }
             }
         }
+    }
+
+    public PROPAGATION onMessage(string message, object data) {
+        if (message == "TargetPOI(" + node.Id + "):Add") {
+            InformationHuman personGoingHere = (InformationHuman) data;
+            peopleGoingHere.Add(personGoingHere);
+            return PROPAGATION.STOP_IMMEDIATELY;
+        } else if (message == "TargetPOI(" + node.Id + "):Remove") {
+            InformationHuman personGoingHere = (InformationHuman) data;
+            peopleGoingHere.Remove(personGoingHere);
+            return PROPAGATION.STOP_IMMEDIATELY;
+        }
+        return PROPAGATION.DEFAULT;
     }
 }

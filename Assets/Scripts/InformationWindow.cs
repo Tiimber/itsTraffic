@@ -116,6 +116,10 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
     }
 
 	private void printKeyValuePair (KeyValuePair<string, object> info, ref float y, float windowWidth, bool onlyCalculation = false) {
+		if (info.Value == null) {
+            return;
+        }
+
 		float itemHeight = 25f;
 
 		Type type = info.Value.GetType ();
@@ -137,7 +141,21 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 			printTitle (info.Key, ref y, windowWidth, subtitleStyle, onlyCalculation);
 
-			List<KeyValuePair<string, object>> information = ((InformationHuman)info.Value).getInformation ();
+			List<KeyValuePair<string, object>> information = ((InformationHuman)info.Value).getInformation (onlyName: true);
+			foreach (KeyValuePair<string, object> infoRow in information) {
+				printKeyValuePair (infoRow, ref y, windowWidth, onlyCalculation);
+			}
+
+			return;
+        } else if (type == typeof(InformationPOI)) {
+            if (!onlyCalculation) {
+				EditorGUIx.DrawLine (new Vector2 (5f, 5f + y), new Vector2 (5f + windowWidth - 10f, 5f + y), 2f);
+			}
+			y += 7f;
+
+			printTitle (info.Key, ref y, windowWidth, subtitleStyle, onlyCalculation);
+
+			List<KeyValuePair<string, object>> information = ((InformationPOI)info.Value).getInformation (onlyName: true);
 			foreach (KeyValuePair<string, object> infoRow in information) {
 				printKeyValuePair (infoRow, ref y, windowWidth, onlyCalculation);
 			}

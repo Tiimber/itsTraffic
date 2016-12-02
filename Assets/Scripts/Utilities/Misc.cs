@@ -700,6 +700,5 @@ public class Misc {
         float e = -0.00000125f;
         float f = 8.333333f * Mathf.Pow (10f, -9f);
         return Mathf.Clamp(a + b * x + c * Mathf.Pow(x, 2f) + d * Mathf.Pow(x, 3f) + e * Mathf.Pow(x, 4f) + f * Mathf.Pow(x, 5f), 0f, 1f);
-        // y = -0.1 + 0.06783333*x - 0.002375*x^2 + 0.00007083333*x^3 - 0.00000125*x^4 + 8.333333e-9*x^5
     }
 }

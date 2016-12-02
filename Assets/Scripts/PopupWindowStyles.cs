@@ -18,11 +18,13 @@ public class PopupWindowStyles : MonoBehaviour {
     protected static Texture2D starFilled;
     protected static Texture2D starOutlined;
     protected static Texture2D highscoreStamp;
+    protected static Texture2D failedStamp;
 
     void Awake() {
         starFilled = Resources.Load<Texture2D>("Graphics/filled_star");
         starOutlined = Resources.Load<Texture2D>("Graphics/outlined_star");
         highscoreStamp = Resources.Load<Texture2D>("Graphics/highscore_stamp");
+        failedStamp = Resources.Load<Texture2D>("Graphics/failed_stamp");
     }
 
     public void OnGUI() {

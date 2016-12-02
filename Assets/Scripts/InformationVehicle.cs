@@ -33,7 +33,11 @@ public class InformationVehicle : InformationBase {
 //		Debug.Log("New vehicle: " + name + " (" + year + ")");
 	}
 	
-	public override List<KeyValuePair<string, object>> getInformation () {
+	public override List<KeyValuePair<string, object>> getInformation (bool onlyName = false) {
+        if (onlyName) {
+            return base.getInformation();
+        }
+
 		Vehicle vehicle = GetComponent<Vehicle> ();
 		if (vehicle != null) {
 			distance = Mathf.FloorToInt(vehicle.totalDrivingDistance);

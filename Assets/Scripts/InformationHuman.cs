@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class InformationHuman : InformationBase {
 
@@ -23,7 +24,7 @@ public class InformationHuman : InformationBase {
 	public string mood;
 	public float distance;
 	public int passengerIndex = -1;
-//	public List<InformationNode> destination; // TODO
+	public InformationPOI destination;
 
 
 	// Use this for initialization
@@ -39,6 +40,7 @@ public class InformationHuman : InformationBase {
 		Setup.PersonSetup data = null;
 		if (human != null) {
 			data = human.personality;
+            destination = findInformationPOI(human.targetPos);
 		} else if (vehicle != null && vehicle.characteristics != null) {
 			long personId;
 			if (passengerIndex == -1) {
@@ -89,8 +91,12 @@ public class InformationHuman : InformationBase {
 //		Debug.Log("New human: " + name);
 	}
 
-	public override List<KeyValuePair<string, object>> getInformation () {
-		if (information == null) {
+	public override List<KeyValuePair<string, object>> getInformation (bool onlyName = false) {
+        if (onlyName) {
+            return base.getInformation();
+        }
+
+        if (information == null) {
 			HumanLogic human = GetComponent<HumanLogic> ();
 			if (human != null) {
 				distance = Mathf.FloorToInt (human.totalWalkingDistance);
@@ -103,6 +109,7 @@ public class InformationHuman : InformationBase {
 			information.Add (new KeyValuePair<string, object> ("Money", Misc.getMoney (money)));
 //			information.Add (new KeyValuePair<string, object> ("Mood", mood));
 			information.Add (new KeyValuePair<string, object> ("Have walked", Misc.getDistance (distance)));
+            information.Add (new KeyValuePair<string, object> ("Destination", destination));
 
 			keepInformationUpToDate (true, information);
 		}
@@ -140,4 +147,11 @@ public class InformationHuman : InformationBase {
 	public override void disposeInformation () {
 		keepInformationUpToDate (false);
 	}
+
+    private InformationPOI findInformationPOI (Pos pos) {
+        string poiNameSuffix = "(POI:" + pos.Id + ")";
+		List<GameObject> poiObjects = GameObject.FindGameObjectsWithTag ("POI").ToList();
+		GameObject interestingPOIObject = poiObjects.Find (poi => poi.name.EndsWith (poiNameSuffix));
+		return interestingPOIObject != null ? interestingPOIObject.GetComponent<InformationPOI>() : null;
+    }
 }

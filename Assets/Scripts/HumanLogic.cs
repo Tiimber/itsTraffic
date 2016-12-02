@@ -12,6 +12,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 	private const float TARGET_WALKING_SPEED_KMH = 4.5f;
 	private const float KPH_TO_LONGLAT_SPEED = 100f;
 
+    public Pos targetPos;
 	private List<Pos> path;
 	private List<Vector3> walkPath;
 	private Vector3 deviationTarget = INVALID_POINT;
@@ -149,7 +150,8 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 
 	public void fadeOutAndDestroy () {
 		destroying = true;
-		FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
+        PubSub.publish("TargetPOI(" + targetPos.Id + "):Remove", GetComponent<InformationHuman>());
+        FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
 		fadeObject.DoneMessage = "destroy";
 		removeAllVehiclesInVision ();
 		fadeObject.FadeOut (0.5f);
@@ -179,9 +181,13 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 	}
 
 		
-	public void setStartAndEndInfo (Tuple3<Pos, WayReference, Vector3> startInfo, Tuple3<Pos, WayReference, Vector3> endInfo) {
+	public void setStartAndEndInfo (Tuple3<Pos, WayReference, Vector3> startInfo, Tuple3<Pos, WayReference, Vector3> endInfo, Pos targetPos) {
 		path = Game.calculateCurrentPath (startInfo.First, endInfo.First, false);
 		walkPath = Misc.posToVector3 (path);
+
+        this.targetPos = targetPos;
+		InformationHuman informationHuman = GetComponent<InformationHuman> ();
+		PubSub.publish("TargetPOI(" + targetPos.Id + "):Add", informationHuman);
 
 		if (path.Count == 1) {
 			Destroy (gameObject);

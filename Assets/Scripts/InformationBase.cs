@@ -23,7 +23,7 @@ public class InformationBase : MonoBehaviour {
 	
 	}
 
-	public virtual List<KeyValuePair<string, object>> getInformation () {
+	public virtual List<KeyValuePair<string, object>> getInformation (bool onlyName = false) {
 		
 		return new List<KeyValuePair<string, object>> {
 			new KeyValuePair<string, object> ("Name", name)

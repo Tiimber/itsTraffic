@@ -588,7 +588,7 @@ public class Game : MonoBehaviour, IPubSub {
 					humanLogic.name = "Human (id:" + data.id + ")";
 				}
 			}
-			humanLogic.setStartAndEndInfo (startInfo, endInfo);
+			humanLogic.setStartAndEndInfo (startInfo, endInfo, NodeIndex.getPosById(endPos));
 		}
 	}
 

@@ -6,6 +6,7 @@ public class GenericSoundEffects : MonoBehaviour {
     public AudioClip presentEachPointPart; // TODO - Use
     public AudioClip showBriefSound; // TODO - Use
     public AudioClip highscoreSerenade;
+    public AudioClip failSound;
 
     private static GenericSoundEffects instance;
 
@@ -18,6 +19,9 @@ public class GenericSoundEffects : MonoBehaviour {
         switch (name) {
             case "highscoreSerenade":
             	playAudioClip(highscoreSerenade, name);
+            	break;
+            case "failSound":
+            	playAudioClip(failSound, name);
             	break;
             // TODO ---
         }
@@ -36,6 +40,10 @@ public class GenericSoundEffects : MonoBehaviour {
 
     public static void playHighscoreSerenade() {
         instance.playAudio("highscoreSerenade");
+    }
+
+    public static void playFailSound() {
+        instance.playAudio("failSound");
     }
 
 }

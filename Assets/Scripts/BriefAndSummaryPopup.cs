@@ -165,6 +165,16 @@ public class BriefAndSummaryPopup : PopupWindowStyles, IPubSub {
             }
         }
 
+        if (summary.failedMission) {
+            drawFailedStamp(ref pointY, popupWidth, onlyCalculation);
+            if (!onlyCalculation) {
+                if (!summary.havePlayedFailedSound) {
+                    summary.havePlayedFailedSound = true;
+                    GenericSoundEffects.playFailSound();
+                }
+            }
+        }
+
         return pointY;
     }
 
@@ -262,11 +272,22 @@ public class BriefAndSummaryPopup : PopupWindowStyles, IPubSub {
 
     private void drawHighscoreStamp(ref float y, float windowWidth, bool onlyCalculation) {
         float center = windowWidth / 2f;
-        Misc.Size imageSize = Misc.getImageSize(highscoreStamp.width, highscoreStamp.height, 617 , 230);
+        Misc.Size imageSize = Misc.getImageSize(highscoreStamp.width, highscoreStamp.height, 617, 230);
         float imageWidth = imageSize.width;
         float imageHeight = imageSize.height;
         if (!onlyCalculation) {
             GUI.Label(new Rect(center - imageWidth / 2f, 20f + y, imageWidth, imageHeight), highscoreStamp);
+        }
+        y += 20f + imageHeight + 5f;
+    }
+
+    private void drawFailedStamp(ref float y, float windowWidth, bool onlyCalculation) {
+        float center = windowWidth / 2f;
+        Misc.Size imageSize = Misc.getImageSize(failedStamp.width, failedStamp.height, 426, 230);
+        float imageWidth = imageSize.width;
+        float imageHeight = imageSize.height;
+        if (!onlyCalculation) {
+            GUI.Label(new Rect(center - imageWidth / 2f, 20f + y, imageWidth, imageHeight), failedStamp);
         }
         y += 20f + imageHeight + 5f;
     }

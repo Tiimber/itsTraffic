@@ -10,7 +10,9 @@ public class Summary {
     public int numberOfStars;
 
     public bool newHighscore;
+    public bool failedMission;
     public bool havePlayedHighscoreSound = false;
+    public bool havePlayedFailedSound = false;
 
     public Summary(string name, string type, int pointsBefore, Objectives objectives, List<PointCalculator.Point> alreadyIncluded, List<PointCalculator.Point> notYetIncluded, int numberOfStars, bool newHighscore) {
         this.name = name;
@@ -21,5 +23,6 @@ public class Summary {
         this.notYetIncluded = notYetIncluded;
         this.numberOfStars = numberOfStars;
         this.newHighscore = newHighscore;
+        this.failedMission = type == "lose";
     }
 }

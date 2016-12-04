@@ -93,7 +93,7 @@ public class InformationHuman : InformationBase {
 
 	public override List<KeyValuePair<string, object>> getInformation (bool onlyName = false) {
         if (onlyName) {
-            return base.getInformation();
+            return base.getInformation(onlyName);
         }
 
         if (information == null) {

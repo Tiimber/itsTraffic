@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System;
-using System.Linq;
+using UnityEngine;
 
 public class InformationWindow : PopupWindowStyles, IPubSub {
 
@@ -11,6 +9,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 	private InformationBase informationObject;
 	private List<KeyValuePair<string, object>> information;
 	private Rect windowRect;
+    private Dictionary<Rect, InformationBase> clickAreas = new Dictionary<Rect, InformationBase>();
 
     void Start () {
 		PubSub.subscribe ("Click", this, 20);
@@ -19,7 +18,17 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 	public PROPAGATION onMessage (string message, object data) {
 		if (message == "Click") {
-			Vector2 clickPos = (Vector3) data;
+            // Check if a link was clicked inside of an already shown informationWindow
+            Vector2 clickPosScreen = Misc.getScreenPos((Vector3) data);
+            foreach (KeyValuePair<Rect, InformationBase> clickArea in clickAreas) {
+                if (Misc.isInside(clickPosScreen, clickArea.Key)) {
+                    scrollScreenToAndShowInformationFor(clickArea.Value);
+                    return PROPAGATION.STOP_IMMEDIATELY;
+                }
+            }
+
+            // Check for clicking to get information on actual informationBase-objects
+            Vector2 clickPos = (Vector3) data;
 			InformationBase[] informationBaseObjects = FindObjectsOfType<InformationBase> ();
 
 			InformationBase clickedInformationBase = null;
@@ -46,6 +55,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 				showInformation (clickedInformationBase);
 				return PROPAGATION.STOP_IMMEDIATELY;
 			}
+
 		} else if (message == "InformationWindow:hide") {
             hideInformation();
         }
@@ -65,6 +75,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
             informationObject.disposeInformation ();
         }
 		show = false;
+        unregisterClickAreas();
 	}
 
 	public bool isShown() {
@@ -141,14 +152,14 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 			printTitle (info.Key, ref y, windowWidth, subtitleStyle, onlyCalculation);
 
-			List<KeyValuePair<string, object>> information = ((InformationHuman)info.Value).getInformation (onlyName: true);
+			List<KeyValuePair<string, object>> information = ((InformationHuman)info.Value).getInformation (onlyName: informationObject.GetType() != typeof(InformationVehicle));
 			foreach (KeyValuePair<string, object> infoRow in information) {
 				printKeyValuePair (infoRow, ref y, windowWidth, onlyCalculation);
 			}
 
 			return;
         } else if (type == typeof(InformationPOI)) {
-            if (!onlyCalculation) {
+			if (!onlyCalculation) {
 				EditorGUIx.DrawLine (new Vector2 (5f, 5f + y), new Vector2 (5f + windowWidth - 10f, 5f + y), 2f);
 			}
 			y += 7f;
@@ -161,6 +172,13 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 			}
 
 			return;
+		} else if (type == typeof(InformationBase.InformationLink)) {
+            if (!onlyCalculation) {
+                GUI.Label (new Rect (5f, 5f + y, windowWidth / 3f, 25f), info.Key + ":");
+				Rect linkedArea = new Rect (5f + windowWidth / 3f + 5f, 5f + y, -5f + windowWidth / 3f * 2f - 10f, 25f);
+				GUI.Label (linkedArea, "" + ((InformationBase.InformationLink)info.Value).name, linkStyle);
+                registerClickArea(linkedArea, ((InformationBase.InformationLink)info.Value).informationBase);
+            }
 		} else if (type == typeof(List<InformationHuman>)) {
 			List<InformationHuman> value = (List<InformationHuman>) info.Value;
 			int count = value.Count;
@@ -202,4 +220,20 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
             }
         }
     }
+
+	public void registerClickArea(Rect linkedArea, InformationBase informationBase) {
+        if (!clickAreas.ContainsKey(linkedArea)) {
+            clickAreas.Add(linkedArea, informationBase);
+        }
+	}
+
+    public void unregisterClickAreas() {
+        clickAreas.Clear();
+    }
+
+	public void scrollScreenToAndShowInformationFor(InformationBase informationBase) {
+        CameraHandler.MoveTo(informationBase.gameObject);
+        hideInformation();
+        showInformation(informationBase);
+	}
 }

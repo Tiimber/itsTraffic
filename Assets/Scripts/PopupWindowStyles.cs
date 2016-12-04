@@ -9,6 +9,7 @@ public class PopupWindowStyles : MonoBehaviour {
 	protected static GUIStyle subtitleStyle;
 	protected static GUIStyle subtitleStyleRight;
 	protected static GUIStyle textStyle;
+	protected static GUIStyle linkStyle;
 	protected static GUIStyle textStyleRight;
 
     public static GUIStyle VERTICAL_SCROLLBAR_VISIBLE;
@@ -52,6 +53,11 @@ public class PopupWindowStyles : MonoBehaviour {
 			textStyle = new GUIStyle ();
 			textStyle.fontSize = 16;
 			textStyle.normal.textColor = Color.white;
+		}
+		if (linkStyle == null) {
+			linkStyle = new GUIStyle ();
+			linkStyle.fontSize = 16;
+			linkStyle.normal.textColor = new Color(0.77f, 0.77f, 1f);
 		}
 		if (textStyleRight == null) {
 			textStyleRight = new GUIStyle ();

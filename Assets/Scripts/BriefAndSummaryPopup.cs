@@ -153,7 +153,9 @@ public class BriefAndSummaryPopup : PopupWindowStyles, IPubSub {
         pointY += 7f;
         printPointData(totalPoints, ref pointY, popupWidth, onlyCalculation);
 
-        drawStars(summary.numberOfStars, ref pointY, popupWidth, onlyCalculation: onlyCalculation);
+        if (!summary.failedMission) {
+            drawStars(summary.numberOfStars, ref pointY, popupWidth, onlyCalculation: onlyCalculation);
+        }
 
         if (summary.newHighscore) {
             drawHighscoreStamp(ref pointY, popupWidth, onlyCalculation);

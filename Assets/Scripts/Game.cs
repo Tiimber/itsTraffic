@@ -161,9 +161,15 @@ public class Game : MonoBehaviour, IPubSub {
         paused = false;
         frozen = false;
 
+        // Destroy "MapObjects" (vehicles, humans...)
         GameObject[] mapObjects = GameObject.FindGameObjectsWithTag("MapObject");
         foreach (GameObject mapObject in mapObjects) {
             Destroy(mapObject);
+        }
+        // Destroy "POI" objects
+        GameObject[] poiObjects = GameObject.FindGameObjectsWithTag("POI");
+        foreach (GameObject poiObject in poiObjects) {
+            Destroy(poiObject);
         }
 
         objectProperties.Clear();

@@ -24,13 +24,24 @@ public class InformationBase : MonoBehaviour {
 	}
 
 	public virtual List<KeyValuePair<string, object>> getInformation (bool onlyName = false) {
-		
+
+        // only name means it's only a reference to this object - which should be linked
 		return new List<KeyValuePair<string, object>> {
-			new KeyValuePair<string, object> ("Name", name)
+			onlyName ? new KeyValuePair<string, object> ("Name", new InformationLink(this)) : new KeyValuePair<string, object> ("Name", name)
 		};
 	}
 
 	public virtual void disposeInformation() {
 		
 	}
+
+    public class InformationLink {
+        public string name;
+        public InformationBase informationBase;
+
+        public InformationLink(InformationBase obj) {
+            this.name = obj.name;
+            this.informationBase = obj;
+        }
+    }
 }

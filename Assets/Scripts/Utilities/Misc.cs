@@ -701,4 +701,11 @@ public class Misc {
         float f = 8.333333f * Mathf.Pow (10f, -9f);
         return Mathf.Clamp(a + b * x + c * Mathf.Pow(x, 2f) + d * Mathf.Pow(x, 3f) + e * Mathf.Pow(x, 4f) + f * Mathf.Pow(x, 5f), 0f, 1f);
     }
+
+	public static Vector2 getScreenPos(Vector3 cameraPos) {
+		Vector3 screenPoint = Game.instance.mainCamera.WorldToScreenPoint (cameraPos);
+        // Revert so that top is 0px
+        screenPoint.y = Screen.height - screenPoint.y;
+        return screenPoint;
+	}
 }

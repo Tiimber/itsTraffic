@@ -14,6 +14,12 @@ public class DebugFn
 
 	private static Vector3 offsetZ = new Vector3 (0, 0, -0.1f);
 
+    public static void print(Rect rect) {
+        if (enabled) {
+            Debug.Log("x: " + rect.x + ", y: " + rect.y + ", w: " + rect.width + ", h: " + rect.height);
+        }
+    }
+
 	public static void print(Pos pos) {
 		DebugFn.print (Game.getCameraPosition (pos));
 	}

@@ -708,4 +708,55 @@ public class Misc {
         screenPoint.y = Screen.height - screenPoint.y;
         return screenPoint;
 	}
+
+    public class UrlBuilder {
+        string url;
+        Dictionary<string, string> query = new Dictionary<string, string>();
+
+        public UrlBuilder() {
+            this.url = "";
+        }
+
+        public UrlBuilder(string url) {
+            this.url = url;
+        }
+
+        public UrlBuilder addUrl(string url) {
+            this.url += url;
+            return this;
+        }
+
+        public UrlBuilder addQuery(string key, string value) {
+            this.query.Add(Uri.EscapeUriString(key), Uri.EscapeUriString(value));
+            return this;
+        }
+
+        public UrlBuilder addQuery(string key, int value) {
+            return addQuery(key, "" + value);
+        }
+
+        public string build() {
+            string result = url;
+            if (query.Count > 0) {
+                result += "?";
+                bool first = true;
+                foreach (KeyValuePair<string, string> queryPart in query) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        result += "&";
+                    }
+                    result += queryPart.Key + "=" + queryPart.Value;
+                }
+            }
+            return result;
+        }
+    }
+
+	public static void DestroyChildren(Transform parent) {
+		for (int i = parent.childCount - 1; i >= 0; --i) {
+			GameObject.Destroy(parent.GetChild(i).gameObject);
+		}
+        parent.DetachChildren();
+	}
 }

@@ -9,7 +9,8 @@ public class LevelDataUpdater : MonoBehaviour {
 
     private static Vector3 MISSION_BLOCK_SIZE = new Vector3(123f, -123f, 0f);
     private static float MISSION_BLOCK_MARGIN_Y = 23f;
-    private List<GameObject> shownLevels = new List<GameObject>();
+    private static float BUTTONS_HEIGHT = 46f;
+    private static float BUTTONS_MARGIN = 10f;
 
     private static List<float> Distances = new List<float>();
 
@@ -23,9 +24,12 @@ public class LevelDataUpdater : MonoBehaviour {
 
     public LEVEL_TYPES levelType;
     public GameObject missionTemplate;
+    public GameObject previousButton;
+    public GameObject nextButton;
 
     private Levels levels;
     private string filter = "";
+    private int page = 0;
 
     public void setFilter(string filter) {
         this.filter = filter;
@@ -39,12 +43,19 @@ public class LevelDataUpdater : MonoBehaviour {
         }
     }
 
-    private void loadLevelList() {
-        string customLevelsUrl = Game.endpointBaseUrl + Game.customLevelsRelativeUrl;
-        if (filter != "") {
-            customLevelsUrl += "?filter=" + Uri.EscapeUriString(filter);
+    private void loadLevelList(int page = 0) {
+        string levelListUrl = BUNDLED_LEVELS_URL;
+        if (levelType == LEVEL_TYPES.CUSTOM) {
+            Misc.UrlBuilder url = new Misc.UrlBuilder(Game.endpointBaseUrl + Game.customLevelsRelativeUrl);
+            if (filter != "") {
+                url.addQuery("filter", filter);
+            }
+            if (page != 0) {
+                url.addQuery("page", page);
+            }
+            levelListUrl = url.build();
         }
-        string levelListUrl = levelType == LEVEL_TYPES.BUNDLED ? BUNDLED_LEVELS_URL : customLevelsUrl;
+
         StartCoroutine (loadLevels (levelListUrl));
     }
 
@@ -120,7 +131,6 @@ public class LevelDataUpdater : MonoBehaviour {
             mission.name = levelType + "-" + level.id;
             LevelInfo missionLevelInfo = mission.GetComponent<LevelInfo> ();
             missionLevelInfo.setMetaData(level);
-            shownLevels.Add(mission);
 
             column++;
             if (column >= MAX_COLUMNS) {
@@ -134,18 +144,51 @@ public class LevelDataUpdater : MonoBehaviour {
             }
         }
 
+        int numberOfUsedRows = ((row + 1) + (column == 0 ? -1 : 0));
+
+        bool hasButtons = false;
+        if (levels.hasPrevious || levels.hasNext) {
+            // Add previous/next buttons
+            hasButtons = true;
+            if (levels.hasPrevious) {
+                GameObject btnPrevious = Instantiate(previousButton, levelListViewport, false) as GameObject;
+                // This calculation is very strange
+                btnPrevious.transform.localPosition += new Vector3(0f, numberOfUsedRows * MISSION_BLOCK_SIZE.y - MISSION_BLOCK_MARGIN_Y + BUTTONS_HEIGHT - BUTTONS_MARGIN, 0f);
+                Button prevBtn = btnPrevious.GetComponent<Button> ();
+                btnPrevious.GetComponent<Button> ().onClick.AddListener (() => {
+                    changePage (-1);
+                });
+            }
+            if (levels.hasNext) {
+                GameObject btnNext = Instantiate(nextButton, levelListViewport, false) as GameObject;
+                // This calculation is very strange
+                btnNext.transform.localPosition += new Vector3(0f, numberOfUsedRows * MISSION_BLOCK_SIZE.y - MISSION_BLOCK_MARGIN_Y + BUTTONS_HEIGHT - BUTTONS_MARGIN, 0f);
+                btnNext.GetComponent<Button> ().onClick.AddListener (() => {
+                    changePage (1);
+                });
+            }
+        }
+
         RectTransform contentRectTransform = levelListViewport.GetComponent<RectTransform> ();
-        contentRectTransform.sizeDelta = new Vector2(contentRectTransform.sizeDelta.x, ((row + 1) + (column == 0 ? -1 : 0)) * Mathf.Abs(MISSION_BLOCK_SIZE.y) - MISSION_BLOCK_MARGIN_Y);
+        contentRectTransform.sizeDelta = new Vector2(contentRectTransform.sizeDelta.x, numberOfUsedRows * Mathf.Abs(MISSION_BLOCK_SIZE.y) - MISSION_BLOCK_MARGIN_Y + (hasButtons ? BUTTONS_HEIGHT : 0));
+    }
+
+    public void changePage(int diff) {
+        page += diff;
+        if (page < 0) {
+            page = 0;
+        }
+        loadLevelList(page);
     }
 
     public void refresh() {
-        loadLevelList();
+        loadLevelList(page);
     }
 
     private void clearOldLevels() {
-        foreach (GameObject level in shownLevels) {
-            Destroy(level);
-        }
+        // Remove old levels (and prev/next-button)
+        Transform levelListViewport = Misc.FindDeepChild(transform, "Levels list viewport content");
+        Misc.DestroyChildren(levelListViewport);
     }
 
     public float getDistanceTo(Level level) {

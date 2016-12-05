@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class LevelDataUpdater : MonoBehaviour {
 
     private static Vector3 MISSION_BLOCK_SIZE = new Vector3(123f, -123f, 0f);
+    private static float MISSION_BLOCK_MARGIN_Y = 23f;
     private List<GameObject> shownLevels = new List<GameObject>();
 
     private static List<float> Distances = new List<float>();
@@ -110,12 +111,11 @@ public class LevelDataUpdater : MonoBehaviour {
 
         clearOldLevels();
 
+        // Get parent for levels (scrollable list)
+        Transform levelListViewport = Misc.FindDeepChild(transform, "Levels list viewport content");
         foreach (Level level in levels.levels) {
 
-            GameObject mission = Instantiate (missionTemplate, transform, false) as GameObject;
-            if (levelType == LEVEL_TYPES.CUSTOM) {
-                mission.transform.localPosition += new Vector3(0f, -missionTemplate.transform.position.y - 68f, 0f); // -68f for search input + sort dropdown
-            }
+            GameObject mission = Instantiate (missionTemplate, levelListViewport, false) as GameObject;
             mission.transform.localPosition += new Vector3(column * MISSION_BLOCK_SIZE.x, row * MISSION_BLOCK_SIZE.y, 0f);
             mission.name = levelType + "-" + level.id;
             LevelInfo missionLevelInfo = mission.GetComponent<LevelInfo> ();
@@ -133,6 +133,9 @@ public class LevelDataUpdater : MonoBehaviour {
                 }
             }
         }
+
+        RectTransform contentRectTransform = levelListViewport.GetComponent<RectTransform> ();
+        contentRectTransform.sizeDelta = new Vector2(contentRectTransform.sizeDelta.x, ((row + 1) + (column == 0 ? -1 : 0)) * Mathf.Abs(MISSION_BLOCK_SIZE.y) - MISSION_BLOCK_MARGIN_Y);
     }
 
     public void refresh() {

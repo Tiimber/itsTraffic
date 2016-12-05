@@ -140,10 +140,6 @@ public class CameraHandler {
 	public static void MoveTo(GameObject gameObject) {
 		Vector3 cameraPosition = main.transform.position;
         Vector3 objectPosition = gameObject.transform.position;
-        Debug.Log("Camera:");
-        DebugFn.print(cameraPosition);
-        Debug.Log("Object:");
-        DebugFn.print(objectPosition);
         Vector3 moveCameraToObjectVector = objectPosition - cameraPosition;
         moveCameraToObjectVector.z = 0f;
         Singleton<SingletonInstance>.Instance.StartCoroutine (MoveWithVector(moveCameraToObjectVector, 0.3f));

@@ -32,7 +32,7 @@ public class LevelInfo : MonoBehaviour {
 
     private IEnumerator loadImage(Level level) {
 
-        WWW www = CacheWWW.Get(level.iconUrl, Misc.getTsForReadable("5m"));
+        WWW www = CacheWWW.Get(level.iconUrl);
         yield return www;
         Texture2D materialTexture = new Texture2D (256, 256);
         www.LoadImageIntoTexture (materialTexture);

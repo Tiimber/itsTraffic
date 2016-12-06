@@ -784,7 +784,7 @@ public class Game : MonoBehaviour, IPubSub {
 		introCamera.gameObject.SetActive (true);
 		showMenu (false);
 
-        WWW www = CacheWWW.Get(levelFileName, Misc.getTsForReadable("5m"));
+        WWW www = CacheWWW.Get(levelFileName);
 
 		yield return www;
 
@@ -804,7 +804,7 @@ public class Game : MonoBehaviour, IPubSub {
 		introCamera.gameObject.SetActive (true);
 		showMenu (false);
 
-        WWW www = CacheWWW.Get(mapFileName, Misc.getTsForReadable("5m"));
+        WWW www = CacheWWW.Get(mapFileName);
 
 		yield return www;
 
@@ -903,7 +903,7 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 			
 		// Read config
-		WWW wwwConfig = CacheWWW.Get(configFileName, Misc.getTsForReadable("5m"));
+		WWW wwwConfig = CacheWWW.Get(configFileName);
 		
 		yield return wwwConfig;
 

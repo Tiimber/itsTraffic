@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,8 +9,9 @@ public class LevelDataUpdater : MonoBehaviour {
     private static float MISSION_BLOCK_MARGIN_Y = 23f;
     private static float BUTTONS_HEIGHT = 46f;
     private static float BUTTONS_MARGIN = 10f;
+    private static string SORT_NEAREST_YOU = "Nearest you";
+    private static string DEFAULT_SORT = SORT_NEAREST_YOU;
 
-    private static List<float> Distances = new List<float>();
 
     // TODO - both should be http:// later
     private const string BUNDLED_LEVELS_URL = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/bundled-missions.xml";
@@ -30,6 +29,7 @@ public class LevelDataUpdater : MonoBehaviour {
     private Levels levels;
     private string filter = "";
     private int page = 0;
+    private string sortValue = DEFAULT_SORT;
 
     public void setFilter(string filter) {
         this.filter = filter;
@@ -53,62 +53,43 @@ public class LevelDataUpdater : MonoBehaviour {
             if (page != 0) {
                 url.addQuery("page", page);
             }
+            url.addQuery("sort", sortValue);
+            if (sortValue == SORT_NEAREST_YOU) {
+                url.addQuery("lon", Game.instance.lon);
+                url.addQuery("lat", Game.instance.lat);
+            }
+
             levelListUrl = url.build();
         }
 
+        Debug.Log(levelListUrl);
         StartCoroutine (loadLevels (levelListUrl));
     }
 
     private IEnumerator loadLevels (string levelListUrl) {
         // TODO - Loading spinner
-        WWW www = CacheWWW.Get(levelListUrl, Misc.getTsForReadable("1m"));
+        WWW www = CacheWWW.Get(levelListUrl);
 
         yield return www;
 
-//        Debug.Log(levelListUrl + " - " + www.text);
         XmlDocument xmlDoc = new XmlDocument ();
         xmlDoc.LoadXml (www.text);
 
         levels = new Levels(xmlDoc);
 
-        // Add distances to each result in list
-        Distances.Clear();
-        foreach (Level level in levels.levels) {
-            float distance = Misc.getDistanceBetweenEarthCoordinates (Game.instance.lon, Game.instance.lat, level.lon, level.lat);
-            if (Distances.Contains(distance)) {
-                Distances.Add(distance);
-            }
-        }
-        Distances.Sort();
-
-        sort();
+        updateLevelGameObjects();
     }
 
     public void sort() {
-        string sortValue = "Nearest you";
+        string chosenSortValue = DEFAULT_SORT;
         Transform sortDropdown = Misc.FindDeepChild (transform, "Sort Dropdown");
         if (sortDropdown != null) {
             Dropdown sort = sortDropdown.GetComponent<Dropdown> ();
-            sortValue = sort.options [sort.value].text;
+            chosenSortValue = sort.options [sort.value].text;
         }
 
-        if (sortValue == "Nearest you") {
-            levels.levels.Sort((a, b) => Mathf.RoundToInt(getDistanceTo(a) - getDistanceTo(b)));
-        } else if (sortValue == "Name A-Z") {
-            levels.levels.Sort((a, b) => a.name.CompareTo(b.name));
-        } else if (sortValue == "Name Z-A") {
-            levels.levels.Sort((a, b) => b.name.CompareTo(a.name));
-        }
-        /**
-         * TODO:
-         *
-         * - Most popular
-         * - Levels I can improve
-         * - Unplayed levels
-         * - Random
-         */
-
-        updateLevelGameObjects();
+        sortValue = chosenSortValue;
+        loadLevelList();
     }
 
     public void updateLevelGameObjects() {
@@ -138,7 +119,6 @@ public class LevelDataUpdater : MonoBehaviour {
                 row++;
 
                 if (row >= MAX_ROWS) {
-                    // TODO - Logic for next page or similar
                     break;
                 }
             }

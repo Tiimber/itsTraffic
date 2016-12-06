@@ -463,7 +463,7 @@ public class Misc {
 
 //	https://github.com/fiorix/freegeoip/releases (need https://golang.org?)
     public static IEnumerator getGeoLocation() {
-		WWW www = CacheWWW.Get(Game.endpointBaseUrl + Game.getLocationRelativeUrl, Misc.getTsForReadable("5m"));
+		WWW www = CacheWWW.Get(Game.endpointBaseUrl + Game.getLocationRelativeUrl);
         yield return www;
 
         XmlDocument xmlDoc = new XmlDocument();
@@ -732,6 +732,10 @@ public class Misc {
         }
 
         public UrlBuilder addQuery(string key, int value) {
+            return addQuery(key, "" + value);
+        }
+
+        public UrlBuilder addQuery(string key, float value) {
             return addQuery(key, "" + value);
         }
 

@@ -18,6 +18,8 @@ public class Level {
     public DateTime dateTime;
     public string date;
     public string timeOfDay;
+    public int timeProgressionFactor;
+    public bool timeDisplaySeconds;
     public string country;
     public string mapUrl;
     public string configUrl;
@@ -96,6 +98,14 @@ public class Level {
         date = Misc.xmlString (levelAttributes.GetNamedItem ("date"));
         timeOfDay = Misc.xmlString (levelAttributes.GetNamedItem ("timeOfDay"));
         dateTime = Misc.parseDateTime(date, timeOfDay);
+        timeProgressionFactor = Misc.xmlInt (levelAttributes.GetNamedItem ("timeProgressionFactor"), 1);
+        timeDisplaySeconds = Misc.xmlBool (levelAttributes.GetNamedItem ("timeDisplaySeconds"), true);
+
+        PubSub.publish ("clock:setTime", timeOfDay);
+        PubSub.publish ("clock:setDisplaySeconds", timeDisplaySeconds);
+        PubSub.publish ("clock:setSpeed", timeProgressionFactor);
+        PubSub.publish ("clock:stop");
+
         country = Misc.xmlString (levelAttributes.GetNamedItem ("country"));
         mapUrl = Misc.xmlString (levelAttributes.GetNamedItem ("mapUrl"));
         configUrl = Misc.xmlString (levelAttributes.GetNamedItem ("configUrl"));

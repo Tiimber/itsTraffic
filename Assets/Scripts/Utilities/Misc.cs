@@ -214,7 +214,7 @@ public class Misc {
 
 	public static bool xmlBool(XmlNode attributeNode, bool defaultValue = false) {
 		string strVal = Misc.xmlString (attributeNode);
-		return strVal == "true" ? true : defaultValue;
+		return strVal == "true" ? true : (strVal == null ? defaultValue : false);
 	}
 
 	public static int xmlInt(XmlNode attributeNode, int defaultValue = 0) {

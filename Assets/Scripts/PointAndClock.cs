@@ -10,10 +10,15 @@ public class PointAndClock : MonoBehaviour, IPubSub {
 		// For Clock
 		clock = GetComponentInChildren<Clock> ();
 		PubSub.subscribe ("clock:setTime", this);
+		PubSub.subscribe ("clock:setSpeed", this);
+		PubSub.subscribe ("clock:setDisplaySeconds", this);
+		PubSub.subscribe ("clock:start", this);
+		PubSub.subscribe ("clock:stop", this);
 
 		clock.hour = 0;
 		clock.minutes = 0;
-		clock.clockSpeed = 0f;
+		clock.clockSpeed = 1f;
+        clock.running = false;
 	}
 
 	#region IPubSub implementation
@@ -23,9 +28,16 @@ public class PointAndClock : MonoBehaviour, IPubSub {
 			string[] timeParts = time.Split (':');
 			clock.hour = Convert.ToInt32 (timeParts [0]);
 			clock.minutes = Convert.ToInt32 (timeParts [1]);
-			clock.clockSpeed = 1f;
             clock.Restart();
-		}
+		} else if (message == "clock:setSpeed") {
+            clock.clockSpeed = (int)data;
+        } else if (message == "clock:setDisplaySeconds") {
+            clock.showSeconds((bool)data);
+        } else if (message == "clock:start") {
+            clock.running = true;
+        } else if (message == "clock:stop") {
+            clock.running = false;
+        }
 		return PROPAGATION.DEFAULT;
 	}
 	#endregion

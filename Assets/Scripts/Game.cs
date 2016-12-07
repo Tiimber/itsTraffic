@@ -146,6 +146,9 @@ public class Game : MonoBehaviour, IPubSub {
 		PubSub.subscribe("Vehicle:createDangerHalo", this);
 		// Subscribe to when crashed vehicles are removed, to remove the danger halo
 		PubSub.subscribe("Vehicle:removeDangerHalo", this);
+
+        // Subscribe to clock updating minutes (for progression of sun)
+        PubSub.subscribe("clock:minuteProgressed", this);
 	}
 
     public void restartLevel() {
@@ -794,7 +797,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 		loadedLevel = new Level (xmlDoc);
         calculateVehicleFrequency ();
-        setSunProperties ();
+        preCalculateLevelSunProperties ();
+        setCurrentSunProperties ();
         StartCoroutine (loadXML (loadedLevel.mapUrl, loadedLevel.configUrl));
 	}
 
@@ -1396,7 +1400,11 @@ public class Game : MonoBehaviour, IPubSub {
 				HumanLogic.HumanRNG = new System.Random (loadedLevel.randomSeed);
 				Misc.setRandomSeed (loadedLevel.randomSeed);
 				CustomObjectCreator.initWithSetup (loadedLevel.setup);
+                // TODO - May not be needed, we set these when parsing level data
 				PubSub.publish ("clock:setTime", loadedLevel.timeOfDay);
+				PubSub.publish ("clock:setDisplaySeconds", loadedLevel.timeDisplaySeconds);
+				PubSub.publish ("clock:setSpeed", loadedLevel.timeProgressionFactor);
+				PubSub.publish ("clock:stop");
 
 				bool showBrief = true; // TODO - Setting
 				if (showBrief) {
@@ -1412,14 +1420,20 @@ public class Game : MonoBehaviour, IPubSub {
 				HumanLogic.HumanRNG = new System.Random ((int)Game.randomSeed);
 				Misc.setRandomSeed ((int)Game.randomSeed);
 				PubSub.publish ("clock:setTime", Misc.randomTime());
-			}
+                PubSub.publish ("clock:setDisplaySeconds", true);
+                PubSub.publish ("clock:setSpeed", 1);
+                PubSub.publish ("clock:stop");
+            }
 
 			CameraHandler.InitialZoom ();
 //			pointsCamera.enabled = true;
 			pointsCamera.gameObject.SetActive (true);
 			GenericVehicleSounds.VehicleCountChange ();
 			GenericHumanSounds.HumanCountChange ();
-		}
+		} else if (message == "clock:minuteProgressed") {
+            Clock clock = (Clock)data;
+            changeSunTime(clock.hour, clock.minutes);
+        }
 		return PROPAGATION.DEFAULT;
 	}
 
@@ -1891,10 +1905,85 @@ public class Game : MonoBehaviour, IPubSub {
         Debug.Log("You - Jönköping: " + Misc.getDistanceBetweenEarthCoordinates(lon, lat, 14.1618f, 57.7826f));
     }
 
-	public void setSunProperties() {
-        Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
-        sun.transform.rotation = Misc.getSunRotation (sunPosition ["azimuth"]);
-		sun.GetComponentInChildren<Light>().intensity = Misc.getSunIntensity (sunPosition ["elevation"]);
+    private Dictionary<string, Dictionary<string, float>> sunPositionDataForLoadedLevel;
+    private void preCalculateLevelSunProperties() {
+        // Will pre-calculate the rest of the current day + 24hrs of azimuth and elevation for the sun, and smoothen them out where needed
+        DateTime levelDate = new DateTime(loadedLevel.dateTime.Ticks);
+        List<float> azimuthData = new List<float>();
+        List<float> elevationData = new List<float>();
+
+        int startDay = levelDate.Day;
+        while (levelDate.Day < startDay + 2) {
+            Dictionary<string, float> sunPositionAtTime = Misc.getSunPosition (levelDate, loadedLevel.lon, loadedLevel.lat);
+            azimuthData.Add(sunPositionAtTime["azimuth"]);
+            elevationData.Add(sunPositionAtTime["elevation"]);
+            levelDate = levelDate.AddMinutes(1);
+        }
+
+        // Redistribute the data smoother
+        redistributeValues (elevationData);
+        redistributeValues (azimuthData);
+
+        // Put them back in with their timestamps as keys, always put first value in there, whenever elevation is <= 0, duplicates are not needed
+        sunPositionDataForLoadedLevel = new Dictionary<string, Dictionary<string, float>>();
+        levelDate = new DateTime(loadedLevel.dateTime.Ticks);
+        addSunPosition(levelDate, sunPositionDataForLoadedLevel, elevationData[0], azimuthData[0]);
+        bool isBelowZero = elevationData[0] <= 0f;
+
+        for (int i = 1; i < elevationData.Count; i++) {
+            levelDate = levelDate.AddMinutes(1);
+
+            float currentElevation = elevationData[i];
+            float currentAzimuth = azimuthData[i];
+			bool isCurrentBelowZero = currentElevation <= 0f;
+            if (!(isBelowZero && isCurrentBelowZero) || i == elevationData.Count - 1) {
+                addSunPosition(levelDate, sunPositionDataForLoadedLevel, currentElevation, currentAzimuth);
+            }
+        }
+    }
+
+    private void redistributeValues(List<float> data) {
+        float previousValue = data [0];
+        int previousValueFirstIndex = 0;
+        for (int i = 1; i < data.Count; i++) {
+            float currentValue = data [i];
+            if (currentValue != previousValue) {
+				List<float> distributedRange = getDistributedRange(i - previousValueFirstIndex + 1, previousValue, currentValue);
+                int j = 0;
+                foreach (float distributedValue in distributedRange) {
+                    data [previousValueFirstIndex+j] = distributedValue;
+                    j++;
+                }
+                previousValue = currentValue;
+                previousValueFirstIndex = i;
+            }
+        }
+    }
+
+    private List<float> getDistributedRange (int amount, float startValue, float endValue) {
+        List<float> distributedValues = new List<float>();
+        float stepValue = (endValue - startValue) / (amount - 1);
+        for (float i = startValue; i < endValue + stepValue / 2f; i += stepValue) {
+            distributedValues.Add(i);
+        }
+        return distributedValues;
+    }
+
+    public void addSunPosition(DateTime dateTime, Dictionary<string, Dictionary<string, float>> sunPositions, float elevationValue, float azimuthValue) {
+        sunPositionDataForLoadedLevel.Add(dateTime.ToString("dd HH:mm"), new Dictionary<string, float>() {
+            {"elevation", elevationValue},
+            {"azimuth", azimuthValue}
+        });
+    }
+
+	private void setCurrentSunProperties() {
+//        Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
+        string currentTimeKey = loadedLevel.dateTime.ToString("dd HH:mm");
+        if (sunPositionDataForLoadedLevel.ContainsKey(currentTimeKey)) {
+            Dictionary<string, float> sunPosition = sunPositionDataForLoadedLevel[currentTimeKey];
+			sun.transform.rotation = Misc.getSunRotation (sunPosition ["azimuth"]);
+			sun.GetComponentInChildren<Light>().intensity = Misc.getSunIntensity (sunPosition ["elevation"]);
+        }
 
 //        Debug.Log("Sun elevation: " + sunPosition["elevation"]);
 //        Debug.Log("Sun azimuth: " + sunPosition["azimuth"]);
@@ -1912,14 +2001,23 @@ public class Game : MonoBehaviour, IPubSub {
 */
     }
 
+    private void changeSunTime (int hour, int minute) {
+        DateTime dt = loadedLevel.dateTime;
+        dt = dt.AddMinutes(minute - dt.Minute);
+        dt = dt.AddHours(hour - dt.Hour);
+        loadedLevel.dateTime = dt;
+
+        setCurrentSunProperties ();
+    }
+
     private void changeSunTime (int minutesToAdd) {
         DateTime dt = loadedLevel.dateTime;
         dt = dt.AddMinutes(minutesToAdd);
         loadedLevel.dateTime = dt;
 
-        Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
+//        Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
 //        Debug.Log(dt.ToString("HH:mm") + " - " + sunPosition["elevation"] + " = " + Misc.getSunIntensity (sunPosition ["elevation"]));
 
-        setSunProperties();
+        setCurrentSunProperties ();
     }
 }

@@ -24,6 +24,7 @@ public class BriefAndSummaryPopup : PopupWindowStyles, IPubSub {
 			if (Input.anyKey && level != null) {
 				hide ();
 				Game.instance.freezeGame (false);
+                PubSub.publish("clock:start");
 			}
 		}
 	}

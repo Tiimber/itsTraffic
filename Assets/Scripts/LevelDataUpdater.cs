@@ -62,12 +62,15 @@ public class LevelDataUpdater : MonoBehaviour {
             levelListUrl = url.build();
         }
 
-        Debug.Log(levelListUrl);
+//        Debug.Log(levelListUrl);
         StartCoroutine (loadLevels (levelListUrl));
     }
 
     private IEnumerator loadLevels (string levelListUrl) {
-        // TODO - Loading spinner
+
+        string loadingSpinnerId = levelType == LEVEL_TYPES.CUSTOM ? "custom-levels" : "bundled-levels";
+        LoadingSpinner.StartSpinner(loadingSpinnerId);
+
         WWW www = CacheWWW.Get(levelListUrl);
 
         yield return www;
@@ -76,6 +79,8 @@ public class LevelDataUpdater : MonoBehaviour {
         xmlDoc.LoadXml (www.text);
 
         levels = new Levels(xmlDoc);
+
+        LoadingSpinner.StopSpinner(loadingSpinnerId);
 
         updateLevelGameObjects();
     }

@@ -315,6 +315,7 @@ public class Game : MonoBehaviour, IPubSub {
 			if (!firstFrame) {
 				Vector3 diffMove = mousePosition - prevMousePosition;
 				CameraHandler.Move (diffMove);
+				cancelFollow();
 			} else {
 				mouseDownPosition = mousePosition;
 			}
@@ -387,7 +388,11 @@ public class Game : MonoBehaviour, IPubSub {
 			float scrollAmount = Input.GetAxis ("Mouse ScrollWheel");
 //			Debug.Log (scrollAmount);
 			if (Game.running && scrollOk (Input.mousePosition)) {
-				CameraHandler.CustomZoom (scrollAmount, Input.mousePosition);
+				if (following()) {
+					CameraHandler.CustomZoom (scrollAmount);
+				} else {
+					CameraHandler.CustomZoom (scrollAmount, Input.mousePosition);
+				}
 			}
 		}
 
@@ -509,6 +514,15 @@ public class Game : MonoBehaviour, IPubSub {
 	private bool scrollOk (Vector3 pos) {
 		InformationWindow informationWindow = GetComponent<InformationWindow> ();
 		return !informationWindow.isShown () || !Misc.isInside (pos, informationWindow.getWindowRect ());
+	}
+
+	private bool following () {
+		InformationWindow informationWindow = GetComponent<InformationWindow> ();
+		return informationWindow.isShown () || informationWindow.isFollowing ();
+	}
+
+	private void cancelFollow () {
+		GetComponent<InformationWindow> ().stopFollow ();
 	}
 
 	public void addInitAnimationRequest () {

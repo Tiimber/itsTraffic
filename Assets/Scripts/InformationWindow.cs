@@ -5,6 +5,7 @@ using UnityEngine;
 public class InformationWindow : PopupWindowStyles, IPubSub {
 
 	private bool show = false;
+	private bool follow = false;
 	private Vector2 scrollPosition = Vector2.zero;
 	private InformationBase informationObject;
 	private List<KeyValuePair<string, object>> information;
@@ -66,6 +67,8 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 		scrollPosition = Vector2.zero;
 		informationObject = info;
 		information = info.getInformation();
+		scrollToInformationBase(informationObject);
+		follow = informationObject.GetType() == typeof(InformationHuman);
 		show = true;
 	}
 
@@ -80,6 +83,14 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 	public bool isShown() {
 		return show;
+	}
+
+	public bool isFollowing() {
+		return follow;
+	}
+
+	public void stopFollow() {
+		follow = false;
 	}
 
 	public Rect getWindowRect() {
@@ -113,6 +124,10 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 						switchCamera ();
 					}
                 }
+
+				if (follow && informationObject != null && informationObject.gameObject != null) {
+					scrollToInformationBase (informationObject);
+				}
 			}
         }
 	}
@@ -231,9 +246,13 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
         clickAreas.Clear();
     }
 
-	public void scrollScreenToAndShowInformationFor(InformationBase informationBase) {
-        CameraHandler.MoveTo(informationBase.gameObject);
+	private void scrollScreenToAndShowInformationFor(InformationBase informationBase) {
         hideInformation();
         showInformation(informationBase);
 	}
+
+	private void scrollToInformationBase(InformationBase informationBase) {
+        CameraHandler.MoveTo(informationBase.gameObject, 0.2f);
+	} 
+
 }

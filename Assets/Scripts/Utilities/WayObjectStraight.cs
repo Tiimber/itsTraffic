@@ -92,7 +92,7 @@ public class WayObjectStraight {
 		bool way1IsNode1 = way1.isNode1(pos);
 		Quaternion way1Rotation = way1IsNode1 ? way1.transform.rotation : Quaternion.Euler (way1.transform.rotation.eulerAngles + new Vector3(0f, 0f, 180f));
 
-		bool way1Small = way1.SmallWay;
+		bool way1Small = way1.way.CarWay && way1.SmallWay;
 		Vector3 way1Left = intersectionPos + way1Rotation * new Vector3(way1Small ? way1.transform.localScale.x / 2f : way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f, 0f);
 		Bounds leftCheckPoint = new Bounds(way1Left + (way1Rotation * new Vector3(way1Small ? way1.transform.localScale.x / 20f : way1.transform.localScale.y / 20f, way1.transform.localScale.y / 20f, 0f)) - new Vector3(0f, 0f, 0.1f), new Vector3(way1Small ? way1.transform.localScale.x / 10f : way1.transform.localScale.y / 10f, way1.transform.localScale.y / 10f, way1.transform.localScale.y / 10f));
 
@@ -121,9 +121,8 @@ public class WayObjectStraight {
 			way2Rotation = way2IsNode1 ? way2.transform.rotation : Quaternion.Euler (way2.transform.rotation.eulerAngles + new Vector3 (0f, 0f, 180f));
 		}
 
-		bool way2IsSmallWay = way2.SmallWay;
+		bool way2IsSmallWay = way2.way.CarWay && way2.SmallWay;
 		Vector3 way2Right = intersectionPos + way2Rotation * new Vector3(way2IsSmallWay ? way2.transform.localScale.x / 2f : way2.transform.localScale.y / 2f, way2.transform.localScale.y / 2f , 0f);
-		// Vector3 way2Right = intersectionPos + way2Rotation * new Vector3(way2.transform.localScale.y / 2f, way2.transform.localScale.y / 2f , 0f);
 
 		// Angles looking towards intersection of ways
 		Vector3 way1IntersectionAngle = (way1IsNode1 ? WayHelper.DEGREES_90_VECTOR : WayHelper.DEGREES_270_VECTOR) + way1.transform.rotation.eulerAngles;
@@ -185,10 +184,6 @@ public class WayObjectStraight {
 
 	static List<Vector3> getMeshPointsForNonComplex (List<WayReference> wayReferences, List<Bounds> wayBounds, Pos pos, bool noIntersectSpecialCase = false)
 	{
-
-		if (pos.Id == 3012240551L) {
-			Debug.Break();
-		}
 		List<Vector3> meshPoints = new List<Vector3> ();
 
 		// Add first one last as well, so we can iterate them as pairs
@@ -210,8 +205,8 @@ public class WayObjectStraight {
 			bool way1IsNode1 = way1.isNode1(pos);
 			bool way2IsNode1 = way2.isNode1(pos);
 
-			bool way1Small = way1.SmallWay;
-			bool way2Small = way2.SmallWay;
+			bool way1Small = way1.way.CarWay && way1.SmallWay;
+			bool way2Small = way2.way.CarWay && way2.SmallWay;
 			
 			Quaternion way1Rotation = way1IsNode1 ? way1.transform.rotation : Quaternion.Euler(way1.transform.rotation.eulerAngles + new Vector3(0f, 0f, 180f));
 			Quaternion way2Rotation = way2IsNode1 ? way2.transform.rotation : Quaternion.Euler(way2.transform.rotation.eulerAngles + new Vector3(0f, 0f, 180f));

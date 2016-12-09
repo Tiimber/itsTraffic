@@ -11,24 +11,26 @@ public class Setup {
 	public List<VehicleSetup> vehicles = new List<VehicleSetup>();
 
 	public Setup(XmlNode setupNode) {
-		XmlNodeList personNodes = setupNode.SelectNodes("people/person");
-		foreach (XmlNode personNode in personNodes) {
-			PersonSetup person = createPerson (personNode);
-			if (person.refOnly) {
-				referencePeople.Add (person);
-			} else {
-				people.Add (person);
+        if (setupNode != null) {
+			XmlNodeList personNodes = setupNode.SelectNodes("people/person");
+			foreach (XmlNode personNode in personNodes) {
+				PersonSetup person = createPerson (personNode);
+				if (person.refOnly) {
+					referencePeople.Add (person);
+				} else {
+					people.Add (person);
+				}
 			}
-		}
 
-		XmlNodeList vehicleNodes = setupNode.SelectNodes("vehicles/vehicle");
-		foreach (XmlNode vehicleNode in vehicleNodes) {
-			vehicles.Add (createVehicle (vehicleNode));
-		}
+			XmlNodeList vehicleNodes = setupNode.SelectNodes("vehicles/vehicle");
+			foreach (XmlNode vehicleNode in vehicleNodes) {
+				vehicles.Add (createVehicle (vehicleNode));
+			}
 
-		referencePeople.Sort ((a, b) => a.id.CompareTo (b.id));
-		people.Sort ((a, b) => a.time.CompareTo (b.time));
-		vehicles.Sort ((a, b) => a.time.CompareTo (b.time));
+			referencePeople.Sort ((a, b) => a.id.CompareTo (b.id));
+			people.Sort ((a, b) => a.time.CompareTo (b.time));
+			vehicles.Sort ((a, b) => a.time.CompareTo (b.time));
+        }
 	}
 
 	public Setup.PersonSetup getReferencePerson (long personId) {

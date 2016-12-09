@@ -69,6 +69,13 @@ public class CameraHandler {
 		Singleton<SingletonInstance>.Instance.StartCoroutine (ZoomWithAmount(-amount/5f, 0.25f, zoomPoint));
 	}
 
+	public static void CustomZoom (float amount) {
+		float centerX = Screen.width / 2f;
+		float centerY = Screen.height / 2f;
+		Vector3 centerPos = new Vector3(centerX, centerY, 0f);
+		Singleton<SingletonInstance>.Instance.StartCoroutine (ZoomWithAmount(-amount/5f, 0.25f, centerPos));
+	}
+
 	private static IEnumerator ZoomWithAmount (float amount, float time, Vector3 zoomPoint) {
 
 		float t = 0f;
@@ -85,7 +92,7 @@ public class CameraHandler {
 			main.orthographicSize = targetZoom;
 
 			// Try to zoom in towards a specific point
-			Tuple2<float, float> offsetPctFromCenter = Misc.getOffsetPctFromCenter (zoomPoint);
+			Tuple2<float, float> offsetPctFromCenter = zoomPoint == null ? new Tuple2<float, float>(0f, 0f) : Misc.getOffsetPctFromCenter (zoomPoint);
 			float xZoomRatio = Mathf.Max((float) Screen.width / (float) Screen.height, 1f);
 			float yZoomRatio = Mathf.Max((float) Screen.height / (float) Screen.width, 1f);
 			Vector3 zoomOffsetMove = new Vector3 ((zoomDelta * xZoomRatio) * offsetPctFromCenter.First, (zoomDelta * yZoomRatio) * offsetPctFromCenter.Second, 0f);
@@ -137,11 +144,15 @@ public class CameraHandler {
 		}
 	}
 
-	public static void MoveTo(GameObject gameObject) {
+	private static Coroutine currentMoveTo = null;
+	public static void MoveTo(GameObject gameObject, float time = 0.3f) {
 		Vector3 cameraPosition = main.transform.position;
         Vector3 objectPosition = gameObject.transform.position;
         Vector3 moveCameraToObjectVector = objectPosition - cameraPosition;
         moveCameraToObjectVector.z = 0f;
-        Singleton<SingletonInstance>.Instance.StartCoroutine (MoveWithVector(moveCameraToObjectVector, 0.3f));
+		if (currentMoveTo != null) {
+			Singleton<SingletonInstance>.Instance.StopCoroutine(currentMoveTo);
+		}
+        currentMoveTo = Singleton<SingletonInstance>.Instance.StartCoroutine (MoveWithVector(moveCameraToObjectVector, time));
 	}
 }

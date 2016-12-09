@@ -79,6 +79,9 @@ public class WayObjectStraight {
 
 	static List<Vector3> getMeshPointsForComplexTwoWay (List<WayReference> wayReferences, List<Bounds> wayBounds, Pos pos)
 	{
+        // if (pos.Id == 945711788L) {
+        //     Debug.Break();
+        // }
 		List<Vector3> meshPoints = new List<Vector3> ();
 
 		// middle of intersection "pos"
@@ -89,10 +92,11 @@ public class WayObjectStraight {
 		bool way1IsNode1 = way1.isNode1(pos);
 		Quaternion way1Rotation = way1IsNode1 ? way1.transform.rotation : Quaternion.Euler (way1.transform.rotation.eulerAngles + new Vector3(0f, 0f, 180f));
 
-		Vector3 way1Left = intersectionPos + way1Rotation * new Vector3(way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f, 0f);
-		Bounds leftCheckPoint = new Bounds(way1Left + (way1Rotation * new Vector3(way1.transform.localScale.y / 20f, way1.transform.localScale.y / 20f, 0f)) - new Vector3(0f, 0f, 0.1f), new Vector3(way1.transform.localScale.y / 10f, way1.transform.localScale.y / 10f, way1.transform.localScale.y / 10f));
+		bool way1Small = way1.way.CarWay && way1.SmallWay;
+		Vector3 way1Left = intersectionPos + way1Rotation * new Vector3(way1Small ? way1.transform.localScale.x / 2f : way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f, 0f);
+		Bounds leftCheckPoint = new Bounds(way1Left + (way1Rotation * new Vector3(way1Small ? way1.transform.localScale.x / 20f : way1.transform.localScale.y / 20f, way1.transform.localScale.y / 20f, 0f)) - new Vector3(0f, 0f, 0.1f), new Vector3(way1Small ? way1.transform.localScale.x / 10f : way1.transform.localScale.y / 10f, way1.transform.localScale.y / 10f, way1.transform.localScale.y / 10f));
 
-//		DebugFn.DrawBounds (leftCheckPoint);
+		// DebugFn.DrawBounds (leftCheckPoint);
 
 		WayReference way2;
 		Bounds way2Bounds = wayBounds [1];
@@ -104,7 +108,7 @@ public class WayObjectStraight {
 			way1Bounds = wayBounds [1];
 			way1IsNode1 = way1.isNode1 (pos);
 	        way1Rotation = way1IsNode1 ? way1.transform.rotation : Quaternion.Euler (way1.transform.rotation.eulerAngles + new Vector3 (0f, 0f, 180f));
-			way1Left = intersectionPos + way1Rotation * new Vector3(way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f, 0f);
+			way1Left = intersectionPos + way1Rotation * new Vector3(way1Small ? way1.transform.localScale.x / 2f : way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f, 0f);
 
 			way2 = wayReferences [0];
 			way2Bounds = wayBounds [0];
@@ -117,30 +121,27 @@ public class WayObjectStraight {
 			way2Rotation = way2IsNode1 ? way2.transform.rotation : Quaternion.Euler (way2.transform.rotation.eulerAngles + new Vector3 (0f, 0f, 180f));
 		}
 
-
-		Vector3 way2Right = intersectionPos + way2Rotation * new Vector3(way2.transform.localScale.y / 2f, way2.transform.localScale.y / 2f , 0f);
+		bool way2IsSmallWay = way2.way.CarWay && way2.SmallWay;
+		Vector3 way2Right = intersectionPos + way2Rotation * new Vector3(way2IsSmallWay ? way2.transform.localScale.x / 2f : way2.transform.localScale.y / 2f, way2.transform.localScale.y / 2f , 0f);
 
 		// Angles looking towards intersection of ways
 		Vector3 way1IntersectionAngle = (way1IsNode1 ? WayHelper.DEGREES_90_VECTOR : WayHelper.DEGREES_270_VECTOR) + way1.transform.rotation.eulerAngles;
 		Vector3 way2IntersectionAngle = (way2IsNode1 ? WayHelper.DEGREES_270_VECTOR : WayHelper.DEGREES_90_VECTOR) + way2.transform.rotation.eulerAngles;
-		
-//		// TODO DEBUG ONLY
-//		DebugFn.arrow (way1Left, way1IntersectionAngle, new Vector3(0.1f, 0f, 0f));
-//		DebugFn.arrow (way2Right, way2IntersectionAngle, new Vector3(0.1f, 0f, 0f));
-		
+
 		// Get intersection point
 		Vector3 intersectionPoint;
 		bool intersectionFound = Math3d.LineLineIntersection(out intersectionPoint, way1Left, Quaternion.Euler(way1IntersectionAngle) * Vector3.right, way2Right, Quaternion.Euler(way2IntersectionAngle) * Vector3.right);  
 		
 //		DebugFn.square (intersectionPoint);
 		
-		// TODO DEBUG ONLY
 		if (!intersectionFound) {
 			// TODO DEBUG ONLY
-			DebugFn.arrow (way1Left, way1IntersectionAngle, new Vector3(0.1f, 0f, 0f));
-			DebugFn.arrow (way2Right, way2IntersectionAngle, new Vector3(0.1f, 0f, 0f));
-			Debug.Log ("Complex Intersection point not found");
-//			Debug.Break ();
+			// DebugFn.arrow (way1Left, way1IntersectionAngle, new Vector3(0.1f, 0f, 0f));
+			// DebugFn.arrow (way2Right, way2IntersectionAngle, new Vector3(0.1f, 0f, 0f));
+			// Debug.Log ("Complex Intersection point not found");
+			// Debug.Break ();
+			// TODO - Keep this, though
+			return getMeshPointsForNonComplex(wayReferences, wayBounds, pos, noIntersectSpecialCase: true);
 		}
 		
 		meshPoints.Add (intersectionPoint);
@@ -181,7 +182,7 @@ public class WayObjectStraight {
 		return meshPoints;
 	}
 
-	static List<Vector3> getMeshPointsForNonComplex (List<WayReference> wayReferences, List<Bounds> wayBounds, Pos pos)
+	static List<Vector3> getMeshPointsForNonComplex (List<WayReference> wayReferences, List<Bounds> wayBounds, Pos pos, bool noIntersectSpecialCase = false)
 	{
 		List<Vector3> meshPoints = new List<Vector3> ();
 
@@ -203,24 +204,27 @@ public class WayObjectStraight {
 			
 			bool way1IsNode1 = way1.isNode1(pos);
 			bool way2IsNode1 = way2.isNode1(pos);
+
+			bool way1Small = way1.way.CarWay && way1.SmallWay;
+			bool way2Small = way2.way.CarWay && way2.SmallWay;
 			
 			Quaternion way1Rotation = way1IsNode1 ? way1.transform.rotation : Quaternion.Euler(way1.transform.rotation.eulerAngles + new Vector3(0f, 0f, 180f));
 			Quaternion way2Rotation = way2IsNode1 ? way2.transform.rotation : Quaternion.Euler(way2.transform.rotation.eulerAngles + new Vector3(0f, 0f, 180f));
 			
 			if (!lastWaysIntersected && i == 0) {
 				// Add "left" point of first way only
-				Vector3 left = intersectionPos + way1Rotation * new Vector3(way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f , 0f);
+				Vector3 left = intersectionPos + way1Rotation * new Vector3(way1Small ? way1.transform.localScale.x / 2f : way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f , 0f);
 				meshPoints.Add(left);
 			}
 			lastWaysIntersected = false;
 			
-			if (way1Bounds.Intersects(way2Bounds)) {
+			if (!noIntersectSpecialCase && way1Bounds.Intersects(way2Bounds)) {
 				// Ways intersects, no bezier, instead take the intersection point along the border
 				lastWaysIntersected = true;
 				
 				// Left pos of way1 and right pos of way2
-				Vector3 way1Left = intersectionPos + way1Rotation * new Vector3(way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f , 0f);
-				Vector3 way2Right = intersectionPos + way2Rotation * new Vector3(way2.transform.localScale.y / 2f, way2.transform.localScale.y / 2f , 0f);
+				Vector3 way1Left = intersectionPos + way1Rotation * new Vector3(way1Small ? way1.transform.localScale.x / 2f : way1.transform.localScale.y / 2f, -way1.transform.localScale.y / 2f , 0f);
+				Vector3 way2Right = intersectionPos + way2Rotation * new Vector3(way2Small ? way2.transform.localScale.x / 2f : way2.transform.localScale.y / 2f, way2.transform.localScale.y / 2f , 0f);
 				
 				// Angles looking towards intersection of ways
 				Vector3 way1IntersectionAngle = (way1IsNode1 ? WayHelper.DEGREES_90_VECTOR : WayHelper.DEGREES_270_VECTOR) + way1.transform.rotation.eulerAngles;
@@ -249,15 +253,13 @@ public class WayObjectStraight {
 				}
 			} else {
 				// Add "right" point
-				Vector3 right = intersectionPos + way1Rotation * new Vector3(way1.transform.localScale.y / 2f, way1.transform.localScale.y / 2f , 0f);
+				Vector3 right = intersectionPos + way1Rotation * new Vector3(way1Small ? way1.transform.localScale.x / 2f : way1.transform.localScale.y / 2f, way1.transform.localScale.y / 2f , 0f);
 				meshPoints.Add(right);
 				
 				// "Left" point in next way
-				Vector3 leftWay2 = intersectionPos + way2Rotation * new Vector3(way2.transform.localScale.y / 2f, -way2.transform.localScale.y / 2f , 0f);
+				Vector3 leftWay2 = intersectionPos + way2Rotation * new Vector3(way2Small ? way2.transform.localScale.x / 2f : way2.transform.localScale.y / 2f, -way2.transform.localScale.y / 2f , 0f);
 				
 				GetBezierPoints (meshPoints, way1, way2, right, leftWay2);
-				
-				
 			}
 		}
 

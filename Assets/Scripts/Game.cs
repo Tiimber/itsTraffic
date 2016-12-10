@@ -1114,6 +1114,7 @@ public class Game : MonoBehaviour, IPubSub {
 				}
 			}
 
+			// TODO - Merge river and water?
 			XmlNode xmlNodeRiverbankTag = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='waterway' and @v='riverbank']");
 			if (xmlNodeRiverbankTag != null) {
 				List<Vector3> riverBankNodes = new List<Vector3> ();
@@ -1140,6 +1141,34 @@ public class Game : MonoBehaviour, IPubSub {
 				river.transform.position = new Vector3 (0f, 0f, -0.098f);
 				LanduseSurface landuseSurface = river.GetComponent<LanduseSurface> ();
 				landuseSurface.createLanduseAreaWithVectors(riverBankNodes, "river");
+			}
+
+			XmlNode xmlNodeWaterbankTag = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='natural' and @v='water']");
+			if (xmlNodeWaterbankTag != null) {
+				List<Vector3> waterBankNodes = new List<Vector3> ();
+				XmlNodeList xmlWaterNodeWaysOuter = xmlNode.SelectNodes ("/osm/relation[@id='" + xmlNodeId + "']/member[@role='outer']");
+				foreach (XmlNode xmlWaterNodeWayOuter in xmlWaterNodeWaysOuter) {
+					XmlAttributeCollection wayAttributes = xmlWaterNodeWayOuter.Attributes;
+					if (Misc.xmlString(wayAttributes.GetNamedItem("type")) == "way") {
+						long wayId = Misc.xmlLong(wayAttributes.GetNamedItem("ref"));
+						XmlNodeList waterNodesForWay = xmlDoc.SelectNodes ("/osm/way[@id='" + wayId + "']/nd");
+						// Not all ways in "water" exists, if not, we will have to fill some gaps
+						if (waterNodesForWay != null) {
+							foreach(XmlNode waterNode in waterNodesForWay) {
+								long nodeId = Misc.xmlLong(waterNode.Attributes.GetNamedItem("ref"));
+								Vector3 nodeVector = Game.getCameraPosition(NodeIndex.nodes[nodeId]);
+								if (NodeIndex.nodes.ContainsKey(nodeId) && !waterBankNodes.Contains(nodeVector)) {
+									waterBankNodes.Add(nodeVector);
+								}
+							}
+						}
+					}
+				}
+
+				GameObject water = Instantiate (landuseObject) as GameObject;
+				water.transform.position = new Vector3 (0f, 0f, -0.098f);
+				LanduseSurface landuseSurface = water.GetComponent<LanduseSurface> ();
+				landuseSurface.createLanduseAreaWithVectors(waterBankNodes, "water");
 			}
 		}
 		// TODO Subtract inner walls from the outer mesh.

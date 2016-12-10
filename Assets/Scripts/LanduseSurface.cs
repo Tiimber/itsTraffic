@@ -15,7 +15,10 @@ public class LanduseSurface : MapSurface {
 		{"cemetery", new Color (0.43f, 0.62f, 0.46f)},
 		{"platform", new Color (0.73f, 0.73f, 0.73f)},
 
+		// Different kinds of water
 		{"river", new Color (0.13f, 0.47f, 0.76f)},
+		{"reservoir", new Color (0.13f, 0.47f, 0.76f)},
+		{"water", new Color (0.13f, 0.47f, 0.76f)},
 
 		{"background", new Color (0.03f, 0.10f, 0.05f)}, // TODO - Change
 		{"_country", new Color(0.51f, 0.76f, 0.28f)},

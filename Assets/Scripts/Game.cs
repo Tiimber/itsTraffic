@@ -7,8 +7,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// TODO - Next time - When restarting level:
-// - Game clock ticks before it's set
+// TODO - All relation that we are interested in needs to be fetched and merged with the .osm-file when building levels
+// http://api.openstreetmap.com/api/0.6/relation/2577883/full
 
 public class Game : MonoBehaviour, IPubSub {
 
@@ -868,7 +868,9 @@ public class Game : MonoBehaviour, IPubSub {
 			long id = Convert.ToInt64(attributes.GetNamedItem("id").Value);
 			Pos node = new Pos(id, (float)Convert.ToDecimal(attributes.GetNamedItem("lon").Value), (float)Convert.ToDecimal(attributes.GetNamedItem("lat").Value));
 			addTags(node, xmlNode);
-			NodeIndex.nodes.Add (id, node);
+			if (!NodeIndex.nodes.ContainsKey(id)) {
+				NodeIndex.nodes.Add (id, node);
+			}
 		}
 		Map.Nodes = NodeIndex.nodes.Values.ToList();
 
@@ -882,12 +884,14 @@ public class Game : MonoBehaviour, IPubSub {
 			string wayIdStr = attributes.GetNamedItem ("id").Value;
 			long wayId = Convert.ToInt64 (wayIdStr);
 			if (!NodeIndex.buildingWayIds.Contains (wayId)) {
-				Way way = new Way (wayId);
-				addTags (way, xmlNode);
-				addNodes (way, xmlNode);
+				if (!Map.WayIndex.ContainsKey(wayId)) {
+					Way way = new Way (wayId);
+					addTags (way, xmlNode);
+					addNodes (way, xmlNode);
 
-				Map.Ways.Add (way);
-				Map.WayIndex.Add (wayId, way);
+					Map.Ways.Add (way);
+					Map.WayIndex.Add (wayId, way);
+				}
 			} else {
 				XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
 				foreach (XmlAttribute refAttribute in nodeRefs) {
@@ -1108,6 +1112,34 @@ public class Game : MonoBehaviour, IPubSub {
                     BuildingRoof roof = building.GetComponent<BuildingRoof> ();
 					roof.createBuildingWithXMLNode (wayNode);
 				}
+			}
+
+			XmlNode xmlNodeRiverbankTag = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='waterway' and @v='riverbank']");
+			if (xmlNodeRiverbankTag != null) {
+				List<Vector3> riverBankNodes = new List<Vector3> ();
+				XmlNodeList xmlRiverNodeWaysOuter = xmlNode.SelectNodes ("/osm/relation[@id='" + xmlNodeId + "']/member[@role='outer']");
+				foreach (XmlNode xmlRiverNodeWayOuter in xmlRiverNodeWaysOuter) {
+					XmlAttributeCollection wayAttributes = xmlRiverNodeWayOuter.Attributes;
+					if (Misc.xmlString(wayAttributes.GetNamedItem("type")) == "way") {
+						long wayId = Misc.xmlLong(wayAttributes.GetNamedItem("ref"));
+						XmlNodeList riverbankNodesForWay = xmlDoc.SelectNodes ("/osm/way[@id='" + wayId + "']/nd");
+						// Not all ways in a "riverbank" exists, if not, we will have to fill some gaps
+						if (riverbankNodesForWay != null) {
+							foreach(XmlNode riverBankNode in riverbankNodesForWay) {
+								long nodeId = Misc.xmlLong(riverBankNode.Attributes.GetNamedItem("ref"));
+								Vector3 nodeVector = Game.getCameraPosition(NodeIndex.nodes[nodeId]);
+								if (NodeIndex.nodes.ContainsKey(nodeId) && !riverBankNodes.Contains(nodeVector)) {
+									riverBankNodes.Add(nodeVector);
+								}
+							}
+						}
+					}
+				}
+
+				GameObject river = Instantiate (landuseObject) as GameObject;
+				river.transform.position = new Vector3 (0f, 0f, -0.098f);
+				LanduseSurface landuseSurface = river.GetComponent<LanduseSurface> ();
+				landuseSurface.createLanduseAreaWithVectors(riverBankNodes, "river");
 			}
 		}
 		// TODO Subtract inner walls from the outer mesh.

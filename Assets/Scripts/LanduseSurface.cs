@@ -15,6 +15,8 @@ public class LanduseSurface : MapSurface {
 		{"cemetery", new Color (0.43f, 0.62f, 0.46f)},
 		{"platform", new Color (0.73f, 0.73f, 0.73f)},
 
+		{"river", new Color (0.13f, 0.47f, 0.76f)},
+
 		{"background", new Color (0.03f, 0.10f, 0.05f)}, // TODO - Change
 		{"_country", new Color(0.51f, 0.76f, 0.28f)},
 		{"_sea", new Color(0.13f, 0.47f, 0.76f)},
@@ -70,6 +72,13 @@ public class LanduseSurface : MapSurface {
 		}
 	}
 
+	public void createLanduseAreaWithVectors (List<Vector3> vectors, string landuseType = null) {
+		this.gameObject.name = "Landuse - " + landuseType;
+		GameObject planeMesh = createPlaneMeshForPoints (vectors);
+		planeMesh.transform.parent = this.transform;
+		setLanduseMaterial (landuseType, planeMesh);
+	} 
+
 	public void createBackgroundLanduse () {
 		this.gameObject.name = "Landuse - Background";
 		List<Vector3> backgroundBounds = new List<Vector3> {
@@ -91,14 +100,14 @@ public class LanduseSurface : MapSurface {
 //        createMeshCollider();
     }
 
-	private void setLanduseMaterial (string type) {
+	private void setLanduseMaterial (string type, GameObject go = null) {
 		Material material = new Material (Shader.Find ("Custom/PlainShader"));
 		if (!colors.ContainsKey (type)) {
 			type = DEFAULT_TYPE;
 		}
 		material.color = colors[type];
 
-		MeshRenderer meshRenderer = GetComponent<MeshRenderer> ();
+		MeshRenderer meshRenderer = go != null ? go.GetComponent<MeshRenderer> () : this.GetComponent<MeshRenderer> ();
 		Renderer renderer = meshRenderer.GetComponent<Renderer> ();
 		renderer.material = material;
 	}

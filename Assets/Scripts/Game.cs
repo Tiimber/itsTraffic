@@ -883,16 +883,19 @@ public class Game : MonoBehaviour, IPubSub {
 			XmlAttributeCollection attributes = xmlNode.Attributes;
 			string wayIdStr = attributes.GetNamedItem ("id").Value;
 			long wayId = Convert.ToInt64 (wayIdStr);
+
+			Way way = new Way (wayId);
+			addTags (way, xmlNode);
+			addNodes (way, xmlNode);
+
 			if (!NodeIndex.buildingWayIds.Contains (wayId)) {
 				if (!Map.WayIndex.ContainsKey(wayId)) {
-					Way way = new Way (wayId);
-					addTags (way, xmlNode);
-					addNodes (way, xmlNode);
-
 					Map.Ways.Add (way);
 					Map.WayIndex.Add (wayId, way);
 				}
 			} else {
+				createWayArea(xmlNode, way);
+
 				XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
 				foreach (XmlAttribute refAttribute in nodeRefs) {
 					long nodeId = Convert.ToInt64 (refAttribute.Value);
@@ -1052,6 +1055,7 @@ public class Game : MonoBehaviour, IPubSub {
 				prev = pos;
 			}
 		}
+
 		if (way.Building) {
 			GameObject building = Instantiate (buildingObject) as GameObject;
 			building.transform.position = new Vector3 (0f, 0f, -0.098f);
@@ -1064,25 +1068,26 @@ public class Game : MonoBehaviour, IPubSub {
 			LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
 			surface.createLanduseWithXMLNode (xmlNode, way);
 		} else { 
-			if (way.getTagValue ("area") == "yes") {
-				GameObject landuse = Instantiate (landuseObject) as GameObject;
-				landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
-				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
-				surface.createLanduseWithXMLNode (xmlNode, way, way.getWayType ());
-			} else if (way.WayWidthFactor == WayTypeEnum.PLATFORM) {
-				GameObject landuse = Instantiate (landuseObject) as GameObject;
-				landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
-				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
-				surface.createLanduseAreaWithXMLNode (xmlNode, way, way.getWayType (), WayTypeEnum.EXPANDED_PLATFORM);
-			} else if (
-				way.getTagValue("amenity") == "school" ||
-				way.getTagValue("leisure") == "park"
-			) {
-				GameObject landuse = Instantiate (landuseObject) as GameObject;
-				landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
-				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
-				surface.createLanduseWithXMLNode (xmlNode, way, way.getWayType ());
-			}
+			createWayArea(xmlNode, way);
+		}
+	}
+
+	private void createWayArea(XmlNode xmlNode, Way way) {
+		if (way.getTagValue ("area") == "yes") {
+			GameObject landuse = Instantiate (landuseObject) as GameObject;
+			landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
+			LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
+			surface.createLanduseWithXMLNode (xmlNode, way, way.getWayType ());
+		} else if (way.WayWidthFactor == WayTypeEnum.PLATFORM) {
+			GameObject landuse = Instantiate (landuseObject) as GameObject;
+			landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
+			LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
+			surface.createLanduseAreaWithXMLNode (xmlNode, way, way.getWayType (), WayTypeEnum.EXPANDED_PLATFORM);
+		} else if (way.getWayType() != "unknown") {
+			GameObject landuse = Instantiate (landuseObject) as GameObject;
+			landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
+			LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
+			surface.createLanduseWithXMLNode (xmlNode, way, way.getWayType ());
 		}
 	}
 

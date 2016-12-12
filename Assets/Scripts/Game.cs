@@ -949,9 +949,14 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 		// TODO move this to after all materials have finished loading
 		List<GameObject> allBuldingRoofs = Misc.NameStartsWith ("BuildingRoof (");
+		List<GameObject> arenaRoofs = Misc.NameStartsWith ("Stadium (");
+		allBuldingRoofs.AddRange(arenaRoofs);
         // TODO - This doesn't seem to apply materials correct (not loaded) on level start
 		foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
 			GameObject buildingRoofObj = GameObject.Find ("BuildingRoof (" + objectEntry.Key + ")");
+			if (buildingRoofObj == null) {
+				buildingRoofObj = GameObject.Find ("Stadium (" + objectEntry.Key + ")");
+			}
 			if (buildingRoofObj != null) {
 //				Debug.Log("BuildingRoof (" + objectEntry.Key + ")");
 				BuildingRoof buildingRoof = buildingRoofObj.GetComponent<BuildingRoof>();
@@ -1091,12 +1096,12 @@ public class Game : MonoBehaviour, IPubSub {
 		foreach (XmlNode xmlNode in relationNodes) {
 
 			string xmlNodeId = xmlNode.Attributes ["id"].Value;
-			XmlNode xmlNodeBuildingTag = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='building' and @v='yes']");
+			XmlNode xmlNodeBuildingTag = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='building']");
 			if (xmlNodeBuildingTag != null) {
 				XmlAttribute xmlNodeWayOuterAttribute = (XmlAttribute) xmlNode.SelectSingleNode ("/osm/relation[@id='" + xmlNodeId + "']/member[@role='outer']/@ref");
 				string outerWallWayId = xmlNodeWayOuterAttribute.Value;
 				XmlNode wayNode = xmlDoc.SelectSingleNode ("/osm/way[@id='" + outerWallWayId + "']");
-				XmlNode wayNodeIsBuilding = xmlDoc.SelectSingleNode ("/osm/way[@id='" + outerWallWayId + "']/tag[@k='building' and @v='yes']");
+				XmlNode wayNodeIsBuilding = xmlDoc.SelectSingleNode ("/osm/way[@id='" + outerWallWayId + "']/tag[@k='building']");
 
 				if (wayNodeIsBuilding == null) {
 					// Add the wayIds of buildings to a list
@@ -1109,8 +1114,14 @@ public class Game : MonoBehaviour, IPubSub {
 					GameObject building = Instantiate (buildingObject) as GameObject;
 					building.transform.position = new Vector3 (0f, 0f, -0.098f);
                     building.transform.parent = buildingsParent;
-                    BuildingRoof roof = building.GetComponent<BuildingRoof> ();
-					roof.createBuildingWithXMLNode (wayNode);
+					bool isStadium = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='building' and @v='stadium']") != null;
+					if (!isStadium) {
+	                    BuildingRoof roof = building.GetComponent<BuildingRoof> ();
+						roof.createBuildingWithXMLNode (wayNode);
+					} else {
+						// Stadium is a bit special - we need to slice it in half and take away the inner (to place the field)
+						createStadium(xmlDoc, xmlNode, building, wayNode);
+					}
 				}
 			}
 
@@ -1172,6 +1183,52 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 		// TODO Subtract inner walls from the outer mesh.
+	}
+
+	private void createStadium(XmlDocument xmlDoc, XmlNode relationNode, GameObject parent, XmlNode backupWayNode) {
+		bool canCreateCorrect = false;
+		
+		try {
+			// Get outer and inner way references
+			XmlNode outerWayMemberNode = relationNode.SelectSingleNode("member[@role='outer']");
+			XmlNode innerWayMemberNode = relationNode.SelectSingleNode("member[@role='inner']");
+			if (outerWayMemberNode != null && innerWayMemberNode != null) {
+				// Get actual outer and inner ways
+				XmlNode outerWayNode = xmlDoc.SelectSingleNode ("/osm/way[@id='" + outerWayMemberNode.Attributes.GetNamedItem("ref").Value + "']");
+				XmlNode innerWayNode = xmlDoc.SelectSingleNode ("/osm/way[@id='" + innerWayMemberNode.Attributes.GetNamedItem("ref").Value + "']");
+				// Get List of nodes ids for each
+				XmlNodeList outerNodeReferences = outerWayNode.SelectNodes ("nd");
+				XmlNodeList innerNodeReferences = innerWayNode.SelectNodes ("nd");
+				
+				// Get actual outer nodes vectors
+				List<Vector3> outerNodes = new List<Vector3>();
+				foreach (XmlNode outerNodeReference in outerNodeReferences) {
+					long nodeId = Misc.xmlLong(outerNodeReference.Attributes.GetNamedItem("ref"));
+					Pos node = NodeIndex.nodes[nodeId];
+					Vector3 nodeVector = Game.getCameraPosition(node);
+					outerNodes.Add(nodeVector);
+				}
+
+				// Get actual inner nodes vectors
+				List<Vector3> innerNodes = new List<Vector3>();
+				foreach (XmlNode innerNodeReference in innerNodeReferences) {
+					long nodeId = Misc.xmlLong(innerNodeReference.Attributes.GetNamedItem("ref"));
+					Pos node = NodeIndex.nodes[nodeId];
+					Vector3 nodeVector = Game.getCameraPosition(node);
+					innerNodes.Add(nodeVector);
+				}
+
+				BuildingRoof roof = parent.GetComponent<BuildingRoof> ();
+				parent.name = "Stadium (" + relationNode.Attributes.GetNamedItem("id").Value + ")";
+				canCreateCorrect = roof.createSplitMeshes(outerNodes, innerNodes);
+			}
+		} finally {
+			if (!canCreateCorrect) {
+				// Backup - if not working, create arena as "solid block" instead
+				BuildingRoof roof = parent.GetComponent<BuildingRoof> ();
+				roof.createBuildingWithXMLNode (backupWayNode);
+			}
+		}
 	}
 
 	private WayReference createPartOfWay (Pos previousPos, Pos currentPos, Way wayObject)

@@ -29,6 +29,21 @@ public class MapSurface : MonoBehaviour {
 		addMeshToGameObject (gameObject, vertices2D);
 	}
 
+	protected GameObject createMesh(List<Vector3> vectors, string name, Transform parent) {
+		GameObject meshObj = new GameObject(name);
+		meshObj.transform.parent = parent;
+
+		Vector2[] vertices2D = new Vector2[vectors.Count];
+		int i = 0;
+
+		foreach (Vector3 vector in vectors) {
+			vertices2D[i++] = vector;
+		}
+
+		addMeshToGameObject (meshObj, vertices2D);
+		return meshObj;
+	}
+
     public void createMeshCollider(bool convex = true) {
         MeshCollider meshCollider = this.gameObject.AddComponent<MeshCollider> ();
         meshCollider.convex = convex;

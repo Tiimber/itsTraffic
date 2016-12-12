@@ -763,4 +763,138 @@ public class Misc {
 		}
         parent.DetachChildren();
 	}
+
+    public static Vector3 GetCenterOfVectorList(List<Vector3> vectors) {
+        float minX = float.MaxValue;
+        float minY = float.MaxValue;
+        float maxX = float.MinValue;
+        float maxY = float.MinValue;
+
+        foreach (Vector3 vector in vectors) {
+            minX = Mathf.Min(vector.x, minX);
+            minY = Mathf.Min(vector.y, minY);
+            maxX = Mathf.Max(vector.x, maxX);
+            maxY = Mathf.Max(vector.y, maxY);
+        }
+
+        return new Vector3(minX + (maxX - minX) / 2f, minY + (maxY - minY) / 2f, 0f);
+    }
+
+    public static List<Vector3> GetTopMost(List<Vector3> first, List<Vector3> second) {
+        Vector3 centerOfFirst = GetCenterOfVectorList(first);
+        Vector3 centerOfSecond = GetCenterOfVectorList(second);
+
+        return centerOfFirst.y <= centerOfSecond.y ? first : second;
+    }
+
+    public static Rect GetRectOfVectorList(List<Vector3> vectors) {
+        float minX = float.MaxValue;
+        float minY = float.MaxValue;
+        float maxX = float.MinValue;
+        float maxY = float.MinValue;
+
+        foreach (Vector3 vector in vectors) {
+            minX = Mathf.Min(vector.x, minX);
+            minY = Mathf.Min(vector.y, minY);
+            maxX = Mathf.Max(vector.x, maxX);
+            maxY = Mathf.Max(vector.y, maxY);
+        }
+
+        Rect rect = Rect.MinMaxRect(minX, minY, maxX, maxY);
+        return rect;
+    }
+
+    public static bool IsPointInsideRect(Vector3 point, Rect rect) {
+        return point.x >= rect.xMin && point.x <= rect.xMax && point.y >= rect.yMin && point.y <= rect.yMax;
+    }
+
+    public static List<Vector3> TieTogetherOuterAndInner(List<Vector3> outerOriginal, List<Vector3> innerOriginal, List<Vector3> outerIntersectionsOriginal, List<Vector3> innerIntersectionsOriginal) {
+        try {
+            List<Vector3> outer = new List<Vector3>(outerOriginal);
+            List<Vector3> inner = new List<Vector3>(innerOriginal);
+            List<Vector3> outerIntersections = new List<Vector3>(outerIntersectionsOriginal);
+            List<Vector3> innerIntersections = new List<Vector3>(innerIntersectionsOriginal);
+
+            List<Vector3> result = new List<Vector3>();
+            Misc.MergeInnerAndOuter(result, outer, inner, outerIntersections, innerIntersections);
+            return result;
+        } catch (ArgumentOutOfRangeException e) {
+            return null;
+        }
+    }
+
+    private static void MergeInnerAndOuter(List<Vector3> result, List<Vector3> outer, List<Vector3> inner, List<Vector3> outerIntersections, List<Vector3> innerIntersections) {
+        int outerIndex = 0;
+        int innerIndex = 0;
+        bool isOuter = true;
+
+        while (outer.Count > 0 || inner.Count > 0) {
+            if (isOuter && outerIndex >= outer.Count && outerIndex > 0) {
+                // If this one reaches end, we want to take the rest from the end up to the front
+                outerIndex--;
+            } 
+            if (!isOuter && innerIndex >= inner.Count && innerIndex > 0) {
+                // If this one reaches end, we want to start over from the beginning
+                innerIndex = 0;
+            } 
+        
+            Vector3 current;
+            if (isOuter) {
+                current = outer[outerIndex];
+                outer.RemoveAt(outerIndex);
+            } else {
+                current = inner[innerIndex];
+                inner.RemoveAt(innerIndex);
+            }
+
+            result.Add(current);
+            // Check if this is the intersection point
+            if (((isOuter && outerIntersections.Contains(current)) || (!isOuter && innerIntersections.Contains(current)))) {
+                // Pick the closest of the "other" intersection points, and toggle isOuter
+                Vector3 closestIntersectionPoint = Misc.GetClosestTo(current, isOuter ? innerIntersections : outerIntersections);
+                // Find index of selected intersectionPoint
+                int indexOfMatchingIntersection = isOuter ? inner.IndexOf(closestIntersectionPoint) : outer.IndexOf(closestIntersectionPoint);
+                if (isOuter) {
+                    // Special case for first (and only) switch to inner - we don't want "next" index to be the other intersection, if it is - reverse the list
+                    int nextIndex = indexOfMatchingIntersection + 1;
+                    if (nextIndex >= inner.Count) {
+                        nextIndex = 0;
+                    }
+                    if (innerIntersections.Contains(inner[nextIndex])) {
+                        // Reverse it!
+                        inner.Reverse();
+                        indexOfMatchingIntersection = inner.IndexOf(closestIntersectionPoint);
+                    }
+                    // Remove the intersections we've handled
+                    outerIntersections.Remove(current);
+                    innerIntersections.Remove(closestIntersectionPoint);
+                    // Set the inner index that we're switching to
+                    innerIndex = indexOfMatchingIntersection;
+                } else {
+                    // Remove the intersections we've handled
+                    innerIntersections.Remove(current);
+                    outerIntersections.Remove(closestIntersectionPoint);
+                    // Set the outer index that we're switching to
+                    outerIndex = indexOfMatchingIntersection;
+                }
+                isOuter = !isOuter;
+            }
+        }
+    }
+
+    private static Vector3 GetClosestTo(Vector3 checkPoint, List<Vector3> points) {
+        float closestDistance = float.MaxValue;
+        int closestIndex = 0;
+
+        for (int i = 0; i < points.Count; i++) {
+            Vector3 point = points[i];
+            float distance = (checkPoint - point).magnitude;
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestIndex = i;
+            }
+        }
+
+        return points[closestIndex];
+    }
 }

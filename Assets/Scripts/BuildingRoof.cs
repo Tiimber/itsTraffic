@@ -133,6 +133,9 @@ public class BuildingRoof : MapSurface, IPubSub {
 				}
 			}
 
+			// TODO - If we have more than two intersection points for either inner or outer, we should try and rotate the intersectionCheckLine and redo above
+			// - If eg. outer would happen to be irregular, a third intersection could occur, probably failing everything
+
 			// We now have two lists for outer and two lists for inner, and one list for each to know where the intersections are at
 			List<Vector3> topMostOuters = Misc.GetTopMost(beforeSplitOuter, afterSplitOuter);
 			List<Vector3> topMostInners = Misc.GetTopMost(beforeSplitInner, afterSplitInner);

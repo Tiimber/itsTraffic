@@ -1074,6 +1074,14 @@ public class Game : MonoBehaviour, IPubSub {
 				landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
 				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
 				surface.createLanduseAreaWithXMLNode (xmlNode, way, way.getWayType (), WayTypeEnum.EXPANDED_PLATFORM);
+			} else if (
+				way.getTagValue("amenity") == "school" ||
+				way.getTagValue("leisure") == "park"
+			) {
+				GameObject landuse = Instantiate (landuseObject) as GameObject;
+				landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
+				LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
+				surface.createLanduseWithXMLNode (xmlNode, way, way.getWayType ());
 			}
 		}
 	}

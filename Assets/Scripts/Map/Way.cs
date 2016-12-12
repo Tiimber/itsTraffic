@@ -70,6 +70,10 @@ public class Way : NodeWithTags {
 		// TODO Take care of more area types
 		if (WayWidthFactor == WayTypeEnum.PLATFORM) {
 			wayType =  "platform";
+		} else if (getTagValue("amenity") == "school") {
+			wayType = "school";
+		} else if (getTagValue("leisure") == "park") {
+			wayType = "park";
 		}
 		return wayType;
 	}

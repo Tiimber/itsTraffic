@@ -995,6 +995,12 @@ public class Game : MonoBehaviour, IPubSub {
 				standardRoof.Remove ("height");
 			}
 		}
+
+		// Capture soccerfields
+		List<GameObject> soccerFields = Misc.FindShallowStartsWith("Landuse - soccerfield");
+		foreach (GameObject soccerfield in soccerFields) {
+			soccerfield.AddComponent<SoccerField>();
+		}
 	}
 
 	private void createOutsideArea () {
@@ -1085,7 +1091,7 @@ public class Game : MonoBehaviour, IPubSub {
 			surface.createLanduseAreaWithXMLNode (xmlNode, way, way.getWayType (), WayTypeEnum.EXPANDED_PLATFORM);
 		} else if (way.getWayType() != "unknown") {
 			GameObject landuse = Instantiate (landuseObject) as GameObject;
-			landuse.transform.position = new Vector3 (0f, 0f, -0.099f);
+			landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
 			LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
 			surface.createLanduseWithXMLNode (xmlNode, way, way.getWayType ());
 		}

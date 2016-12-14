@@ -137,6 +137,54 @@ public class Misc {
 		return (from - to).magnitude;
 	}
 
+    public static Vector2 GetLongestDistanceVector (Vector2[] vectors) {
+        float longest = float.MinValue;
+        Vector2 longestDistance = Vector2.zero;
+        for (int i = 1; i < vectors.Length; i++) {
+            Vector2 prev = vectors[i-1];
+            Vector2 curr = vectors[i];
+            float distance = Misc.getDistance (prev, curr);
+            if (distance > longest) {
+                longest = distance;
+                longestDistance = curr - prev;
+            }
+        }
+        return longestDistance;
+    }
+
+    public static Vector2 GetLongestDistanceVector90DegXFrom (Vector2[] vectors, float diffXRotation, float threshold) {
+        float longest = float.MinValue;
+        Vector2 longestDistance = Vector2.zero;
+        for (int i = 1; i < vectors.Length; i++) {
+            Vector2 prev = vectors[i-1];
+            Vector2 curr = vectors[i];
+            float distance = Misc.getDistance (prev, curr);
+            if (distance > longest) {
+                Vector2 diffVector = curr - prev;
+                // float rotation = Misc.ToDegrees(Mathf.Atan(diffVector.y / diffVector.x));
+                float rotation = Quaternion.FromToRotation(Vector3.right, diffVector).eulerAngles.z;
+                float rotationDiff = Mathf.Abs(rotation - diffXRotation);
+                if ((rotationDiff >= 90f - threshold && rotationDiff <= 90f + threshold) || (rotationDiff >= 270f - threshold && rotationDiff <= 270f + threshold)) {
+                    longest = distance;
+                    longestDistance = diffVector;
+                }
+            }
+        }
+        return longestDistance;
+    }
+
+    public static List<GameObject> FindShallowStartsWith(string startsWith) {
+        List<GameObject> found = new List<GameObject>();
+
+        GameObject[] gos = (GameObject[])GameObject.FindObjectsOfType(typeof(GameObject));
+        foreach (GameObject go in gos) {
+            if (go.name.StartsWith(startsWith)) {
+                found.Add(go);
+            }
+        }
+        return found;
+    }
+
 	//Breadth-first search
 	public static Transform FindDeepChild(Transform aParent, string aName) {
 		var result = aParent.Find(aName);
@@ -771,6 +819,22 @@ public class Misc {
         float maxY = float.MinValue;
 
         foreach (Vector3 vector in vectors) {
+            minX = Mathf.Min(vector.x, minX);
+            minY = Mathf.Min(vector.y, minY);
+            maxX = Mathf.Max(vector.x, maxX);
+            maxY = Mathf.Max(vector.y, maxY);
+        }
+
+        return new Vector3(minX + (maxX - minX) / 2f, minY + (maxY - minY) / 2f, 0f);
+    }
+
+    public static Vector3 GetCenterOfVectorList(Vector2[] vectors) {
+        float minX = float.MaxValue;
+        float minY = float.MaxValue;
+        float maxX = float.MinValue;
+        float maxY = float.MinValue;
+
+        foreach (Vector2 vector in vectors) {
             minX = Mathf.Min(vector.x, minX);
             minY = Mathf.Min(vector.y, minY);
             maxX = Mathf.Max(vector.x, maxX);

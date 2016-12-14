@@ -74,9 +74,9 @@ public class Way : NodeWithTags {
 			wayType = "school";
 		} else if (getTagValue("leisure") == "park") {
 			wayType = "park";
-		} else if (getTagValue("surface") == "grass") {
-			wayType = "grass";
 		} else if (getTagValue("leisure") == "pitch" && getTagValue("sport") == "soccer") {
+			wayType = "soccerfield";
+		} else if (getTagValue("surface") == "grass") {
 			wayType = "grass";
 		}
 		return wayType;

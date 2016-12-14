@@ -7,6 +7,11 @@ using System.Linq;
 
 public class MapSurface : MonoBehaviour {
 
+	public Vector3 calculatedCenter;
+	public float calculatedRotation;
+	public float calculatedWidth;
+	public float calculatedHeight;
+
 	protected void createMesh(XmlNode xmlNode) {
 		XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
 		Vector2[] vertices2D = new Vector2[nodeRefs.Count-1];
@@ -109,8 +114,32 @@ public class MapSurface : MonoBehaviour {
 		msh.RecalculateNormals();
 		msh.RecalculateBounds();
 
+		// Calculate mesh area
         float area = Misc.getMeshArea(msh);
         gameObject.AddComponent<MeshArea>().area = area;
+
+		// Add center point to the surface
+		MapSurface mapSurface = gameObject.GetComponent<MapSurface>();
+		if (mapSurface == null) {
+			mapSurface = gameObject.AddComponent<MapSurface>();
+		}
+		mapSurface.calculatedCenter = Misc.GetCenterOfVectorList(vertices2D);
+
+		// Try to guess a rotation and width/height - will only really be applicable for the simplest forms (rectangular'ish)
+		// Assume that the rotation is where the longest single line is
+		Vector2 longestVector = Misc.GetLongestDistanceVector(vertices2D);
+		float zRotation = Quaternion.FromToRotation(Vector3.right, longestVector).eulerAngles.z;
+		// Debug.Log("Z1: " + Quaternion.FromToRotation(Vector3.right, longestVector).eulerAngles.z + ", Z2: " + Misc.ToDegrees(Mathf.Atan(longestVector.y / longestVector.x)));
+		mapSurface.calculatedRotation = zRotation;
+		
+		// Debug.Log("Longest vector:");
+		// DebugFn.print(longestVector);
+		// Debug.Log("Deg: " + mapSurface.calculatedRotation);
+
+		Vector2 longestVectorApprox90Deg = Misc.GetLongestDistanceVector90DegXFrom(vertices2D, mapSurface.calculatedRotation, 15f);
+		Debug.Log("Diff°:" + Quaternion.FromToRotation(longestVector, longestVectorApprox90Deg).eulerAngles.z);
+		mapSurface.calculatedWidth = longestVector.magnitude;
+		mapSurface.calculatedHeight = longestVectorApprox90Deg.magnitude;
 
 //		Vector3[] normals = msh.normals;
 //		for (int i = 0; i < normals.Length; i++) {

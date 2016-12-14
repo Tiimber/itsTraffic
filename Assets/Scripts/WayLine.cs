@@ -136,7 +136,7 @@ public class WayLine : MonoBehaviour {
 	}
 
     private static Material whiteMaterial = null;
-	private static void SetWhiteMaterial (GameObject line) {
+	public static void SetWhiteMaterial (GameObject line) {
         MeshRenderer meshRenderer = line.GetComponent<MeshRenderer> ();
 		if (whiteMaterial == null) {
             meshRenderer.material.color = new Color (1f, 1f, 1f);

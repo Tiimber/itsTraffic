@@ -13,6 +13,10 @@ public class LanduseSurface : MapSurface {
 		{"industrial", new Color (0.2f, 0.2f, 0)},
 		{"retail", new Color (0.2f, 0, 0.2f)},
 		{"cemetery", new Color (0.43f, 0.62f, 0.46f)},
+		{"school", new Color (0.8f, 0.8f, 0.35f)},
+		{"park", new Color (0.22f, 0.78f, 0.29f)},
+		{"grass", new Color (0.10f, 8f, 0.17f)},
+		{"soccerfield", new Color (0.10f, 8f, 0.17f)},
 		{"platform", new Color (0.73f, 0.73f, 0.73f)},
 
 		// Different kinds of water

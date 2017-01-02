@@ -456,6 +456,14 @@ public class Misc {
 		return filtered.ToArray();
 	}
 
+    public static float GetHeightRatio() {
+        return Mathf.Max((float) Screen.height / (float) Screen.width, 1f);
+    }
+
+    public static float GetWidthRatio() {
+        return Mathf.Max((float) Screen.width / (float) Screen.height, 1f);
+    }
+
     public static float ToRadians(float degrees) {
         return (Mathf.PI / 180f) * degrees;
     }
@@ -851,7 +859,15 @@ public class Misc {
         return centerOfFirst.y <= centerOfSecond.y ? first : second;
     }
 
+    public static Rect GetRectOfVectorList(Vector2[] vectors) {
+        return GetRectOfVectorList(vectors.ToList());
+    }
+
     public static Rect GetRectOfVectorList(List<Vector3> vectors) {
+        return GetRectOfVectorList(vectors);
+    }
+
+    public static Rect GetRectOfVectorList(List<Vector2> vectors) {
         float minX = float.MaxValue;
         float minY = float.MaxValue;
         float maxX = float.MinValue;

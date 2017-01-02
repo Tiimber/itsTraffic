@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using com.spacepuppy;
 using UnityEditor;
 using UnityEngine;
@@ -20,7 +21,7 @@ public class Country : MonoBehaviour {
     public bool focused = false;
     public float focusTime = focusTimeMin;
     public bool doUpdate;
-    private const float focusTimeMax = 0.5f;
+    public const float focusTimeMax = 0.5f;
     private const float focusTimeMin = 0f;
 
     public string countryName;
@@ -30,6 +31,8 @@ public class Country : MonoBehaviour {
     public Color countryColor;
     private Color privateInnerColor = Color.clear;
     public Vector3 center;
+    public Vector3 countryCenter;
+    public Rect rect;
     private GameObject landareasParent;
     private GameObject countryNameParent;
     private TextMesh countryNameTextMesh;
@@ -91,6 +94,10 @@ public class Country : MonoBehaviour {
                 biggestValue = meshArea.area;
                 MeshFilter meshFilter = meshArea.gameObject.GetComponent<MeshFilter> ();
                 center = new Vector3 (meshFilter.mesh.bounds.center.x, meshFilter.mesh.bounds.center.y, 0f);
+
+                countryCenter = meshArea.gameObject.GetComponent<MapSurface>().calculatedCenter;
+                // TODO - Extend rect if many areas are "big"
+                rect = meshArea.gameObject.GetComponent<MapSurface>().rect; 
             }
         }
 
@@ -238,5 +245,89 @@ public class Country : MonoBehaviour {
         countryNameTextMesh.text += "\n(incl. " + innerName + ")";
         getInnerMeshRenderer ().material = innerMesh.material;
         saveMeshes();
+    }
+
+    public void fadeOut(Color targetColor) {
+        StartCoroutine(fadeToColor(targetColor));
+    }
+
+    public void fadeIn(Color fromColor) {
+        StartCoroutine(fadeToOriginalColor(fromColor));
+    }
+
+    private IEnumerator fadeToColor(Color targetColor) {
+        float time = 0.25f;
+
+        ColorHSV countryColorHSV = new ColorHSV (countryColor);
+        countryColorHSV.v = 1.0f;
+        Color originalOuterColor = ColorHSV.ToColor (countryColorHSV);
+        Color originalInnerColor = (privateInnerColor != Color.clear ? privateInnerColor : innerColor);
+
+        List<MeshRenderer> outers = new List<MeshRenderer>();
+        List<MeshRenderer> inners = new List<MeshRenderer>();
+        foreach (MeshArea meshArea in GetComponentsInChildren<MeshArea> ()) {
+            MeshRenderer meshRenderer = meshArea.gameObject.GetComponent<MeshRenderer> ();
+            if (meshRenderer.name.Contains ("Outer")) {
+                outers.Add(meshRenderer);
+            } else {
+                inners.Add(meshRenderer);
+            }
+        }
+
+        float t = 0;
+        while (t < time) {
+            yield return null;
+            t += Time.unscaledDeltaTime;
+            Color curOuterCol = Color.Lerp(originalOuterColor, targetColor, t / time);
+            Color curInnerCol = Color.Lerp(originalInnerColor, targetColor, t / time);
+            foreach (MeshRenderer meshRenderer in outers) {
+                material.color = curOuterCol;
+                meshRenderer.material = material;
+            }
+            foreach (MeshRenderer meshRenderer in inners) {
+                innerMaterial.color = curInnerCol;
+                meshRenderer.material = material;
+            }
+        }
+
+        yield return null;
+    }
+
+    private IEnumerator fadeToOriginalColor(Color fromColor) {
+        float time = 0.25f;
+
+        ColorHSV countryColorHSV = new ColorHSV (countryColor);
+        countryColorHSV.v = 1.0f;
+        Color originalOuterColor = ColorHSV.ToColor (countryColorHSV);
+        Color originalInnerColor = (privateInnerColor != Color.clear ? privateInnerColor : innerColor);
+
+        List<MeshRenderer> outers = new List<MeshRenderer>();
+        List<MeshRenderer> inners = new List<MeshRenderer>();
+        foreach (MeshArea meshArea in GetComponentsInChildren<MeshArea> ()) {
+            MeshRenderer meshRenderer = meshArea.gameObject.GetComponent<MeshRenderer> ();
+            if (meshRenderer.name.Contains ("Outer")) {
+                outers.Add(meshRenderer);
+            } else {
+                inners.Add(meshRenderer);
+            }
+        }
+
+        float t = 0;
+        while (t < time) {
+            yield return null;
+            t += Time.unscaledDeltaTime;
+            Color curOuterCol = Color.Lerp(fromColor, originalOuterColor, t / time);
+            Color curInnerCol = Color.Lerp(fromColor, originalInnerColor, t / time);
+            foreach (MeshRenderer meshRenderer in outers) {
+                material.color = curOuterCol;
+                meshRenderer.material = material;
+            }
+            foreach (MeshRenderer meshRenderer in inners) {
+                innerMaterial.color = curInnerCol;
+                meshRenderer.material = material;
+            }
+        }
+
+        yield return null;
     }
 }

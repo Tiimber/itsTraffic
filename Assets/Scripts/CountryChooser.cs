@@ -8,13 +8,15 @@ using UnityEngine;
 public class CountryChooser : MonoBehaviour, IPubSub {
 
     public Camera mapCamera;
-    private static float cameraSize = 60f;
+    private const float MAX_CAMERA_SIZE = 60f;
+    private const float MIN_CAMERA_SIZE = 25f;
     private static Rect mapBounds = new Rect (-180f, -90f, 180f, 90f);
-    private static Rect cameraBounds = new Rect (-cameraSize, -cameraSize, cameraSize, cameraSize);
+    private static Rect cameraBounds = new Rect (-MAX_CAMERA_SIZE, -MAX_CAMERA_SIZE, MAX_CAMERA_SIZE, MAX_CAMERA_SIZE);
 
     private Country hoveredCountry;
     public Material countryMaterial;
     public GameObject countryNameContainer;
+    public GameObject cityPoint;
     public bool loadPreGeneratedCountries = false;
 
     private Vector3 previousMousePosition;
@@ -23,6 +25,17 @@ public class CountryChooser : MonoBehaviour, IPubSub {
     private Vector3 prevMouseDownPosition;
     private const float CLICK_RELEASE_TIME = 0.2f;
     private const float THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK = 30f;
+    private const float FOCUSED_COUNTRY_ZOOM_FACTOR = 10f;
+    private bool countryFocused = false;
+    private float zoomSize = 1f;
+    private List<Cities.CityObj> currentCities;
+
+    private static Texture2D focusedCountryCloseButton;
+
+
+    void Awake() {
+        focusedCountryCloseButton = Resources.Load<Texture2D>("Graphics/close_button");
+    }
 
     // Use this for initialization
     void Start() {
@@ -30,13 +43,13 @@ public class CountryChooser : MonoBehaviour, IPubSub {
 
         // For camera handling
         CameraHandler.SetMainCamera(mapCamera);
-        CameraHandler.SetZoomLevels(60f, 25f);
+        CameraHandler.SetZoomLevels(MAX_CAMERA_SIZE, MIN_CAMERA_SIZE);
 
-        float widthHeightRatio = (float) Screen.width / (float) Screen.height;
+        float widthHeightRatio = Misc.GetWidthRatio();
 
         // Width to height ratio
         if (widthHeightRatio > 1f) {
-            float xSpan = cameraSize * 2;
+            float xSpan = MAX_CAMERA_SIZE * 2;
             float addedXSpan = xSpan * widthHeightRatio - xSpan;
             cameraBounds.x -= addedXSpan / 2f;
             cameraBounds.width += addedXSpan / 2f;
@@ -76,46 +89,82 @@ public class CountryChooser : MonoBehaviour, IPubSub {
     void Update() {
         // Get mouse position
         Vector3 mousePosition = Input.mousePosition;
-        // Only check hover logic if input position changed at all
-        if (previousMousePosition != mousePosition) {
-            // Check if it hovers on a country
-            Ray ray = mapCamera.ScreenPointToRay (Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast (ray, out hit)) {
-                Transform countryHovered = hit.transform;
-                if (countryHovered.name.StartsWith("Inner")) {
-                    countryHovered = null;
-                } else {
-                    while (countryHovered != null && countryHovered.tag != "Country") {
-                        countryHovered = countryHovered.parent;
-                    }
-                }
-                if (countryHovered != null) {
-                    Country hovered = countryHovered.GetComponent<Country> ();
-                    if (hovered != hoveredCountry) {
-                        if (hoveredCountry != null) {
-                            hoveredCountry.onUnfocused();
+
+        if (!countryFocused) {
+            // Only check hover logic if input position changed at all
+            if (previousMousePosition != mousePosition) {
+                // Check if it hovers on a country
+                Ray ray = mapCamera.ScreenPointToRay (Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast (ray, out hit)) {
+                    Transform countryHovered = hit.transform;
+                    if (countryHovered.name.StartsWith("Inner")) {
+                        countryHovered = null;
+                    } else {
+                        while (countryHovered != null && countryHovered.tag != "Country") {
+                            countryHovered = countryHovered.parent;
                         }
-                        hoveredCountry = hovered;
-                        hoveredCountry.onFocused();
                     }
+                    if (countryHovered != null) {
+                        Country hovered = countryHovered.GetComponent<Country> ();
+                        if (hovered != hoveredCountry) {
+                            if (hoveredCountry != null) {
+                                hoveredCountry.onUnfocused();
+                            }
+                            hoveredCountry = hovered;
+                            hoveredCountry.onFocused();
+                        }
+                    }
+                } else {
+                    if (hoveredCountry != null) {
+                        hoveredCountry.onUnfocused();
+                    }
+                    hoveredCountry = null;
                 }
-            } else {
-                if (hoveredCountry != null) {
-                    hoveredCountry.onUnfocused();
-                }
-                hoveredCountry = null;
+
+                previousMousePosition = mousePosition;
             }
 
-            previousMousePosition = mousePosition;
+            // Click/drag
+            if (!Input.GetMouseButton (0) && clickReleaseTimer > 0f) {
+                // Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
+                if (Misc.getDistance (mouseDownPosition, prevMouseDownPosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {
+                    Vector3 mouseWorldPoint = mapCamera.ScreenToWorldPoint (mouseDownPosition);
+                    clickReleaseTimer = 0f;
+
+                    // Handle click
+                    if (hoveredCountry != null) {
+                        if (hoveredCountry.mergedWithOther) {
+                            Debug.Log(hoveredCountry.ownName + " or " + hoveredCountry.otherName);
+                            // TODO - Select which one of these countries? (Only two cases...)
+    //                        PubSub.publish("Country:select", countryData);
+                        } else {
+                            Dictionary<string, string> countryData = new Dictionary<string, string>(){
+                                {"code", hoveredCountry.code},
+                                {"name", hoveredCountry.name}
+                            };
+                            PubSub.publish("Country:select", countryData);
+                        }
+                    }
+                }
+            }
+        } else {
+            // // TODO - Temporary code
+            // if (Misc.randomRange(0f, 1000f) < 10f) {
+            //     int randomLevel = Mathf.CeilToInt(Misc.randomRange(0.01f, 10f));
+            //     setVisibleCitiesLevel(randomLevel);
+            // }
         }
 
-        // Zoom
+        // Zoom -- allow both when focused on country and not (will just have different size constraints)
         if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
             float scrollAmount = Input.GetAxis ("Mouse ScrollWheel");
-            CameraHandler.CustomZoom (scrollAmount, Input.mousePosition);
+            if (countryFocused) {
+                Singleton<SingletonInstance>.Instance.StartCoroutine(zoomOnFocusedCountry(scrollAmount, mousePosition));
+            } else {
+                CameraHandler.CustomZoom (scrollAmount, mousePosition);
+            }
         }
-        // Click/drag
         if (Input.GetMouseButton (0)) {
             // Drag logic
             bool firstFrame = Input.GetMouseButtonDown (0);
@@ -134,33 +183,26 @@ public class CountryChooser : MonoBehaviour, IPubSub {
             } else {
                 clickReleaseTimer -= Time.deltaTime;
             }
-        } else if (clickReleaseTimer > 0f) {
-            // Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
-            if (Misc.getDistance (mouseDownPosition, prevMouseDownPosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {
-                Vector3 mouseWorldPoint = mapCamera.ScreenToWorldPoint (mouseDownPosition);
-                clickReleaseTimer = 0f;
+        }
 
-                // Handle click
-                if (hoveredCountry != null) {
-                    if (hoveredCountry.mergedWithOther) {
-                        Debug.Log(hoveredCountry.ownName + " or " + hoveredCountry.otherName);
-                        // TODO - Select which one of these countries? (Only two cases...)
-//                        PubSub.publish("Country:select", countryData);
-                    } else {
-                        Dictionary<string, string> countryData = new Dictionary<string, string>(){
-                            {"code", hoveredCountry.code},
-                            {"name", hoveredCountry.name}
-                        };
-                        PubSub.publish("Country:select", countryData);
-                    }
-                }
+
+        previousMousePosition = mousePosition;
+    }
+
+    void OnGUI() {
+        if (countryFocused) {
+            Misc.Size imageSize = Misc.getImageSize(focusedCountryCloseButton.width, focusedCountryCloseButton.height, 64, 64);
+            float imageWidth = imageSize.width;
+            float imageHeight = imageSize.height;
+            if (GUI.Button(new Rect(20, 20, imageWidth, imageHeight), focusedCountryCloseButton, GUIStyle.none)) {
+                StartCoroutine(unfocusCountry());
             }
         }
     }
 
     public IEnumerator getCountryData() {
         // Get country metadata
-        WWW www = CacheWWW.Get (Game.endpointBaseUrl + Game.countryMetaDataRelativeUrl, Misc.getTsForReadable ("30d"));
+        WWW www = CacheWWW.Get (Game.endpointBaseUrl + Game.countryMetaDataRelativeUrl);
         yield return www;
 
         XmlDocument xmlDoc = new XmlDocument ();
@@ -196,7 +238,7 @@ public class CountryChooser : MonoBehaviour, IPubSub {
             landareaParent.transform.parent = countryParent.transform;
 
             // Get country full outline data
-            WWW countryWWW = CacheWWW.Get (Game.endpointBaseUrl + Game.countryMetaDataRelativeUrl + Game.countryCodeDataQuerystringPrefix + code, Misc.getTsForReadable ("30d"));
+            WWW countryWWW = CacheWWW.Get (Game.endpointBaseUrl + Game.countryMetaDataRelativeUrl + Game.countryCodeDataQuerystringPrefix + code);
             yield return countryWWW;
 
             XmlDocument countryDataDoc = new XmlDocument ();
@@ -290,9 +332,112 @@ public class CountryChooser : MonoBehaviour, IPubSub {
     public PROPAGATION onMessage(string message, object data) {
         if (message == "Country:select") {
             Dictionary<string, string> countryData = (Dictionary<string, string>)data;
-            Debug.Log("Clicked: " + countryData["code"] + ", " + countryData["name"]);
+            // Debug.Log("Clicked: " + countryData["code"] + ", " + countryData["name"]);
+            StartCoroutine(focusCountry(countryData["code"]));
         }
         return PROPAGATION.DEFAULT;
     }
 
+    private IEnumerator unfocusCountry() {
+        countryFocused = false;
+        string code = hoveredCountry.code;
+        hoveredCountry = null;
+
+        setVisibleCitiesLevel(0);
+        GameObject.Destroy(GameObject.Find("Cities-" + code));
+
+        CameraHandler.SetZoomLevels(MAX_CAMERA_SIZE, MIN_CAMERA_SIZE);
+        CameraHandler.SetCenterPoint(Vector3.zero);
+        yield return CameraHandler.ResetZoom();
+
+        // Fade in all countries
+        fadeAllCountries(false, code);
+    }
+
+    private IEnumerator focusCountry(string code) {
+        countryFocused = true;
+        hoveredCountry.onUnfocused();
+        float endTime = Time.time + Country.focusTimeMax;
+        
+        // Start loading cities
+        WWW www = CacheWWW.Get (Game.endpointBaseUrl + Game.citiesMetaDataRelativeUrl + Game.countryCodeDataQuerystringPrefix + code);
+
+        // Reset zoom
+        yield return CameraHandler.ResetZoom ();
+
+        // Fade out other countries
+        fadeAllCountries(true, code);
+
+        // "Smart zoom" selected country
+        Rect countryRect = hoveredCountry.rect;
+        float countrySize = Mathf.Max(countryRect.width / Misc.GetWidthRatio(), countryRect.height / Misc.GetHeightRatio());
+        Vector3 countryCenter = hoveredCountry.countryCenter;
+        zoomSize = countrySize / 2f + MAX_CAMERA_SIZE / 120f;
+        CameraHandler.ZoomToSizeAndMoveToPointThenSetNewMinMaxZoomAndCenter(zoomSize, countryCenter, FOCUSED_COUNTRY_ZOOM_FACTOR);
+
+        // Make sure cities data is loaded before parsing cities data
+        yield return www;
+        XmlDocument xmlDoc = new XmlDocument ();
+        xmlDoc.LoadXml (www.text);
+
+        // Parse cities and place them out
+        Cities cities = new Cities(xmlDoc);
+        createCities(cities, code, zoomSize);
+        setVisibleCitiesLevel(1);
+
+        // If any time is left before country have finished it's unfocus - wait a bit
+        float timeLeft = endTime - Time.time;
+        if (timeLeft > 0) {
+            yield return new WaitForSeconds(timeLeft);
+        }
+    }
+
+    private void fadeAllCountries(bool fadeOut, string exceptionCode) {
+        GameObject[] allCountries = GameObject.FindGameObjectsWithTag("Country");
+        foreach (GameObject countryGO in allCountries) {
+            Country country = countryGO.GetComponent<Country>();
+            if (country.code != exceptionCode) {
+                if (fadeOut) {
+                    country.fadeOut(CameraHandler.GetBackgroundColor());
+                } else {
+                    country.fadeIn(CameraHandler.GetBackgroundColor());
+                }
+            }
+        }
+    }
+
+    private void createCities (Cities cities, string code, float zoomSize) {
+        currentCities = new List<Cities.CityObj>();
+        GameObject citiesParent = new GameObject("Cities-" + code);
+        citiesParent.transform.localPosition = new Vector3(0f, 0f, -0.02f);
+        foreach (Cities.City city in cities.cities) {
+            // Instantiate GameObject
+            GameObject cityObj = Instantiate(cityPoint, citiesParent.transform) as GameObject;
+            cityObj.name = city.name;
+
+            // Set city meta data
+            Cities.CityObj cityData = cityObj.AddComponent<Cities.CityObj>();
+            cityData.city = city;
+            cityData.setOriginalOrtho(zoomSize);
+            currentCities.Add(cityData);
+
+            // Position city
+            Pos pos = new Pos (-1L, city.lon, city.lat);
+            cityObj.transform.position = Game.getCameraPosition (pos, mapBounds, cameraBounds);
+        }
+    }
+
+    private void setVisibleCitiesLevel (int level) {
+        foreach (Cities.CityObj city in currentCities) {
+            city.setVisibleLevel(level);
+        }
+    }
+
+    private IEnumerator zoomOnFocusedCountry (float scrollAmount, Vector3 mousePosition) {
+        yield return CameraHandler.CustomZoomIEnumerator (scrollAmount, mousePosition);
+        // Figure out which "level" of cities to show
+        float targetZoomLevel = Mathf.Clamp(CameraHandler.GetOrthograpicSize() - scrollAmount, zoomSize / FOCUSED_COUNTRY_ZOOM_FACTOR, zoomSize);
+        int zoomLevel = Mathf.Max(1, Mathf.RoundToInt(10f - ((targetZoomLevel - (zoomSize / FOCUSED_COUNTRY_ZOOM_FACTOR)) / (zoomSize - (zoomSize / FOCUSED_COUNTRY_ZOOM_FACTOR)) * 10f)));
+        setVisibleCitiesLevel(zoomLevel);
+    }
 }

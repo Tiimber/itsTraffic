@@ -20,7 +20,7 @@ public class SoccerField : MonoBehaviour {
 		height = mapSurface.calculatedHeight;
 
 		// TODO - Doesn't really work right now - continue this later with a fresh mind...
-		// createLines ();
+		createLines ();
 	}
 
 	private void createLines () {

@@ -11,6 +11,7 @@ public class MapSurface : MonoBehaviour {
 	public float calculatedRotation;
 	public float calculatedWidth;
 	public float calculatedHeight;
+	public Rect rect;
 
 	protected void createMesh(XmlNode xmlNode) {
 		XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
@@ -124,6 +125,7 @@ public class MapSurface : MonoBehaviour {
 			mapSurface = gameObject.AddComponent<MapSurface>();
 		}
 		mapSurface.calculatedCenter = Misc.GetCenterOfVectorList(vertices2D);
+		mapSurface.rect = Misc.GetRectOfVectorList(vertices2D);
 
 		// Try to guess a rotation and width/height - will only really be applicable for the simplest forms (rectangular'ish)
 		// Assume that the rotation is where the longest single line is
@@ -137,7 +139,7 @@ public class MapSurface : MonoBehaviour {
 		// Debug.Log("Deg: " + mapSurface.calculatedRotation);
 
 		Vector2 longestVectorApprox90Deg = Misc.GetLongestDistanceVector90DegXFrom(vertices2D, mapSurface.calculatedRotation, 15f);
-		Debug.Log("Diff°:" + Quaternion.FromToRotation(longestVector, longestVectorApprox90Deg).eulerAngles.z);
+		// Debug.Log("Diff°:" + Quaternion.FromToRotation(longestVector, longestVectorApprox90Deg).eulerAngles.z);
 		mapSurface.calculatedWidth = longestVector.magnitude;
 		mapSurface.calculatedHeight = longestVectorApprox90Deg.magnitude;
 

@@ -55,6 +55,7 @@ public class Game : MonoBehaviour, IPubSub {
     public static string customLevelsRelativeUrl = "custom-levels";
     public static string getLocationRelativeUrl = "get-location";
     public static string countryMetaDataRelativeUrl = "countries";
+    public static string citiesMetaDataRelativeUrl = "cities";
     public static string countryCodeDataQuerystringPrefix = "?country=";
 
 	private const float CLICK_RELEASE_TIME = 0.2f; 
@@ -78,6 +79,7 @@ public class Game : MonoBehaviour, IPubSub {
 	// These are not really rects, just four positions minX, minY, maxX, maxY
 	private static Rect cameraBounds;
 	private static Rect mapBounds;
+	private static float latitudeToLongitudeRatio = 1f;
 
 	// TODO - When switched to ortographic camera, set this in those objects
 	public static float cameraOrtographicSize = 5f;
@@ -861,6 +863,7 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 
 		cameraBounds = new Rect (cameraMinX, cameraMinY, cameraMaxX - cameraMinX, cameraMaxY - cameraMinY);
+		latitudeToLongitudeRatio = getLatitudeScale((float)minlat + (float)(maxlat - minlat) / 2f);
 
 		XmlNodeList nodeNodes = xmlDoc.SelectNodes("/osm/node");
 		foreach (XmlNode xmlNode in nodeNodes) {
@@ -1001,6 +1004,25 @@ public class Game : MonoBehaviour, IPubSub {
 		foreach (GameObject soccerfield in soccerFields) {
 			soccerfield.AddComponent<SoccerField>();
 		}
+	}
+
+	private float getLatitudeScale(float latitude) {
+		// Convert latitude to radians
+		float latRad = Misc.ToRadians(latitude);
+
+		float m1 = 111132.92f;		// latitude calculation term 1
+		float m2 = -559.82f;		// latitude calculation term 2
+		float m3 = 1.175f;			// latitude calculation term 3
+		float m4 = -0.0023f;		// latitude calculation term 4
+		float p1 = 111412.84f;		// longitude calculation term 1
+		float p2 = -93.5f;			// longitude calculation term 2
+ 		float p3 = 0.118f;			// longitude calculation term 3
+
+		// Calculate the length of a degree of latitude and longitude in meters
+		float latlen = m1 + (m2 * Mathf.Cos(2 * lat)) + (m3 * Mathf.Cos(4 * lat)) + (m4 * Mathf.Cos(6 * lat));
+		float longlen = (p1 * Mathf.Cos(lat)) + (p2 * Mathf.Cos(3 * lat)) + (p3 * Mathf.Cos(5 * lat));
+		
+		return latlen / longlen;
 	}
 
 	private void createOutsideArea () {
@@ -1432,7 +1454,7 @@ public class Game : MonoBehaviour, IPubSub {
 		float posX = pos.Lon;
 		float posY = pos.Lat;
 
-		float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width + cameraBounds.x;
+		float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width * latitudeToLongitudeRatio + cameraBounds.x;
 		float cameraPosY = ((posY - mapBounds.y) / mapBounds.height) * cameraBounds.height + cameraBounds.y;
 
 		return new Vector3 (cameraPosX, cameraPosY, 0);

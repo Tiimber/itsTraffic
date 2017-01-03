@@ -50,8 +50,9 @@ public class LanduseSurface : MapSurface {
 				landuseType = way.getTagValue ("landuse");
 			}
 			this.gameObject.name = "Landuse - " + landuseType + " (" + way.printTags () + ")";
+			this.gameObject.layer = LayerMask.NameToLayer("Planes");
 			createMesh (xmlNode);
-//            createMeshCollider();
+            createMeshCollider(false);
 			setLanduseMaterial (landuseType);
 		}
 	}

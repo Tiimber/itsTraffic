@@ -3,6 +3,7 @@ using System.Collections;
 
 public class AutomaticMaterialObject : MonoBehaviour, IPubSub {
 	private string requestedMaterialId;
+	public bool isCarWay = false;
 
 	public void requestMaterial (string materialId, Material defaultMaterial = null) {
 		string[] idParts = materialId.Split(new char[] {'-'});

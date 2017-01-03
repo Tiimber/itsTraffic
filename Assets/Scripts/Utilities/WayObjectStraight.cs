@@ -69,6 +69,7 @@ public class WayObjectStraight {
 		List<Bounds> wayBounds = new List<Bounds> ();
 		foreach (WayReference wayReference in wayReferences) {
 			GameObject wayMeshObj = GameObject.Find ("Plane Mesh for " + wayReference.gameObject.name);
+			Misc.AddGravityToWay(wayMeshObj);
 			Renderer wayRenderer = wayMeshObj.GetComponent<Renderer>();
 			Bounds wayBound = wayRenderer.bounds;
 			wayBounds.Add (wayBound);

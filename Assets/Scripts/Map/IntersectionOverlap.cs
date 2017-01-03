@@ -9,7 +9,7 @@ public class IntersectionOverlap {
 
 
 	private const string CARWAY_MATERIAL_ID = "2002-Asphalt";
-	private const string SMALL_WAY_MATERIAL_ID = "2003-Asphalt-small";
+	private const string SMALL_WAY_MATERIAL_ID = "4003-Asphalt-small";
 
 	public static void Create () {
 		if (off) {

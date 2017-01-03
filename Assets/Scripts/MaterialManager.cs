@@ -8,7 +8,7 @@ public class MaterialManager {
 	private static string downloadedMaterialsFolder = Application.persistentDataPath + "/downloadedMaterials/";
 	private static string localMaterialBaseUrl = "file://" + Application.persistentDataPath + "/downloadedMaterials/";
 	private static string remoteMaterialBaseUrl = "http://localhost:4002/static/materials/";
-	private static string[] MaterialTypes = new string[]{"Outdoors", "Roof", "Street", "Wall"};
+	private static string[] MaterialTypes = new string[]{"Outdoors", "Roof", "Driveway", "Walkway", "Wall"};
 
 	// Materials that we have available in the app
 	private static Dictionary<string, Material> MaterialResources = new Dictionary<string, Material>();
@@ -165,7 +165,18 @@ public class MaterialManager {
 		}
 
 		// Now to create a simple material with the texture
-		Material material = new Material (Shader.Find ("Custom/PlainShader"));
+		Material material;
+		switch (type) {
+			case "Driveway": 
+		 		material = new Material (Shader.Find ("Custom/DrivewayShader"));
+				break;
+			case "Walkway":
+		 		material = new Material (Shader.Find ("Custom/WalkwayShader"));
+				break;
+			default:  
+		 		material = new Material (Shader.Find ("Custom/PlainShader"));
+				break;
+		}
 		material.mainTexture = materialTexture;
 
 		// Add it to our index

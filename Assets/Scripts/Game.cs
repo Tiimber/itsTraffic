@@ -946,7 +946,8 @@ public class Game : MonoBehaviour, IPubSub {
 					TrafficLightIndex.ApplyConfig (objectNode);
 					break;
 				case "Roof": 
-				case "Street": 
+				case "Driveway": 
+				case "Walkway": 
 				case "Outdoors":
 				default: 
 					initRoofStreetOrOutdoors (type, objectNode); 
@@ -1404,23 +1405,28 @@ public class Game : MonoBehaviour, IPubSub {
 		Quaternion rotation = way.transform.rotation;
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);
 		middleOfWay.name = "Plane Mesh for " + way.name;
-		if (wayReference.way.CarWay) {
-			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
-		} else {
-			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.099f);
-		}
+		// if (wayReference.way.CarWay) {
+		// 	middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.2f);
+		// } else {
+			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.2f);
+		// }
         middleOfWay.transform.parent = waysParent;
+
+		// Add rigidbody and mesh collider, so that they will fall onto the underlying plane
+		Misc.AddGravityToWay(middleOfWay);
+
 		// TODO - Config for material
 		// Small ways are not drawn with material or meshes
 		if (!wayReference.SmallWay || !wayReference.way.CarWay) {
 			AutomaticMaterialObject middleOfWayMaterialObject = middleOfWay.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
 			if (wayReference.way.CarWay) {
-				middleOfWayMaterialObject.requestMaterial ("2002-Street", null); // TODO - Default material
+				middleOfWayMaterialObject.isCarWay = true;
+				middleOfWayMaterialObject.requestMaterial ("2002-Driveway", null); // TODO - Default material
 				// Draw lines on way if car way
 				WayLine wayLineObject = middleOfWay.AddComponent<WayLine> () as WayLine;
 				wayLineObject.create (wayReference);
 			} else {
-				middleOfWayMaterialObject.requestMaterial ("2003-Street", null); // TODO - Default material
+				middleOfWayMaterialObject.requestMaterial ("4003-Walkway", null); // TODO - Default material
 				// Non Car Ways never have lines and only have one field in each direction 
 				wayReference.fieldsFromPos1ToPos2 = 1;
 				wayReference.fieldsFromPos2ToPos1 = 1;

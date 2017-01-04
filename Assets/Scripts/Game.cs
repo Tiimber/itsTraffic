@@ -25,6 +25,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private int animationItemsQueue = 0;
 	private float cameraEmission = 0f;
     public float graphicsQuality = 0.8f;
+	public const float WAYS_Z_POSITION = -0.11f;
 
 	public static long randomSeed = Misc.currentTimeMillis ();
 	private static bool running = false;
@@ -235,6 +236,18 @@ public class Game : MonoBehaviour, IPubSub {
 			changeSunTime(15);
 		} else if (Input.GetKeyDown (KeyCode.Minus) || Input.GetKeyDown (KeyCode.M)) {
             changeSunTime(-15);
+		}
+
+		// Explosion! 
+		if (Input.GetKeyDown (KeyCode.X)) {
+			GameObject explosionSphere = GameObject.Find("ExplosionSphere");
+			Collider[] colliders = Physics.OverlapSphere(explosionSphere.transform.position, 40f);
+			foreach (Collider hit in colliders) {
+				Rigidbody rb = hit.GetComponent<Rigidbody>();
+				if (rb != null) {
+					rb.AddExplosionForce(100f, explosionSphere.transform.position, 40f);
+				}
+			}
 		}
 
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
@@ -864,6 +877,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		cameraBounds = new Rect (cameraMinX, cameraMinY, cameraMaxX - cameraMinX, cameraMaxY - cameraMinY);
 		latitudeToLongitudeRatio = getLatitudeScale((float)minlat + (float)(maxlat - minlat) / 2f);
+		Debug.Log(latitudeToLongitudeRatio);
 
 		XmlNodeList nodeNodes = xmlDoc.SelectNodes("/osm/node");
 		foreach (XmlNode xmlNode in nodeNodes) {
@@ -1008,6 +1022,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private float getLatitudeScale(float latitude) {
+		// latitude = lat;
 		// Convert latitude to radians
 		float latRad = Misc.ToRadians(latitude);
 
@@ -1020,8 +1035,8 @@ public class Game : MonoBehaviour, IPubSub {
  		float p3 = 0.118f;			// longitude calculation term 3
 
 		// Calculate the length of a degree of latitude and longitude in meters
-		float latlen = m1 + (m2 * Mathf.Cos(2 * lat)) + (m3 * Mathf.Cos(4 * lat)) + (m4 * Mathf.Cos(6 * lat));
-		float longlen = (p1 * Mathf.Cos(lat)) + (p2 * Mathf.Cos(3 * lat)) + (p3 * Mathf.Cos(5 * lat));
+		float latlen = m1 + (m2 * Mathf.Cos(2 * latitude)) + (m3 * Mathf.Cos(4 * latitude)) + (m4 * Mathf.Cos(6 * latitude));
+		float longlen = (p1 * Mathf.Cos(latitude)) + (p2 * Mathf.Cos(3 * latitude)) + (p3 * Mathf.Cos(5 * latitude));
 		
 		return latlen / longlen;
 	}
@@ -1406,9 +1421,9 @@ public class Game : MonoBehaviour, IPubSub {
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);
 		middleOfWay.name = "Plane Mesh for " + way.name;
 		// if (wayReference.way.CarWay) {
-		// 	middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.2f);
+		// 	middleOfWay.transform.position = middleOfWay.transform.position + new Vector3 (0, 0, WAYS_Z_POSITION);
 		// } else {
-			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.2f);
+			middleOfWay.transform.position = middleOfWay.transform.position + new Vector3 (0, 0, WAYS_Z_POSITION);
 		// }
         middleOfWay.transform.parent = waysParent;
 
@@ -1420,7 +1435,6 @@ public class Game : MonoBehaviour, IPubSub {
 		if (!wayReference.SmallWay || !wayReference.way.CarWay) {
 			AutomaticMaterialObject middleOfWayMaterialObject = middleOfWay.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
 			if (wayReference.way.CarWay) {
-				middleOfWayMaterialObject.isCarWay = true;
 				middleOfWayMaterialObject.requestMaterial ("2002-Driveway", null); // TODO - Default material
 				// Draw lines on way if car way
 				WayLine wayLineObject = middleOfWay.AddComponent<WayLine> () as WayLine;
@@ -1460,7 +1474,8 @@ public class Game : MonoBehaviour, IPubSub {
 		float posX = pos.Lon;
 		float posY = pos.Lat;
 
-		float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width * latitudeToLongitudeRatio + cameraBounds.x;
+		// float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width / latitudeToLongitudeRatio + cameraBounds.x;
+		float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width + cameraBounds.x;
 		float cameraPosY = ((posY - mapBounds.y) / mapBounds.height) * cameraBounds.height + cameraBounds.y;
 
 		return new Vector3 (cameraPosX, cameraPosY, 0);

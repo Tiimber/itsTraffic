@@ -980,9 +980,11 @@ public class Misc {
 
     public static void AddGravityToWay(GameObject way) {
         // Add rigidbody and mesh collider, so that they will fall onto the underlying plane
-		way.AddComponent<Rigidbody> ();
-		MeshCollider middleWayMeshCollider = way.AddComponent<MeshCollider> ();
-		middleWayMeshCollider.convex = true;
-		way.layer = LayerMask.NameToLayer("Ways");
+        if (way.GetComponent<Rigidbody>() == null) {
+            way.AddComponent<Rigidbody> ();
+            MeshCollider middleWayMeshCollider = way.AddComponent<MeshCollider> ();
+            middleWayMeshCollider.convex = true;
+            way.layer = LayerMask.NameToLayer("Ways");
+        }
     }
 }

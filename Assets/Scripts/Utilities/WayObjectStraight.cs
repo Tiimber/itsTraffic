@@ -40,11 +40,13 @@ public class WayObjectStraight {
 //		Debug.Log ("Intersection");
 		GameObject intersectionObj = MapSurface.createPlaneMeshForPoints (meshPoints);
 		intersectionObj.name = "Intersection " + (isComplex ? "complex " : "") + (intersectionList.Count - 1) + "-way (" + key + ")";
-		Vector3 zOffset = intersectionList[0].way.CarWay ? new Vector3 (0, 0, -0.1f) : new Vector3 (0, 0, -0.099f);
+		intersectionObj.layer = LayerMask.NameToLayer("Ways");
+		Vector3 zOffset = new Vector3 (0, 0, Game.WAYS_Z_POSITION);
 		intersectionObj.transform.position = intersectionObj.transform.position + zOffset;
         intersectionObj.transform.parent = Game.instance.waysParent;
 		AutomaticMaterialObject intersectionMaterialObject = intersectionObj.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
 		intersectionMaterialObject.requestMaterial (materialId, null); // TODO - Should have same material as connecting way(s)
+		Misc.AddGravityToWay(intersectionObj);
 
 		// Need waylines for all straight ways
 		if (wayReferences.Count == 2) {

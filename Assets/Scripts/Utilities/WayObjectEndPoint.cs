@@ -15,12 +15,14 @@ public class WayObjectEndPoint {
 
 		GameObject endPointObj = MapSurface.createPlaneMeshForPoints (fromPos, toPos, MapSurface.Anchor.LEFT_CENTER);
 		endPointObj.name = "End of way (" + key + ")";
-		Vector3 zOffset = endPoint.way.CarWay ? new Vector3 (0, 0, -0.1f) : new Vector3 (0, 0, -0.099f);
+		Vector3 zOffset = new Vector3 (0, 0, Game.WAYS_Z_POSITION);
 		endPointObj.transform.position = endPointObj.transform.position + zOffset - (isNode1 ? Vector3.zero : endPoint.transform.rotation * new Vector3 (isSmall ? originalScale.x / 2f : originalScale.y / 2f, 0f, 0f));
         endPointObj.transform.parent = Game.instance.waysParent;
 		endPointObj.transform.rotation = endPoint.transform.rotation;
 		AutomaticMaterialObject endPointMaterialObject = endPointObj.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
 		endPointMaterialObject.requestMaterial (materialId, null); // TODO - Default material
 
+		// Add rigidbody and mesh collider, so that they will fall onto the underlying plane
+		Misc.AddGravityToWay(endPointObj);
 	}
 }

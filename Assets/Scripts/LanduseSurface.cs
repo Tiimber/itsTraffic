@@ -96,7 +96,9 @@ public class LanduseSurface : MapSurface {
 			new Vector3(-20, 20f, 0)
 		};
 		GameObject planeMeshObj = createPlaneMeshForPoints (backgroundBounds);
+		planeMeshObj.layer = LayerMask.NameToLayer("Planes");
 		planeMeshObj.transform.parent = transform;
+		planeMeshObj.transform.localPosition = Vector3.zero;
 
 		Material material = new Material (Shader.Find ("Custom/PlainShader"));
 		material.color = colors["background"];
@@ -105,7 +107,8 @@ public class LanduseSurface : MapSurface {
 		Renderer renderer = meshRenderer.GetComponent<Renderer> ();
 		renderer.material = material;
 
-//        createMeshCollider();
+		MeshCollider meshCollider = planeMeshObj.AddComponent<MeshCollider> ();
+        meshCollider.convex = false;
     }
 
 	private void setLanduseMaterial (string type, GameObject go = null) {

@@ -85,7 +85,7 @@ public class RectangularShapeFactory : ShapeFactory {
 		myMesh.triangles =  new int[] {0,2,1,0,3,2}; //The winding order of triangles controls which side is visible. Clockwise facing = visible, counter-clockwise = invisible.
 		myMesh.uv = new Vector2[] {new Vector2(0,1), new Vector2(0,0), new Vector2(1,0), new Vector2(1,1)};
 		myMesh.colors = new Color[] {Color.white,Color.white,Color.white,Color.white};
-		myMesh.Optimize();
+		;
 		myMesh.RecalculateBounds();
 		myMesh.RecalculateNormals();
 		// Add the new _object GameObject to the _shapes array;

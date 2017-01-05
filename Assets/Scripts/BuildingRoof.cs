@@ -35,7 +35,7 @@ public class BuildingRoof : MapSurface, IPubSub {
 
 	void Start () {
 		if (!slave) {
-			PubSub.subscribe ("mainCameraActivated", this);
+			PubSub.subscribe ("gameIsReady", this);
 			delayTime = Misc.randomRange (0.3f, 0.8f);
 			
 			foreach (BuildingRoof slaveRoof in slaves) {
@@ -276,7 +276,7 @@ public class BuildingRoof : MapSurface, IPubSub {
 				slaveRoof.onMessage(message, data);
 			}
 		} else {
-			if (message == "mainCameraActivated") {
+			if (message == "gameIsReady") {
 				Transform sidesTransform = transform.FindChild ("Building side");
 				sidesTransform.localPosition = bodyPositionAfterRising;
 			}

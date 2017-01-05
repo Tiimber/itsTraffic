@@ -29,7 +29,6 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
             }
 
             // Check for clicking to get information on actual informationBase-objects
-            Vector2 clickPos = (Vector3) data;
 			InformationBase[] informationBaseObjects = FindObjectsOfType<InformationBase> ();
 
 			InformationBase clickedInformationBase = null;
@@ -37,6 +36,10 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 			foreach (InformationBase informationBaseObject in informationBaseObjects) {
 				if (!informationBaseObject.passive) {
+					// Get click position (x,y) in a plane of the objects' Z position
+					Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, informationBaseObject.gameObject.transform.position.z));
+					Vector2 clickPos = Game.instance.screenToWorldPosInPlane((Vector3) data, plane);
+
                     float thresholdSurroundingArea = 0.1f * 3f; // Click 0.1 (vehicle length) multiplied by three
                     if (informationBaseObject.type == InformationBase.TYPE_POI) {
                         thresholdSurroundingArea = 0.07f; // Click area around POI is smaller
@@ -46,6 +49,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
 						if (informationObjectTouch.isCloser (clickPos, clickedCircleTouch)) {
 							clickedCircleTouch = informationObjectTouch;
+							clickedCircleTouch.setDistance(clickPos);
 							clickedInformationBase = informationBaseObject;
 						}
 					}

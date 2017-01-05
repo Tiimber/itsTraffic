@@ -111,7 +111,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 			Vehicle vehicle = Vehicle.debugCamera.transform.parent.GetComponent<Vehicle> ();
 			vehicle.isOwningCamera = false;
 
-            vehicle.switchFromToCamera(Vehicle.debugCamera, Game.instance.mainCamera, true);
+            vehicle.switchFromToCamera(Vehicle.debugCamera, Game.instance.perspectiveCamera, true);
 		}
 	}
 
@@ -123,10 +123,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		// Instantiate camera in vehicle
 		Vehicle.debugCamera = Instantiate (vehicleCameraObj, Vector3.zero, Quaternion.identity) as Camera;
 		Vehicle.debugCamera.transform.parent = this.transform;
-		Vehicle.debugCamera.transform.localPosition = new Vector3(0f, 0f, vehicleCameraObj.transform.position.z);
+		Vehicle.debugCamera.transform.localPosition = new Vector3(0f, 0f, transform.position.z + vehicleCameraObj.transform.position.z / transform.localScale.z);
         Vehicle.debugCamera.transform.localScale = Vector3.one;
 
-        this.switchFromToCamera(Game.instance.mainCamera, Vehicle.debugCamera);
+        this.switchFromToCamera(Game.instance.perspectiveCamera, Vehicle.debugCamera);
     }
 
     private void switchFromToCamera (Camera from, Camera to, bool destroyFromCameraAfter = false) {
@@ -1189,7 +1189,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		if (!destroying) {
 			if (message == "Click") {
 				if (health <= 0f) {
-					Vector2 clickPos = (Vector3)data;
+					// Get click position (x,y) in a plane of the objects' Z position
+					Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, transform.position.z));
+					Vector2 clickPos = Game.instance.screenToWorldPosInPlane((Vector3) data, plane);
 					CircleTouch vehicleTouch = new CircleTouch (transform.position, 0.1f * 3f); // Click 0.1 (vehicle length) multiplied by three
 					if (vehicleTouch.isInside (clickPos)) {
 						fadeOutAndDestroy ();
@@ -1197,7 +1199,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 						return PROPAGATION.STOP_AFTER_SAME_TYPE;
 					}
 				} else if (!hasSpeed ()) {
-					Vector2 clickPos = (Vector3)data;
+					Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, transform.position.z));
+					Vector2 clickPos = Game.instance.screenToWorldPosInPlane((Vector3) data, plane);
 					CircleTouch vehicleTouch = new CircleTouch (transform.position, 0.1f * 1.5f); // Click 0.1 (vehicle length) multiplied by 1.5
 					if (vehicleTouch.isInside (clickPos)) {
 						performIrritationAction ();

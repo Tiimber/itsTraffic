@@ -26,7 +26,7 @@ public class TrafficLightToggle : IPubSub {
 
 	public PROPAGATION onMessage(string message, System.Object obj) {
 		if (message == "Click") {
-			Vector2 clickPos = (Vector3) obj;
+			Vector2 clickPos = Game.instance.screenToWorldPosInBasePlane((Vector3) obj);
 			CircleTouchWithPosId touchArea = toggles.Find(i => i.isInside(clickPos));
 			if (touchArea != null) {
 				TrafficLightIndex.toggleLightsForPos(touchArea.posId);

@@ -88,7 +88,11 @@ public class Misc {
 		return (T)(formatter.Deserialize(stream));
 	}
 
-	public static List<Vector3> posToVector3(List<Pos> positions) {
+    public static Vector3 DivideVectors(Vector3 vec1, Vector3 vec2) {
+        return new Vector3(vec1.x / vec2.x, vec1.y / vec2.y, vec1.z / vec2.z);
+    }
+
+    public static List<Vector3> posToVector3(List<Pos> positions) {
 		List<Vector3> vectors = new List<Vector3> ();
 
 		foreach (Pos pos in positions) {
@@ -386,6 +390,9 @@ public class Misc {
     public static Vector3 getWorldPos(Transform transform) {
         Vector3 worldPosition = transform.localPosition;
         while (transform.parent != null) {
+            if (transform.parent.localScale != Vector3.one) {
+                worldPosition = new Vector3(worldPosition.x * transform.parent.localScale.x, worldPosition.y * transform.parent.localScale.y, worldPosition.z * transform.parent.localScale.z);
+            }
             transform = transform.parent;
             worldPosition += transform.localPosition;
         }
@@ -759,10 +766,10 @@ public class Misc {
     }
 
 	public static Vector2 getScreenPos(Vector3 cameraPos) {
-		Vector3 screenPoint = Game.instance.mainCamera.WorldToScreenPoint (cameraPos);
+		// Vector3 screenPoint = Game.instance.perspectiveCamera.WorldToScreenPoint (cameraPos);
         // Revert so that top is 0px
-        screenPoint.y = Screen.height - screenPoint.y;
-        return screenPoint;
+        cameraPos.y = Screen.height - cameraPos.y;
+        return cameraPos;
 	}
 
     public class UrlBuilder {

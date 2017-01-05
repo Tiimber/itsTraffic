@@ -12,10 +12,10 @@ using UnityEngine.UI;
 
 public class Game : MonoBehaviour, IPubSub {
 
-	public Camera menuCamera;
+	public GameObject planeGameObject;
 	public GameObject menuSystem;
-	public Camera mainCamera;
-	public Camera introCamera;
+	public Camera orthographicCamera;
+	public Camera perspectiveCamera;
 	public Camera pointsCamera;
 
     public Transform waysParent;
@@ -135,10 +135,10 @@ public class Game : MonoBehaviour, IPubSub {
 		StartCoroutine (MaterialManager.Init ());
 
 		CameraHandler.SetIntroZoom (cameraOrtographicSize);
-		CameraHandler.SetMainCamera (mainCamera);
-        CameraHandler.SetPerspectiveCamera (introCamera);
+		CameraHandler.SetMainCamera (orthographicCamera);
+        CameraHandler.SetPerspectiveCamera (perspectiveCamera);
         CameraHandler.SetRestoreState ();
-		PubSub.subscribe ("mainCameraActivated", this);
+		PubSub.subscribe ("gameIsReady", this);
 
 //		Time.timeScale = 0.1f;
 		// Subscribe to when emission is let out from vehicles
@@ -199,14 +199,14 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void startEndlessMode() {
-		introCamera.enabled = true;
+		perspectiveCamera.enabled = true;
 		StartCoroutine (loadXML (mapFileName, configFileName));
 	}
 
 	public void startMission(string levelSetupFileUrl = null) {
         // TODO - Next line to be removed later
         levelSetupFileUrl = levelSetupFileUrl == null ? levelSetupFileName : levelSetupFileUrl;
-		introCamera.enabled = true;
+		perspectiveCamera.enabled = true;
 		StartCoroutine (loadLevelSetup (levelSetupFileUrl));
 	}
 		
@@ -295,7 +295,7 @@ public class Game : MonoBehaviour, IPubSub {
 //			followCar ^= true;
 //			if (!followCar) {
 //				Vehicle.detachCurrentCamera ();
-//				mainCamera.enabled = true;
+//				orthographicCamera.enabled = true;
 //			}
 		} else if (Input.GetKeyDown (KeyCode.Q)) {
 			PubSub.publish ("points:inc", 13579);
@@ -346,8 +346,10 @@ public class Game : MonoBehaviour, IPubSub {
 			// Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
 			if (Misc.getDistance (mouseDownPosition, prevMousePosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {
                 // TODO - Click when zoomed into vehicle - should show information window again
-				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mouseDownPosition);
-				PubSub.publish ("Click", mouseWorldPoint);
+				// Vector3 mouseWorldPoint = screenToWorldPos(mouseDownPosition);
+				// Debug.Log(mouseDownPosition + " => " + screenToWorldPos(mouseDownPosition) + " vs. " + orthographicCamera.ScreenToWorldPoint(mouseDownPosition));
+				// PubSub.publish ("Click", mouseWorldPoint);
+				PubSub.publish ("Click", mouseDownPosition);
 				clickReleaseTimer = 0f;
 			}
 		}
@@ -356,7 +358,7 @@ public class Game : MonoBehaviour, IPubSub {
 		if (Game.debugMode) {
 			if (Input.GetMouseButtonDown (1)) {
 				Vector3 mousePosition = Input.mousePosition;
-				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mousePosition);
+				Vector3 mouseWorldPoint = screenToWorldPosInBasePlane (mousePosition);
 				Pos pos = NodeIndex.getPosClosestTo (mouseWorldPoint);
 				debugDrawBetween.Add (pos);
 				if (debugDrawBetween.Count > 2) {
@@ -379,7 +381,7 @@ public class Game : MonoBehaviour, IPubSub {
 		if (Game.humanDebugMode) {
 			if (Input.GetMouseButtonDown (1)) {
 				Vector3 mousePosition = Input.mousePosition;
-				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mousePosition);
+				Vector3 mouseWorldPoint = screenToWorldPosInBasePlane (mousePosition);
 				Pos pos = NodeIndex.getPosClosestTo (mouseWorldPoint, false);
 				humanDebugDrawBetween.Add (pos);
 				if (humanDebugDrawBetween.Count > 2) {
@@ -547,18 +549,19 @@ public class Game : MonoBehaviour, IPubSub {
 	public void removeInitAnimationRequest () {
 		animationItemsQueue--;
 		if (animationItemsQueue == 0) {
-			StartCoroutine (fadeToMainCamera());
+			PubSub.publish ("gameIsReady");
+			// StartCoroutine (fadeToMainCamera());
 		}
 	}
 
-	private IEnumerator fadeToMainCamera () {
-		// Wait half a second
-		yield return new WaitForSeconds (0.5f);
-		// Fade between cameras
-		yield return StartCoroutine( ScreenWipe.use.CrossFadePro (introCamera, mainCamera, 1.0f) );
-		// Now the game starts
-		PubSub.publish ("mainCameraActivated");
-	}
+	// private IEnumerator fadeToMainCamera () {
+	// 	// Wait half a second
+	// 	yield return new WaitForSeconds (0.5f);
+	// 	// Fade between cameras
+	// 	yield return StartCoroutine( ScreenWipe.use.CrossFadePro (perspectiveCamera, orthographicCamera, 1.0f) );
+	// 	// Now the game starts
+	// 	PubSub.publish ("gameIsReady");
+	// }
 
 	public void giveBirth(Setup.PersonSetup data) {
 		long startPos;
@@ -664,11 +667,11 @@ public class Game : MonoBehaviour, IPubSub {
 		vehicleObj.EndPos = pos2;
 
 //		if (followCar) {
-//			mainCamera.enabled = false;
+//			orthographicCamera.enabled = false;
 //			vehicleObj.setDebug ();
 //		} else {
 //			Vehicle.detachCurrentCamera();
-//			mainCamera.enabled = true;
+//			orthographicCamera.enabled = true;
 //		}
 
 		if (data != null) {
@@ -812,8 +815,8 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private IEnumerator loadLevelSetup (string levelFileName) {
-		introCamera.enabled = true;
-		introCamera.gameObject.SetActive (true);
+		perspectiveCamera.enabled = true;
+		perspectiveCamera.gameObject.SetActive (true);
 		showMenu (false);
 
         WWW www = CacheWWW.Get(levelFileName);
@@ -833,8 +836,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private IEnumerator loadXML (string mapFileName, string configFileName) {
         freezeGame(false);
-		introCamera.enabled = true;
-		introCamera.gameObject.SetActive (true);
+		perspectiveCamera.enabled = true;
+		perspectiveCamera.gameObject.SetActive (true);
 		showMenu (false);
 
         WWW www = CacheWWW.Get(mapFileName);
@@ -861,7 +864,6 @@ public class Game : MonoBehaviour, IPubSub {
 		// Width to height ratio
 		float widthHeightRatio = (float) Screen.width / (float) Screen.height;
 
-//		Camera mainCamera = Camera.main;
 		// TODO - Take these out from the camera
 		float cameraMinX = -cameraOrtographicSize;
 		float cameraMinY = -cameraOrtographicSize;
@@ -1545,7 +1547,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public PROPAGATION onMessage (string message, object data) {
 		if (message == "Vehicle:emitGas") {
 			Vehicle vehicle = (Vehicle)data;
-			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, mainCamera.transform.position.z + 1f);
+			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, orthographicCamera.transform.position.z + 1f);
 			GameObject emission = Instantiate (vehicleEmission, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
 //			DebugFn.arrow(vehicle.transform.position, emitPosition);
 			emission.GetComponent<Emission> ().Amount = vehicle.getEmissionAmount ();
@@ -1556,7 +1558,7 @@ public class Game : MonoBehaviour, IPubSub {
 			StartCoroutine (destroyEmission (particleSystem));
 		} else if (message == "Vehicle:emitVapour") {
 			Vehicle vehicle = (Vehicle)data;
-			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, mainCamera.transform.position.z + 1f);
+			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, orthographicCamera.transform.position.z + 1f);
 			GameObject emission = Instantiate (vehicleVapour, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
 			ParticleSystem particleSystem = emission.GetComponent<ParticleSystem> ();
 			Renderer particleRenderer = particleSystem.GetComponent<Renderer> ();
@@ -1585,7 +1587,10 @@ public class Game : MonoBehaviour, IPubSub {
 			if (dangerHalos.Count == 0) {
 				StopCoroutine ("pulsateDangerHalos");
 			}
-		} else if (message == "mainCameraActivated") {
+		} else if (message == "gameIsNotReady") {
+			CameraHandler.IsMapReadyForInteraction = false;
+		} else if (message == "gameIsReady") {
+			CameraHandler.IsMapReadyForInteraction = true;
 			Game.running = true;
 
 			if (loadedLevel != null) {
@@ -1965,6 +1970,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
     public void gameEnd(string type, Objectives objectives) {
+		PubSub.publish("gameIsNotReady");
 
         DataCollector.saveStats();
         DataCollector.saveWinLoseStat(type);
@@ -2214,4 +2220,24 @@ public class Game : MonoBehaviour, IPubSub {
 
         setCurrentSunProperties ();
     }
+
+	private bool planeInitialized = false;
+	private Plane plane;
+	public Vector3 screenToWorldPosInBasePlane(Vector3 mousePosition) {
+		if (!planeInitialized) {
+			plane = new Plane(Vector3.forward, new Vector3(0f, 0f, planeGameObject.transform.position.z));
+			planeInitialized = true;
+		}
+		Ray ray = perspectiveCamera.ScreenPointToRay(mousePosition);
+		float distance;
+	    plane.Raycast(ray, out distance);
+		return ray.GetPoint(distance);
+	}
+
+	public Vector3 screenToWorldPosInPlane(Vector3 mousePosition, Plane plane) {
+		Ray ray = perspectiveCamera.ScreenPointToRay(mousePosition);
+		float distance;
+	    plane.Raycast(ray, out distance);
+		return ray.GetPoint(distance);
+	}
 }

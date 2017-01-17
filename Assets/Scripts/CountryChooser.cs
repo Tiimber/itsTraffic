@@ -42,6 +42,7 @@ public class CountryChooser : MonoBehaviour, IPubSub {
         PubSub.subscribe("Country:select", this);
 
         // For camera handling
+        CameraHandler.IsMapReadyForInteraction = true;
         CameraHandler.SetMainCamera(mapCamera);
         CameraHandler.SetZoomLevels(MAX_CAMERA_SIZE, MIN_CAMERA_SIZE);
 

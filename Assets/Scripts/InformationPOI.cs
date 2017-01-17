@@ -45,37 +45,8 @@ public class InformationPOI : InformationBase {
 			}
 
             information.Add (new KeyValuePair<string, object>("Person coming here", peopleGoingHere));
-
-//            keepInformationUpToDate (true, information);
         }
 
 		return information;
 	}
-
-//    private void keepInformationUpToDate (bool start, List<KeyValuePair<string, object>> information = null) {
-//        if (start) {
-//            if (coroutine == null) {
-//                coroutine = StartCoroutine (checkAndUpdatePOIInfo (information));
-//            }
-//        } else {
-//            if (coroutine != null) {
-//                StopCoroutine (coroutine);
-//                coroutine = null;
-//                this.information = null;
-//            }
-//        }
-//    }
-//
-//    private IEnumerator checkAndUpdatePOIInfo (List<KeyValuePair<string, object>> information) {
-//        // Forever loop
-//        while (true) {
-//            int indexPeopleGoingHere = information.FindIndex (pair => pair.Key == "Person coming here");
-//            information.RemoveAt (indexPeopleGoingHere);
-//            information.Insert (indexPeopleGoingHere, new KeyValuePair<string, object>("Person coming here", peopleGoingHere));
-//        }
-//    }
-//
-//    public override void disposeInformation () {
-//        keepInformationUpToDate (false);
-//    }
 }

@@ -5,6 +5,8 @@ public class POIIcon : MonoBehaviour, IPubSub {
 
     private static Dictionary<string, GameObject> groups = new Dictionary<string, GameObject> ();
 
+    private static int BUILDINGROOF_LAYER_MASK = LayerMask.GetMask(new string[]{"BuildingRoof"});
+
     private const float THRESHOLD_CAMERA_ZOOM_ICON_SWAP = 2.5f;
     private const float DISTANCE_FROM_ROOFTOPS = 0.01f;
 
@@ -69,6 +71,7 @@ public class POIIcon : MonoBehaviour, IPubSub {
         } else if (isHotel (node)) {
             return HOTEL;
         } else if (isATM (node)) {
+
             return ATM;
         }
         return null;
@@ -78,49 +81,47 @@ public class POIIcon : MonoBehaviour, IPubSub {
     private Pos node;
     private string group;
     private bool isFalling;
-    private float targetY = 0f;
+    private float targetZ = 0f;
     private float fallSpeed = 0f;
+    private float delay = 1f;
     private bool showingSmall = true;
     private GameObject bigIcon;
     private GameObject smallIcon;
 
     void Start() {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.forward, out hit, 30f)) {
-            // Subscribe to know who are going here
-            PubSub.subscribe("TargetPOI(" + node.Id + "):Add", this);
-            PubSub.subscribe("TargetPOI(" + node.Id + "):Remove", this);
+        bool buildingWasHit = Physics.Raycast(transform.position, Vector3.forward, out hit, 40f, BUILDINGROOF_LAYER_MASK);
 
-            // Add InformationPOI, since we now have inited this icon
-            this.gameObject.AddComponent<InformationPOI>();
+        // Subscribe to know who are going here
+        PubSub.subscribe("TargetPOI(" + node.Id + "):Add", this);
+        PubSub.subscribe("TargetPOI(" + node.Id + "):Remove", this);
+        PubSub.subscribe("gameIsReady", this);
 
-            // Get small and big icon gameobjects
-            bigIcon = Misc.FindDeepChild(transform, "icon-big").gameObject;
-            smallIcon = Misc.FindDeepChild(transform, "icon-small").gameObject;
+        // Add InformationPOI, since we now have inited this icon
+        this.gameObject.AddComponent<InformationPOI>();
 
-            // Set big icon material
-            MeshRenderer bigIconMeshRenderer = bigIcon.GetComponent<MeshRenderer> ();
-            bigIconMeshRenderer.material = groupMaterials[group];
+        // Get small and big icon gameobjects
+        bigIcon = Misc.FindDeepChild(transform, "icon-big").gameObject;
+        smallIcon = Misc.FindDeepChild(transform, "icon-small").gameObject;
 
-            isFalling = true;
-            Game.instance.addInitAnimationRequest();
+        // Set big icon material
+        MeshRenderer bigIconMeshRenderer = bigIcon.GetComponent<MeshRenderer> ();
+        bigIconMeshRenderer.material = groupMaterials[group];
 
-            BuildingRoof buildingRoof = hit.transform.gameObject.GetComponent<BuildingRoof> ();
-            if (buildingRoof != null) {
-                // Land on the building
-                targetY = -buildingRoof.getTargetHeight() - DISTANCE_FROM_ROOFTOPS;
-            } else {
-                // Land on the ground
-                targetY = -0.1f - DISTANCE_FROM_ROOFTOPS;
-            }
+        isFalling = true;
+        Game.instance.addInitAnimationRequest();
 
-            // Set random velocity
-            fallSpeed = Misc.randomPlusMinus ((transform.position.z - targetY) / 3f, 1f);
-
-            // TODO - Instantiate with information from this.node and put appropriate graphics (depending on zoom)
+        if (buildingWasHit) {
+            BuildingRoof buildingRoof = hit.transform.parent.gameObject.GetComponent<BuildingRoof> ();
+            // Land on the building
+            targetZ = -buildingRoof.getTargetHeight() - DISTANCE_FROM_ROOFTOPS;
         } else {
-            GameObject.Destroy(this);
+            // Land on the ground
+            targetZ = -0.1f - DISTANCE_FROM_ROOFTOPS;
         }
+
+        // Set random velocity
+        fallSpeed = Misc.randomPlusMinus ((transform.position.z - targetZ) / 3f, 1f);
     }
 
     public string getName() {
@@ -149,10 +150,12 @@ public class POIIcon : MonoBehaviour, IPubSub {
     }
 
     void Update() {
-        if (isFalling) {
+        if (delay > 0) {
+            delay -= Time.unscaledDeltaTime;
+        } else if (isFalling) {
             float newZ = transform.position.z + fallSpeed * Time.unscaledDeltaTime;
-            if (newZ > targetY) {
-                transform.position = new Vector3(transform.position.x, transform.position.y, targetY);
+            if (newZ > targetZ) {
+                transform.position = new Vector3(transform.position.x, transform.position.y, targetZ);
                 isFalling = false;
                 Game.instance.removeInitAnimationRequest();
             } else {
@@ -160,10 +163,10 @@ public class POIIcon : MonoBehaviour, IPubSub {
                 fallSpeed += fallSpeed * (0.1f * Time.unscaledDeltaTime);
             }
         } else {
-            bool isMainOrIntroCameraActive = Game.instance.mainCamera.gameObject.activeSelf || Game.instance.introCamera.gameObject.activeSelf;
+            bool isMainOrIntroCameraActive = Game.instance.orthographicCamera.gameObject.activeSelf || Game.instance.perspectiveCamera.gameObject.activeSelf;
             if (showingSmall) {
                 // Show big icons if main camera is not active or main camera is zoomed in enough
-                if (!isMainOrIntroCameraActive || Game.instance.mainCamera.orthographicSize < THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
+                if (!isMainOrIntroCameraActive || Game.instance.orthographicCamera.orthographicSize < THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
                     // Swap to big
                     showingSmall = false;
                     bigIcon.GetComponent<FadeObjectInOut>().FadeIn();
@@ -171,7 +174,7 @@ public class POIIcon : MonoBehaviour, IPubSub {
                 }
             } else {
                 // Show small icons if main camera is active and not zoomed in enough
-                if (isMainOrIntroCameraActive && Game.instance.mainCamera.orthographicSize >= THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
+                if (isMainOrIntroCameraActive && Game.instance.orthographicCamera.orthographicSize >= THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
                     // Swap to small
                     showingSmall = true;
                     bigIcon.GetComponent<FadeObjectInOut>().FadeOut();
@@ -203,7 +206,13 @@ public class POIIcon : MonoBehaviour, IPubSub {
             InformationHuman personGoingHere = (InformationHuman) data;
             peopleGoingHere.Remove(personGoingHere);
             return PROPAGATION.STOP_IMMEDIATELY;
+        } else if (message == "gameIsReady") {
+            adjustPOIIconAfterAnimationsDone();
         }
         return PROPAGATION.DEFAULT;
+    }
+
+    private void adjustPOIIconAfterAnimationsDone() {
+        transform.position = new Vector3(transform.position.x, transform.position.y, targetZ - (BuildingRoof.bodyPositionWhileRising.z - BuildingRoof.bodyPositionAfterRising.z));
     }
 }

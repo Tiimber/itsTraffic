@@ -12,10 +12,10 @@ using UnityEngine.UI;
 
 public class Game : MonoBehaviour, IPubSub {
 
-	public Camera menuCamera;
+	public GameObject planeGameObject;
 	public GameObject menuSystem;
-	public Camera mainCamera;
-	public Camera introCamera;
+	public Camera orthographicCamera;
+	public Camera perspectiveCamera;
 	public Camera pointsCamera;
 
     public Transform waysParent;
@@ -25,6 +25,7 @@ public class Game : MonoBehaviour, IPubSub {
 	private int animationItemsQueue = 0;
 	private float cameraEmission = 0f;
     public float graphicsQuality = 0.8f;
+	public const float WAYS_Z_POSITION = -0.11f;
 
 	public static long randomSeed = Misc.currentTimeMillis ();
 	private static bool running = false;
@@ -64,7 +65,6 @@ public class Game : MonoBehaviour, IPubSub {
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
 	public List<VehiclesDistribution> vehicles;
-	public GameObject buildingObject;
 	public GameObject landuseObject;
 	public GameObject trafficLight;
 	public GameObject treeObject;
@@ -134,10 +134,10 @@ public class Game : MonoBehaviour, IPubSub {
 		StartCoroutine (MaterialManager.Init ());
 
 		CameraHandler.SetIntroZoom (cameraOrtographicSize);
-		CameraHandler.SetMainCamera (mainCamera);
-        CameraHandler.SetPerspectiveCamera (introCamera);
+		CameraHandler.SetMainCamera (orthographicCamera);
+        CameraHandler.SetPerspectiveCamera (perspectiveCamera);
         CameraHandler.SetRestoreState ();
-		PubSub.subscribe ("mainCameraActivated", this);
+		PubSub.subscribe ("gameIsReady", this);
 
 //		Time.timeScale = 0.1f;
 		// Subscribe to when emission is let out from vehicles
@@ -198,14 +198,14 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	public void startEndlessMode() {
-		introCamera.enabled = true;
+		perspectiveCamera.enabled = true;
 		StartCoroutine (loadXML (mapFileName, configFileName));
 	}
 
 	public void startMission(string levelSetupFileUrl = null) {
         // TODO - Next line to be removed later
         levelSetupFileUrl = levelSetupFileUrl == null ? levelSetupFileName : levelSetupFileUrl;
-		introCamera.enabled = true;
+		perspectiveCamera.enabled = true;
 		StartCoroutine (loadLevelSetup (levelSetupFileUrl));
 	}
 		
@@ -235,6 +235,21 @@ public class Game : MonoBehaviour, IPubSub {
 			changeSunTime(15);
 		} else if (Input.GetKeyDown (KeyCode.Minus) || Input.GetKeyDown (KeyCode.M)) {
             changeSunTime(-15);
+		}
+
+		// Explosion!
+		if (Input.GetKeyDown (KeyCode.Alpha0)) {
+            makeExplosion(1);
+		} else if (Input.GetKeyDown (KeyCode.Alpha1)) {
+            makeExplosion(2);
+		} else if (Input.GetKeyDown (KeyCode.Alpha2)) {
+            makeExplosion(3);
+		} else if (Input.GetKeyDown (KeyCode.Alpha3)) {
+            makeExplosion(8);
+		} else if (Input.GetKeyDown (KeyCode.Alpha4)) {
+            makeExplosion(13);
+		} else if (Input.GetKeyDown (KeyCode.Alpha5)) {
+            makeExplosion(24);
 		}
 
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
@@ -282,7 +297,7 @@ public class Game : MonoBehaviour, IPubSub {
 //			followCar ^= true;
 //			if (!followCar) {
 //				Vehicle.detachCurrentCamera ();
-//				mainCamera.enabled = true;
+//				orthographicCamera.enabled = true;
 //			}
 		} else if (Input.GetKeyDown (KeyCode.Q)) {
 			PubSub.publish ("points:inc", 13579);
@@ -333,8 +348,10 @@ public class Game : MonoBehaviour, IPubSub {
 			// Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
 			if (Misc.getDistance (mouseDownPosition, prevMousePosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {
                 // TODO - Click when zoomed into vehicle - should show information window again
-				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mouseDownPosition);
-				PubSub.publish ("Click", mouseWorldPoint);
+				// Vector3 mouseWorldPoint = screenToWorldPos(mouseDownPosition);
+				// Debug.Log(mouseDownPosition + " => " + screenToWorldPos(mouseDownPosition) + " vs. " + orthographicCamera.ScreenToWorldPoint(mouseDownPosition));
+				// PubSub.publish ("Click", mouseWorldPoint);
+				PubSub.publish ("Click", mouseDownPosition);
 				clickReleaseTimer = 0f;
 			}
 		}
@@ -343,7 +360,7 @@ public class Game : MonoBehaviour, IPubSub {
 		if (Game.debugMode) {
 			if (Input.GetMouseButtonDown (1)) {
 				Vector3 mousePosition = Input.mousePosition;
-				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mousePosition);
+				Vector3 mouseWorldPoint = screenToWorldPosInBasePlane (mousePosition);
 				Pos pos = NodeIndex.getPosClosestTo (mouseWorldPoint);
 				debugDrawBetween.Add (pos);
 				if (debugDrawBetween.Count > 2) {
@@ -366,7 +383,7 @@ public class Game : MonoBehaviour, IPubSub {
 		if (Game.humanDebugMode) {
 			if (Input.GetMouseButtonDown (1)) {
 				Vector3 mousePosition = Input.mousePosition;
-				Vector3 mouseWorldPoint = mainCamera.ScreenToWorldPoint (mousePosition);
+				Vector3 mouseWorldPoint = screenToWorldPosInBasePlane (mousePosition);
 				Pos pos = NodeIndex.getPosClosestTo (mouseWorldPoint, false);
 				humanDebugDrawBetween.Add (pos);
 				if (humanDebugDrawBetween.Count > 2) {
@@ -534,18 +551,19 @@ public class Game : MonoBehaviour, IPubSub {
 	public void removeInitAnimationRequest () {
 		animationItemsQueue--;
 		if (animationItemsQueue == 0) {
-			StartCoroutine (fadeToMainCamera());
+			PubSub.publish ("gameIsReady");
+			// StartCoroutine (fadeToMainCamera());
 		}
 	}
 
-	private IEnumerator fadeToMainCamera () {
-		// Wait half a second
-		yield return new WaitForSeconds (0.5f);
-		// Fade between cameras
-		yield return StartCoroutine( ScreenWipe.use.CrossFadePro (introCamera, mainCamera, 1.0f) );
-		// Now the game starts
-		PubSub.publish ("mainCameraActivated");
-	}
+	// private IEnumerator fadeToMainCamera () {
+	// 	// Wait half a second
+	// 	yield return new WaitForSeconds (0.5f);
+	// 	// Fade between cameras
+	// 	yield return StartCoroutine( ScreenWipe.use.CrossFadePro (perspectiveCamera, orthographicCamera, 1.0f) );
+	// 	// Now the game starts
+	// 	PubSub.publish ("gameIsReady");
+	// }
 
 	public void giveBirth(Setup.PersonSetup data) {
 		long startPos;
@@ -639,9 +657,9 @@ public class Game : MonoBehaviour, IPubSub {
 		// Pos -> Vector3
 		Vector3 position;
 		if (data != null && data.startVector != null) {
-			position = Misc.parseVector(data.startVector) + new Vector3 (0f, 0f, -0.15f);
+			position = Misc.parseVector(data.startVector) + new Vector3 (0f, 0f, Vehicle.START_POSITION_Z);
 		} else {
-			position = getCameraPosition (pos1) + new Vector3 (0f, 0f, -0.15f);
+			position = getCameraPosition (pos1) + new Vector3 (0f, 0f, Vehicle.START_POSITION_Z);
 		}
 		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate (data), position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
@@ -651,11 +669,11 @@ public class Game : MonoBehaviour, IPubSub {
 		vehicleObj.EndPos = pos2;
 
 //		if (followCar) {
-//			mainCamera.enabled = false;
+//			orthographicCamera.enabled = false;
 //			vehicleObj.setDebug ();
 //		} else {
 //			Vehicle.detachCurrentCamera();
-//			mainCamera.enabled = true;
+//			orthographicCamera.enabled = true;
 //		}
 
 		if (data != null) {
@@ -799,8 +817,8 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private IEnumerator loadLevelSetup (string levelFileName) {
-		introCamera.enabled = true;
-		introCamera.gameObject.SetActive (true);
+		perspectiveCamera.enabled = true;
+		perspectiveCamera.gameObject.SetActive (true);
 		showMenu (false);
 
         WWW www = CacheWWW.Get(levelFileName);
@@ -820,8 +838,8 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private IEnumerator loadXML (string mapFileName, string configFileName) {
         freezeGame(false);
-		introCamera.enabled = true;
-		introCamera.gameObject.SetActive (true);
+		perspectiveCamera.enabled = true;
+		perspectiveCamera.gameObject.SetActive (true);
 		showMenu (false);
 
         WWW www = CacheWWW.Get(mapFileName);
@@ -848,7 +866,6 @@ public class Game : MonoBehaviour, IPubSub {
 		// Width to height ratio
 		float widthHeightRatio = (float) Screen.width / (float) Screen.height;
 
-//		Camera mainCamera = Camera.main;
 		// TODO - Take these out from the camera
 		float cameraMinX = -cameraOrtographicSize;
 		float cameraMinY = -cameraOrtographicSize;
@@ -864,6 +881,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		cameraBounds = new Rect (cameraMinX, cameraMinY, cameraMaxX - cameraMinX, cameraMaxY - cameraMinY);
 		latitudeToLongitudeRatio = getLatitudeScale((float)minlat + (float)(maxlat - minlat) / 2f);
+		Debug.Log(latitudeToLongitudeRatio);
 
 		XmlNodeList nodeNodes = xmlDoc.SelectNodes("/osm/node");
 		foreach (XmlNode xmlNode in nodeNodes) {
@@ -946,7 +964,8 @@ public class Game : MonoBehaviour, IPubSub {
 					TrafficLightIndex.ApplyConfig (objectNode);
 					break;
 				case "Roof": 
-				case "Street": 
+				case "Driveway": 
+				case "Walkway": 
 				case "Outdoors":
 				default: 
 					initRoofStreetOrOutdoors (type, objectNode); 
@@ -954,12 +973,12 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 		// TODO move this to after all materials have finished loading
-		List<GameObject> allBuldingRoofs = Misc.NameStartsWith ("BuildingRoof (");
+		List<GameObject> allBuildings = Misc.NameStartsWith ("Building (");
 		List<GameObject> arenaRoofs = Misc.NameStartsWith ("Stadium (");
-		allBuldingRoofs.AddRange(arenaRoofs);
+		allBuildings.AddRange(arenaRoofs);
         // TODO - This doesn't seem to apply materials correct (not loaded) on level start
 		foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
-			GameObject buildingRoofObj = GameObject.Find ("BuildingRoof (" + objectEntry.Key + ")");
+			GameObject buildingRoofObj = GameObject.Find ("Building (" + objectEntry.Key + ")");
 			if (buildingRoofObj == null) {
 				buildingRoofObj = GameObject.Find ("Stadium (" + objectEntry.Key + ")");
 			}
@@ -967,7 +986,7 @@ public class Game : MonoBehaviour, IPubSub {
 //				Debug.Log("BuildingRoof (" + objectEntry.Key + ")");
 				BuildingRoof buildingRoof = buildingRoofObj.GetComponent<BuildingRoof>();
 				buildingRoof.setProperties(objectEntry.Value);
-				allBuldingRoofs.Remove (buildingRoofObj);
+				allBuildings.Remove (buildingRoofObj);
 			}
 		}
 
@@ -975,11 +994,11 @@ public class Game : MonoBehaviour, IPubSub {
             POIIcon.createPotentialPOI(node);
         }
 
-        if (allBuldingRoofs.Count > 0) {
+        if (allBuildings.Count > 0) {
 			Dictionary<string, string> standardRoof = new Dictionary<string, string> ();
 			standardRoof.Add ("material", "2");
 			standardRoof.Add ("wall", "1000");
-			foreach (GameObject buildingRoofObj in allBuldingRoofs) {
+			foreach (GameObject buildingRoofObj in allBuildings) {
 				BuildingRoof buildingRoof = buildingRoofObj.GetComponent<BuildingRoof>();
 				string buildingRoofName = buildingRoofObj.name;
 				string buildingRoofId = buildingRoofName.Substring(buildingRoofName.IndexOf('(') + 1);
@@ -1007,6 +1026,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
 	private float getLatitudeScale(float latitude) {
+		// latitude = lat;
 		// Convert latitude to radians
 		float latRad = Misc.ToRadians(latitude);
 
@@ -1019,15 +1039,15 @@ public class Game : MonoBehaviour, IPubSub {
  		float p3 = 0.118f;			// longitude calculation term 3
 
 		// Calculate the length of a degree of latitude and longitude in meters
-		float latlen = m1 + (m2 * Mathf.Cos(2 * lat)) + (m3 * Mathf.Cos(4 * lat)) + (m4 * Mathf.Cos(6 * lat));
-		float longlen = (p1 * Mathf.Cos(lat)) + (p2 * Mathf.Cos(3 * lat)) + (p3 * Mathf.Cos(5 * lat));
+		float latlen = m1 + (m2 * Mathf.Cos(2 * latitude)) + (m3 * Mathf.Cos(4 * latitude)) + (m4 * Mathf.Cos(6 * latitude));
+		float longlen = (p1 * Mathf.Cos(latitude)) + (p2 * Mathf.Cos(3 * latitude)) + (p3 * Mathf.Cos(5 * latitude));
 		
 		return latlen / longlen;
 	}
 
 	private void createOutsideArea () {
 		GameObject landuse = Instantiate (landuseObject) as GameObject;
-		landuse.transform.position = new Vector3 (0f, 0f, -0.097f);
+		landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
 		LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
 		surface.createBackgroundLanduse ();
 	}
@@ -1085,10 +1105,10 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 
 		if (way.Building) {
-			GameObject building = Instantiate (buildingObject) as GameObject;
-			building.transform.position = new Vector3 (0f, 0f, -0.098f);
+            GameObject building = new GameObject();
+            building.transform.position = new Vector3 (0f, 0f, -0.098f);
             building.transform.parent = buildingsParent;
-			BuildingRoof roof = building.GetComponent<BuildingRoof> ();
+            BuildingRoof roof = building.AddComponent<BuildingRoof> ();
 			roof.createBuildingWithXMLNode (xmlNode);
 		} else if (way.LandUse) {
 			GameObject landuse = Instantiate (landuseObject) as GameObject;
@@ -1152,12 +1172,13 @@ public class Game : MonoBehaviour, IPubSub {
 						NodeIndex.buildingWayIds.Add (Convert.ToInt64(wallIdNode.Value));
 					}
 
-					GameObject building = Instantiate (buildingObject) as GameObject;
+
+					GameObject building = new GameObject();
 					building.transform.position = new Vector3 (0f, 0f, -0.098f);
                     building.transform.parent = buildingsParent;
 					bool isStadium = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='building' and @v='stadium']") != null;
 					if (!isStadium) {
-	                    BuildingRoof roof = building.GetComponent<BuildingRoof> ();
+	                    BuildingRoof roof = building.AddComponent<BuildingRoof> ();
 						roof.createBuildingWithXMLNode (wayNode);
 					} else {
 						// Stadium is a bit special - we need to slice it in half and take away the inner (to place the field)
@@ -1259,14 +1280,14 @@ public class Game : MonoBehaviour, IPubSub {
 					innerNodes.Add(nodeVector);
 				}
 
-				BuildingRoof roof = parent.GetComponent<BuildingRoof> ();
+				BuildingRoof roof = parent.AddComponent<BuildingRoof> ();
 				parent.name = "Stadium (" + relationNode.Attributes.GetNamedItem("id").Value + ")";
 				canCreateCorrect = roof.createSplitMeshes(outerNodes, innerNodes);
 			}
 		} finally {
 			if (!canCreateCorrect) {
 				// Backup - if not working, create arena as "solid block" instead
-				BuildingRoof roof = parent.GetComponent<BuildingRoof> ();
+				BuildingRoof roof = parent.AddComponent<BuildingRoof> ();
 				roof.createBuildingWithXMLNode (backupWayNode);
 			}
 		}
@@ -1337,9 +1358,9 @@ public class Game : MonoBehaviour, IPubSub {
 		BoxCollider rightCollider = colliders [colliders.Count - 1];
 
 		leftCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
-		leftCollider.center = new Vector3 (-0.5f + colliderWidthPct / 2f, 0f, 0f);
-		rightCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
-		rightCollider.center = new Vector3 (0.5f - colliderWidthPct / 2f, 0f, 0f);
+		leftCollider.center = new Vector3 (-0.5f + colliderWidthPct / 2f, 0f, leftCollider.center.z);
+		rightCollider.size = new Vector3 (colliderWidthPct, 1f, rightCollider.size.z);
+		rightCollider.center = new Vector3 (0.5f - colliderWidthPct / 2f, 0f, rightCollider.center.z);
 
 		HandleWayTags (previousPos, currentPos, way, rotation);
 
@@ -1404,23 +1425,28 @@ public class Game : MonoBehaviour, IPubSub {
 		Quaternion rotation = way.transform.rotation;
 		GameObject middleOfWay = MapSurface.createPlaneMeshForPoints (fromPos, toPos);
 		middleOfWay.name = "Plane Mesh for " + way.name;
-		if (wayReference.way.CarWay) {
-			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.1f);
-		} else {
-			middleOfWay.transform.position = middleOfWay.transform.position - new Vector3 (0, 0, 0.099f);
-		}
+		// if (wayReference.way.CarWay) {
+		// 	middleOfWay.transform.position = middleOfWay.transform.position + new Vector3 (0, 0, WAYS_Z_POSITION);
+		// } else {
+			middleOfWay.transform.position = middleOfWay.transform.position + new Vector3 (0, 0, WAYS_Z_POSITION);
+		// }
         middleOfWay.transform.parent = waysParent;
+
+		// Add rigidbody and mesh collider, so that they will fall onto the underlying plane
+		Misc.AddGravityToWay(middleOfWay);
+        Misc.AddWayObjectComponent(middleOfWay);
+
 		// TODO - Config for material
 		// Small ways are not drawn with material or meshes
 		if (!wayReference.SmallWay || !wayReference.way.CarWay) {
 			AutomaticMaterialObject middleOfWayMaterialObject = middleOfWay.AddComponent<AutomaticMaterialObject> () as AutomaticMaterialObject;
 			if (wayReference.way.CarWay) {
-				middleOfWayMaterialObject.requestMaterial ("2002-Street", null); // TODO - Default material
+				middleOfWayMaterialObject.requestMaterial ("2002-Driveway", null); // TODO - Default material
 				// Draw lines on way if car way
 				WayLine wayLineObject = middleOfWay.AddComponent<WayLine> () as WayLine;
 				wayLineObject.create (wayReference);
 			} else {
-				middleOfWayMaterialObject.requestMaterial ("2003-Street", null); // TODO - Default material
+				middleOfWayMaterialObject.requestMaterial ("4003-Walkway", null); // TODO - Default material
 				// Non Car Ways never have lines and only have one field in each direction 
 				wayReference.fieldsFromPos1ToPos2 = 1;
 				wayReference.fieldsFromPos2ToPos1 = 1;
@@ -1454,7 +1480,8 @@ public class Game : MonoBehaviour, IPubSub {
 		float posX = pos.Lon;
 		float posY = pos.Lat;
 
-		float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width * latitudeToLongitudeRatio + cameraBounds.x;
+		// float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width / latitudeToLongitudeRatio + cameraBounds.x;
+		float cameraPosX = ((posX - mapBounds.x) / mapBounds.width) * cameraBounds.width + cameraBounds.x;
 		float cameraPosY = ((posY - mapBounds.y) / mapBounds.height) * cameraBounds.height + cameraBounds.y;
 
 		return new Vector3 (cameraPosX, cameraPosY, 0);
@@ -1524,7 +1551,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public PROPAGATION onMessage (string message, object data) {
 		if (message == "Vehicle:emitGas") {
 			Vehicle vehicle = (Vehicle)data;
-			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, mainCamera.transform.position.z + 1f);
+			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, orthographicCamera.transform.position.z + 1f);
 			GameObject emission = Instantiate (vehicleEmission, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
 //			DebugFn.arrow(vehicle.transform.position, emitPosition);
 			emission.GetComponent<Emission> ().Amount = vehicle.getEmissionAmount ();
@@ -1535,7 +1562,7 @@ public class Game : MonoBehaviour, IPubSub {
 			StartCoroutine (destroyEmission (particleSystem));
 		} else if (message == "Vehicle:emitVapour") {
 			Vehicle vehicle = (Vehicle)data;
-			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, mainCamera.transform.position.z + 1f);
+			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, orthographicCamera.transform.position.z + 1f);
 			GameObject emission = Instantiate (vehicleVapour, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
 			ParticleSystem particleSystem = emission.GetComponent<ParticleSystem> ();
 			Renderer particleRenderer = particleSystem.GetComponent<Renderer> ();
@@ -1564,8 +1591,15 @@ public class Game : MonoBehaviour, IPubSub {
 			if (dangerHalos.Count == 0) {
 				StopCoroutine ("pulsateDangerHalos");
 			}
-		} else if (message == "mainCameraActivated") {
+		} else if (message == "gameIsNotReady") {
+			CameraHandler.IsMapReadyForInteraction = false;
+		} else if (message == "gameIsReady") {
+			CameraHandler.IsMapReadyForInteraction = true;
 			Game.running = true;
+
+			List<GameObject> ways = Misc.FindGameObjectsWithLayer(LayerMask.NameToLayer("Ways"));
+			Misc.SetGravityState(ways);
+            Misc.SetAverageZPosition(ways);
 
 			if (loadedLevel != null) {
                 VehicleRandomizer.Create (loadedLevel.vehicleRandomizer, loadedLevel);
@@ -1944,6 +1978,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
     public void gameEnd(string type, Objectives objectives) {
+		PubSub.publish("gameIsNotReady");
 
         DataCollector.saveStats();
         DataCollector.saveWinLoseStat(type);
@@ -2192,5 +2227,41 @@ public class Game : MonoBehaviour, IPubSub {
 //        Debug.Log(dt.ToString("HH:mm") + " - " + sunPosition["elevation"] + " = " + Misc.getSunIntensity (sunPosition ["elevation"]));
 
         setCurrentSunProperties ();
+    }
+
+	private bool planeInitialized = false;
+	private Plane plane;
+	public Vector3 screenToWorldPosInBasePlane(Vector3 mousePosition) {
+		if (!planeInitialized) {
+			plane = new Plane(Vector3.forward, new Vector3(0f, 0f, planeGameObject.transform.position.z));
+			planeInitialized = true;
+		}
+		Ray ray = perspectiveCamera.ScreenPointToRay(mousePosition);
+		float distance;
+	    plane.Raycast(ray, out distance);
+		return ray.GetPoint(distance);
+	}
+
+	public Vector3 screenToWorldPosInPlane(Vector3 mousePosition, Plane plane) {
+		Ray ray = perspectiveCamera.ScreenPointToRay(mousePosition);
+		float distance;
+	    plane.Raycast(ray, out distance);
+		return ray.GetPoint(distance);
+	}
+
+	private void makeExplosion(int explosionFactor) {
+        turnOnAllGravity();
+        GameObject explosionSphere = GameObject.Find("ExplosionSphere");
+        Collider[] colliders = Physics.OverlapSphere(explosionSphere.transform.position, 40f);
+        foreach (Collider hit in colliders) {
+            Rigidbody rb = hit.GetComponent<Rigidbody>();
+            if (rb != null) {
+                rb.AddExplosionForce(explosionFactor * 100f, explosionSphere.transform.position, 40f);
+            }
+        }
+	}
+
+    private void turnOnAllGravity() {
+        InterfaceHelper.FindObjects<IExplodable>().ToList<IExplodable>().ForEach(i => i.turnOnExplodable());
     }
 }

@@ -5,13 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class BuildingRoof : MapSurface, IPubSub {
-	private static Vector3 bodyPositionWhileRising = new Vector3 (0, 0, 0.1f);
-	private static Vector3 bodyPositionAfterRising = new Vector3 (0, 0, 0.001f);
+public class BuildingRoof : MapSurface, IPubSub, IExplodable {
+	public static Vector3 bodyPositionWhileRising = new Vector3 (0, 0, 0.1f);
+	public static Vector3 bodyPositionAfterRising = new Vector3 (0, 0, 0.01f);
 
 	public bool slave = false;
 	public BuildingRoof parent = null;
 	private List<BuildingRoof> slaves = new List<BuildingRoof>();
+
+    private string id;
+    private GameObject roof;
 
 	float height = 0f;
 	float heightProperty = 0f;
@@ -35,7 +38,7 @@ public class BuildingRoof : MapSurface, IPubSub {
 
 	void Start () {
 		if (!slave) {
-			PubSub.subscribe ("mainCameraActivated", this);
+			PubSub.subscribe ("gameIsReady", this);
 			delayTime = Misc.randomRange (0.3f, 0.8f);
 			
 			foreach (BuildingRoof slaveRoof in slaves) {
@@ -63,10 +66,19 @@ public class BuildingRoof : MapSurface, IPubSub {
 
 	public void createBuildingWithXMLNode(XmlNode xmlNode) {
 		if (xmlNode != null) {
-			this.gameObject.name = "BuildingRoof (" + xmlNode.Attributes.GetNamedItem ("id").Value + ")";
-			createMesh (xmlNode);
-            createMeshCollider(false);
-		}
+//			this.gameObject.name = "BuildingRoof (" + xmlNode.Attributes.GetNamedItem ("id").Value + ")";
+            this.id = xmlNode.Attributes.GetNamedItem ("id").Value;
+			this.gameObject.name = "Building (" + id + ")";
+
+            // Create the roof and set its layer
+            roof = new GameObject ("BuildingRoof (" + xmlNode.Attributes.GetNamedItem ("id").Value + ")");
+            roof.transform.parent = this.transform;
+            roof.transform.localPosition = Vector3.zero;
+			MapSurface roofSurface = roof.AddComponent<MapSurface>();
+            roof.AddComponent<BuildingRoofLayer>();
+            roofSurface.createMesh (xmlNode);
+            roofSurface.createMeshCollider(false);
+        }
 	}
 
 	public bool createSplitMeshes(List<Vector3> outer, List<Vector3> inner) {
@@ -188,26 +200,26 @@ public class BuildingRoof : MapSurface, IPubSub {
 	private void extrude () {
 		height = heightProperty * Game.heightFactor;
 
-		MeshFilter filter = gameObject.GetComponent<MeshFilter>() as MeshFilter;
+		MeshFilter filter = roof.GetComponent<MeshFilter>() as MeshFilter;
 		Mesh msh = filter.mesh;
 
 		Matrix4x4 [] extrusionPath = new Matrix4x4 [2];
-		extrusionPath[0] = transform.worldToLocalMatrix * Matrix4x4.TRS(transform.position, Quaternion.identity, Vector3.one);
-		extrusionPath[1] = transform.worldToLocalMatrix * Matrix4x4.TRS(transform.position + new Vector3(0, 0, height), Quaternion.identity, Vector3.one);
+		extrusionPath[0] = roof.transform.worldToLocalMatrix * Matrix4x4.TRS(roof.transform.position, Quaternion.identity, Vector3.one);
+		extrusionPath[1] = roof.transform.worldToLocalMatrix * Matrix4x4.TRS(roof.transform.position + new Vector3(0, 0, height), Quaternion.identity, Vector3.one);
 
 		Mesh extrudedmesh = new Mesh ();
 //		MeshExtrusion.ExtrudeMesh(msh, GetComponent<MeshFilter>().mesh, extrusionPath, false);
 		MeshExtrusion.ExtrudeMesh(msh, extrudedmesh, extrusionPath, false);
 
-		// Create the sides as separate gameobject
-		GameObject sides = new GameObject ();
-		sides.name = "Building side";
-		MeshFilter sidesMeshFilter = sides.AddComponent<MeshFilter> ();
+		// Add the sides to this gameobject
+		MeshFilter sidesMeshFilter = gameObject.AddComponent<MeshFilter> ();
 		sidesMeshFilter.mesh = extrudedmesh;
-		MeshRenderer sidesMeshRenderer = sides.AddComponent<MeshRenderer> ();
+		MeshRenderer sidesMeshRenderer = gameObject.AddComponent<MeshRenderer> ();
 		sidesMeshRenderer.material.color = new Color (1f, 0, 0);
-		sides.transform.SetParent (this.gameObject.transform);
-		sides.transform.localPosition = bodyPositionWhileRising;
+		transform.SetParent (this.gameObject.transform);
+
+        transform.localPosition += bodyPositionWhileRising;
+        roof.transform.localPosition -= bodyPositionWhileRising;
 	}
 	
 	public void setProperties (Dictionary<string, string> properties) {
@@ -236,13 +248,12 @@ public class BuildingRoof : MapSurface, IPubSub {
 	}
 
 	private void applyMaterials (Material material, Material wallMaterial) {
-		MeshRenderer meshRenderer = GetComponent<MeshRenderer> ();
+		MeshRenderer meshRenderer = roof.GetComponent<MeshRenderer> ();
 		Renderer renderer = meshRenderer.GetComponent<Renderer> ();
 		renderer.material = material;
 
 		if (wallMaterial != null) {
-			Transform sidesTransform = transform.FindChild ("Building side");
-			MeshRenderer wallMeshRenderer = sidesTransform.gameObject.GetComponent<MeshRenderer> ();
+			MeshRenderer wallMeshRenderer = transform.gameObject.GetComponent<MeshRenderer> ();
 			Renderer wallRenderer = wallMeshRenderer.GetComponent<Renderer> ();
 			wallRenderer.material = wallMaterial;
 
@@ -276,20 +287,24 @@ public class BuildingRoof : MapSurface, IPubSub {
 				slaveRoof.onMessage(message, data);
 			}
 		} else {
-			if (message == "mainCameraActivated") {
-				Transform sidesTransform = transform.FindChild ("Building side");
-				sidesTransform.localPosition = bodyPositionAfterRising;
+			if (message == "gameIsReady") {
+				roof.transform.localPosition = -bodyPositionAfterRising;
 			}
 		}
 		return PROPAGATION.DEFAULT;
 	}
 
     public float getTargetHeight() {
-        return height;
+        return height + bodyPositionWhileRising.z;
     }
 
     void OnDestroy() {
         PubSub.unsubscribeAllForSubscriber(this);
     }
+
+    public void turnOnExplodable() {
+        Misc.SetGravityState (gameObject, true);
+    }
+
 }
 	

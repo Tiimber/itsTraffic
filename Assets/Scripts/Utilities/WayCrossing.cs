@@ -22,10 +22,10 @@ public class WayCrossing {
 		float spaceHeight = (wayHeight - numberOfCrossingLines * lineHeight) / (numberOfCrossingLines + 1);
 		float stepLength = spaceHeight + lineHeight;
 		for (int i = 1; i <= numberOfCrossingLines; i++) {
-			Vector3 lineCenter = startPosition + orthoCrossingRotation * new Vector3 (i * stepLength - lineHeight / 2f, 0, 0);
+			Vector3 lineCenter = startPosition + orthoCrossingRotation * new Vector3 (i * stepLength - lineHeight / 2f, 0, -0.01f);
 			GameObject line = MonoBehaviour.Instantiate (crossingLine, lineCenter, crossingRotation) as GameObject;
 			line.transform.localScale = new Vector3 (lineWidth, crossingLine.transform.localScale.y, crossingLine.transform.localScale.z);
-            line.transform.parent = Game.instance.waysParent;
+			line.transform.SetParent(parent.transform);
 		}
 	}
 }

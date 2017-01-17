@@ -173,6 +173,14 @@ public class MaterialManager {
 			case "Walkway":
 		 		material = new Material (Shader.Find ("Custom/WalkwayShader"));
 				break;
+			case "Roof":
+				material = new Material(Shader.Find("Custom/PlainShader"));
+				material.renderQueue = RenderOrder.BUILDING_ROOF;
+				break;
+			case "Wall":
+				material = new Material(Shader.Find("Custom/PlainShader"));
+				material.renderQueue = RenderOrder.BUILDING;
+				break;
 			default:  
 		 		material = new Material (Shader.Find ("Custom/PlainShader"));
 				break;

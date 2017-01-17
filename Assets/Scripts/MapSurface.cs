@@ -13,7 +13,7 @@ public class MapSurface : MonoBehaviour {
 	public float calculatedHeight;
 	public Rect rect;
 
-	protected void createMesh(XmlNode xmlNode) {
+	public void createMesh(XmlNode xmlNode) {
 		XmlNodeList nodeRefs = xmlNode.SelectNodes ("nd/@ref");
 		Vector2[] vertices2D = new Vector2[nodeRefs.Count-1];
 		int i = 0;

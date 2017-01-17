@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
+public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 
 	[InspectorButton("OnButtonClicked")]
 	public bool debugPrint;
@@ -23,6 +23,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		}
 	}
 
+	public const float START_POSITION_Z = -0.17f;
 	public Pos StartPos { set; get; }
 	public Pos EndPos { set; get; }
 	public Pos CurrentPosition { set; get; } 
@@ -1304,7 +1305,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub {
 		lights.stopBlinkers ();
 	}
 
-	public void OnGUI () {
+    public void turnOnExplodable() {
+        Misc.SetGravityState (gameObject, true);
+    }
+
+    public void OnGUI () {
 		if (Vehicle.debug == this) {
 			int y = 200;
 			// TurnBreakFactor, CurrentSpeed, CurrentPos, CurrentTarget, EndPos

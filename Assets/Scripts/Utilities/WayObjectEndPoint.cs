@@ -24,5 +24,6 @@ public class WayObjectEndPoint {
 
 		// Add rigidbody and mesh collider, so that they will fall onto the underlying plane
 		Misc.AddGravityToWay(endPointObj);
+        Misc.AddWayObjectComponent(endPointObj);
 	}
 }

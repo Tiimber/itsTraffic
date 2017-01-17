@@ -31,16 +31,40 @@ public class LanduseSurface : MapSurface {
 		{DEFAULT_TYPE, new Color (0, 1f, 0)}
 	};
 
+	private static Dictionary<string, int> renderOrders = new Dictionary<string, int> () {
+		{"commercial", RenderOrder.LANDUSE_AREA},
+		{"residential", RenderOrder.LANDUSE_AREA},
+		{"industrial", RenderOrder.LANDUSE_AREA},
+		{"retail", RenderOrder.LANDUSE_AREA},
+		{"cemetery", RenderOrder.LANDUSE_AREA},
+		{"school", RenderOrder.LANDUSE_AREA},
+		{"park", RenderOrder.LANDUSE_AREA},
+		{"grass", RenderOrder.GRASS},
+		{"soccerfield", RenderOrder.GRASS},
+		{"platform", RenderOrder.PLATFORM},
+
+		// Different kinds of water
+		{"river", RenderOrder.WATER},
+		{"reservoir", RenderOrder.WATER},
+		{"water", RenderOrder.WATER},
+
+		{"background", RenderOrder.BACKGROUND},
+		{"_country", RenderOrder.DEFAULT},
+		{"_sea", RenderOrder.DEFAULT},
+
+		{DEFAULT_TYPE, RenderOrder.DEFAULT}
+	};
+
 	// Use this for initialization
 	void Start () {
-	
+
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
-	
+
 	public void createLanduseWithXMLNode (XmlNode xmlNode, Way way, string overrideType = null) {
 		if (xmlNode != null) {
 			string landuseType = "";
@@ -85,7 +109,7 @@ public class LanduseSurface : MapSurface {
 		GameObject planeMesh = createPlaneMeshForPoints (vectors);
 		planeMesh.transform.parent = this.transform;
 		setLanduseMaterial (landuseType, planeMesh);
-	} 
+	}
 
 	public void createBackgroundLanduse () {
 		this.gameObject.name = "Landuse - Background";
@@ -102,6 +126,7 @@ public class LanduseSurface : MapSurface {
 
 		Material material = new Material (Shader.Find ("Custom/PlainShader"));
 		material.color = colors["background"];
+		material.renderQueue = renderOrders["background"];
 
 		MeshRenderer meshRenderer = planeMeshObj.GetComponent<MeshRenderer> ();
 		Renderer renderer = meshRenderer.GetComponent<Renderer> ();
@@ -117,6 +142,7 @@ public class LanduseSurface : MapSurface {
 			type = DEFAULT_TYPE;
 		}
 		material.color = colors[type];
+		material.renderQueue = renderOrders[type];
 
 		MeshRenderer meshRenderer = go != null ? go.GetComponent<MeshRenderer> () : this.GetComponent<MeshRenderer> ();
 		Renderer renderer = meshRenderer.GetComponent<Renderer> ();

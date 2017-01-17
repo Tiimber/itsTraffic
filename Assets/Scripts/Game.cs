@@ -65,7 +65,6 @@ public class Game : MonoBehaviour, IPubSub {
 	public GameObject partOfWay;
 	public GameObject partOfNonCarWay;
 	public List<VehiclesDistribution> vehicles;
-	public GameObject buildingObject;
 	public GameObject landuseObject;
 	public GameObject trafficLight;
 	public GameObject treeObject;
@@ -238,16 +237,19 @@ public class Game : MonoBehaviour, IPubSub {
             changeSunTime(-15);
 		}
 
-		// Explosion! 
-		if (Input.GetKeyDown (KeyCode.X)) {
-			GameObject explosionSphere = GameObject.Find("ExplosionSphere");
-			Collider[] colliders = Physics.OverlapSphere(explosionSphere.transform.position, 40f);
-			foreach (Collider hit in colliders) {
-				Rigidbody rb = hit.GetComponent<Rigidbody>();
-				if (rb != null) {
-					rb.AddExplosionForce(100f, explosionSphere.transform.position, 40f);
-				}
-			}
+		// Explosion!
+		if (Input.GetKeyDown (KeyCode.Alpha0)) {
+            makeExplosion(1);
+		} else if (Input.GetKeyDown (KeyCode.Alpha1)) {
+            makeExplosion(2);
+		} else if (Input.GetKeyDown (KeyCode.Alpha2)) {
+            makeExplosion(3);
+		} else if (Input.GetKeyDown (KeyCode.Alpha3)) {
+            makeExplosion(8);
+		} else if (Input.GetKeyDown (KeyCode.Alpha4)) {
+            makeExplosion(13);
+		} else if (Input.GetKeyDown (KeyCode.Alpha5)) {
+            makeExplosion(24);
 		}
 
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
@@ -655,9 +657,9 @@ public class Game : MonoBehaviour, IPubSub {
 		// Pos -> Vector3
 		Vector3 position;
 		if (data != null && data.startVector != null) {
-			position = Misc.parseVector(data.startVector) + new Vector3 (0f, 0f, -0.15f);
+			position = Misc.parseVector(data.startVector) + new Vector3 (0f, 0f, Vehicle.START_POSITION_Z);
 		} else {
-			position = getCameraPosition (pos1) + new Vector3 (0f, 0f, -0.15f);
+			position = getCameraPosition (pos1) + new Vector3 (0f, 0f, Vehicle.START_POSITION_Z);
 		}
 		GameObject vehicleInstance = Instantiate (getVehicleToInstantiate (data), position, Quaternion.identity) as GameObject;
 		Vehicle vehicleObj = vehicleInstance.GetComponent<Vehicle> ();
@@ -971,12 +973,12 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 		// TODO move this to after all materials have finished loading
-		List<GameObject> allBuldingRoofs = Misc.NameStartsWith ("BuildingRoof (");
+		List<GameObject> allBuildings = Misc.NameStartsWith ("Building (");
 		List<GameObject> arenaRoofs = Misc.NameStartsWith ("Stadium (");
-		allBuldingRoofs.AddRange(arenaRoofs);
+		allBuildings.AddRange(arenaRoofs);
         // TODO - This doesn't seem to apply materials correct (not loaded) on level start
 		foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
-			GameObject buildingRoofObj = GameObject.Find ("BuildingRoof (" + objectEntry.Key + ")");
+			GameObject buildingRoofObj = GameObject.Find ("Building (" + objectEntry.Key + ")");
 			if (buildingRoofObj == null) {
 				buildingRoofObj = GameObject.Find ("Stadium (" + objectEntry.Key + ")");
 			}
@@ -984,7 +986,7 @@ public class Game : MonoBehaviour, IPubSub {
 //				Debug.Log("BuildingRoof (" + objectEntry.Key + ")");
 				BuildingRoof buildingRoof = buildingRoofObj.GetComponent<BuildingRoof>();
 				buildingRoof.setProperties(objectEntry.Value);
-				allBuldingRoofs.Remove (buildingRoofObj);
+				allBuildings.Remove (buildingRoofObj);
 			}
 		}
 
@@ -992,11 +994,11 @@ public class Game : MonoBehaviour, IPubSub {
             POIIcon.createPotentialPOI(node);
         }
 
-        if (allBuldingRoofs.Count > 0) {
+        if (allBuildings.Count > 0) {
 			Dictionary<string, string> standardRoof = new Dictionary<string, string> ();
 			standardRoof.Add ("material", "2");
 			standardRoof.Add ("wall", "1000");
-			foreach (GameObject buildingRoofObj in allBuldingRoofs) {
+			foreach (GameObject buildingRoofObj in allBuildings) {
 				BuildingRoof buildingRoof = buildingRoofObj.GetComponent<BuildingRoof>();
 				string buildingRoofName = buildingRoofObj.name;
 				string buildingRoofId = buildingRoofName.Substring(buildingRoofName.IndexOf('(') + 1);
@@ -1045,7 +1047,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private void createOutsideArea () {
 		GameObject landuse = Instantiate (landuseObject) as GameObject;
-		landuse.transform.position = new Vector3 (0f, 0f, -0.097f);
+		landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
 		LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
 		surface.createBackgroundLanduse ();
 	}
@@ -1103,10 +1105,10 @@ public class Game : MonoBehaviour, IPubSub {
 		}
 
 		if (way.Building) {
-			GameObject building = Instantiate (buildingObject) as GameObject;
-			building.transform.position = new Vector3 (0f, 0f, -0.098f);
+            GameObject building = new GameObject();
+            building.transform.position = new Vector3 (0f, 0f, -0.098f);
             building.transform.parent = buildingsParent;
-			BuildingRoof roof = building.GetComponent<BuildingRoof> ();
+            BuildingRoof roof = building.AddComponent<BuildingRoof> ();
 			roof.createBuildingWithXMLNode (xmlNode);
 		} else if (way.LandUse) {
 			GameObject landuse = Instantiate (landuseObject) as GameObject;
@@ -1170,12 +1172,13 @@ public class Game : MonoBehaviour, IPubSub {
 						NodeIndex.buildingWayIds.Add (Convert.ToInt64(wallIdNode.Value));
 					}
 
-					GameObject building = Instantiate (buildingObject) as GameObject;
+
+					GameObject building = new GameObject();
 					building.transform.position = new Vector3 (0f, 0f, -0.098f);
                     building.transform.parent = buildingsParent;
 					bool isStadium = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='building' and @v='stadium']") != null;
 					if (!isStadium) {
-	                    BuildingRoof roof = building.GetComponent<BuildingRoof> ();
+	                    BuildingRoof roof = building.AddComponent<BuildingRoof> ();
 						roof.createBuildingWithXMLNode (wayNode);
 					} else {
 						// Stadium is a bit special - we need to slice it in half and take away the inner (to place the field)
@@ -1277,14 +1280,14 @@ public class Game : MonoBehaviour, IPubSub {
 					innerNodes.Add(nodeVector);
 				}
 
-				BuildingRoof roof = parent.GetComponent<BuildingRoof> ();
+				BuildingRoof roof = parent.AddComponent<BuildingRoof> ();
 				parent.name = "Stadium (" + relationNode.Attributes.GetNamedItem("id").Value + ")";
 				canCreateCorrect = roof.createSplitMeshes(outerNodes, innerNodes);
 			}
 		} finally {
 			if (!canCreateCorrect) {
 				// Backup - if not working, create arena as "solid block" instead
-				BuildingRoof roof = parent.GetComponent<BuildingRoof> ();
+				BuildingRoof roof = parent.AddComponent<BuildingRoof> ();
 				roof.createBuildingWithXMLNode (backupWayNode);
 			}
 		}
@@ -1355,9 +1358,9 @@ public class Game : MonoBehaviour, IPubSub {
 		BoxCollider rightCollider = colliders [colliders.Count - 1];
 
 		leftCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
-		leftCollider.center = new Vector3 (-0.5f + colliderWidthPct / 2f, 0f, 0f);
-		rightCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
-		rightCollider.center = new Vector3 (0.5f - colliderWidthPct / 2f, 0f, 0f);
+		leftCollider.center = new Vector3 (-0.5f + colliderWidthPct / 2f, 0f, leftCollider.center.z);
+		rightCollider.size = new Vector3 (colliderWidthPct, 1f, rightCollider.size.z);
+		rightCollider.center = new Vector3 (0.5f - colliderWidthPct / 2f, 0f, rightCollider.center.z);
 
 		HandleWayTags (previousPos, currentPos, way, rotation);
 
@@ -1431,6 +1434,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		// Add rigidbody and mesh collider, so that they will fall onto the underlying plane
 		Misc.AddGravityToWay(middleOfWay);
+        Misc.AddWayObjectComponent(middleOfWay);
 
 		// TODO - Config for material
 		// Small ways are not drawn with material or meshes
@@ -1592,6 +1596,10 @@ public class Game : MonoBehaviour, IPubSub {
 		} else if (message == "gameIsReady") {
 			CameraHandler.IsMapReadyForInteraction = true;
 			Game.running = true;
+
+			List<GameObject> ways = Misc.FindGameObjectsWithLayer(LayerMask.NameToLayer("Ways"));
+			Misc.SetGravityState(ways);
+            Misc.SetAverageZPosition(ways);
 
 			if (loadedLevel != null) {
                 VehicleRandomizer.Create (loadedLevel.vehicleRandomizer, loadedLevel);
@@ -2240,4 +2248,20 @@ public class Game : MonoBehaviour, IPubSub {
 	    plane.Raycast(ray, out distance);
 		return ray.GetPoint(distance);
 	}
+
+	private void makeExplosion(int explosionFactor) {
+        turnOnAllGravity();
+        GameObject explosionSphere = GameObject.Find("ExplosionSphere");
+        Collider[] colliders = Physics.OverlapSphere(explosionSphere.transform.position, 40f);
+        foreach (Collider hit in colliders) {
+            Rigidbody rb = hit.GetComponent<Rigidbody>();
+            if (rb != null) {
+                rb.AddExplosionForce(explosionFactor * 100f, explosionSphere.transform.position, 40f);
+            }
+        }
+	}
+
+    private void turnOnAllGravity() {
+        InterfaceHelper.FindObjects<IExplodable>().ToList<IExplodable>().ForEach(i => i.turnOnExplodable());
+    }
 }

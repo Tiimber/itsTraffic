@@ -1034,4 +1034,8 @@ public class Misc {
 		return gameObjectsInLayer;
 	}
 
+    public static void SetWeightOnWays(List<GameObject> wayGameObjects) {
+        wayGameObjects.ForEach(way => way.GetComponent<WayObject>().setWeight());
+    }
+
 }

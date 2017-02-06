@@ -69,6 +69,8 @@ public class BuildingRoof : MapSurface, IPubSub, IExplodable {
 //			this.gameObject.name = "BuildingRoof (" + xmlNode.Attributes.GetNamedItem ("id").Value + ")";
             this.id = xmlNode.Attributes.GetNamedItem ("id").Value;
 			this.gameObject.name = "Building (" + id + ")";
+            Rigidbody buildingRigidBody = this.gameObject.AddComponent<Rigidbody>();
+            Misc.SetGravityState(this.gameObject, false);
 
             // Create the roof and set its layer
             roof = new GameObject ("BuildingRoof (" + xmlNode.Attributes.GetNamedItem ("id").Value + ")");
@@ -80,6 +82,19 @@ public class BuildingRoof : MapSurface, IPubSub, IExplodable {
             roofSurface.createMeshCollider(false);
         }
 	}
+
+    private void setBuildingWeight() {
+		// Calculate weight, based on area of roof * height * weight / sq. meters
+        MeshArea roofMeshArea = roof.gameObject.GetComponent<MeshArea>();
+        float squareMeters = roofMeshArea.area * 1000f;
+        float floors = getTargetHeight() / 0.09f / 4f; // Each 0.09z ≈ 1m, calculated on each floor being 4m high
+        float buildingWeightPerSquareMeter = 0.140f; // ~ 140kg per square meter and floor
+        float buildingWeight = squareMeters * buildingWeightPerSquareMeter * floors;
+
+        Rigidbody buildingRigidBody = this.gameObject.GetComponent<Rigidbody>();
+        buildingRigidBody.mass = buildingWeight;
+
+    }
 
 	public bool createSplitMeshes(List<Vector3> outer, List<Vector3> inner) {
 		Rect rectOfOuter = Misc.GetRectOfVectorList(outer);
@@ -220,6 +235,9 @@ public class BuildingRoof : MapSurface, IPubSub, IExplodable {
 
         transform.localPosition += bodyPositionWhileRising;
         roof.transform.localPosition -= bodyPositionWhileRising;
+
+        // TODO - Set weight on stadium
+        setBuildingWeight();
 	}
 	
 	public void setProperties (Dictionary<string, string> properties) {
@@ -303,6 +321,7 @@ public class BuildingRoof : MapSurface, IPubSub, IExplodable {
     }
 
     public void turnOnExplodable() {
+        createMeshCollider(true);
         Misc.SetGravityState (gameObject, true);
     }
 

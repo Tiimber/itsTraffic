@@ -1600,6 +1600,7 @@ public class Game : MonoBehaviour, IPubSub {
 			List<GameObject> ways = Misc.FindGameObjectsWithLayer(LayerMask.NameToLayer("Ways"));
 			Misc.SetGravityState(ways);
             Misc.SetAverageZPosition(ways);
+            Misc.SetWeightOnWays(ways);
 
 			if (loadedLevel != null) {
                 VehicleRandomizer.Create (loadedLevel.vehicleRandomizer, loadedLevel);

@@ -1014,7 +1014,12 @@ public class Misc {
         foreach (GameObject gameObject in gameObjects) {
             minZ = Mathf.Min(gameObject.transform.localPosition.z, minZ);
             maxZ = Mathf.Max(gameObject.transform.localPosition.z, maxZ);
+//            if (gameObject.transform.localPosition.z > 1) {
+//                Debug.Log(gameObject.name);
+//            }
         }
+//		Debug.Break();
+//        return;
 
         float averageZ = minZ + (maxZ - minZ) / 2f;
         foreach (GameObject gameObject in gameObjects) {

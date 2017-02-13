@@ -2,7 +2,7 @@
 
 public class Settings {
 	public static float wayLengthFactor = 10f;
-	public static float currentMapWidthFactor = 5f;
+	public static float wayWidthFactor = 5f;
 	// Playback, normal, faster, really fast... normal = 0.1
 	public static float playbackSpeed = 0.1f;
 

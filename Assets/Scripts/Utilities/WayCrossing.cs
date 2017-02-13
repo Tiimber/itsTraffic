@@ -14,8 +14,8 @@ public class WayCrossing {
 		Pos pos = NodeIndex.getPosById (key);
 		GameObject crossingLine = Game.instance.wayCrossing;
 		float lineHeight = crossingLine.transform.localScale.y;
-		float wayScale = Game.instance.partOfWay.transform.localScale.y * Settings.currentMapWidthFactor;
-		float lineWidth = crossingLine.transform.localScale.x * Settings.currentMapWidthFactor * firstWayReference.way.WayWidthFactor;
+		float wayScale = Game.instance.partOfWay.transform.localScale.y * Settings.wayWidthFactor;
+		float lineWidth = crossingLine.transform.localScale.x * Settings.wayWidthFactor * firstWayReference.way.WayWidthFactor;
 		float wayHeight = firstWayReference.way.WayWidthFactor * wayScale;
 		Vector3 startPosition = Game.getCameraPosition (pos) - orthoCrossingRotation * new Vector3 (wayHeight / 2f, 0, 0) + crossingLine.transform.position;
 		float numberOfCrossingLines = Mathf.Floor ((wayHeight - WayHelper.CROSSING_LINE_PERCENTAGE * lineHeight) / (lineHeight + WayHelper.CROSSING_LINE_PERCENTAGE * lineHeight));

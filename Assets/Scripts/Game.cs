@@ -856,9 +856,14 @@ public class Game : MonoBehaviour, IPubSub {
 		decimal maxlat = Convert.ToDecimal (boundsAttributes.GetNamedItem ("maxlat").Value);
 		decimal minlon = Convert.ToDecimal (boundsAttributes.GetNamedItem ("minlon").Value);
 		decimal maxlon = Convert.ToDecimal (boundsAttributes.GetNamedItem ("maxlon").Value);
-		mapBounds = new Rect ((float)minlon, (float)minlat, (float)(maxlon - minlon), (float)(maxlat - minlat));
+//		mapBounds = new Rect ((float)minlon, (float)minlat, (float)(maxlon - minlon), (float)(maxlat - minlat));
 
 		float latDiff = (float)(maxlat - minlat);
+		float lonDiff = (float)(maxlon - minlon);
+
+        // Map bounds are the center half of the full map constraints
+        mapBounds = new Rect ((float)minlon + lonDiff / 4f, (float)minlat  + latDiff / 4f, lonDiff / 2f, latDiff / 2f);
+
 		float refLatDiff = 0.00191f;
 		float x = 0.9f / (20f * refLatDiff);
 		heightFactor = x * (refLatDiff * refLatDiff) / latDiff;
@@ -866,7 +871,6 @@ public class Game : MonoBehaviour, IPubSub {
 		// Width to height ratio
 		float widthHeightRatio = (float) Screen.width / (float) Screen.height;
 
-		// TODO - Take these out from the camera
 		float cameraMinX = -cameraOrtographicSize;
 		float cameraMinY = -cameraOrtographicSize;
 		float cameraMaxX = cameraOrtographicSize;
@@ -902,8 +906,7 @@ public class Game : MonoBehaviour, IPubSub {
 		XmlNodeList wayNodes = xmlDoc.SelectNodes("/osm/way");
 		foreach (XmlNode xmlNode in wayNodes) {
 			XmlAttributeCollection attributes = xmlNode.Attributes;
-			string wayIdStr = attributes.GetNamedItem ("id").Value;
-			long wayId = Convert.ToInt64 (wayIdStr);
+			long wayId = Misc.xmlLong(attributes.GetNamedItem("id"));
 
 			Way way = new Way (wayId);
 			addTags (way, xmlNode);
@@ -1104,7 +1107,7 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 
-		if (way.Building) {
+        if (way.Building) {
             GameObject building = new GameObject();
             building.transform.position = new Vector3 (0f, 0f, -0.098f);
             building.transform.parent = buildingsParent;
@@ -1115,7 +1118,7 @@ public class Game : MonoBehaviour, IPubSub {
 			landuse.transform.position = new Vector3 (0f, 0f, -0.098f);
 			LanduseSurface surface = landuse.GetComponent<LanduseSurface> ();
 			surface.createLanduseWithXMLNode (xmlNode, way);
-		} else { 
+		} else {
 			createWayArea(xmlNode, way);
 		}
 	}
@@ -1154,6 +1157,7 @@ public class Game : MonoBehaviour, IPubSub {
         ModelGeneratorVehicles.setBusLines(busLines.ToList());
 
 		XmlNodeList relationNodes = xmlDoc.SelectNodes("/osm/relation");
+        // TODO - continue; whenever a relation has been handles - no need to check multiple "area types" for the same xmlNode
 		foreach (XmlNode xmlNode in relationNodes) {
 
 			string xmlNodeId = xmlNode.Attributes ["id"].Value;
@@ -1211,9 +1215,9 @@ public class Game : MonoBehaviour, IPubSub {
 				}
 
 				GameObject river = Instantiate (landuseObject) as GameObject;
-				river.transform.position = new Vector3 (0f, 0f, -0.098f);
 				LanduseSurface landuseSurface = river.GetComponent<LanduseSurface> ();
 				landuseSurface.createLanduseAreaWithVectors(riverBankNodes, "river");
+				river.transform.position = new Vector3 (0f, 0f, -0.098f);
 			}
 
 			XmlNode xmlNodeWaterbankTag = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='natural' and @v='water']");
@@ -1239,10 +1243,45 @@ public class Game : MonoBehaviour, IPubSub {
 				}
 
 				GameObject water = Instantiate (landuseObject) as GameObject;
-				water.transform.position = new Vector3 (0f, 0f, -0.098f);
 				LanduseSurface landuseSurface = water.GetComponent<LanduseSurface> ();
 				landuseSurface.createLanduseAreaWithVectors(waterBankNodes, "water");
+				water.transform.position = new Vector3 (0f, 0f, -0.098f);
 			}
+
+            // Pedestrian areas
+            XmlNode xmlNodePedestrianArea = xmlNode.SelectSingleNode("/osm/relation[@id='" + xmlNodeId + "']/tag[@k='highway' and @v='pedestrian']");
+            if (xmlNodePedestrianArea != null) {
+                List<Vector3> pedestrianAreaNodes = new List<Vector3> ();
+                XmlNodeList xmlPedestrianAreaOuter = xmlNode.SelectNodes ("/osm/relation[@id='" + xmlNodeId + "']/member[@role='outer']");
+                foreach (XmlNode xmlPedestrianAreaWayOuter in xmlPedestrianAreaOuter) {
+                    XmlAttributeCollection wayAttributes = xmlPedestrianAreaWayOuter.Attributes;
+                    if (Misc.xmlString(wayAttributes.GetNamedItem("type")) == "way") {
+                        long wayId = Misc.xmlLong(wayAttributes.GetNamedItem("ref"));
+                        XmlNodeList pedestrianNodesForWay = xmlDoc.SelectNodes ("/osm/way[@id='" + wayId + "']/nd");
+						// Not all ways in "water" exists, if not, we will have to fill some gaps
+                        if (pedestrianNodesForWay != null) {
+                            foreach(XmlNode pedestrianNode in pedestrianNodesForWay) {
+                                long nodeId = Misc.xmlLong(pedestrianNode.Attributes.GetNamedItem("ref"));
+                                Vector3 nodeVector = Game.getCameraPosition(NodeIndex.nodes[nodeId]);
+                                if (NodeIndex.nodes.ContainsKey(nodeId) && !pedestrianAreaNodes.Contains(nodeVector)) { // TODO - Is this (+above) if-clause needed/correct? It takes the value above, that is checked here
+                                    pedestrianAreaNodes.Add(nodeVector);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                GameObject pedestrianArea = Instantiate (landuseObject) as GameObject;
+                LanduseSurface landuseSurface = pedestrianArea.GetComponent<LanduseSurface> ();
+                landuseSurface.createLanduseAreaWithVectors(pedestrianAreaNodes, "pedestrian");
+                pedestrianArea.transform.position = new Vector3 (0f, 0f, -0.098f);
+
+				GameObject pedestrianGameObject = Misc.FindDeepChild(pedestrianArea.transform, "Plane Mesh For Points").gameObject;
+                pedestrianGameObject.layer = LayerMask.NameToLayer("Planes");
+                pedestrianGameObject.GetComponent<MapSurface>().createMeshCollider(false);
+            }
+
+            // TODO - Parking? More types
 		}
 		// TODO Subtract inner walls from the outer mesh.
 	}
@@ -1338,7 +1377,7 @@ public class Game : MonoBehaviour, IPubSub {
 		bool isRoundabout = wayObject.getTagValue("junction") == "roundabout";
 
 		float xStretchFactor = Vector3.Magnitude (wayVector) * Settings.wayLengthFactor;
-		float yStretchFactor = wayObject.WayWidthFactor * Settings.currentMapWidthFactor;
+		float yStretchFactor = wayObject.WayWidthFactor * Settings.wayWidthFactor;
 		way.transform.localScale = new Vector3 (xStretchFactor * originalScale.x, yStretchFactor * originalScale.y, originalScale.z);
 
 		// Mark up small ways - TODO - Need to handle different scales / zoom
@@ -1600,6 +1639,7 @@ public class Game : MonoBehaviour, IPubSub {
 			List<GameObject> ways = Misc.FindGameObjectsWithLayer(LayerMask.NameToLayer("Ways"));
 			Misc.SetGravityState(ways);
             Misc.SetAverageZPosition(ways);
+            Misc.SetWeightOnWays(ways);
 
 			if (loadedLevel != null) {
                 VehicleRandomizer.Create (loadedLevel.vehicleRandomizer, loadedLevel);

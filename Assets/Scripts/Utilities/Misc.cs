@@ -1014,7 +1014,12 @@ public class Misc {
         foreach (GameObject gameObject in gameObjects) {
             minZ = Mathf.Min(gameObject.transform.localPosition.z, minZ);
             maxZ = Mathf.Max(gameObject.transform.localPosition.z, maxZ);
+//            if (gameObject.transform.localPosition.z > 1) {
+//                Debug.Log(gameObject.name);
+//            }
         }
+//		Debug.Break();
+//        return;
 
         float averageZ = minZ + (maxZ - minZ) / 2f;
         foreach (GameObject gameObject in gameObjects) {
@@ -1033,5 +1038,9 @@ public class Misc {
 		}
 		return gameObjectsInLayer;
 	}
+
+    public static void SetWeightOnWays(List<GameObject> wayGameObjects) {
+        wayGameObjects.ForEach(way => way.GetComponent<WayObject>().setWeight());
+    }
 
 }

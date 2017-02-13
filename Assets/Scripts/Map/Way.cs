@@ -8,9 +8,11 @@ public class Way : NodeWithTags {
 	public bool Building { set; get; }
 	public bool LandUse { set; get; }
 	public List<WayReference> WayReferences = new List<WayReference> ();
+
+    public static float DEFAULT_WAY_WIDTH_FACTOR = 0.1f;
 	
 	public Way (long id) : base(id) {
-		WayWidthFactor = 0.1F;
+		WayWidthFactor = Way.DEFAULT_WAY_WIDTH_FACTOR;
 		EndPointImpossible = false;
 	}
 

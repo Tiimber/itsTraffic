@@ -12,7 +12,7 @@ public class WayTypeEnum
 	public const float MOTORWAY_LINK = 1.21f;
 
 	// Keep all "Non CarWays" under 1.00f and above 0.00f
-	public const float PLATFORM = 0.01f; // Bus stop?
+	public const float PLATFORM = 0.1f; // Bus stop?
 	public const float EXPANDED_PLATFORM = 0.22f; // Draw width for platforms that are lines, not areas
 	public const float PEDESTRIAN = 0.44f;
 	public const float FOOTWAY = 0.13f;

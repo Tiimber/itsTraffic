@@ -13,11 +13,11 @@ public class WayLine : MonoBehaviour {
 	private Vector3 drawSize;
 
 	private static float GetLineHeight() {
-		return LINE_HEIGHT * Settings.currentMapWidthFactor;
+		return LINE_HEIGHT * Settings.wayWidthFactor;
 	}
 
 	private static float GetDashedLineHeight() {
-		return DASHED_LINE_HEIGHT * Settings.currentMapWidthFactor;
+		return DASHED_LINE_HEIGHT * Settings.wayWidthFactor;
 	}
 
 	public void create (WayReference reference) {

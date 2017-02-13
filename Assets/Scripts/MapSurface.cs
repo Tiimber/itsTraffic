@@ -51,8 +51,11 @@ public class MapSurface : MonoBehaviour {
 	}
 
     public void createMeshCollider(bool convex = true) {
-        MeshCollider meshCollider = this.gameObject.AddComponent<MeshCollider> ();
-        meshCollider.convex = convex;
+		MeshCollider meshCollider = this.gameObject.GetComponent<MeshCollider>();
+		if (meshCollider == null) {
+            meshCollider = this.gameObject.AddComponent<MeshCollider> ();
+        }
+		meshCollider.convex = convex;
     }
 
 

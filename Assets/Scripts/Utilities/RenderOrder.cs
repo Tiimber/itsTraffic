@@ -9,6 +9,7 @@ public class RenderOrder {
 	// Landuses/backgrounds
 	public const int BACKGROUND = 2010;
 	public const int LANDUSE_AREA = 2020;
+	public const int PEDESTRIAN_AREA = 2030;
 	public const int GRASS = 2030;
 	public const int PLATFORM = 2030;
 	public const int WATER = 2030;

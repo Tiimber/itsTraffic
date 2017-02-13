@@ -112,7 +112,7 @@ public class POIIcon : MonoBehaviour, IPubSub {
         Game.instance.addInitAnimationRequest();
 
         if (buildingWasHit) {
-            BuildingRoof buildingRoof = hit.transform.parent.gameObject.GetComponent<BuildingRoof> ();
+            BuildingRoof buildingRoof = hit.transform.gameObject.GetComponent<BuildingRoof> ();
             // Land on the building
             targetZ = -buildingRoof.getTargetHeight() - DISTANCE_FROM_ROOFTOPS;
         } else {

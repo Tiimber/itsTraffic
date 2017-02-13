@@ -981,12 +981,22 @@ public class Misc {
 	public static void AddGravityToWay(GameObject way) {
 		// Add rigidbody and mesh collider, so that they will fall onto the underlying plane
 		if (way.GetComponent<Rigidbody>() == null) {
-			way.AddComponent<Rigidbody>();
+			Rigidbody wayBody = way.AddComponent<Rigidbody>();
 			MeshCollider wayCollider = way.AddComponent<MeshCollider>();
 			wayCollider.convex = true;
 			way.layer = LayerMask.NameToLayer("Ways");
+            wayBody.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotation;
 		}
 	}
+
+    public static void ReleaseGravityConstraintsOnWay(List<GameObject> ways) {
+        foreach (GameObject way in ways) {
+            Rigidbody rigidbody = way.GetComponent<Rigidbody>();
+            if (rigidbody != null) {
+                rigidbody.constraints = RigidbodyConstraints.None;
+            }
+        }
+    }
 
 	public static void AddWayObjectComponent(GameObject way) {
         if (way.GetComponent<WayObject>() == null) {

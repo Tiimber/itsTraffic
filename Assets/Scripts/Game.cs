@@ -26,8 +26,9 @@ public class Game : MonoBehaviour, IPubSub {
 	private float cameraEmission = 0f;
     public float graphicsQuality = 0.8f;
 	public const float WAYS_Z_POSITION = -0.11f;
+    private const float OPTIMAL_LAT_SPAN = 0.00191f;
 
-	public static long randomSeed = Misc.currentTimeMillis ();
+    public static long randomSeed = Misc.currentTimeMillis ();
 	private static bool running = false;
 	private static bool paused = false;
 	private static bool frozen = false;
@@ -861,8 +862,14 @@ public class Game : MonoBehaviour, IPubSub {
 		float latDiff = (float)(maxlat - minlat);
 		float lonDiff = (float)(maxlon - minlon);
 
+        float outsideMapBoundsLat = latDiff - OPTIMAL_LAT_SPAN;
+        float outsidePercent = outsideMapBoundsLat / latDiff;
+        float outsideMapBoundsLon = lonDiff * outsidePercent;
+        float lonDisplaySpan = lonDiff - outsideMapBoundsLon;
+
         // Map bounds are the center half of the full map constraints
-        mapBounds = new Rect ((float)minlon + lonDiff / 4f, (float)minlat  + latDiff / 4f, lonDiff / 2f, latDiff / 2f);
+//        mapBounds = new Rect ((float)minlon + lonDiff / 4f, (float)minlat + latDiff / 4f, lonDiff / 2f, latDiff / 2f);
+        mapBounds = new Rect ((float)minlon + outsideMapBoundsLon / 2f, (float)minlat + outsideMapBoundsLat / 2f, lonDisplaySpan, OPTIMAL_LAT_SPAN);
 
 		float refLatDiff = 0.00191f;
 		float x = 0.9f / (20f * refLatDiff);
@@ -1639,6 +1646,7 @@ public class Game : MonoBehaviour, IPubSub {
 			List<GameObject> ways = Misc.FindGameObjectsWithLayer(LayerMask.NameToLayer("Ways"));
 			Misc.SetGravityState(ways);
             Misc.SetAverageZPosition(ways);
+            Misc.ReleaseGravityConstraintsOnWay(ways);
             Misc.SetWeightOnWays(ways);
 
 			if (loadedLevel != null) {

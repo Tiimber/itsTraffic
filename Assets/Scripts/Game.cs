@@ -99,7 +99,9 @@ public class Game : MonoBehaviour, IPubSub {
 	private Dictionary<int, Light> dangerHalos = new Dictionary<int, Light> ();
 
 	public Level loadedLevel = null;
-	private float clickReleaseTimer = 0f;
+	private float leftClickReleaseTimer = 0f;
+	private float rightClickReleaseTimer = 0f;
+	private Vector3 rightMouseDownPosition;
 	private Vector3 mouseDownPosition;
 	private Vector3 prevMousePosition;
 
@@ -341,11 +343,11 @@ public class Game : MonoBehaviour, IPubSub {
 
 			// Click logic
 			if (firstFrame) {
-				clickReleaseTimer = CLICK_RELEASE_TIME;
+				leftClickReleaseTimer = CLICK_RELEASE_TIME;
 			} else {
-				clickReleaseTimer -= Time.deltaTime;
+				leftClickReleaseTimer -= Time.deltaTime;
 			}
-		} else if (clickReleaseTimer > 0f) {
+		} else if (leftClickReleaseTimer > 0f) {
 			// Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
 			if (Misc.getDistance (mouseDownPosition, prevMousePosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {
                 // TODO - Click when zoomed into vehicle - should show information window again
@@ -353,11 +355,27 @@ public class Game : MonoBehaviour, IPubSub {
 				// Debug.Log(mouseDownPosition + " => " + screenToWorldPos(mouseDownPosition) + " vs. " + orthographicCamera.ScreenToWorldPoint(mouseDownPosition));
 				// PubSub.publish ("Click", mouseWorldPoint);
 				PubSub.publish ("Click", mouseDownPosition);
-				clickReleaseTimer = 0f;
+				leftClickReleaseTimer = 0f;
 			}
 		}
 
+        // Right click (hold)
+        if (Input.GetMouseButton (1)) {
+			// Click logic
+            bool firstFrame = Input.GetMouseButtonDown (1);
+            if (firstFrame) {
+                rightClickReleaseTimer = CLICK_RELEASE_TIME;
+                rightMouseDownPosition = Input.mousePosition;
+            } else {
+                rightClickReleaseTimer -= Time.deltaTime;
+            }
+		} else if (rightClickReleaseTimer > 0f) {
+            PubSub.publish ("RClick", rightMouseDownPosition);
+            rightClickReleaseTimer = 0f;
+        }
+
 		// TODO - This is for debug - choosing endpoints
+/*
 		if (Game.debugMode) {
 			if (Input.GetMouseButtonDown (1)) {
 				Vector3 mousePosition = Input.mousePosition;
@@ -403,6 +421,7 @@ public class Game : MonoBehaviour, IPubSub {
 				DebugFn.temporaryOverride (Color.black);
 			}
 		}
+*/
 
 		if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
 			float scrollAmount = Input.GetAxis ("Mouse ScrollWheel");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
+public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IReroute {
 
 	[InspectorButton("OnButtonClicked")]
 	public bool debugPrint;
@@ -51,6 +51,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 	private float vapourEndColorLevel = 0.32f;
 	public float totalDrivingDistance = 0f;
 	public bool destroying = false;
+    private bool paused = false;
 
 	private float EmissionFactor { set; get; }
 	private float CollectedEmissionAmount = 0f;
@@ -254,7 +255,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
             Vehicle.debugCamera.transform.rotation = Quaternion.identity;
         }
 		if (Game.isMovementEnabled()) {
-			if (!destroying) {
+			if (!paused && !destroying) {
 				if (TurnToRoad != null && CurrentWayReference != null) {
 
 					// Way target speed
@@ -1308,6 +1309,25 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
     public void turnOnExplodable() {
         Misc.SetGravityState (gameObject, true);
     }
+
+    // IReroute - for pause, re-routing and resuming
+    public void pauseMovement() {
+        paused = true;
+        currentSpeed = 0f;
+    }
+
+    public List<Pos> getPath() {
+        return currentPath;
+    }
+
+    public void setPath(List<Pos> path) {
+		// TODO -
+    }
+
+    public void resumeMovement() {
+		// TODO -
+    }
+	// IReroute - end
 
     public void OnGUI () {
 		if (Vehicle.debug == this) {

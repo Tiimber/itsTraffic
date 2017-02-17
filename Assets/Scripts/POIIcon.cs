@@ -163,22 +163,25 @@ public class POIIcon : MonoBehaviour, IPubSub {
                 fallSpeed += fallSpeed * (0.1f * Time.unscaledDeltaTime);
             }
         } else {
-            bool isMainOrIntroCameraActive = Game.instance.orthographicCamera.gameObject.activeSelf || Game.instance.perspectiveCamera.gameObject.activeSelf;
-            if (showingSmall) {
-                // Show big icons if main camera is not active or main camera is zoomed in enough
-                if (!isMainOrIntroCameraActive || Game.instance.orthographicCamera.orthographicSize < THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
-                    // Swap to big
-                    showingSmall = false;
-                    bigIcon.GetComponent<FadeObjectInOut>().FadeIn();
-                    smallIcon.GetComponent<FadeObjectInOut>().FadeOut();
-                }
-            } else {
-                // Show small icons if main camera is active and not zoomed in enough
-                if (isMainOrIntroCameraActive && Game.instance.orthographicCamera.orthographicSize >= THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
-                    // Swap to small
-                    showingSmall = true;
-                    bigIcon.GetComponent<FadeObjectInOut>().FadeOut();
-                    smallIcon.GetComponent<FadeObjectInOut>().FadeIn();
+            bool isMainCameraActive = Game.instance.perspectiveCamera.gameObject.activeSelf;
+//            bool isMainOrIntroCameraActive = Game.instance.orthographicCamera.gameObject.activeSelf || Game.instance.perspectiveCamera.gameObject.activeSelf;
+            if (isMainCameraActive) {
+                if (showingSmall) {
+                    // Show big icons if main camera is not active or main camera is zoomed in enough
+                    if (Game.instance.orthographicCamera.orthographicSize < THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
+                        // Swap to big
+                        showingSmall = false;
+                        bigIcon.GetComponent<FadeObjectInOut>().FadeIn();
+                        smallIcon.GetComponent<FadeObjectInOut>().FadeOut();
+                    }
+                } else {
+                    // Show small icons if main camera is active and not zoomed in enough
+                    if (Game.instance.orthographicCamera.orthographicSize >= THRESHOLD_CAMERA_ZOOM_ICON_SWAP) {
+                        // Swap to small
+                        showingSmall = true;
+                        bigIcon.GetComponent<FadeObjectInOut>().FadeOut();
+                        smallIcon.GetComponent<FadeObjectInOut>().FadeIn();
+                    }
                 }
             }
         }

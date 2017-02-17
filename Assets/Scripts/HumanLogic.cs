@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
+public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
 
 	public static System.Random HumanRNG = new System.Random ((int)Game.randomSeed);
 	private static Vector3 INVALID_POINT = new Vector3(0f, 0f, float.MinValue);
@@ -428,4 +428,22 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 			}
 		} while (this.gameObject != null);
 	}
+
+	// IReroute - for pause, re-routing and resuming
+    public void pauseMovement() {
+		// TODO - Stop
+    }
+
+    public List<Pos> getPath() {
+        return path; // TODO - Probably not correct
+    }
+
+    public void setPath(List<Pos> paths) {
+		// TODO -
+    }
+
+    public void resumeMovement() {
+		// TODO -
+    }
+	// IReroute - end
 }

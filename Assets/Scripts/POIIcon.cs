@@ -5,7 +5,7 @@ public class POIIcon : MonoBehaviour, IPubSub {
 
     private static Dictionary<string, GameObject> groups = new Dictionary<string, GameObject> ();
 
-    private static int BUILDINGROOF_LAYER_MASK = LayerMask.GetMask(new string[]{"BuildingRoof"});
+    private static int BUILDINGROOF_LAYER_MASK = -1;
 
     private const float THRESHOLD_CAMERA_ZOOM_ICON_SWAP = 2.5f;
     private const float DISTANCE_FROM_ROOFTOPS = 0.01f;
@@ -89,6 +89,10 @@ public class POIIcon : MonoBehaviour, IPubSub {
     private GameObject smallIcon;
 
     void Start() {
+        if (BUILDINGROOF_LAYER_MASK == -1) {
+            BUILDINGROOF_LAYER_MASK = LayerMask.GetMask(new string[]{"BuildingRoof"});
+        }
+
         RaycastHit hit;
         bool buildingWasHit = Physics.Raycast(transform.position, Vector3.forward, out hit, 40f, BUILDINGROOF_LAYER_MASK);
 

@@ -15,11 +15,13 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
     public Pos targetPos;
 	private List<Pos> path;
 	private List<Vector3> walkPath;
+    public WayReference endWay;
 	private Vector3 deviationTarget = INVALID_POINT;
 	private TimedDeviationTarget timedDeviationTarget = null;
 
 	private Dictionary<Vehicle, string> vehiclesInVision = new Dictionary<Vehicle, string> ();
 	private HashSet<HumanLogic> waitForHumans = new HashSet<HumanLogic> ();
+    private bool paused = false;
 
 	public float totalWalkingDistance;
 
@@ -73,7 +75,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
 			return;
 		}
 			
-		if (Game.isMovementEnabled ()) {
+		if (!paused && Game.isMovementEnabled ()) {
 			if (waitTime > 0f) {
 				waitTime -= Time.deltaTime;
 				stats [STAT_WAITING_TIME].add (Time.deltaTime);
@@ -102,6 +104,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
 							timedDeviationTarget = null;
 						} else {
 							walkPath.RemoveAt (0);
+                            path.RemoveAt(0);
 							if (walkPath.Count == 0) {
 								fadeOutAndDestroy ();
 							}
@@ -208,7 +211,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
 		walkPath.Insert (0, startInfo.Third);
 		path.Insert (0, Game.createTmpPos (startInfo.Third));
 
-		WayReference endWay = endInfo.Second;
+		endWay = endInfo.Second;
 		if (endWay.hasNodes (secondToLastPos, lastPos)) {
 			walkPath.RemoveAt (walkPath.Count - 1);
 			path.RemoveAt (path.Count - 1);
@@ -431,19 +434,25 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
 
 	// IReroute - for pause, re-routing and resuming
     public void pauseMovement() {
-		// TODO - Stop
+        paused = true;
     }
 
     public List<Pos> getPath() {
-        return path; // TODO - Probably not correct
+        return path;
     }
 
-    public void setPath(List<Pos> paths) {
-		// TODO -
+    public void setPath(List<Pos> path, bool isDefinite = true) {
+        this.path = path;
+
+        walkPath = Misc.posToVector3 (path);
+        // Walkpath is always containing upcoming positions
+        walkPath.RemoveAt (0);
+
+        deviationTarget = INVALID_POINT;
     }
 
     public void resumeMovement() {
-		// TODO -
+        paused = false;
     }
 	// IReroute - end
 }

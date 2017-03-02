@@ -29,6 +29,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	public Pos CurrentPosition { set; get; } 
 	public Pos CurrentTarget { set; get; }
 	private List<Pos> currentPath { set; get; }
+    private bool currentPathIsDefinite = false;
 
 	private Vector3 endVector;
 	private Vector3 startVector;
@@ -744,7 +745,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				// Logic for upcoming wayreference end node collission
 				if (wayCollisionObj != null && wayCollisionObj.WayReference == CurrentWayReference && wayCollisionObj.Pos == CurrentTarget) {
 					// We know that this is the currentTarget - we want to know our options
-					List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
+					List<WayReference> possibilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
 					if (colliderName == "FAC") {
 						turnState = TurnState.FAC;
 					} else if (colliderName == "PC") {
@@ -755,7 +756,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 						turnState = TurnState.BC;
 					}
 
-					if (possitilities.Count == 1 && !isBigTurn) {
+					if (possibilities.Count == 1 && !isBigTurn) {
 						if (turnState != TurnState.BC) {
 							float desiredRotation = Quaternion.Angle (CurrentWayReference.transform.rotation, TurnToRoad.transform.rotation);
 							bool areBothSameDirection = CurrentWayReference.isNode1 (CurrentTarget) != TurnToRoad.isNode1 (CurrentTarget);
@@ -764,8 +765,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 							}
 							TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
 						}
-					} else if (possitilities.Count > 1 || isBigTurn) {
-						currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+					} else if (possibilities.Count > 1 || isBigTurn) {
 						Pos nextTarget = currentPath [2];
 						if (turnState != TurnState.BC) {
 							WayReference otherWayReference = NodeIndex.getWayReference (CurrentTarget.Id, nextTarget.Id);
@@ -1029,7 +1029,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		stopBlinkers ();
 
 		statReportPossibleCrossing ();
-		currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+		if (currentPathIsDefinite) {
+            while (currentPath[0] != CurrentPosition) {
+                currentPath.RemoveAt(0);
+            }
+        } else {
+            currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+        }
 		if (currentPath.Count > 1) {
 			CurrentTarget = currentPath [1];
 			CurrentWayReference = NodeIndex.getWayReference(CurrentPosition.Id, CurrentTarget.Id);
@@ -1320,12 +1326,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         return currentPath;
     }
 
-    public void setPath(List<Pos> path) {
-		// TODO -
+    public void setPath(List<Pos> path, bool isDefinite = true) {
+        currentPath = path;
+        currentPathIsDefinite = isDefinite;
     }
 
     public void resumeMovement() {
-		// TODO -
+        paused = false;
     }
 	// IReroute - end
 

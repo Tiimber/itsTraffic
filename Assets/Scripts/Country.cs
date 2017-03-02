@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using com.spacepuppy;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Country : MonoBehaviour {
 
@@ -170,6 +173,7 @@ public class Country : MonoBehaviour {
     }
 
     public void saveMeshes(bool createNew = true) {
+#if UNITY_EDITOR
         string saveName = mergedWithOther ? ownName + "_merged" : this.name;
         Object prefab = PrefabUtility.CreateEmptyPrefab ("Assets/MapObjects/Resources/FullMap/" + saveName + ".prefab");
         PrefabUtility.ReplacePrefab (gameObject, prefab, ReplacePrefabOptions.ConnectToPrefab);
@@ -187,6 +191,7 @@ public class Country : MonoBehaviour {
 
             AssetDatabase.SaveAssets ();
         }
+#endif
     }
 
     private void setCountryGameObjects() {

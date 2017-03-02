@@ -101,7 +101,9 @@ public class Game : MonoBehaviour, IPubSub {
 	public Level loadedLevel = null;
 	private float leftClickReleaseTimer = 0f;
 	private float rightClickReleaseTimer = 0f;
+    private bool rightClickDown = false;
 	private Vector3 rightMouseDownPosition;
+	private Vector3 rightMousePosition;
 	private Vector3 mouseDownPosition;
 	private Vector3 prevMousePosition;
 
@@ -370,8 +372,17 @@ public class Game : MonoBehaviour, IPubSub {
                 rightClickReleaseTimer -= Time.deltaTime;
             }
 		} else if (rightClickReleaseTimer > 0f) {
+            rightMousePosition = rightMouseDownPosition;
+            rightClickDown = !rightClickDown;
             PubSub.publish ("RClick", rightMouseDownPosition);
             rightClickReleaseTimer = 0f;
+        }
+
+        if (rightClickDown) {
+            if (rightMousePosition != Input.mousePosition) {
+                rightMousePosition = Input.mousePosition;
+				PubSub.publish("RMove", rightMousePosition);
+            }
         }
 
 		// TODO - This is for debug - choosing endpoints
@@ -756,7 +767,26 @@ public class Game : MonoBehaviour, IPubSub {
 		return chosenEndPoint;
 	}
 
-	public static List<Pos> calculateCurrentPath (Pos source, Pos target, bool isVehicle = true) {
+    public static List<Pos> calculateCurrentPaths (Pos source, Pos target, Pos previousPoint, Pos middle, bool isVehicle, bool isBackingOk = false) {
+        List<Pos> calculatedPath = new List<Pos>();
+
+		List<Pos> firstHalfPath = calculateCurrentPath(source, middle, isVehicle, isBackingOk ? null : previousPoint);
+        if (firstHalfPath.Count > 1) {
+            // Remove middle point (will be added in second half)
+            firstHalfPath.RemoveAt(firstHalfPath.Count - 1);
+
+			List<Pos> secondHalfPath = calculateCurrentPath(middle, target, isVehicle, isBackingOk ? null : firstHalfPath[firstHalfPath.Count - 1]);
+
+            if (secondHalfPath.Count > 1) {
+                calculatedPath.AddRange(firstHalfPath);
+				calculatedPath.AddRange(secondHalfPath);
+            }
+        }
+
+        return calculatedPath;
+    }
+
+	public static List<Pos> calculateCurrentPath (Pos source, Pos target, bool isVehicle = true, Pos previousPoint = null) {
 		List<Pos> calculatedPath = new List<Pos> ();
 
 		Dictionary<long, NodeDistance> visitedPaths = new Dictionary<long, NodeDistance> ();
@@ -768,7 +798,7 @@ public class Game : MonoBehaviour, IPubSub {
 			visitedPaths[current.Id].visited = true;
 			float currentCost = visitedPaths[current.Id].cost;
 
-			List<KeyValuePair<Pos, WayReference>> neighbours = current.getNeighbours();
+			List<KeyValuePair<Pos, WayReference>> neighbours = current.getNeighbours(previousPoint);
 			foreach (KeyValuePair<Pos, WayReference> neighbour in neighbours) {
 				// Calculate cost to node
 				Pos neighbourNode = neighbour.Key;
@@ -787,6 +817,7 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 
 			current = getLowestUnvisitedCostNode(visitedPaths);
+            previousPoint = current;
 			if (current == null) {
 				impossible = true;
 				break;
@@ -1899,6 +1930,8 @@ public class Game : MonoBehaviour, IPubSub {
             savePlayerPrefs(menuValue, value);
 
             graphicsQuality = value;
+
+            PubSub.publish ("Graphics:quality", value);
         }
     }
 
@@ -2315,6 +2348,10 @@ public class Game : MonoBehaviour, IPubSub {
 	    plane.Raycast(ray, out distance);
 		return ray.GetPoint(distance);
 	}
+
+    public Vector3 objectToScreenPos(GameObject positionObj) {
+        return perspectiveCamera.WorldToScreenPoint(positionObj.transform.position);
+    }
 
 	private void makeExplosion(int explosionFactor) {
         turnOnAllGravity();

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GenericSoundEffects : MonoBehaviour {
 
@@ -7,6 +6,7 @@ public class GenericSoundEffects : MonoBehaviour {
     public AudioClip showBriefSound; // TODO - Use
     public AudioClip highscoreSerenade;
     public AudioClip failSound;
+    public AudioClip rerouteUnavailable;
 
     private static GenericSoundEffects instance;
 
@@ -22,6 +22,9 @@ public class GenericSoundEffects : MonoBehaviour {
             	break;
             case "failSound":
             	playAudioClip(failSound, name);
+            	break;
+            case "rerouteUnavailable":
+            	playAudioClip(rerouteUnavailable, name);
             	break;
             // TODO ---
         }
@@ -44,6 +47,10 @@ public class GenericSoundEffects : MonoBehaviour {
 
     public static void playFailSound() {
         instance.playAudio("failSound");
+    }
+
+    public static void playRerouteUnavailable() {
+        instance.playAudio("rerouteUnavailable");
     }
 
 }

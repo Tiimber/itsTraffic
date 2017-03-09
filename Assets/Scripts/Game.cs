@@ -373,6 +373,7 @@ public class Game : MonoBehaviour, IPubSub {
             }
 		} else if (rightClickReleaseTimer > 0f) {
             rightMousePosition = rightMouseDownPosition;
+            // TODO - Right click "down" should not toggle if nothing is selected with the click (not sending RMove on upcoming frames)
             rightClickDown = !rightClickDown;
             PubSub.publish ("RClick", rightMouseDownPosition);
             rightClickReleaseTimer = 0f;
@@ -662,7 +663,7 @@ public class Game : MonoBehaviour, IPubSub {
 					humanLogic.name = "Human (id:" + data.id + ")";
 				}
 			}
-			humanLogic.setStartAndEndInfo (startInfo, endInfo, NodeIndex.getPosById(endPos));
+			humanLogic.setStartAndEndInfo (startInfo, endInfo, data, NodeIndex.getPosById(endPos));
 		}
 	}
 
@@ -766,6 +767,34 @@ public class Game : MonoBehaviour, IPubSub {
 
 		return chosenEndPoint;
 	}
+
+    public static List<Pos> calculateCurrentPaths (Pos source, Pos target, Pos previousPoint, List<Pos> wayPoints, bool isVehicle, bool isBackingOk = false) {
+        if (wayPoints == null || wayPoints.Count == 0) {
+            return calculateCurrentPath(source, target, isVehicle, previousPoint);
+        }
+
+        List<Pos> wayPointsIncludingTarget = new List<Pos>(wayPoints);
+        wayPointsIncludingTarget.Add(target);
+
+        List<Pos> calculatedPath = calculateCurrentPath(source, wayPointsIncludingTarget[0], isVehicle, isBackingOk ? null : previousPoint);
+        if (calculatedPath.Count > 1) {
+            // Loop through all wayPoints (+target) to get remaining paths
+            for (int i = 1; i < wayPointsIncludingTarget.Count; i++) {
+				// Remove last item in calculated path, since it will be included in this iteration (as "source")
+                calculatedPath.RemoveAt(calculatedPath.Count - 1);
+
+				List<Pos> wayPointPath = calculateCurrentPath(wayPointsIncludingTarget[i - 1], wayPointsIncludingTarget[i], isVehicle, isVehicle ? calculatedPath[calculatedPath.Count - 1] : null);
+                if (wayPointPath.Count < 2) {
+                    // Part of path is impossible, fallback to calculating simple "source to target" path
+                    return calculateCurrentPath(source, target, isVehicle, previousPoint);
+                } else {
+                    calculatedPath.AddRange(wayPointPath);
+                }
+            }
+        }
+
+        return calculatedPath;
+    }
 
     public static List<Pos> calculateCurrentPaths (Pos source, Pos target, Pos previousPoint, Pos middle, bool isVehicle, bool isBackingOk = false) {
         List<Pos> calculatedPath = new List<Pos>();

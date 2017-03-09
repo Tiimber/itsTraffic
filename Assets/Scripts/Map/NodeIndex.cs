@@ -105,6 +105,10 @@ public class NodeIndex
 		return NodeIndex.nodes[id];
 	}
 
+	public static List<Pos> getPosById (List<long> ids) {
+        return ids.ConvertAll<Pos>(id => getPosById(id));
+	}
+
 	private static Tuple3<Pos, WayReference, Vector3> GetHumanSpawnInfo (long nodeId) {
 		Pos spawnPos = nodes [nodeId];
 		// Position to spawn/despawn

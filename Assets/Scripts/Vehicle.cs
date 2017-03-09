@@ -5,29 +5,32 @@ using UnityEngine;
 
 public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IReroute {
 
-	[InspectorButton("OnButtonClicked")]
-	public bool debugPrint;
-
-	private void OnButtonClicked()
-	{
-		debugPrint ^= true;
-		if (debugPrint) {
-			createDangerHalo ();
-			DebugFn.square (TargetPoint, 3f);
-			List<Pos> drivePoints = Game.calculateCurrentPath (StartPos, EndPos);
-			WayReference wayReferenceStart = NodeIndex.getWayReference (StartPos.Id, drivePoints[1].Id);
-			WayReference wayReferenceEnd = NodeIndex.getWayReference (drivePoints[drivePoints.Count - 2].Id, EndPos.Id);
-			Debug.Log ("Start: " + wayReferenceStart.Id);
-			Debug.Log ("End: " + wayReferenceEnd.Id);
-			Debug.Log ("Turn state: " + turnState);
-		}
-	}
+//	[InspectorButton("OnButtonClicked")]
+//	public bool debugPrint;
+//
+//	private void OnButtonClicked()
+//	{
+//		debugPrint ^= true;
+//		if (debugPrint) {
+//			createDangerHalo ();
+//			DebugFn.square (TargetPoint, 3f);
+//			List<Pos> drivePoints = Game.calculateCurrentPath (StartPos, EndPos);
+//			WayReference wayReferenceStart = NodeIndex.getWayReference (StartPos.Id, drivePoints[1].Id);
+//			WayReference wayReferenceEnd = NodeIndex.getWayReference (drivePoints[drivePoints.Count - 2].Id, EndPos.Id);
+//			Debug.Log ("Start: " + wayReferenceStart.Id);
+//			Debug.Log ("End: " + wayReferenceEnd.Id);
+//			Debug.Log ("Turn state: " + turnState);
+//		}
+//	}
 
 	public const float START_POSITION_Z = -0.17f;
 	public Pos StartPos { set; get; }
 	public Pos EndPos { set; get; }
 	public Pos CurrentPosition { set; get; } 
 	public Pos CurrentTarget { set; get; }
+	public Pos PreviousTarget;
+    public bool wayPointsLoop;
+    public List<Pos> wayPoints;
 	private List<Pos> currentPath { set; get; }
     private bool currentPathIsDefinite = false;
 
@@ -461,10 +464,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 					}
 				}
 
-				if (debugPrint) {
-					DebugFn.square (TargetPoint, 0.0f);
-					//			Debug.Log ("Turn state: " + turnState);
-				}
+//				if (debugPrint) {
+//					DebugFn.square (TargetPoint, 0.0f);
+//					//			Debug.Log ("Turn state: " + turnState);
+//				}
 			}
 		}
 	}
@@ -603,6 +606,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		} else {
 			ImpatientThresholdTrafficLight = IMPATIENT_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
 		}
+
+        if (characteristics != null && characteristics.wayPoints != null) {
+            this.wayPoints = NodeIndex.getPosById(characteristics.wayPoints);
+            this.wayPointsLoop = characteristics.wayPointsLoop;
+        } else {
+            this.wayPoints = new List<Pos>();
+        }
 
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
@@ -1022,6 +1032,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 			stats[STAT_PASSED_TRAFFICLIGHT].add(1f);
 		}
 
+        if (wayPointsLoop && CurrentTarget == wayPoints[0]) {
+            // We have reached our first wayPoint and should loop, place first waypoint last and recalculate route
+            wayPoints.RemoveAt(0);
+            wayPoints.Add(CurrentTarget);
+            currentPath = Game.calculateCurrentPaths (CurrentTarget, EndPos, PreviousTarget, wayPoints, true, false);
+        }
+
 		isBigTurn = false;
 		TurnBreakFactor = 1.0f;
 //		Time.timeScale = TurnBreakFactor;
@@ -1034,9 +1051,12 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                 currentPath.RemoveAt(0);
             }
         } else {
-            currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+            // Calculate path once, set it as definite to not re-calculate at next crossing
+            currentPath = Game.calculateCurrentPaths (CurrentPosition, EndPos, null, wayPoints, true);
+            currentPathIsDefinite = true;
         }
 		if (currentPath.Count > 1) {
+            PreviousTarget = CurrentTarget;
 			CurrentTarget = currentPath [1];
 			CurrentWayReference = NodeIndex.getWayReference(CurrentPosition.Id, CurrentTarget.Id);
 			// TODO - Can remove?
@@ -1065,6 +1085,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				isCurrentTargetCrossing = true;
 			}
 		} else {
+            PreviousTarget = null;
 			CurrentTarget = null;
 			CurrentWayReference = null;
 
@@ -1329,10 +1350,16 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
     public void setPath(List<Pos> path, bool isDefinite = true) {
         currentPath = path;
         currentPathIsDefinite = isDefinite;
+        // TODO - If adding possibilities to re-route with a vehicle looping, below need to change
+        wayPointsLoop = false;
     }
 
     public void resumeMovement() {
         paused = false;
+    }
+
+    public bool isRerouteOk() {
+        return characteristics == null || characteristics.rerouteOK;
     }
 	// IReroute - end
 

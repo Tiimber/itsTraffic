@@ -75,20 +75,27 @@ public class Rerouting : MonoBehaviour, IPubSub {
             	// Right click when no object is active for rerouting
 				InformationBase selectedObject = InformationBase.GetInformationBaseAtPosition(position);
 				if (selectedObject != null) {
-					mouseDownPosition = position;
-                    RerouteInfo.gameObject = selectedObject.gameObject;
-                    RerouteInfo.iReroute = RerouteInfo.gameObject.GetComponent<IReroute>();
-					RerouteInfo.isVehicle = selectedObject.type == InformationBase.TYPE_VEHICLE;
-                    RerouteInfo.iReroute.pauseMovement();
-                    RerouteInfo.isReroute = false;
-                    RerouteInfo.originalPath = RerouteInfo.iReroute.getPath();
-                    RerouteInfo.positionOriginalPathHalos();
-					Vector3 objectPosition = selectedObject.gameObject.transform.position;
-					haloObject.transform.localPosition = new Vector3(objectPosition.x, objectPosition.y, 0f);
-                    haloObject.SetActive(true);
-                    originalParentObj.SetActive(true);
-                    rerouteParentObj.SetActive(false);
-                    inactivateHaloObjects(reroutePathHalos);
+                    GameObject rerouteGameObject = selectedObject.gameObject;
+                    IReroute componentIReroute = rerouteGameObject.GetComponent<IReroute>();
+                    if (componentIReroute.isRerouteOk()) {
+                        mouseDownPosition = position;
+                        RerouteInfo.gameObject = rerouteGameObject;
+                        RerouteInfo.iReroute = componentIReroute;
+                        RerouteInfo.isVehicle = selectedObject.type == InformationBase.TYPE_VEHICLE;
+                        RerouteInfo.iReroute.pauseMovement();
+                        RerouteInfo.isReroute = false;
+                        RerouteInfo.originalPath = RerouteInfo.iReroute.getPath();
+                        RerouteInfo.positionOriginalPathHalos();
+                        Vector3 objectPosition = rerouteGameObject.transform.position;
+                        haloObject.transform.localPosition = new Vector3(objectPosition.x, objectPosition.y, 0f);
+                        haloObject.SetActive(true);
+                        originalParentObj.SetActive(true);
+                        rerouteParentObj.SetActive(false);
+                        inactivateHaloObjects(reroutePathHalos);
+                    } else {
+                        // Re-routing not accepted, play sound
+                        GenericSoundEffects.playRerouteUnavailable();
+                    }
 				}
             } else {
 

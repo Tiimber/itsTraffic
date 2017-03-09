@@ -5,4 +5,5 @@ public interface IReroute {
     List<Pos> getPath();
     void setPath(List<Pos> path, bool isDefinite = true);
     void resumeMovement();
+    bool isRerouteOk();
 }

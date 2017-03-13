@@ -167,7 +167,12 @@ public class POIIcon : MonoBehaviour, IPubSub {
                 fallSpeed += fallSpeed * (0.1f * Time.unscaledDeltaTime);
             }
         } else {
-            bool isMainCameraActive = Game.instance.perspectiveCamera.gameObject.activeSelf;
+//            Debug.Log("1: " + Game.instance);
+//            Debug.Log("2: " + Game.instance.perspectiveCamera);
+//            Debug.Log("3: " + Game.instance.perspectiveCamera.gameObject);
+//            Debug.Log("4: " + Game.instance.perspectiveCamera.gameObject.activeSelf);
+            bool isMainCameraActive = CameraHandler.IsMapReadyForInteraction;
+//            bool isMainCameraActive = Game.instance.perspectiveCamera.gameObject.activeSelf;
 //            bool isMainOrIntroCameraActive = Game.instance.orthographicCamera.gameObject.activeSelf || Game.instance.perspectiveCamera.gameObject.activeSelf;
             if (isMainCameraActive) {
                 if (showingSmall) {

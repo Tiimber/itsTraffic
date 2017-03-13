@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
+public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute, IExplodable {
 
 	public static System.Random HumanRNG = new System.Random ((int)Game.randomSeed);
 	private static Vector3 INVALID_POINT = new Vector3(0f, 0f, float.MinValue);
@@ -105,15 +105,15 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
 						} else if (timedDeviationTarget != null) {
 							timedDeviationTarget = null;
 						} else {
-                            if (wayPointsLoop && wayPoints[0] == path[0]) {
+                            if (wayPointsLoop && wayPoints[0] == path[1]) {
 
 								// We have reached our first wayPoint and should loop, place first waypoint last and recalculate route
                                 wayPoints.RemoveAt(0);
-                                wayPoints.Add(path[0]);
+                                wayPoints.Add(path[1]);
                                 bool lastPathIsTmpPath = path[path.Count - 1].Id == -1L;
                                 Pos possibleTmpEndPos = lastPathIsTmpPath ? path[path.Count - 1] : null;
                                 Pos endPos = lastPathIsTmpPath ? path[path.Count - 2] : path[path.Count - 1];
-                                path = Game.calculateCurrentPaths (path[0], endPos, null, wayPoints, false, true);
+                                path = Game.calculateCurrentPaths (path[1], endPos, null, wayPoints, false, true);
                                 if (lastPathIsTmpPath) {
                                     path.Add(possibleTmpEndPos);
                                 }
@@ -465,9 +465,13 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
 		} while (this.gameObject != null);
 	}
 
+    private void pauseHuman() {
+        paused = true;
+    }
+
 	// IReroute - for pause, re-routing and resuming
     public void pauseMovement() {
-        paused = true;
+        pauseHuman();
     }
 
     public List<Pos> getPath() {
@@ -495,4 +499,10 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute {
         return personality == null || personality.rerouteOK;
     }
 	// IReroute - end
+
+    public void turnOnExplodable() {
+        Misc.SetGravityState (gameObject, true);
+        pauseHuman();
+    }
+
 }

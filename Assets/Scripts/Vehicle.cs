@@ -1335,12 +1335,17 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
     public void turnOnExplodable() {
         Misc.SetGravityState (gameObject, true);
+        pauseVehicle();
+    }
+
+    private void pauseVehicle() {
+        paused = true;
+        currentSpeed = 0f;
     }
 
     // IReroute - for pause, re-routing and resuming
     public void pauseMovement() {
-        paused = true;
-        currentSpeed = 0f;
+        pauseVehicle();
     }
 
     public List<Pos> getPath() {

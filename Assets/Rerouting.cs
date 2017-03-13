@@ -245,3 +245,7 @@ public class Rerouting : MonoBehaviour, IPubSub {
         }
     }
 }
+
+// TODO - Next time:
+// 1. Draw loops in reroute (right click without moving mouse)
+// 2. Potentially fix bug with reroute then move back mouse to original position - drawing one halo only

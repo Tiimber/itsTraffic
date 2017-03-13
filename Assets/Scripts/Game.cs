@@ -2383,6 +2383,7 @@ public class Game : MonoBehaviour, IPubSub {
     }
 
 	private void makeExplosion(int explosionFactor) {
+        stopAll();
         turnOnAllGravity();
         GameObject explosionSphere = GameObject.Find("ExplosionSphere");
         Collider[] colliders = Physics.OverlapSphere(explosionSphere.transform.position, 40f);
@@ -2396,5 +2397,13 @@ public class Game : MonoBehaviour, IPubSub {
 
     private void turnOnAllGravity() {
         InterfaceHelper.FindObjects<IExplodable>().ToList<IExplodable>().ForEach(i => i.turnOnExplodable());
+    }
+
+    // Game over (probably with explosion or something)
+    private void stopAll() {
+        CustomObjectCreator.Destroy();
+        VehicleRandomizer.Destroy();
+        HumanRandomizer.Destroy();
+        paused = true;
     }
 }

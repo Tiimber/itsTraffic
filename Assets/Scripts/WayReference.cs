@@ -31,7 +31,11 @@ public class WayReference : MonoBehaviour {
 	private float carCost = -1f;
 	private float getCarCost() {
 		if (carCost == -1f) {
-			carCost = transform.localScale.magnitude / way.WayWidthFactor;
+            if (way.WayWidthFactor < WayTypeEnum.PEDESTRIAN) {
+                carCost = 1000f;
+            } else {
+                carCost = transform.localScale.magnitude / way.WayWidthFactor;
+            }
 		}
 		return carCost;
 	}

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
+public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute, IExplodable {
 
 	public static System.Random HumanRNG = new System.Random ((int)Game.randomSeed);
 	private static Vector3 INVALID_POINT = new Vector3(0f, 0f, float.MinValue);
@@ -15,11 +15,15 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
     public Pos targetPos;
 	private List<Pos> path;
 	private List<Vector3> walkPath;
+    public bool wayPointsLoop;
+    public List<Pos> wayPoints;
+    public WayReference endWay;
 	private Vector3 deviationTarget = INVALID_POINT;
 	private TimedDeviationTarget timedDeviationTarget = null;
 
 	private Dictionary<Vehicle, string> vehiclesInVision = new Dictionary<Vehicle, string> ();
 	private HashSet<HumanLogic> waitForHumans = new HashSet<HumanLogic> ();
+    private bool paused = false;
 
 	public float totalWalkingDistance;
 
@@ -65,7 +69,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 
 			speedFactor = Misc.randomRange (minSpeedFactor, maxSpeedFactor);
 		}
-	}
+    }
 
 	// Update is called once per frame
 	void Update () {
@@ -73,7 +77,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 			return;
 		}
 			
-		if (Game.isMovementEnabled ()) {
+		if (!paused && Game.isMovementEnabled ()) {
 			if (waitTime > 0f) {
 				waitTime -= Time.deltaTime;
 				stats [STAT_WAITING_TIME].add (Time.deltaTime);
@@ -101,10 +105,31 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 						} else if (timedDeviationTarget != null) {
 							timedDeviationTarget = null;
 						} else {
-							walkPath.RemoveAt (0);
-							if (walkPath.Count == 0) {
-								fadeOutAndDestroy ();
-							}
+                            if (wayPointsLoop && wayPoints[0] == path[1]) {
+
+								// We have reached our first wayPoint and should loop, place first waypoint last and recalculate route
+                                wayPoints.RemoveAt(0);
+                                wayPoints.Add(path[1]);
+                                bool lastPathIsTmpPath = path[path.Count - 1].Id == -1L;
+                                Pos possibleTmpEndPos = lastPathIsTmpPath ? path[path.Count - 1] : null;
+                                Pos endPos = lastPathIsTmpPath ? path[path.Count - 2] : path[path.Count - 1];
+                                path = Game.calculateCurrentPaths (path[1], endPos, null, wayPoints, false, true);
+                                if (lastPathIsTmpPath) {
+                                    path.Add(possibleTmpEndPos);
+                                }
+
+                                walkPath = Misc.posToVector3 (path);
+								// Walkpath is always containing upcoming positions
+                                walkPath.RemoveAt (0);
+
+                            } else {
+								walkPath.RemoveAt (0);
+								path.RemoveAt(0);
+
+								if (walkPath.Count == 0) {
+									fadeOutAndDestroy ();
+								}
+                            }
 						}
 					} else {
 						Vector3 movement = transform.rotation * (Vector3.right * travelLengthThisFrame);
@@ -181,8 +206,10 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 	}
 
 		
-	public void setStartAndEndInfo (Tuple3<Pos, WayReference, Vector3> startInfo, Tuple3<Pos, WayReference, Vector3> endInfo, Pos targetPos) {
-		path = Game.calculateCurrentPath (startInfo.First, endInfo.First, false);
+	public void setStartAndEndInfo (Tuple3<Pos, WayReference, Vector3> startInfo, Tuple3<Pos, WayReference, Vector3> endInfo, Setup.PersonSetup personality , Pos targetPos) {
+        setWaypointsInfo(personality);
+
+        path = Game.calculateCurrentPaths (startInfo.First, endInfo.First, null, wayPoints, false, true);
 		walkPath = Misc.posToVector3 (path);
 
         this.targetPos = targetPos;
@@ -208,7 +235,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 		walkPath.Insert (0, startInfo.Third);
 		path.Insert (0, Game.createTmpPos (startInfo.Third));
 
-		WayReference endWay = endInfo.Second;
+		endWay = endInfo.Second;
 		if (endWay.hasNodes (secondToLastPos, lastPos)) {
 			walkPath.RemoveAt (walkPath.Count - 1);
 			path.RemoveAt (path.Count - 1);
@@ -228,6 +255,15 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 		rotateHuman (vec2, vec1);
 
 		walkPath.RemoveAt (0);
+	}
+
+	private void setWaypointsInfo(Setup.PersonSetup personality) {
+		if (personality != null && personality.wayPoints != null) {
+			this.wayPoints = NodeIndex.getPosById(personality.wayPoints);
+			this.wayPointsLoop = personality.wayPointsLoop;
+		} else {
+			this.wayPoints = new List<Pos>();
+		}
 	}
 
 	private void adjustPositionsOnBiggerWays (List<Pos> path, List<Vector3> walkPath, WayReference startWay, WayReference endWay) {
@@ -428,4 +464,45 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub {
 			}
 		} while (this.gameObject != null);
 	}
+
+    private void pauseHuman() {
+        paused = true;
+    }
+
+	// IReroute - for pause, re-routing and resuming
+    public void pauseMovement() {
+        pauseHuman();
+    }
+
+    public List<Pos> getPath() {
+        return path;
+    }
+
+    public void setPath(List<Pos> path, bool isDefinite = true) {
+        this.path = path;
+
+        walkPath = Misc.posToVector3 (path);
+        // Walkpath is always containing upcoming positions
+        walkPath.RemoveAt (0);
+
+        deviationTarget = INVALID_POINT;
+
+		// TODO - If adding possibilities to re-route with a vehicle looping, below need to change
+        wayPointsLoop = false;
+    }
+
+    public void resumeMovement() {
+        paused = false;
+    }
+
+    public bool isRerouteOk() {
+        return personality == null || personality.rerouteOK;
+    }
+	// IReroute - end
+
+    public void turnOnExplodable() {
+        Misc.SetGravityState (gameObject, true);
+        pauseHuman();
+    }
+
 }

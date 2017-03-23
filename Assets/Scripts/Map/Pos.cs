@@ -9,12 +9,15 @@ public class Pos : NodeWithTags {
 		this.Lat = lat;
 	}
 
-	public List<System.Collections.Generic.KeyValuePair<Pos, WayReference>> getNeighbours () {
+	public List<System.Collections.Generic.KeyValuePair<Pos, WayReference>> getNeighbours (Pos notANeighbour = null) {
 		List<KeyValuePair<Pos, WayReference>> neighbours = new List<KeyValuePair<Pos, WayReference>> ();
 		if (NodeIndex.nodeWayIndex.ContainsKey (Id)) {
 			List<WayReference> wayReferences = NodeIndex.nodeWayIndex [Id];
 			foreach (WayReference wayReference in wayReferences) {
-				neighbours.Add (new KeyValuePair<Pos, WayReference> (wayReference.node1 == this ? wayReference.node2 : wayReference.node1, wayReference));
+				Pos referenceNode = wayReference.node1 == this ? wayReference.node2 : wayReference.node1;
+                if (notANeighbour == null || referenceNode != notANeighbour) {
+                    neighbours.Add (new KeyValuePair<Pos, WayReference> (referenceNode, wayReference));
+                }
 			}
 		}
 		return neighbours;

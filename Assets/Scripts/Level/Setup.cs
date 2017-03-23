@@ -53,8 +53,12 @@ public class Setup {
 		string shirtColor = Misc.xmlString (personAttributes.GetNamedItem ("shirtColor"));
 		string skinColor = Misc.xmlString (personAttributes.GetNamedItem ("skinColor"));
 		string country = Misc.xmlString (personAttributes.GetNamedItem ("country"));
+        bool rerouteOK = Misc.xmlBool(personAttributes.GetNamedItem("rerouteOK"), true);
 
-		return new PersonSetup (id, name, time, startPos, endPos, startVector, refOnly, dob, money, speedFactor, shirtColor, skinColor, country);
+        List<long> wayPointIds = new List<long>();
+        bool wayPointsLoop = parseWayPoints(personNode, wayPointIds);
+
+        return new PersonSetup (id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPointIds, refOnly, dob, money, speedFactor, shirtColor, skinColor, country);
 	}
 
 	private VehicleSetup createVehicle (XmlNode vehicleNode) {
@@ -81,9 +85,27 @@ public class Setup {
 		float impatientThresholdNonTrafficLight = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("impatientThresholdNonTrafficLight"));
 		float impatientThresholdTrafficLight = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("impatientThresholdTrafficLight"));
 		string color = Misc.xmlString (vehicleAttributes.GetNamedItem ("color"));
+        bool rerouteOK = Misc.xmlBool(vehicleAttributes.GetNamedItem("rerouteOK"), true);
 
-		return new VehicleSetup (id, name, time, startPos, endPos, startVector, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight, color);
+        List<long> wayPointIds = new List<long>();
+        bool wayPointsLoop = parseWayPoints(vehicleNode, wayPointIds);
+
+		return new VehicleSetup (id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPointIds, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight, color);
 	}
+
+    private bool parseWayPoints (XmlNode instanceNode, List<long> wayPointIds) {
+        bool wayPointsLoop = false;
+        XmlNode wayPointsNode = instanceNode.SelectSingleNode("wayPoints");
+        if (wayPointsNode != null) {
+            wayPointsLoop = Misc.xmlBool(wayPointsNode.Attributes.GetNamedItem("loop"), false);
+            XmlNodeList singleWayPoints = wayPointsNode.SelectNodes("wayPoint");
+            foreach (XmlNode wayPointNode in singleWayPoints) {
+                wayPointIds.Add(Misc.xmlLong(wayPointNode.Attributes.GetNamedItem("id")));
+            }
+        }
+
+        return wayPointsLoop;
+    }
 
 	public class InstanceSetup {
 		public long id;
@@ -92,14 +114,20 @@ public class Setup {
 		public long startPos;
 		public long endPos;
 		public string startVector;
+        public bool rerouteOK;
+        public bool wayPointsLoop;
+        public List<long> wayPoints;
 
-		public InstanceSetup(long id, string name, float time, long startPos, long endPos, string startVector) {
+		public InstanceSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints) {
 			this.id = id;
 			this.name = name;
 			this.time = time;
 			this.startPos = startPos;
 			this.endPos = endPos;
 			this.startVector = startVector;
+            this.rerouteOK = rerouteOK;
+            this.wayPointsLoop = wayPointsLoop;
+            this.wayPoints = wayPoints;
 		}
 	}
 
@@ -112,7 +140,7 @@ public class Setup {
 		public string skinColor;
 		public string country;
 
-		public PersonSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool refOnly, string dob, float money, float speedFactor, string shirtColor, string skinColor, string country) : base(id, name, time, startPos, endPos, startVector) {
+		public PersonSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, bool refOnly, string dob, float money, float speedFactor, string shirtColor, string skinColor, string country) : base(id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPoints) {
 			this.refOnly = refOnly;
 			this.dob = dob;
 			this.money = money;
@@ -139,7 +167,7 @@ public class Setup {
 		public float impatientThresholdTrafficLight;
 		public string color;
 
-		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string startVector, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight, string color) : base(id, name, time, startPos, endPos, startVector) {
+		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight, string color) : base(id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPoints) {
 			this.brand = brand;
 			this.model = model;
 			this.type = type;

@@ -99,7 +99,11 @@ public class Game : MonoBehaviour, IPubSub {
 	private Dictionary<int, Light> dangerHalos = new Dictionary<int, Light> ();
 
 	public Level loadedLevel = null;
-	private float clickReleaseTimer = 0f;
+	private float leftClickReleaseTimer = 0f;
+	private float rightClickReleaseTimer = 0f;
+    private bool rightClickDown = false;
+	private Vector3 rightMouseDownPosition;
+	private Vector3 rightMousePosition;
 	private Vector3 mouseDownPosition;
 	private Vector3 prevMousePosition;
 
@@ -341,11 +345,11 @@ public class Game : MonoBehaviour, IPubSub {
 
 			// Click logic
 			if (firstFrame) {
-				clickReleaseTimer = CLICK_RELEASE_TIME;
+				leftClickReleaseTimer = CLICK_RELEASE_TIME;
 			} else {
-				clickReleaseTimer -= Time.deltaTime;
+				leftClickReleaseTimer -= Time.deltaTime;
 			}
-		} else if (clickReleaseTimer > 0f) {
+		} else if (leftClickReleaseTimer > 0f) {
 			// Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
 			if (Misc.getDistance (mouseDownPosition, prevMousePosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {
                 // TODO - Click when zoomed into vehicle - should show information window again
@@ -353,11 +357,37 @@ public class Game : MonoBehaviour, IPubSub {
 				// Debug.Log(mouseDownPosition + " => " + screenToWorldPos(mouseDownPosition) + " vs. " + orthographicCamera.ScreenToWorldPoint(mouseDownPosition));
 				// PubSub.publish ("Click", mouseWorldPoint);
 				PubSub.publish ("Click", mouseDownPosition);
-				clickReleaseTimer = 0f;
+				leftClickReleaseTimer = 0f;
 			}
 		}
 
+        // Right click (hold)
+        if (Input.GetMouseButton (1)) {
+			// Click logic
+            bool firstFrame = Input.GetMouseButtonDown (1);
+            if (firstFrame) {
+                rightClickReleaseTimer = CLICK_RELEASE_TIME;
+                rightMouseDownPosition = Input.mousePosition;
+            } else {
+                rightClickReleaseTimer -= Time.deltaTime;
+            }
+		} else if (rightClickReleaseTimer > 0f) {
+            rightMousePosition = rightMouseDownPosition;
+            // TODO - Right click "down" should not toggle if nothing is selected with the click (not sending RMove on upcoming frames)
+            rightClickDown = !rightClickDown;
+            PubSub.publish ("RClick", rightMouseDownPosition);
+            rightClickReleaseTimer = 0f;
+        }
+
+        if (rightClickDown) {
+            if (rightMousePosition != Input.mousePosition) {
+                rightMousePosition = Input.mousePosition;
+				PubSub.publish("RMove", rightMousePosition);
+            }
+        }
+
 		// TODO - This is for debug - choosing endpoints
+/*
 		if (Game.debugMode) {
 			if (Input.GetMouseButtonDown (1)) {
 				Vector3 mousePosition = Input.mousePosition;
@@ -403,6 +433,7 @@ public class Game : MonoBehaviour, IPubSub {
 				DebugFn.temporaryOverride (Color.black);
 			}
 		}
+*/
 
 		if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
 			float scrollAmount = Input.GetAxis ("Mouse ScrollWheel");
@@ -632,7 +663,7 @@ public class Game : MonoBehaviour, IPubSub {
 					humanLogic.name = "Human (id:" + data.id + ")";
 				}
 			}
-			humanLogic.setStartAndEndInfo (startInfo, endInfo, NodeIndex.getPosById(endPos));
+			humanLogic.setStartAndEndInfo (startInfo, endInfo, data, NodeIndex.getPosById(endPos));
 		}
 	}
 
@@ -737,7 +768,54 @@ public class Game : MonoBehaviour, IPubSub {
 		return chosenEndPoint;
 	}
 
-	public static List<Pos> calculateCurrentPath (Pos source, Pos target, bool isVehicle = true) {
+    public static List<Pos> calculateCurrentPaths (Pos source, Pos target, Pos previousPoint, List<Pos> wayPoints, bool isVehicle, bool isBackingOk = false) {
+        if (wayPoints == null || wayPoints.Count == 0) {
+            return calculateCurrentPath(source, target, isVehicle, previousPoint);
+        }
+
+        List<Pos> wayPointsIncludingTarget = new List<Pos>(wayPoints);
+        wayPointsIncludingTarget.Add(target);
+
+        List<Pos> calculatedPath = calculateCurrentPath(source, wayPointsIncludingTarget[0], isVehicle, isBackingOk ? null : previousPoint);
+        if (calculatedPath.Count > 1) {
+            // Loop through all wayPoints (+target) to get remaining paths
+            for (int i = 1; i < wayPointsIncludingTarget.Count; i++) {
+				// Remove last item in calculated path, since it will be included in this iteration (as "source")
+                calculatedPath.RemoveAt(calculatedPath.Count - 1);
+
+				List<Pos> wayPointPath = calculateCurrentPath(wayPointsIncludingTarget[i - 1], wayPointsIncludingTarget[i], isVehicle, isVehicle ? calculatedPath[calculatedPath.Count - 1] : null);
+                if (wayPointPath.Count < 2) {
+                    // Part of path is impossible, fallback to calculating simple "source to target" path
+                    return calculateCurrentPath(source, target, isVehicle, previousPoint);
+                } else {
+                    calculatedPath.AddRange(wayPointPath);
+                }
+            }
+        }
+
+        return calculatedPath;
+    }
+
+    public static List<Pos> calculateCurrentPaths (Pos source, Pos target, Pos previousPoint, Pos middle, bool isVehicle, bool isBackingOk = false) {
+        List<Pos> calculatedPath = new List<Pos>();
+
+		List<Pos> firstHalfPath = calculateCurrentPath(source, middle, isVehicle, isBackingOk ? null : previousPoint);
+        if (firstHalfPath.Count > 1) {
+            // Remove middle point (will be added in second half)
+            firstHalfPath.RemoveAt(firstHalfPath.Count - 1);
+
+			List<Pos> secondHalfPath = calculateCurrentPath(middle, target, isVehicle, isBackingOk ? null : firstHalfPath[firstHalfPath.Count - 1]);
+
+            if (secondHalfPath.Count > 1) {
+                calculatedPath.AddRange(firstHalfPath);
+				calculatedPath.AddRange(secondHalfPath);
+            }
+        }
+
+        return calculatedPath;
+    }
+
+	public static List<Pos> calculateCurrentPath (Pos source, Pos target, bool isVehicle = true, Pos previousPoint = null) {
 		List<Pos> calculatedPath = new List<Pos> ();
 
 		Dictionary<long, NodeDistance> visitedPaths = new Dictionary<long, NodeDistance> ();
@@ -749,7 +827,7 @@ public class Game : MonoBehaviour, IPubSub {
 			visitedPaths[current.Id].visited = true;
 			float currentCost = visitedPaths[current.Id].cost;
 
-			List<KeyValuePair<Pos, WayReference>> neighbours = current.getNeighbours();
+			List<KeyValuePair<Pos, WayReference>> neighbours = current.getNeighbours(previousPoint);
 			foreach (KeyValuePair<Pos, WayReference> neighbour in neighbours) {
 				// Calculate cost to node
 				Pos neighbourNode = neighbour.Key;
@@ -768,6 +846,7 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 
 			current = getLowestUnvisitedCostNode(visitedPaths);
+            previousPoint = current;
 			if (current == null) {
 				impossible = true;
 				break;
@@ -1880,6 +1959,8 @@ public class Game : MonoBehaviour, IPubSub {
             savePlayerPrefs(menuValue, value);
 
             graphicsQuality = value;
+
+            PubSub.publish ("Graphics:quality", value);
         }
     }
 
@@ -2297,7 +2378,12 @@ public class Game : MonoBehaviour, IPubSub {
 		return ray.GetPoint(distance);
 	}
 
+    public Vector3 objectToScreenPos(GameObject positionObj) {
+        return perspectiveCamera.WorldToScreenPoint(positionObj.transform.position);
+    }
+
 	private void makeExplosion(int explosionFactor) {
+        stopAll();
         turnOnAllGravity();
         GameObject explosionSphere = GameObject.Find("ExplosionSphere");
         Collider[] colliders = Physics.OverlapSphere(explosionSphere.transform.position, 40f);
@@ -2311,5 +2397,13 @@ public class Game : MonoBehaviour, IPubSub {
 
     private void turnOnAllGravity() {
         InterfaceHelper.FindObjects<IExplodable>().ToList<IExplodable>().ForEach(i => i.turnOnExplodable());
+    }
+
+    // Game over (probably with explosion or something)
+    private void stopAll() {
+        CustomObjectCreator.Destroy();
+        VehicleRandomizer.Destroy();
+        HumanRandomizer.Destroy();
+        paused = true;
     }
 }

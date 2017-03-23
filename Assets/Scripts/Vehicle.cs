@@ -3,32 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
+public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IReroute {
 
-	[InspectorButton("OnButtonClicked")]
-	public bool debugPrint;
-
-	private void OnButtonClicked()
-	{
-		debugPrint ^= true;
-		if (debugPrint) {
-			createDangerHalo ();
-			DebugFn.square (TargetPoint, 3f);
-			List<Pos> drivePoints = Game.calculateCurrentPath (StartPos, EndPos);
-			WayReference wayReferenceStart = NodeIndex.getWayReference (StartPos.Id, drivePoints[1].Id);
-			WayReference wayReferenceEnd = NodeIndex.getWayReference (drivePoints[drivePoints.Count - 2].Id, EndPos.Id);
-			Debug.Log ("Start: " + wayReferenceStart.Id);
-			Debug.Log ("End: " + wayReferenceEnd.Id);
-			Debug.Log ("Turn state: " + turnState);
-		}
-	}
+//	[InspectorButton("OnButtonClicked")]
+//	public bool debugPrint;
+//
+//	private void OnButtonClicked()
+//	{
+//		debugPrint ^= true;
+//		if (debugPrint) {
+//			createDangerHalo ();
+//			DebugFn.square (TargetPoint, 3f);
+//			List<Pos> drivePoints = Game.calculateCurrentPath (StartPos, EndPos);
+//			WayReference wayReferenceStart = NodeIndex.getWayReference (StartPos.Id, drivePoints[1].Id);
+//			WayReference wayReferenceEnd = NodeIndex.getWayReference (drivePoints[drivePoints.Count - 2].Id, EndPos.Id);
+//			Debug.Log ("Start: " + wayReferenceStart.Id);
+//			Debug.Log ("End: " + wayReferenceEnd.Id);
+//			Debug.Log ("Turn state: " + turnState);
+//		}
+//	}
 
 	public const float START_POSITION_Z = -0.17f;
 	public Pos StartPos { set; get; }
 	public Pos EndPos { set; get; }
 	public Pos CurrentPosition { set; get; } 
 	public Pos CurrentTarget { set; get; }
+	public Pos PreviousTarget;
+    public bool wayPointsLoop;
+    public List<Pos> wayPoints;
 	private List<Pos> currentPath { set; get; }
+    private bool currentPathIsDefinite = false;
 
 	private Vector3 endVector;
 	private Vector3 startVector;
@@ -51,6 +55,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 	private float vapourEndColorLevel = 0.32f;
 	public float totalDrivingDistance = 0f;
 	public bool destroying = false;
+    private bool paused = false;
 
 	private float EmissionFactor { set; get; }
 	private float CollectedEmissionAmount = 0f;
@@ -254,7 +259,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
             Vehicle.debugCamera.transform.rotation = Quaternion.identity;
         }
 		if (Game.isMovementEnabled()) {
-			if (!destroying) {
+			if (!paused && !destroying) {
 				if (TurnToRoad != null && CurrentWayReference != null) {
 
 					// Way target speed
@@ -459,10 +464,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 					}
 				}
 
-				if (debugPrint) {
-					DebugFn.square (TargetPoint, 0.0f);
-					//			Debug.Log ("Turn state: " + turnState);
-				}
+//				if (debugPrint) {
+//					DebugFn.square (TargetPoint, 0.0f);
+//					//			Debug.Log ("Turn state: " + turnState);
+//				}
 			}
 		}
 	}
@@ -601,6 +606,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 		} else {
 			ImpatientThresholdTrafficLight = IMPATIENT_TRAFFIC_LIGHT_THRESHOLD * impatientFactor;
 		}
+
+        if (characteristics != null && characteristics.wayPoints != null) {
+            this.wayPoints = NodeIndex.getPosById(characteristics.wayPoints);
+            this.wayPointsLoop = characteristics.wayPointsLoop;
+        } else {
+            this.wayPoints = new List<Pos>();
+        }
 
 		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
@@ -743,7 +755,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 				// Logic for upcoming wayreference end node collission
 				if (wayCollisionObj != null && wayCollisionObj.WayReference == CurrentWayReference && wayCollisionObj.Pos == CurrentTarget) {
 					// We know that this is the currentTarget - we want to know our options
-					List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
+					List<WayReference> possibilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
 					if (colliderName == "FAC") {
 						turnState = TurnState.FAC;
 					} else if (colliderName == "PC") {
@@ -754,7 +766,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 						turnState = TurnState.BC;
 					}
 
-					if (possitilities.Count == 1 && !isBigTurn) {
+					if (possibilities.Count == 1 && !isBigTurn) {
 						if (turnState != TurnState.BC) {
 							float desiredRotation = Quaternion.Angle (CurrentWayReference.transform.rotation, TurnToRoad.transform.rotation);
 							bool areBothSameDirection = CurrentWayReference.isNode1 (CurrentTarget) != TurnToRoad.isNode1 (CurrentTarget);
@@ -763,8 +775,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 							}
 							TurnBreakFactor = getTurnBreakFactorForDegrees (Mathf.Abs (desiredRotation));
 						}
-					} else if (possitilities.Count > 1 || isBigTurn) {
-						currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+					} else if (possibilities.Count > 1 || isBigTurn) {
 						Pos nextTarget = currentPath [2];
 						if (turnState != TurnState.BC) {
 							WayReference otherWayReference = NodeIndex.getWayReference (CurrentTarget.Id, nextTarget.Id);
@@ -1021,6 +1032,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 			stats[STAT_PASSED_TRAFFICLIGHT].add(1f);
 		}
 
+        if (wayPointsLoop && CurrentTarget == wayPoints[0]) {
+            // We have reached our first wayPoint and should loop, place first waypoint last and recalculate route
+            wayPoints.RemoveAt(0);
+            wayPoints.Add(CurrentTarget);
+            currentPath = Game.calculateCurrentPaths (CurrentTarget, EndPos, PreviousTarget, wayPoints, true, false);
+        }
+
 		isBigTurn = false;
 		TurnBreakFactor = 1.0f;
 //		Time.timeScale = TurnBreakFactor;
@@ -1028,8 +1046,17 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 		stopBlinkers ();
 
 		statReportPossibleCrossing ();
-		currentPath = Game.calculateCurrentPath (CurrentPosition, EndPos);
+		if (currentPathIsDefinite) {
+            while (currentPath[0] != CurrentPosition) {
+                currentPath.RemoveAt(0);
+            }
+        } else {
+            // Calculate path once, set it as definite to not re-calculate at next crossing
+            currentPath = Game.calculateCurrentPaths (CurrentPosition, EndPos, null, wayPoints, true);
+            currentPathIsDefinite = true;
+        }
 		if (currentPath.Count > 1) {
+            PreviousTarget = CurrentTarget;
 			CurrentTarget = currentPath [1];
 			CurrentWayReference = NodeIndex.getWayReference(CurrentPosition.Id, CurrentTarget.Id);
 			// TODO - Can remove?
@@ -1058,6 +1085,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 				isCurrentTargetCrossing = true;
 			}
 		} else {
+            PreviousTarget = null;
 			CurrentTarget = null;
 			CurrentWayReference = null;
 
@@ -1307,7 +1335,38 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable {
 
     public void turnOnExplodable() {
         Misc.SetGravityState (gameObject, true);
+        pauseVehicle();
     }
+
+    private void pauseVehicle() {
+        paused = true;
+        currentSpeed = 0f;
+    }
+
+    // IReroute - for pause, re-routing and resuming
+    public void pauseMovement() {
+        pauseVehicle();
+    }
+
+    public List<Pos> getPath() {
+        return currentPath;
+    }
+
+    public void setPath(List<Pos> path, bool isDefinite = true) {
+        currentPath = path;
+        currentPathIsDefinite = isDefinite;
+        // TODO - If adding possibilities to re-route with a vehicle looping, below need to change
+        wayPointsLoop = false;
+    }
+
+    public void resumeMovement() {
+        paused = false;
+    }
+
+    public bool isRerouteOk() {
+        return characteristics == null || characteristics.rerouteOK;
+    }
+	// IReroute - end
 
     public void OnGUI () {
 		if (Vehicle.debug == this) {

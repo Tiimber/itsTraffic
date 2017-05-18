@@ -112,6 +112,9 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 
     private float calculateContentHeight(float informationWindowWidth) {
         float y = 0;
+        if (information == null) {
+            Debug.Log("information is null");
+        }
         foreach (KeyValuePair<string, object> infoRow in information) {
             // TODO - Don't really like this one, "onlyCalculation"
             printKeyValuePair (infoRow, ref y, informationWindowWidth, onlyCalculation: true);

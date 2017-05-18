@@ -37,6 +37,7 @@ public class CameraSwitch : MonoBehaviour {
 
         cameraCopyCamera.enabled = true;
         cameraCopy.SetActive(true);
+        CameraHandler.currentRenderCamera = cameraCopyCamera;
 
         yield return doAnimate(cameraCopy.GetComponent<Camera>(), to.transform, toFieldOfView, audioListener, audioListenerMoveVector, time);
 
@@ -50,6 +51,7 @@ public class CameraSwitch : MonoBehaviour {
 
         to.enabled = true;
         to.gameObject.SetActive(true);
+        CameraHandler.currentRenderCamera = to;
         cameraCopyCamera.enabled = false;
         cameraCopy.SetActive(false);
         Destroy(cameraCopy);

@@ -232,6 +232,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 	public void setCharacteristics(Setup.VehicleSetup characteristics) {
 		this.characteristics = characteristics;
+        if (characteristics != null && characteristics.specialIcon != null) {
+            SpecialIcon specialIcon = gameObject.GetComponent<SpecialIcon>();
+            specialIcon.setIcon(characteristics.specialIcon);
+        }
 	}
 
 	private static float GetAccForKmh(float currentSpeed, float targetSpeed) {
@@ -511,6 +515,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		}
 	}
 
+    // TODO - Don't run every frame. Calculate only when necessary.
 	private void adjustColliders () {
 		VehicleCollider[] vehicleColliders = GetComponentsInChildren<VehicleCollider> ();
 
@@ -612,6 +617,12 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             this.wayPointsLoop = characteristics.wayPointsLoop;
         } else {
             this.wayPoints = new List<Pos>();
+        }
+
+        if (characteristics != null) {
+            gameObject.GetComponent<Mood>().init(characteristics.mood[0], characteristics.angrySpeed, characteristics.happySpeed, characteristics.mood[1], characteristics.mood[2]);
+        } else {
+            gameObject.GetComponent<Mood>().init();
         }
 
 		TurnBreakFactor = 1.0f;
@@ -1019,9 +1030,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 			return new TrafficLightCollisionObj (colliderGameObject.GetComponentInParent<TrafficLightLogic> (), colliderGameObject.name);
 		} else if (colliderGameObject.GetComponentInParent<HumanLogic> () != null) {
 			// Human (only "BODY" is interesting)
-			string name = HumanCollider.colliderNamesForGameObjectName[colliderGameObject.name];
-			if (name == "BODY") {
-				return new HumanCollisionObj (colliderGameObject.GetComponentInParent<HumanLogic> (), name);
+			if (HumanCollider.colliderNamesForGameObjectName.ContainsKey(colliderGameObject.name)) {
+				string name = HumanCollider.colliderNamesForGameObjectName[colliderGameObject.name];
+				if (name == "BODY") {
+					return new HumanCollisionObj(colliderGameObject.GetComponentInParent<HumanLogic>(), name);
+				}
 			}
 		}
 		return null;

@@ -114,51 +114,53 @@ public class Rerouting : MonoBehaviour, IPubSub {
                 mouseDownPosition = VECTOR3_NULL;
             }
         } else if (message == "RMove") {
-            Vector3 mousePos = (Vector3)data;
-            Vector3 objectScreenPos = Game.instance.objectToScreenPos(RerouteInfo.gameObject);
-            float moveFromObject = Misc.getDistance(mousePos, objectScreenPos);
-            if (moveFromObject >= DISTANCE_FOR_REROUTE) {
-                // Get re-route pos object
-                Vector2 mousePosVector2 = Game.instance.screenToWorldPosInBasePlane(mousePos);
-                Pos pos = NodeIndex.getPosClosestTo (mousePosVector2, RerouteInfo.isVehicle);
+            if (RerouteInfo.gameObject != null) {
+                Vector3 mousePos = (Vector3)data;
+                Vector3 objectScreenPos = Game.instance.objectToScreenPos(RerouteInfo.gameObject);
+                float moveFromObject = Misc.getDistance(mousePos, objectScreenPos);
+                if (moveFromObject >= DISTANCE_FOR_REROUTE) {
+// Get re-route pos object
+                    Vector2 mousePosVector2 = Game.instance.screenToWorldPosInBasePlane(mousePos);
+                    Pos pos = NodeIndex.getPosClosestTo(mousePosVector2, RerouteInfo.isVehicle);
 
-                int pathPoints = RerouteInfo.originalPath.Count;
-                Pos addToPathPos = null;
-                Pos targetPos = RerouteInfo.originalPath[RerouteInfo.originalPath.Count - 1];
-                if (targetPos.Id == -1L) {
-                    addToPathPos = targetPos;
-                    targetPos = RerouteInfo.originalPath[RerouteInfo.originalPath.Count - 2];
-                    pathPoints--;
-                }
+                    int pathPoints = RerouteInfo.originalPath.Count;
+                    Pos addToPathPos = null;
+                    Pos targetPos = RerouteInfo.originalPath[RerouteInfo.originalPath.Count - 1];
+                    if (targetPos.Id == -1L) {
+                        addToPathPos = targetPos;
+                        targetPos = RerouteInfo.originalPath[RerouteInfo.originalPath.Count - 2];
+                        pathPoints--;
+                    }
 
-                if (pathPoints > 2) {
-                    Pos startPos = RerouteInfo.originalPath[1];
-                    RerouteInfo.reroutePath = Game.calculateCurrentPaths(startPos, targetPos, RerouteInfo.originalPath[0], pos, RerouteInfo.isVehicle, !RerouteInfo.isVehicle);
+                    if (pathPoints > 2) {
+                        Pos startPos = RerouteInfo.originalPath[1];
+                        RerouteInfo.reroutePath = Game.calculateCurrentPaths(startPos, targetPos, RerouteInfo.originalPath[0], pos, RerouteInfo.isVehicle, !RerouteInfo.isVehicle);
 
-                    if (RerouteInfo.reroutePath.Count > 0) {
-                        RerouteInfo.reroutePath.Insert(0, Game.createTmpPos(RerouteInfo.gameObject.transform.position));
-                        if (addToPathPos != null) {
-                            // Remove last path, if endPos is on this wayReference
-                            if (!RerouteInfo.isVehicle && RerouteInfo.gameObject.GetComponent<HumanLogic>().endWay.hasNodes (RerouteInfo.reroutePath[RerouteInfo.reroutePath.Count - 2], RerouteInfo.reroutePath[RerouteInfo.reroutePath.Count - 1])) {
-                                RerouteInfo.reroutePath.RemoveAt(RerouteInfo.reroutePath.Count - 1);
+                        if (RerouteInfo.reroutePath.Count > 0) {
+                            RerouteInfo.reroutePath.Insert(0, Game.createTmpPos(RerouteInfo.gameObject.transform.position));
+                            if (addToPathPos != null) {
+                                // Remove last path, if endPos is on this wayReference
+                                if (!RerouteInfo.isVehicle && RerouteInfo.gameObject.GetComponent<HumanLogic>().endWay.hasNodes(RerouteInfo.reroutePath[RerouteInfo.reroutePath.Count - 2], RerouteInfo.reroutePath[RerouteInfo.reroutePath.Count - 1])) {
+                                    RerouteInfo.reroutePath.RemoveAt(RerouteInfo.reroutePath.Count - 1);
+                                }
+
+                                // Human should walk to end pos (tmp Pos object)
+                                RerouteInfo.reroutePath.Add(addToPathPos);
                             }
-
-                            // Human should walk to end pos (tmp Pos object)
-                            RerouteInfo.reroutePath.Add(addToPathPos);
-                        }
 //                        if (!RerouteInfo.isVehicle && isGoingFrontAndBackOnWay(RerouteInfo.originalPath)) {
 //                            RerouteInfo.reroutePath.RemoveAt(1);
 //                        }
-                        RerouteInfo.isReroute = true;
-                        RerouteInfo.positionReroutePathHalos();
-                        rerouteParentObj.SetActive(true);
-                        originalParentObj.SetActive(false);
-                        inactivateHaloObjects(originalPathHalos);
-                    } else {
-                        RerouteInfo.isReroute = false;
-                        originalParentObj.SetActive(true);
-                        rerouteParentObj.SetActive(false);
-                        inactivateHaloObjects(reroutePathHalos);
+                            RerouteInfo.isReroute = true;
+                            RerouteInfo.positionReroutePathHalos();
+                            rerouteParentObj.SetActive(true);
+                            originalParentObj.SetActive(false);
+                            inactivateHaloObjects(originalPathHalos);
+                        } else {
+                            RerouteInfo.isReroute = false;
+                            originalParentObj.SetActive(true);
+                            rerouteParentObj.SetActive(false);
+                            inactivateHaloObjects(reroutePathHalos);
+                        }
                     }
                 }
             } else if (RerouteInfo.isReroute) {

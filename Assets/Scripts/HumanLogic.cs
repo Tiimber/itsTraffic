@@ -46,6 +46,10 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute, IExpl
 
 	public void setPersonality (Setup.PersonSetup personality) {
 		this.personality = personality;
+        if (personality != null && personality.specialIcon != null) {
+			SpecialIcon specialIcon = gameObject.GetComponent<SpecialIcon>();
+            specialIcon.setIcon(personality.specialIcon);
+        }
 	}
 
 	// Use this for initialization
@@ -69,6 +73,12 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute, IExpl
 
 			speedFactor = Misc.randomRange (minSpeedFactor, maxSpeedFactor);
 		}
+
+        if (personality != null) {
+            gameObject.GetComponent<Mood>().init(personality.mood[0], personality.angrySpeed, personality.happySpeed, personality.mood[1], personality.mood[2]);
+        } else {
+            gameObject.GetComponent<Mood>().init();
+        }
     }
 
 	// Update is called once per frame
@@ -384,9 +394,11 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute, IExpl
 			}
 		} else if (colliderGameObject.GetComponentInParent<HumanLogic> () != null) {
 			if (colliderGameObject.GetComponentInParent<HumanLogic> ().humanId != humanId) {
-				string otherColliderName = HumanCollider.colliderNamesForGameObjectName [colliderGameObject.name];
-				if (otherColliderName == "BODY") {
-					return new HumanCollisionObj (colliderGameObject.GetComponentInParent<HumanLogic> (), otherColliderName);
+                if (HumanCollider.colliderNamesForGameObjectName.ContainsKey(colliderGameObject.name)) {
+					string otherColliderName = HumanCollider.colliderNamesForGameObjectName[colliderGameObject.name];
+					if (otherColliderName == "BODY") {
+						return new HumanCollisionObj(colliderGameObject.GetComponentInParent<HumanLogic>(), otherColliderName);
+					}
 				}
 			}
 		}

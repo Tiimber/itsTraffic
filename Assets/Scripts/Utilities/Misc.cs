@@ -229,17 +229,28 @@ public class Misc {
 		return false;
 	}
 
-// Convert string with comma separated longs to list of longs
-	public static List<long> parseLongs(string passengerIdsStr, char separator = ',') {
+	// Convert string with comma separated longs to list of longs
+	public static List<long> parseLongs(string longsStr, char separator = ',') {
 		List<long> ids = new List<long>();
-		if (passengerIdsStr != null) {
-			string[] idStrings = passengerIdsStr.Split(separator);
+		if (longsStr != null) {
+			string[] idStrings = longsStr.Split(separator);
 			foreach (string id in idStrings) {
 				ids.Add(Convert.ToInt64(id));
 			}
 		}
 		return ids;
 	}
+
+    public static List<float> parseFloats(string floatsStr, char separator = ',') {
+        List<float> floats = new List<float>();
+        if (floatsStr != null) {
+            string[] floatStrings = floatsStr.Split(separator);
+            foreach (string floatString in floatStrings) {
+                floats.Add(Convert.ToSingle(floatString));
+            }
+        }
+        return floats;
+    }
 
 	public static List<List<long>> parseLongMultiList(string intStrings, char listSeparator, char itemSeparator) {
 		List<List<long>> multiList = new List<List<long>>();

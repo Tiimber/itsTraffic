@@ -53,12 +53,17 @@ public class Setup {
 		string shirtColor = Misc.xmlString (personAttributes.GetNamedItem ("shirtColor"));
 		string skinColor = Misc.xmlString (personAttributes.GetNamedItem ("skinColor"));
 		string country = Misc.xmlString (personAttributes.GetNamedItem ("country"));
+        string specialIcon = Misc.xmlString( personAttributes.GetNamedItem( "specialIcon") );
         bool rerouteOK = Misc.xmlBool(personAttributes.GetNamedItem("rerouteOK"), true);
 
         List<long> wayPointIds = new List<long>();
         bool wayPointsLoop = parseWayPoints(personNode, wayPointIds);
 
-        return new PersonSetup (id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPointIds, refOnly, dob, money, speedFactor, shirtColor, skinColor, country);
+        List<float> mood = Misc.parseFloats(Misc.xmlString(personAttributes.GetNamedItem("mood"), "1,0,1.5"));
+        float angrySpeed = Misc.xmlFloat(personAttributes.GetNamedItem("angrySpeed"), 0.1f);
+        float happySpeed = Misc.xmlFloat(personAttributes.GetNamedItem("happySpeed"), 0.05f);
+
+        return new PersonSetup (id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPointIds, refOnly, dob, money, speedFactor, shirtColor, skinColor, country, specialIcon, mood, angrySpeed, happySpeed);
 	}
 
 	private VehicleSetup createVehicle (XmlNode vehicleNode) {
@@ -86,11 +91,16 @@ public class Setup {
 		float impatientThresholdTrafficLight = Misc.xmlFloat (vehicleAttributes.GetNamedItem ("impatientThresholdTrafficLight"));
 		string color = Misc.xmlString (vehicleAttributes.GetNamedItem ("color"));
         bool rerouteOK = Misc.xmlBool(vehicleAttributes.GetNamedItem("rerouteOK"), true);
+        string specialIcon = Misc.xmlString(vehicleAttributes.GetNamedItem( "specialIcon"));
 
         List<long> wayPointIds = new List<long>();
         bool wayPointsLoop = parseWayPoints(vehicleNode, wayPointIds);
 
-		return new VehicleSetup (id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPointIds, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight, color);
+        List<float> mood = Misc.parseFloats(Misc.xmlString(vehicleAttributes.GetNamedItem("mood"), "1,0,1.5"));
+        float angrySpeed = Misc.xmlFloat(vehicleAttributes.GetNamedItem("angrySpeed"), 0.1f);
+        float happySpeed = Misc.xmlFloat(vehicleAttributes.GetNamedItem("happySpeed"), 0.05f);
+
+        return new VehicleSetup (id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPointIds, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight, color, specialIcon, mood, angrySpeed, happySpeed);
 	}
 
     private bool parseWayPoints (XmlNode instanceNode, List<long> wayPointIds) {
@@ -117,8 +127,16 @@ public class Setup {
         public bool rerouteOK;
         public bool wayPointsLoop;
         public List<long> wayPoints;
+        public string specialIcon;
+        public List<float> mood;
+        public float angrySpeed;
+        public float happySpeed;
 
-		public InstanceSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints) {
+        private static List<float> DEFAULT_MOOD = new List<float>() {
+            1f, 0f, 1.5f
+        };
+
+		public InstanceSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, string specialIcon, List<float> mood, float angrySpeed, float happySpeed) {
 			this.id = id;
 			this.name = name;
 			this.time = time;
@@ -128,6 +146,13 @@ public class Setup {
             this.rerouteOK = rerouteOK;
             this.wayPointsLoop = wayPointsLoop;
             this.wayPoints = wayPoints;
+			this.specialIcon = specialIcon;
+            this.mood = mood;
+            while (this.mood.Count != DEFAULT_MOOD.Count ) {
+				this.mood.Add(DEFAULT_MOOD[this.mood.Count]);
+			}
+            this.angrySpeed = angrySpeed;
+            this.happySpeed = happySpeed;
 		}
 	}
 
@@ -140,7 +165,7 @@ public class Setup {
 		public string skinColor;
 		public string country;
 
-		public PersonSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, bool refOnly, string dob, float money, float speedFactor, string shirtColor, string skinColor, string country) : base(id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPoints) {
+		public PersonSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, bool refOnly, string dob, float money, float speedFactor, string shirtColor, string skinColor, string country, string specialIcon, List<float> mood, float angrySpeed, float happySpeed) : base(id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPoints, specialIcon, mood, angrySpeed, happySpeed) {
 			this.refOnly = refOnly;
 			this.dob = dob;
 			this.money = money;
@@ -167,7 +192,7 @@ public class Setup {
 		public float impatientThresholdTrafficLight;
 		public string color;
 
-		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight, string color) : base(id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPoints) {
+		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight, string color, string specialIcon, List<float> mood, float angrySpeed, float happySpeed) : base(id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPoints, specialIcon, mood, angrySpeed, happySpeed) {
 			this.brand = brand;
 			this.model = model;
 			this.type = type;

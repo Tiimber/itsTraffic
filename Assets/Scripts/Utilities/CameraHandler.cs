@@ -19,6 +19,7 @@ public class CameraHandler {
     private static float RESTORE_FIELD_OF_VIEW_PERSPECTIVE;
 
 	public static bool IsMapReadyForInteraction = false;
+    public static Camera currentRenderCamera;
 
 	public static void SetIntroZoom (float zoom) {
 		CameraHandler.INTRO_ZOOM_LEVEL_ORTHOGRAPHIC = zoom;
@@ -39,6 +40,7 @@ public class CameraHandler {
 
     public static void SetPerspectiveCamera (Camera camera) {
         perspectiveCamera = camera;
+        currentRenderCamera = camera;
     }
 
     public static void SetRestoreState () {

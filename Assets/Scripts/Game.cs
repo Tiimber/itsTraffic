@@ -2378,8 +2378,12 @@ public class Game : MonoBehaviour, IPubSub {
 		return ray.GetPoint(distance);
 	}
 
-    public Vector3 objectToScreenPos(GameObject positionObj) {
-        return perspectiveCamera.WorldToScreenPoint(positionObj.transform.position);
+    public Vector3 objectToScreenPos(GameObject positionObj, Camera camera = null) {
+        if (camera == null) {
+        	return perspectiveCamera.WorldToScreenPoint(positionObj.transform.position);
+        } else {
+			return camera.WorldToScreenPoint(positionObj.transform.position);
+		}
     }
 
 	private void makeExplosion(int explosionFactor) {

@@ -21,7 +21,7 @@ public class AchievementUpdater : MonoBehaviour {
     }
 
     private void addAchievements(System.Collections.Generic.List<Tuple3<string, string, int>> achievements, string type, ref float row) {
-        Transform contentTransform = transform.FindChild("Viewport/Content");
+        Transform contentTransform = transform.Find("Viewport/Content");
         foreach (Tuple3<string, string, int> achievement in achievements) {
             GameObject achievementObj = Instantiate (achievementTemplate, contentTransform, false) as GameObject;
             achievementObj.transform.localPosition += new Vector3 (0f, row * -ACHIEVEMENT_HEIGHT_WITH_MARGIN, 0f);

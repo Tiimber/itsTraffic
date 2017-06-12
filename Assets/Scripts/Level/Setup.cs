@@ -80,7 +80,7 @@ public class Setup {
 		string type = Misc.xmlString(vehicleAttributes.GetNamedItem ("type"));
 		int year = Misc.xmlInt(vehicleAttributes.GetNamedItem ("year"));
 		float distance = Misc.xmlFloat(vehicleAttributes.GetNamedItem ("distance"));
-		float condition = Misc.xmlFloat(vehicleAttributes.GetNamedItem ("condition"));
+		float condition = Misc.xmlFloat(vehicleAttributes.GetNamedItem ("condition"), 1.0f);
 		long driverId = Misc.xmlLong(vehicleAttributes.GetNamedItem ("driverId"));
 		string passengerIdsStr = Misc.xmlString(vehicleAttributes.GetNamedItem ("passengerIds"));
 		List<long> passengerIds = Misc.parseLongs (passengerIdsStr);

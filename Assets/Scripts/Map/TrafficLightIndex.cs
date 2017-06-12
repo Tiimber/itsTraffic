@@ -15,6 +15,10 @@ public class TrafficLightIndex
 		TrafficLights.Add (trafficLight);
 	}
 
+	public static void RemoveTrafficLight (TrafficLightLogic trafficLight) {
+		TrafficLights.Remove (trafficLight);
+	}
+
 	public static void AutoInitTrafficLights () {
 		// Set properties depending on rotation
 		AutosetTrafficLightProperties ();

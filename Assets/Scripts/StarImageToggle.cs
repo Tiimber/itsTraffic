@@ -25,8 +25,8 @@ public class StarImageToggle : MonoBehaviour {
 	}
 
 	private void updateImage() {
-		GameObject activeStar = transform.FindChild ("active").gameObject;
-		GameObject inactiveStar = transform.FindChild ("inactive").gameObject;
+		GameObject activeStar = transform.Find ("active").gameObject;
+		GameObject inactiveStar = transform.Find ("inactive").gameObject;
 
 		activeStar.SetActive (active);
 		inactiveStar.SetActive (!active);
@@ -34,7 +34,7 @@ public class StarImageToggle : MonoBehaviour {
 	}
 
 	private IEnumerator animateActiveStar() {
-        GameObject activeStar = transform.FindChild ("active").gameObject;
+        GameObject activeStar = transform.Find ("active").gameObject;
 		Graphic graphic = activeStar.GetComponent<Graphic> ();
 
         Color animationColor = new Color(animationStartColor.r, animationStartColor.g, animationStartColor.b, 0f);

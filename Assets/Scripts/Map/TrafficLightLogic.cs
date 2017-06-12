@@ -113,12 +113,12 @@ public class TrafficLightLogic : MonoBehaviour {
 		float redLightColliderLength = (waySpeed / 0.85f) * 1200f; 
 		float yellowLightColliderLength = redLightColliderLength * 2f;
 
-		BoxCollider redCollider = transform.FindChild ("Red").GetComponent<BoxCollider> ();	
+		BoxCollider redCollider = transform.Find ("Red").GetComponent<BoxCollider> ();	
 		Vector3 redColliderSize = new Vector3 (lightColliderHeight, redLightColliderLength, redCollider.size.z);
 		redCollider.size = redColliderSize;
 		Vector3 redColliderCenter = new Vector3 (lightColliderHeight / 2f, redLightColliderLength / 2f, redCollider.center.z);
 		redCollider.center = redColliderCenter;
-		BoxCollider yellowCollider = transform.FindChild ("Yellow").gameObject.GetComponent<BoxCollider> ();	
+		BoxCollider yellowCollider = transform.Find ("Yellow").gameObject.GetComponent<BoxCollider> ();	
 		Vector3 yellowColliderSize = new Vector3 (lightColliderHeight, yellowLightColliderLength, yellowCollider.size.z);
 		yellowCollider.size = yellowColliderSize;
 		Vector3 yellowColliderCenter = new Vector3 (lightColliderHeight / 2f, yellowLightColliderLength / 2f, yellowCollider.center.z);
@@ -182,4 +182,8 @@ public class TrafficLightLogic : MonoBehaviour {
 		RED,
 		NOT_INITIALISED
 	}
+
+	void OnDestroy() {
+        TrafficLightIndex.RemoveTrafficLight(this);
+    }
 }

@@ -387,7 +387,7 @@ public class Game : MonoBehaviour, IPubSub {
         }
 
 		// TODO - This is for debug - choosing endpoints
-/*
+
 		if (Game.debugMode) {
 			if (Input.GetMouseButtonDown (1)) {
 				Vector3 mousePosition = Input.mousePosition;
@@ -410,7 +410,7 @@ public class Game : MonoBehaviour, IPubSub {
 				DebugFn.temporaryOverride (Color.black);
 			}
 		}
-
+/*
 		if (Game.humanDebugMode) {
 			if (Input.GetMouseButtonDown (1)) {
 				Vector3 mousePosition = Input.mousePosition;
@@ -2319,7 +2319,7 @@ public class Game : MonoBehaviour, IPubSub {
         if (sunPositionDataForLoadedLevel.ContainsKey(currentTimeKey)) {
             Dictionary<string, float> sunPosition = sunPositionDataForLoadedLevel[currentTimeKey];
 			sun.transform.rotation = Misc.getSunRotation (sunPosition ["azimuth"]);
-			sun.GetComponentInChildren<Light>().intensity = Misc.getSunIntensity (sunPosition ["elevation"]);
+			sun.GetComponentInChildren<Light>().intensity = 0.7f * Misc.getSunIntensity (sunPosition ["elevation"]);
         }
 
 //        Debug.Log("Sun elevation: " + sunPosition["elevation"]);

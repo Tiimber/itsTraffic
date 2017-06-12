@@ -14,7 +14,7 @@ public class ObjectRandomizer {
 
 	private bool isRunning = true;
 
-	public ObjectRandomizer (float interval, float randomVariation, float minInterval, float intervalDecreaseRate, float delay, int randomSeed) {
+	public ObjectRandomizer (bool enabled, float interval, float randomVariation, float minInterval, float intervalDecreaseRate, float delay, int randomSeed) {
 		if (random == null || randomSeed != -1) {
 			random = new System.Random (randomSeed != -1 ? randomSeed : (int)Game.randomSeed);
 		}
@@ -25,7 +25,9 @@ public class ObjectRandomizer {
 		this.randomVariation = randomVariation;
 		this.minInterval = minInterval;
 		this.intervalDecreaseRate = intervalDecreaseRate;
-		Singleton<Game>.Instance.StartCoroutine(createNewObjects ());
+        if (enabled) {
+			Singleton<Game>.Instance.StartCoroutine(createNewObjects());
+		}
 	}
 
 	private IEnumerator createNewObjects () {

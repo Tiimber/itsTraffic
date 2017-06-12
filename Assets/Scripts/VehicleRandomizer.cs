@@ -9,23 +9,23 @@ public class VehicleRandomizer : ObjectRandomizer {
 
 	private static VehicleRandomizer instance = null; 
 
-	public VehicleRandomizer (float interval, float randomVariation, float minInterval, float intervalDecreaseRate, float delay, int randomSeed) : base(interval, randomVariation, minInterval, intervalDecreaseRate, delay, randomSeed) {
+	public VehicleRandomizer (bool enabled, float interval, float randomVariation, float minInterval, float intervalDecreaseRate, float delay, int randomSeed) : base(enabled, interval, randomVariation, minInterval, intervalDecreaseRate, delay, randomSeed) {
 	}
 		
 	protected override void newObject () {
 		Game.instance.createNewCar ();
 	}
 
-	public static void Create(float interval = START_INTERVAL, float randomVariation = RANDOM_VARIATION, float minInterval = MIN_INTERVAL, float intervalDecreaseRate = INTERVAL_DECREASE_RATE, float delay = DEFAULT_DELAY, int randomSeed = -1) {
+	public static void Create(bool enabled = true, float interval = START_INTERVAL, float randomVariation = RANDOM_VARIATION, float minInterval = MIN_INTERVAL, float intervalDecreaseRate = INTERVAL_DECREASE_RATE, float delay = DEFAULT_DELAY, int randomSeed = -1) {
 		if (instance != null) {
 			VehicleRandomizer.Destroy ();
 		}
 
-		instance = new VehicleRandomizer (interval, randomVariation, minInterval, intervalDecreaseRate, delay, randomSeed);
+		instance = new VehicleRandomizer (enabled, interval, randomVariation, minInterval, intervalDecreaseRate, delay, randomSeed);
 	}
 
 	public static void Create(Randomizer randomizer, Level level) {
-		VehicleRandomizer.Create (randomizer.interval, randomizer.variation, randomizer.minInterval, randomizer.intervalDecreaseRate, randomizer.delay, level.randomSeed);
+		VehicleRandomizer.Create (randomizer.enabled, randomizer.interval, randomizer.variation, randomizer.minInterval, randomizer.intervalDecreaseRate, randomizer.delay, level.randomSeed);
 	}
 
 	public static void Destroy() {

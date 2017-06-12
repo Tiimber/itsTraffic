@@ -535,7 +535,7 @@ public class Misc {
 		yield return www;
 
 		XmlDocument xmlDoc = new XmlDocument();
-		xmlDoc.LoadXml(www.text);
+ 		xmlDoc.LoadXml(www.text);
 
 		Game.instance.lat = Convert.ToSingle(xmlDoc.SelectSingleNode("/geoData/lat").InnerText);
 		Game.instance.lon = Convert.ToSingle(xmlDoc.SelectSingleNode("/geoData/lon").InnerText);

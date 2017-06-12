@@ -42,9 +42,6 @@ public class Mood : MonoBehaviour {
             Vector3 currentPosition = this.gameObject.transform.position;
 			mood = Mathf.Clamp(mood + (currentPosition != lastPosition ? happySpeed : -angrySpeed), moodMin, moodMax);
 			string currentMood = getMood();
-            if (gameObject.name.Contains("Bus")) {
-                Debug.Log("Mood:" + mood + ", " + currentMood);
-            }
             if (currentMood != currentIcon) {
             	currentIcon = currentMood;
                 GetComponent<SpecialIcon>().setFlashIcon(currentIcon);

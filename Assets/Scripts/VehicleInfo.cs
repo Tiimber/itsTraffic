@@ -26,9 +26,11 @@ public class VehicleInfo : MonoBehaviour {
 		Setup.VehicleSetup data = GetComponent<Vehicle> ().characteristics;
 		if (data != null) {
 //			name = data.name;
-			brand = data.brand;
+//			brand = brand != null ? brand : data.brand;
+
             if (data.model != null) {
                 model = data.model;
+
             } else {
                 model = ModelGeneratorVehicles.generate (brand);
             }

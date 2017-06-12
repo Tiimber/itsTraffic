@@ -29,7 +29,7 @@ public class MissionStarAmount : MonoBehaviour {
 	private void updateStars(bool newRecord = false) {
 		initialStarAmount = currentStarAmount;
 		for (int i = 1; i <= 5; i++) {
-			GameObject starObject = transform.FindChild ("star_" + i).gameObject;
+			GameObject starObject = transform.Find ("star_" + i).gameObject;
 			StarImageToggle starToggle = starObject.GetComponent<StarImageToggle> ();
 			starToggle.setActiveState (currentStarAmount >= i, newRecord);
 		}

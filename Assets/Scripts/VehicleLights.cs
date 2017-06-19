@@ -2,6 +2,8 @@
 using System.Collections;
 
 public class VehicleLights : MonoBehaviour {
+    // TODO control by setting in graphichs mode, eg. >0.7: show one light. =1.0, show both lights
+    private static bool enableLights = false;
 
 	private static float headlightLowBeamIntensity = 3f;
 	private static float headlightHighBeamIntensity = 5f;
@@ -58,33 +60,40 @@ public class VehicleLights : MonoBehaviour {
 		if (headlightRight != null) {
 			headlightsGroup = headlightRight.transform.parent.gameObject;
 		}
+
 		if (taillightRight != null) {
 			taillightsGroup = taillightRight.transform.parent.gameObject;
 		}
+        if (!enableLights) {
+            headlightsGroup.SetActive (enableLights);
+            blinkersLeft.SetActive (enableLights);
+            blinkersRight.SetActive (enableLights);
+            taillightsGroup.SetActive (enableLights);
+        }
 	}
 
 	public void toggleHeadlights(bool enable) {
-		headlightsGroup.SetActive (enable);
+		headlightsGroup.SetActive (enable && enableLights);
 	}
 
 	public void setHeadlightIntensity(bool lowBeam = true) {
-		headlightsGroup.SetActive (true);
+		headlightsGroup.SetActive (true && enableLights);
 		headlightsGroup.transform.localRotation = lowBeam ? headlightsLowBeamRotation : headlightsHighBeamRotation;
 		headlightLeft.intensity = lowBeam ? headlightLowBeamIntensity : headlightHighBeamIntensity;
 		headlightRight.intensity = lowBeam ? headlightLowBeamIntensity : headlightHighBeamIntensity;
 	}
 
 	public void toggleBlinkersLeft(bool enable) {
-		blinkersLeft.SetActive (enable);
+		blinkersLeft.SetActive (enable && enableLights);
 	}
 
 	public void toggleBlinkersRight(bool enable) {
-		blinkersRight.SetActive (enable);
+		blinkersRight.SetActive (enable && enableLights);
 	}
 
 	public void toggleWarningBlinkers(bool enable = true) {
-		blinkersLeft.SetActive (enable);
-		blinkersRight.SetActive (enable);
+		blinkersLeft.SetActive (enable && enableLights);
+		blinkersRight.SetActive (enable && enableLights);
 	}
 
 	public void startWarningBlinkers() {
@@ -119,7 +128,7 @@ public class VehicleLights : MonoBehaviour {
 	}
 
 	public void toggleTaillights(bool enable) {
-		taillightsGroup.SetActive (enable);
+		taillightsGroup.SetActive (enable && enableLights);
 	}
 
 	public void startBlinkersLeft() {
@@ -154,9 +163,9 @@ public class VehicleLights : MonoBehaviour {
 	private IEnumerator startBlinkers(bool blinkLeft) {
 		while (blinkersOn) {
 			if (blinkLeft) {
-				blinkersLeft.SetActive (!blinkersLeft.activeSelf);
+				blinkersLeft.SetActive (!blinkersLeft.activeSelf && enableLights);
 			} else {
-				blinkersRight.SetActive (!blinkersRight.activeSelf);
+				blinkersRight.SetActive (!blinkersRight.activeSelf && enableLights);
 			}
 			yield return new WaitForSeconds (0.5f);
 		}
@@ -165,7 +174,7 @@ public class VehicleLights : MonoBehaviour {
 	// backlights = true means lights to indicate backing
 	// backlights = false means break lights
 	public void setTaillightsState(bool backlights) {
-		taillightsGroup.SetActive (true);
+		taillightsGroup.SetActive (true && enableLights);
 		taillightLeft.intensity = backlights ? backlightsIntensity : breaklightsIntensity;
 		taillightRight.intensity = backlights ? backlightsIntensity : breaklightsIntensity;
 		taillightLeft.color = backlights ? backlightsColor : breaklightsColor;

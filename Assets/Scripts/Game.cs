@@ -320,6 +320,10 @@ public class Game : MonoBehaviour, IPubSub {
 				showMenu ();
 			}
 		}
+        // TODO Only for debug. Might be removed.
+        else if (Input.GetKeyDown (KeyCode.Y)) {
+            Application.targetFrameRate = Application.targetFrameRate == 120 ? 20 : 120;
+        }
 
 
 //		foreach(KeyCode kcode in Enum.GetValues(typeof(KeyCode)))

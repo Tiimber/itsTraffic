@@ -62,6 +62,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 	private const float THRESHOLD_EMISSION_PUFF = 0.030f;
 	private const float KPH_TO_LONGLAT_SPEED = 30000f;
+    private const float TARGET_FPS = (1f / 45f);
+
 
 //	private const float MaxRotation = 20f;
 	private float DesiredRotation { set; get; }
@@ -332,7 +334,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 					}
 
 					if (currentSpeed != 0f) {
-						float metersDriven = Mathf.Abs (Misc.kmhToMps (currentSpeed * KPH_TO_LONGLAT_SPEED * Time.deltaTime));
+						float metersDriven = Mathf.Abs (Misc.kmhToMps (currentSpeed * KPH_TO_LONGLAT_SPEED) * Time.deltaTime);
 						stats [STAT_DRIVING_DISTANCE].add (metersDriven);
 						totalDrivingDistance += metersDriven;
 					}
@@ -408,7 +410,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 					}
 
 					//			float movementPct = (currentSpeed / Mathf.Max(positionMovementVector.magnitude, 0.001f)) * Settings.wayLengthFactor;
-					float movementPct = (currentSpeed / positionMovementVector.magnitude) * Settings.wayLengthFactor;
+					float currentSpeedInFrame = currentSpeed * (Time.deltaTime) / TARGET_FPS;
+                    float movementPct = (currentSpeedInFrame / positionMovementVector.magnitude) * Settings.wayLengthFactor;
 					Vector3 movementVector = positionMovementVector * movementPct;
 					//			Debug.Log (BezierLength / positionMovementVector.magnitude);
 					if (TurnToRoad.SmallWay && positionMovementVector.magnitude < 0.05f && positionMovementVector.magnitude < BezierLength / 40f) {
@@ -1067,6 +1070,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             // Calculate path once, set it as definite to not re-calculate at next crossing
             currentPath = Game.calculateCurrentPaths (CurrentPosition, EndPos, null, wayPoints, true);
             currentPathIsDefinite = true;
+
+            // TODO Calculate total path in vector. For future use if using other driving logic.
+//            List<Vector3> pathVectors = getVectorsForPath(currentPath);
+//            DebugFn.temporaryOverride(Color.magenta, 2f);
+//            DebugFn.DebugPath(pathVectors);
         }
 		if (currentPath.Count > 1) {
             PreviousTarget = CurrentTarget;
@@ -1110,6 +1118,23 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		}
 		vehicleMovement = transform.rotation * Vector3.right;
 	}
+
+	// TODO For future use.
+//    private List<Vector3> getVectorsForPath(List<Pos> path) {
+//        List<Vector3> vectors = new List<Vector3>();
+//
+//        Pos prevPos = path[0];
+//        for (int i = 1; i < path.Count; i++) {
+//            Pos currPos = path[i];
+//            if (i == 1) {
+//                vectors.Add(Game.getCameraPosition(prevPos) + getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos));
+//            }
+//            vectors.Add(Game.getCameraPosition(currPos) + getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos));
+//            prevPos = currPos;
+//        }
+//
+//        return vectors;
+//    }
 
 	public Vector3 getCenterYOfField (WayReference wayReference, Pos fromPosition) {
 		// TODO - this should be a variable

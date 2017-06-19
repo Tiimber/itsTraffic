@@ -59,8 +59,9 @@ void Update()
         msecs += Time.deltaTime * clockSpeed;
         if(msecs >= 1.0f)
         {
-            msecs -= 1.0f;
-            seconds++;
+            float rest = msecs % 1f;
+            seconds += (int) (msecs - rest);
+            msecs = rest;
             if(seconds >= 60)
             {
                 PubSub.publish("clock:minuteProgressed", this);

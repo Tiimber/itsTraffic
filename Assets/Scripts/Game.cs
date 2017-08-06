@@ -53,7 +53,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private string levelSetupFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml";
 
-    public static string endpointBaseUrl = "http://localhost:4002/";
+    public static string endpointBaseUrl = "http://localhost:4004/";
     public static string customLevelsRelativeUrl = "custom-levels";
     public static string getLocationRelativeUrl = "get-location";
     public static string countryMetaDataRelativeUrl = "countries";
@@ -975,7 +975,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 		cameraBounds = new Rect (cameraMinX, cameraMinY, cameraMaxX - cameraMinX, cameraMaxY - cameraMinY);
 		latitudeToLongitudeRatio = getLatitudeScale((float)minlat + (float)(maxlat - minlat) / 2f);
-		Debug.Log(latitudeToLongitudeRatio);
+//		Debug.Log(latitudeToLongitudeRatio);
 
 		XmlNodeList nodeNodes = xmlDoc.SelectNodes("/osm/node");
 		foreach (XmlNode xmlNode in nodeNodes) {

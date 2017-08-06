@@ -1059,4 +1059,16 @@ public class Math3d {
 	public static int GetDecimals(float value) {
 		return (int)((value % 1) * 1e4);
 	}
+
+    // Returns true for right side, and false for left side
+    public static bool PointOnRightSideOfLine(Vector3 point, Vector3 linePoint1, Vector3 linePoint2) {
+		Vector3 smallVectorVersionOfLine = (linePoint2 - linePoint1).normalized * 0.01f;
+		Vector3 pointToRight = linePoint1 + Quaternion.Euler(0f, 0f, -90f) * smallVectorVersionOfLine;
+        Vector3 pointToLeft = linePoint1 + Quaternion.Euler(0f, 0f, 90f) * smallVectorVersionOfLine;
+
+        float distanceToRight = (point - pointToRight).magnitude;
+        float distanceToLeft = (point - pointToLeft).magnitude;
+
+        return distanceToRight < distanceToLeft;
+    }
 }

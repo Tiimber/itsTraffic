@@ -1064,4 +1064,21 @@ public class Misc {
         wayGameObjects.ForEach(way => way.GetComponent<WayObject>().setWeight());
     }
 
+	public static float GetZRotation(Vector3 point1, Vector3 point2) {
+        Vector3 diff = point2 - point1;
+		float zRotation = Mathf.Atan(diff.y / diff.x) * 180f / Mathf.PI;
+		return zRotation;
+	}
+
+    public static Vector3 NoZ(Vector3 vector) {
+        return new Vector3(vector.x, vector.y, 0f);
+    }
+
+    public static Vector3 WithZ(Vector3 vectorWithoutZ, Vector3 zVector) {
+        return new Vector3(vectorWithoutZ.x, vectorWithoutZ.y, zVector.z);
+    }
+
+	public static Vector3 GetMidVector(Vector3 vec1, Vector3 vec2) {
+        return vec1 + (vec2 - vec1) / 2f;
+	}
 }

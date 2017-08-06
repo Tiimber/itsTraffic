@@ -12,6 +12,7 @@ public class DrivePath {
     public float breakFactor;
     public float wayWidthFactor;
     public string blinkDirection = null;
+    public float blinkStart = -1f;
 
     public static List<DrivePath> Build(List<Vector3> path, List<Pos> posObjs) {
 //        Debug.Log("NEW");
@@ -76,10 +77,13 @@ public class DrivePath {
 //                Debug.Log(currentRotation);
 //                Debug.Log("Rotation: " + rotationDiff + " (" + absRotationDiff + ")");
                 float bezierResolution = BEZIER_MAX_RESOLUTION;
+                string blinkDirection = null;
                 if (absRotationDiff > DEGREES_TO_BLINK_THRESHOLD) {
 //                    drivePaths[drivePaths.Count - 1].blinkDirection = rotationDiff < 0 ? "right" : "left";
                     bool pointOnRightSideOfLine = Math3d.PointOnRightSideOfLine(endOfPrevious, path[i - 1], path[i]);
-                    drivePaths[drivePaths.Count - 1].blinkDirection = pointOnRightSideOfLine ? "right" : "left";
+                    blinkDirection = pointOnRightSideOfLine ? "right" : "left";
+                    drivePaths[drivePaths.Count - 1].blinkDirection = blinkDirection;
+                    drivePaths[drivePaths.Count - 1].blinkStart = 0.3f;
 //                    Debug.Log("Blink: " + drivePaths[drivePaths.Count - 1].blinkDirection);
                 } else if (absRotationDiff < 1f) {
                     bezierResolution = 2f;
@@ -91,7 +95,7 @@ public class DrivePath {
                     bezierResolution = 12f;
                 }
                 float breakFactor = GetTurnBreakFactorForDegrees(rotationDiff);
-                MakeBezier(drivePaths, endOfPrevious, originalStartVector - endOfPrevious, startOfCurrent, startOfCurrent - originalStartVector, breakFactor, wayReference.way.WayWidthFactor, bezierResolution);
+                MakeBezier(drivePaths, endOfPrevious, originalStartVector - endOfPrevious, startOfCurrent, startOfCurrent - originalStartVector, breakFactor, wayReference.way.WayWidthFactor, bezierResolution, blinkDirection);
             }
 
             previousPoint = currentPath.startVector;
@@ -157,7 +161,7 @@ public class DrivePath {
         return a + b * x + c * Mathf.Pow(x, 2);
     }
 
-    private static void MakeBezier(List<DrivePath> drivePaths, Vector3 start, Vector3 startDirection, Vector3 end, Vector3 endDirection, float breakFactor, float wayWidthFactor, float bezierResolution) {
+    private static void MakeBezier(List<DrivePath> drivePaths, Vector3 start, Vector3 startDirection, Vector3 end, Vector3 endDirection, float breakFactor, float wayWidthFactor, float bezierResolution, string blinkDirection) {
         bezierResolution = Mathf.Min(bezierResolution, BEZIER_MAX_RESOLUTION);
         Vector3 intersection = Vector3.zero;
         bool intersects = Math3d.LineLineIntersection (out intersection, start, startDirection, end, endDirection);
@@ -172,6 +176,8 @@ public class DrivePath {
                     bezierDrivePath.fullLength = (curr - prev).magnitude;
                     bezierDrivePath.breakFactor = breakFactor;
                     bezierDrivePath.wayWidthFactor = wayWidthFactor;
+                    bezierDrivePath.blinkDirection = blinkDirection;
+                    bezierDrivePath.blinkStart = 0f;
                     drivePaths.Add(bezierDrivePath);
 				}
 				prev = curr;
@@ -184,6 +190,8 @@ public class DrivePath {
             straightDrivePath.fullLength = (end - start).magnitude;
             straightDrivePath.breakFactor = 1.0f;
             straightDrivePath.wayWidthFactor = wayWidthFactor;
+            straightDrivePath.blinkDirection = blinkDirection;
+            straightDrivePath.blinkStart = 0f;
             drivePaths.Add(straightDrivePath);
         }
     }

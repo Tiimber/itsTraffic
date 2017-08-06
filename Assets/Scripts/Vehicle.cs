@@ -17,20 +17,15 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
     private bool currentPathIsDefinite = false;
     private List<DrivePath> drivePath { set; get; }
 
-	private Vector3 endVector;
-	private Vector3 startVector;
 	public Setup.VehicleSetup characteristics = null;
 
-	private WayReference CurrentWayReference { set; get; }
 	private float SpeedFactor { set; get; }
 	private float Acceleration { set; get; }
 	private float StartSpeedFactor { set; get; }
 	private float ImpatientThresholdNonTrafficLight { set; get; }
 	private float ImpatientThresholdTrafficLight { set; get; }
-//	private Vector3 PreviousMovementVector { set; get; }
 	private float currentSpeed = 0f;
 	private float timeOfLastMovement = 0f;
-//	private bool isBigTurn = false;
 
 	public float startHealth = 10f;
 	public float health = 10f;
@@ -45,12 +40,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 	private const float THRESHOLD_EMISSION_PUFF = 0.030f;
 	private const float KPH_TO_LONGLAT_SPEED = 30000f;
-//    private const float TARGET_FPS = (1f / 45f);
 
-
-//	private const float MaxRotation = 20f;
-	private float DesiredRotation { set; get; }
-	private float TurnBreakFactor { set; get; }
 	private float AwarenessBreakFactor { set; get; }
 
 	private HashSet<Vehicle> FacVehiclesInAwarenessArea { set; get; }
@@ -62,13 +52,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	private HashSet<TrafficLightLogic> YellowTrafficLightPresence { set; get; }
 	private HashSet<TrafficLightLogic> RedTrafficLightPresence { set; get; }
 
-	private Vector3 TargetPoint { set; get; }
-//	private WayReference TurnToRoad { set; get; }
-	private bool isStraightWay { set; get; }
-	private bool isCurrentTargetCrossing = false;
-	private TurnState turnState = TurnState.NONE;
-	private float BezierLength { set; get; }
-	private float AccumulatedBezierDistance { set; get; }
 	private float backingCounterSeconds = 0f;
 
 	public Camera vehicleCameraObj;
@@ -77,7 +60,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
     public bool isOwningCamera = false;
     public bool switchingCameraInProgress = false;
 
-	private Vector3 vehicleMovement;
 	public int vehicleId;
 
 	public static int numberOfCars = 0;
@@ -141,14 +123,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         }
     }
 
-	private enum TurnState {
-		NONE,
-		FAC,
-		PC,
-		CAR, 
-		BC
-	}
-
 	// TODO - Carefulness (drunk level, tired, age...)
 	// Use this for initialization
 	void Start () {
@@ -157,11 +131,12 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		initVehicleProfile ();
 		updateCurrentTarget ();
 
+        DrivePath startDrivePath = drivePath[0];
 		// Set start speed for car
 		// TODO - In the future, if coming from parking, start from 0
-		float wayTargetSpeedKmH = CurrentWayReference.way.WayWidthFactor * MAP_SPEED_TO_KPH_FACTOR; 	// Eg 51 km/h
+		float wayTargetSpeedKmH = startDrivePath.wayWidthFactor * MAP_SPEED_TO_KPH_FACTOR; 	// Eg 51 km/h
 		// Car target speed
-		float vehicleTargetSpeedKmH = wayTargetSpeedKmH * SpeedFactor;				// Eg 10% faster = 56.5 km/h
+		float vehicleTargetSpeedKmH = wayTargetSpeedKmH * SpeedFactor;						// Eg 10% faster = 56.5 km/h
 		// Car starting speed
 		currentSpeed = StartSpeedFactor * vehicleTargetSpeedKmH / KPH_TO_LONGLAT_SPEED;			
 
@@ -172,20 +147,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		// Report one more car
 		GenericVehicleSounds.VehicleCountChange();
 
-//		Transform car = transform.FindChild ("CarObject");
-//		Renderer r = car.GetComponent<Renderer>();
-//		Material m = r.material;
-//		Color c = m.color;
-//		c.a = 0.5f;
-//		m.color = c;
-
-//		transform.rotation = Quaternion.Euler(0, 0, 97.97565f);
-
-//		float currentYOffset = getCenterYOfField (CurrentWayReference, CurrentPosition);
-		Vector3 offset = getCenterYOfField (CurrentWayReference, CurrentPosition);
-//		Debug.Log (offset.x + ", " + offset.y);
-		transform.position = new Vector3 (transform.position.x + offset.x, transform.position.y + offset.y, transform.position.z);
-		vehicleMovement = transform.rotation * Vector3.right;
+		transform.position = Misc.WithZ(startDrivePath.startVector, transform.position);
+        Vector3 positionMovementVector = startDrivePath.endVector - startDrivePath.startVector;
+        transform.rotation = Quaternion.FromToRotation (Vector3.right, positionMovementVector);
 
 		StartCoroutine (reportStats ());
 
@@ -368,6 +332,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                     }
 
 					// TODO - OLD COLLISION logic reported "statReportPossibleCrossing" - do this somewhere in new logic as well
+                    // stats [STAT_PASSED_CROSSINGS].add (1f);
 
 				} else if (health > 0f) {
 					// TODO - We've probably reached the end of the road, what to do?
@@ -529,7 +494,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             gameObject.GetComponent<Mood>().init();
         }
 
-		TurnBreakFactor = 1.0f;
 		AwarenessBreakFactor = 1.0f;
 		timeOfLastMovement = Time.time;
 		EmissionFactor = Misc.randomRange (0.1f, 1.0f);
@@ -740,13 +704,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	private void addVehicleInAwarenessArea (string colliderName, Vehicle otherVehicle) {
 		HashSet<Vehicle> vehiclesInAwarenessArea = colliderName == "FAC" ? FacVehiclesInAwarenessArea : PcVehiclesInAwarenessArea;
 		vehiclesInAwarenessArea.Add (otherVehicle);
-//		Debug.Log ("Added to " + colliderName + ", length: " + vehiclesInAwarenessArea.Count);
 	}
 
 	private void removeVehicleInAwarenessArea (string colliderName, Vehicle otherVehicle) {
 		HashSet<Vehicle> vehiclesInAwarenessArea = colliderName == "FAC" ? FacVehiclesInAwarenessArea : PcVehiclesInAwarenessArea;
 		vehiclesInAwarenessArea.Remove (otherVehicle);
-//		Debug.Log ("Removed from " + colliderName + ", length: " + vehiclesInAwarenessArea.Count);
 	}
 
 	private void addHumanInAwarenessArea (string colliderName, HumanLogic human) {
@@ -762,13 +724,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	private void addTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
 		HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
 		trafficLightPresence.Add (trafficLightLogic);
-//		Debug.Log ("Added to " + colliderName + ", length: " + trafficLightPresence.Count);
 	}
 
 	private void removeTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
 		HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
 		trafficLightPresence.Remove (trafficLightLogic);
-//		Debug.Log ("Removed from " + colliderName + ", length: " + trafficLightPresence.Count);
 	}
 
 	private bool onlyHumansInPanicCollider () {
@@ -808,11 +768,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             currentPath = Game.calculateCurrentPaths (CurrentTarget, EndPos, PreviousTarget, wayPoints, true, false);
         }
 
-		TurnBreakFactor = 1.0f;
-		turnState = TurnState.NONE;
-		stopBlinkers ();
-
-		statReportPossibleCrossing ();
 		if (currentPathIsDefinite) {
             while (currentPath[0] != CurrentPosition) {
                 currentPath.RemoveAt(0);
@@ -831,8 +786,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 //            DebugFn.temporaryOverride(Color.magenta, 2f);
 //            DebugFn.DebugPath(pathVectors);
         }
-
-		vehicleMovement = transform.rotation * Vector3.right;
 	}
 
     private List<Vector3> getVectorsForPath(List<Pos> path) {
@@ -1028,13 +981,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		} while (this.gameObject != null);
 	}
 
-	void statReportPossibleCrossing () {
-		if (isCurrentTargetCrossing) {
-			stats [STAT_PASSED_CROSSINGS].add (1f);
-			isCurrentTargetCrossing = false;
-		}
-	}
-		
 	private void startBacklights() {
 		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
 		lights.setTaillightsState (true);
@@ -1123,9 +1069,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
     public void OnGUI () {
 		if (Vehicle.debug == this) {
 			int y = 200;
-			// TurnBreakFactor, CurrentSpeed, CurrentPos, CurrentTarget, EndPos
+			// CurrentSpeed, CurrentPos, CurrentTarget, EndPos
 			GUI.Label (new Rect (0, y += 20, 500, 20), "Speed: "+currentSpeed * MAP_SPEED_TO_KPH_FACTOR);
-			GUI.Label (new Rect (0, y += 20, 500, 20), "TurnBreakFactor: "+TurnBreakFactor);
 			GUI.Label (new Rect (0, y += 20, 500, 20), "StartPos: " + StartPos.Id + "(" + NodeIndex.endPointIndex[StartPos.Id][0].Id + ")");
 			GUI.Label (new Rect (0, y += 20, 500, 20), "CurrentPos: " + CurrentPosition.Id);
 			if (CurrentTarget != null) {

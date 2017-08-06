@@ -2,7 +2,6 @@
 	public string CollisionObjType { get; set; }
 	public string typeName;
 
-	public const string WAY_COLLIDER = "WC";
 	public const string VEHICLE_FRONT_AWARE_COLLIDER = "FAC";
 	public const string VEHICLE_PANIC_COLLIDER = "PC";
 	public const string VEHICLE_COLLIDER = "CAR";

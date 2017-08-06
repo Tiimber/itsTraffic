@@ -1481,16 +1481,6 @@ public class Game : MonoBehaviour, IPubSub {
 		bool drawFullWay = wayReference.way.WayWidthFactor == WayTypeEnum.PLATFORM;
 		GameObject middleOfWay = createMiddleOfWay (way, drawFullWay);
 
-		float colliderWidthPct = Mathf.Min (yStretchFactor / (xStretchFactor * 1.5f), 0.5f);
-		List<BoxCollider> colliders = wayReference.GetComponents<BoxCollider> ().ToList ();
-		BoxCollider leftCollider = colliders [colliders.Count - 2];
-		BoxCollider rightCollider = colliders [colliders.Count - 1];
-
-		leftCollider.size = new Vector3 (colliderWidthPct, 1f, leftCollider.size.z);
-		leftCollider.center = new Vector3 (-0.5f + colliderWidthPct / 2f, 0f, leftCollider.center.z);
-		rightCollider.size = new Vector3 (colliderWidthPct, 1f, rightCollider.size.z);
-		rightCollider.center = new Vector3 (0.5f - colliderWidthPct / 2f, 0f, rightCollider.center.z);
-
 		HandleWayTags (previousPos, currentPos, way, rotation);
 
 		return wayReference;

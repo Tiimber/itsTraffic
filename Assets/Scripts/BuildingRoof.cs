@@ -37,6 +37,7 @@ public class BuildingRoof : MapSurface, IPubSub, IExplodable {
 	}
 
 	void Start () {
+        ExplosionHelper.Add(this);
 		if (!slave) {
 			PubSub.subscribe ("gameIsReady", this);
 			delayTime = Misc.randomRange (0.3f, 0.8f);
@@ -317,6 +318,7 @@ public class BuildingRoof : MapSurface, IPubSub, IExplodable {
     }
 
     void OnDestroy() {
+        ExplosionHelper.Remove(this);
         PubSub.unsubscribeAllForSubscriber(this);
     }
 

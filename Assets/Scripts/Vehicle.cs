@@ -170,6 +170,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	// TODO - Carefulness (drunk level, tired, age...)
 	// Use this for initialization
 	void Start () {
+        ExplosionHelper.Add(this);
 		//debugPrint = true;
 		initInformationVehicle ();
 		initVehicleProfile ();
@@ -1236,6 +1237,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
     void OnDestroy() {
+        ExplosionHelper.Remove(this);
         PubSub.unsubscribe ("Click", this);
     }
 

@@ -53,7 +53,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private string levelSetupFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml";
 
-    public static string endpointBaseUrl = "http://localhost:4002/";
+    public static string endpointBaseUrl = "http://localhost:4004/";
     public static string customLevelsRelativeUrl = "custom-levels";
     public static string getLocationRelativeUrl = "get-location";
     public static string countryMetaDataRelativeUrl = "countries";
@@ -2413,7 +2413,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
     private void turnOnAllGravity() {
-        InterfaceHelper.FindObjects<IExplodable>().ToList<IExplodable>().ForEach(i => i.turnOnExplodable());
+        ExplosionHelper.Get().ForEach(i => i.turnOnExplodable());
     }
 
     // Game over (probably with explosion or something)

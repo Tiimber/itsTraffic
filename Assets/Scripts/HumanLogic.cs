@@ -54,6 +54,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute, IExpl
 
 	// Use this for initialization
 	void Start () {
+        ExplosionHelper.Add(this);
 		numberOfHumans++;
 		humanId = humanInstanceCount++;
 		DataCollector.Add ("Total # of people", 1f);
@@ -427,6 +428,7 @@ public class HumanLogic : MonoBehaviour, FadeInterface, IPubSub, IReroute, IExpl
 	}
 
     void OnDestroy() {
+        ExplosionHelper.Remove(this);
         removeAllVehiclesInVision();
     }
 

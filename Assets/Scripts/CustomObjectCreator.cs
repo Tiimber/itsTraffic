@@ -21,8 +21,12 @@ public class CustomObjectCreator {
 	}
 
 	public void destroy() {
-		Singleton<Game>.Instance.StopCoroutine (placePeople);
-		Singleton<Game>.Instance.StopCoroutine (placeVehicles);
+        if (placePeople != null) {
+            Singleton<Game>.Instance.StopCoroutine (placePeople);
+        }
+        if (placeVehicles != null) {
+            Singleton<Game>.Instance.StopCoroutine (placeVehicles);
+        }
 		setup = null;
 	}
 

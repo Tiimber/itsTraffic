@@ -156,7 +156,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		StartCoroutine (reportStats ());
 
 		PubSub.subscribe ("Click", this, 100);
-	}
+
+		setUpcomingTrafficLight();
+    }
 
 	private void initInformationVehicle () {
 		VehicleInfo vehicleInfo = GetComponent<VehicleInfo> ();
@@ -336,7 +338,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 					// TODO - OLD COLLISION logic reported "statReportPossibleCrossing" - do this somewhere in new logic as well
                     // stats [STAT_PASSED_CROSSINGS].add (1f);
 
-				} else if (health > 0f) {
+                    // TODO - Need to flag which traffic light we consider
+//                    setUpcomingTrafficLight();
+
+                } else if (health > 0f) {
 					// TODO - We've probably reached the end of the road, what to do?
 					//			Debug.Log ("No movement");
 					fadeOutAndDestroy ();

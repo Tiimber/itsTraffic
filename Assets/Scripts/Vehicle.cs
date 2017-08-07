@@ -96,6 +96,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 	private Vector3 vehicleMovement;
 	public int vehicleId;
+	private TrafficLightLogic upcomingTrafficLight = null;
 
 	public static int numberOfCars = 0;
 	public static int vehicleInstanceCount = 0;
@@ -198,10 +199,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 //		transform.rotation = Quaternion.Euler(0, 0, 97.97565f);
 
-//		float currentYOffset = getCenterYOfField (CurrentWayReference, CurrentPosition);
-		Vector3 offset = getCenterYOfField (CurrentWayReference, CurrentPosition);
+		if (characteristics == null || characteristics.startVector == null) {
+			Vector3 offset = getCenterYOfField(CurrentWayReference, CurrentPosition);
 //		Debug.Log (offset.x + ", " + offset.y);
-		transform.position = new Vector3 (transform.position.x + offset.x, transform.position.y + offset.y, transform.position.z);
+			transform.position = new Vector3(transform.position.x + offset.x, transform.position.y + offset.y, transform.position.z);
+		}
 		vehicleMovement = transform.rotation * Vector3.right;
 
 		StartCoroutine (reportStats ());
@@ -980,15 +982,25 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
 	private void addTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
-		HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
-		trafficLightPresence.Add (trafficLightLogic);
-//		Debug.Log ("Added to " + colliderName + ", length: " + trafficLightPresence.Count);
+		if (upcomingTrafficLight == trafficLightLogic) {
+			if (colliderName == CollisionObj.TRAFFIC_LIGHT_GREEN) {
+				upcomingTrafficLight = null;
+                RedTrafficLightPresence.Clear();
+                YellowTrafficLightPresence.Clear();
+			} else {
+				HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
+				trafficLightPresence.Add(trafficLightLogic);
+//		        Debug.Log ("Added to " + colliderName + ", length: " + trafficLightPresence.Count);
+			}
+		}
 	}
 
 	private void removeTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
 		HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
-		trafficLightPresence.Remove (trafficLightLogic);
-//		Debug.Log ("Removed from " + colliderName + ", length: " + trafficLightPresence.Count);
+		if (trafficLightPresence.Contains(trafficLightLogic)) {
+			trafficLightPresence.Remove(trafficLightLogic);
+//	    	Debug.Log ("Removed from " + colliderName + ", length: " + trafficLightPresence.Count);
+		}
 	}
 
 	private bool onlyHumansInPanicCollider () {
@@ -1084,8 +1096,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 			endVector = Game.getCameraPosition (CurrentTarget);
 			startVector = Game.getCameraPosition (CurrentPosition);
 
+            setUpcomingTrafficLight();
+
 			List<WayReference> possitilities = NodeIndex.nodeWayIndex [CurrentTarget.Id].Where (p => p != CurrentWayReference && p.way.WayWidthFactor >= WayHelper.MINIMUM_DRIVE_WAY).ToList ();
-			if (possitilities.Count == 1) {
+            if (possitilities.Count == 1) {
 				if (TurnToRoad == null || Misc.isAngleAccepted (gameObject.transform.rotation.eulerAngles.z, possitilities [0].gameObject.transform.rotation.eulerAngles.z, 45f, 180f)) {
 					TurnToRoad = possitilities [0];
 					BezierLength = 0f;
@@ -1420,5 +1434,17 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 			GUI.Label (new Rect (0, y += 20, 500, 20), "EndPos: " + EndPos.Id + "(" + NodeIndex.endPointIndex[EndPos.Id][0].Id + ")");
 		}
 	}
+
+	private void setUpcomingTrafficLight() {
+        upcomingTrafficLight = null;
+        for (int i = 1; i < currentPath.Count; i++) {
+            long currTargetId = currentPath[i].Id;
+            long prevTargetId = currentPath[i-1].Id;
+			if (TrafficLightIndex.TrafficLightsForPos.ContainsKey(currTargetId)) {
+				upcomingTrafficLight = TrafficLightIndex.TrafficLightsForPos[currTargetId].Find(trafficLight => trafficLight.getOtherPos().Id == prevTargetId);
+                break;
+			}
+		}
+    }
 }
 

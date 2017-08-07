@@ -9,6 +9,7 @@
 	public const string VEHICLE_BACK_COLLIDER = "BC";
 	public const string TRAFFIC_LIGHT_YELLOW = "Yellow";
 	public const string TRAFFIC_LIGHT_RED = "Red";
+	public const string TRAFFIC_LIGHT_GREEN = "Green";
 
 	protected CollisionObj (string collisionObjType, string typeName) {
 		this.CollisionObjType = collisionObjType;

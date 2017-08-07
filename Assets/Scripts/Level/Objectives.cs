@@ -242,9 +242,9 @@ public class Objectives {
 
 		private static InformationVehicle getInformationVehicle(long targetId) {
 			if (!cachedVehicles.ContainsKey (targetId)) {
-				GameObject human = GameObject.Find ("Vehicle (id:" + targetId + ")");
-				if (human != null) {
-					InformationVehicle informationVehicle = human.GetComponent<InformationVehicle> ();
+				GameObject vehicle = GameObject.Find ("Vehicle (id:" + targetId + ")");
+				if (vehicle != null) {
+					InformationVehicle informationVehicle = vehicle.GetComponent<InformationVehicle> ();
 					cachedVehicles.Add (targetId, informationVehicle);
 					informationVehicle.getInformation ();
 				}

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
@@ -637,11 +638,11 @@ public class Misc {
 		float deg2rad = Mathf.PI / 180f;
 
 // Get Julian date - 2400000
-		hour = hour + min / 60 + sec / 3600; // hour plus fraction
+		hour = hour + min / 60f + sec / 3600f; // hour plus fraction
 		int delta = year - 1949;
 		int leap = (int)Math.Truncate(delta / 4f); // former leapyears
-		float jd = 32916.5f + delta * 365 + leap + dayOfYear + hour / 24f;
 
+        float jd = 32916.5f + delta * 365f + leap + dayOfYear + hour / 24f;
 // The input to the Atronomer's almanach is the difference between
 // the Julian date and JD 2451545.0 (noon, 1 January 2000)
 		float time = jd - 51545f;
@@ -664,7 +665,7 @@ public class Misc {
 		mnanom = mnanom * deg2rad;
 
 // Ecliptic longitude and obliquity of ecliptic
-		float eclon = mnlon + 1.915f * Mathf.Sign(mnanom) + 0.02f * Mathf.Sin(2f * mnanom);
+		float eclon = mnlon + 1.915f * Mathf.Sin(mnanom) + 0.02f * Mathf.Sin(2f * mnanom);
 		eclon = eclon % 360f;
 		if (eclon < 0) {
 			eclon += 360f;

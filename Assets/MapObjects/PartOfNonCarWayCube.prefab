@@ -11,15 +11,13 @@ GameObject:
   - component: {fileID: 3348346}
   - component: {fileID: 2333060}
   - component: {fileID: 11467446}
-  - component: {fileID: 6527296}
-  - component: {fileID: 6553796}
   m_Layer: 0
   m_Name: PartOfNonCarWayCube
   m_TagString: MapObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &450236
 Transform:
   m_ObjectHideFlags: 1
@@ -72,30 +70,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 164528}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &6527296
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 164528}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.1, y: 1, z: 2}
-  m_Center: {x: -0.45, y: 0, z: -0.2}
---- !u!65 &6553796
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 164528}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.1, y: 1, z: 2}
-  m_Center: {x: 0.45, y: 0, z: -0.2}
 --- !u!114 &11467446
 MonoBehaviour:
   m_ObjectHideFlags: 1

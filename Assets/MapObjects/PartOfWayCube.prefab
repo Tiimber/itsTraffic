@@ -11,15 +11,13 @@ GameObject:
   - component: {fileID: 3352936}
   - component: {fileID: 2310662}
   - component: {fileID: 11402064}
-  - component: {fileID: 6560242}
-  - component: {fileID: 6595610}
   m_Layer: 0
   m_Name: PartOfWayCube
   m_TagString: MapObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &434700
 Transform:
   m_ObjectHideFlags: 1
@@ -72,30 +70,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 134032}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &6560242
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 134032}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.1, y: 1, z: 2}
-  m_Center: {x: -0.45, y: 0, z: -0.2}
---- !u!65 &6595610
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 134032}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.1, y: 1, z: 2}
-  m_Center: {x: 0.45, y: 0, z: -0.2}
 --- !u!114 &11402064
 MonoBehaviour:
   m_ObjectHideFlags: 1

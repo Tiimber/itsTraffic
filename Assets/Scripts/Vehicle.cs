@@ -307,10 +307,12 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 							transform.position = Misc.WithZ(currentTargetInPath, transform.position);
 
 							// Remove current drive path
-							drivePath.RemoveAt(0);
 							if (drivePath.Count > 0) {
-								// We should continue driving on next road
-                                currentDrivePath = drivePath[0];
+								drivePath.RemoveAt(0);
+								if (drivePath.Count > 0) {
+									// We should continue driving on next road
+									currentDrivePath = drivePath[0];
+                                }
 							}
 						} else {
 							currentDrivePath.fullLength -= driveLengthLeft;

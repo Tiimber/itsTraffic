@@ -483,96 +483,96 @@ public class Game : MonoBehaviour, IPubSub {
 			}
 		}
 
-		// Draw debugIndex stuff
-		Dictionary<long, List<WayReference>> debugWayIndex;
-		if (debugIndex > 0) {
-			switch (debugIndexNodes[debugIndex]) {
-			case "endpoint": debugWayIndex = NodeIndex.endPointIndex; break;
-			case "straightWay": debugWayIndex = NodeIndex.straightWayIndex; break;
-			case "intersections": debugWayIndex = NodeIndex.intersectionWayIndex; break;
-			case "all": debugWayIndex = NodeIndex.nodeWayIndex; break;
-			default: debugWayIndex = null; break;
-			}
-		} else {
-			debugWayIndex = null;
-		}
-		if (CurrentWayReference.Value != null && CurrentTarget.Value != null && CurrentTarget.Key != CurrentWayReference.Key && CurrentPath == null) {
-			Pos source = CurrentWayReference.Key;
-			Pos target = CurrentTarget.Key;
-			CurrentPath = calculateCurrentPath(source, target);
-		}
-
-		if (CurrentPath != null) {
-			// Clear colours
-			WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
-			foreach (WayReference wayReference in wayReferences) {
-				if (wayReference.OriginalColor != Color.magenta) {
-					wayReference.gameObject.GetComponent<Renderer>().material.color = wayReference.OriginalColor;
-					wayReference.OriginalColor = Color.magenta;
-				}
-			}
-
-			// Highlight parts of way
-			Pos prev = null;
-			foreach (Pos node in CurrentPath) {
-				if (prev != null) {
-					WayReference wayReference = NodeIndex.getWayReference(node.Id, prev.Id);
-					if (wayReference != null) {
-						GameObject wayObject = wayReference.gameObject;
-						if (wayReference.OriginalColor == Color.magenta) {
-							wayReference.OriginalColor = wayObject.GetComponent<Renderer>().material.color;
-						}
-						wayObject.GetComponent<Renderer>().material.color = Color.blue;
-					}
-				}
-				prev = node;
-			}
-		} else {
-			if (debugWayIndex != null) {
-				foreach (long key in debugWayIndex.Keys.ToList()) {
-					foreach (WayReference wayReference in debugWayIndex[key]) {
-						if (wayReference.node1.Id == key || wayReference.node2.Id == key) {
-							GameObject wayObject = wayReference.gameObject;
-							if (wayReference.OriginalColor == Color.magenta) {
-								wayReference.OriginalColor = wayObject.GetComponent<Renderer>().material.color;
-							}
-							wayObject.GetComponent<Renderer>().material.color = Color.blue;
-						}
-					}
-				}
-			}
-			
-			if (CurrentWayReference.Value) {
-				GameObject wayObject = CurrentWayReference.Value.gameObject;
-				if (CurrentWayReference.Value.OriginalColor == Color.magenta) {
-					CurrentWayReference.Value.OriginalColor = wayObject.GetComponent<Renderer>().material.color;
-				}
-				wayObject.GetComponent<Renderer>().material.color = Color.gray;
-				
-				if (NodeIndex.nodeWayIndex.ContainsKey(CurrentWayReference.Value.node1.Id)) {
-					List<WayReference> node1Connections = NodeIndex.nodeWayIndex[CurrentWayReference.Value.node1.Id];
-					List<WayReference> node2Connections = NodeIndex.nodeWayIndex[CurrentWayReference.Value.node2.Id];
-					foreach (WayReference node1Connection in node1Connections) {
-						if (node1Connection != CurrentWayReference.Value) {
-							GameObject node1WayObject = node1Connection.gameObject;
-							if (node1Connection.OriginalColor == Color.magenta) {
-								node1Connection.OriginalColor = node1WayObject.GetComponent<Renderer>().material.color;
-							}
-							node1WayObject.GetComponent<Renderer>().material.color = Color.yellow;
-						}
-					}
-					foreach (WayReference node2Connection in node2Connections) {
-						if (node2Connection != CurrentWayReference.Value) {
-							GameObject node2WayObject = node2Connection.gameObject;
-							if (node2Connection.OriginalColor == Color.magenta) {
-								node2Connection.OriginalColor = node2WayObject.GetComponent<Renderer>().material.color;
-							}
-							node2WayObject.GetComponent<Renderer>().material.color = Color.green;
-						}
-					}
-				}
-			}
-		}
+//		// Draw debugIndex stuff
+//		Dictionary<long, List<WayReference>> debugWayIndex;
+//		if (debugIndex > 0) {
+//			switch (debugIndexNodes[debugIndex]) {
+//			case "endpoint": debugWayIndex = NodeIndex.endPointIndex; break;
+//			case "straightWay": debugWayIndex = NodeIndex.straightWayIndex; break;
+//			case "intersections": debugWayIndex = NodeIndex.intersectionWayIndex; break;
+//			case "all": debugWayIndex = NodeIndex.nodeWayIndex; break;
+//			default: debugWayIndex = null; break;
+//			}
+//		} else {
+//			debugWayIndex = null;
+//		}
+//		if (CurrentWayReference.Value != null && CurrentTarget.Value != null && CurrentTarget.Key != CurrentWayReference.Key && CurrentPath == null) {
+//			Pos source = CurrentWayReference.Key;
+//			Pos target = CurrentTarget.Key;
+//			CurrentPath = calculateCurrentPath(source, target);
+//		}
+//
+//		if (CurrentPath != null) {
+//			// Clear colours
+//			WayReference[] wayReferences = FindObjectsOfType<WayReference> ();
+//			foreach (WayReference wayReference in wayReferences) {
+//				if (wayReference.OriginalColor != Color.magenta) {
+//					wayReference.gameObject.GetComponent<Renderer>().material.color = wayReference.OriginalColor;
+//					wayReference.OriginalColor = Color.magenta;
+//				}
+//			}
+//
+//			// Highlight parts of way
+//			Pos prev = null;
+//			foreach (Pos node in CurrentPath) {
+//				if (prev != null) {
+//					WayReference wayReference = NodeIndex.getWayReference(node.Id, prev.Id);
+//					if (wayReference != null) {
+//						GameObject wayObject = wayReference.gameObject;
+//						if (wayReference.OriginalColor == Color.magenta) {
+//							wayReference.OriginalColor = wayObject.GetComponent<Renderer>().material.color;
+//						}
+//						wayObject.GetComponent<Renderer>().material.color = Color.blue;
+//					}
+//				}
+//				prev = node;
+//			}
+//		} else {
+//			if (debugWayIndex != null) {
+//				foreach (long key in debugWayIndex.Keys.ToList()) {
+//					foreach (WayReference wayReference in debugWayIndex[key]) {
+//						if (wayReference.node1.Id == key || wayReference.node2.Id == key) {
+//							GameObject wayObject = wayReference.gameObject;
+//							if (wayReference.OriginalColor == Color.magenta) {
+//								wayReference.OriginalColor = wayObject.GetComponent<Renderer>().material.color;
+//							}
+//							wayObject.GetComponent<Renderer>().material.color = Color.blue;
+//						}
+//					}
+//				}
+//			}
+//
+//			if (CurrentWayReference.Value) {
+//				GameObject wayObject = CurrentWayReference.Value.gameObject;
+//				if (CurrentWayReference.Value.OriginalColor == Color.magenta) {
+//					CurrentWayReference.Value.OriginalColor = wayObject.GetComponent<Renderer>().material.color;
+//				}
+//				wayObject.GetComponent<Renderer>().material.color = Color.gray;
+//
+//				if (NodeIndex.nodeWayIndex.ContainsKey(CurrentWayReference.Value.node1.Id)) {
+//					List<WayReference> node1Connections = NodeIndex.nodeWayIndex[CurrentWayReference.Value.node1.Id];
+//					List<WayReference> node2Connections = NodeIndex.nodeWayIndex[CurrentWayReference.Value.node2.Id];
+//					foreach (WayReference node1Connection in node1Connections) {
+//						if (node1Connection != CurrentWayReference.Value) {
+//							GameObject node1WayObject = node1Connection.gameObject;
+//							if (node1Connection.OriginalColor == Color.magenta) {
+//								node1Connection.OriginalColor = node1WayObject.GetComponent<Renderer>().material.color;
+//							}
+//							node1WayObject.GetComponent<Renderer>().material.color = Color.yellow;
+//						}
+//					}
+//					foreach (WayReference node2Connection in node2Connections) {
+//						if (node2Connection != CurrentWayReference.Value) {
+//							GameObject node2WayObject = node2Connection.gameObject;
+//							if (node2Connection.OriginalColor == Color.magenta) {
+//								node2Connection.OriginalColor = node2WayObject.GetComponent<Renderer>().material.color;
+//							}
+//							node2WayObject.GetComponent<Renderer>().material.color = Color.green;
+//						}
+//					}
+//				}
+//			}
+//		}
 	}
 
 	private bool scrollOk (Vector3 pos) {

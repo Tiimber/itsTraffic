@@ -123,6 +123,11 @@ public class TrafficLightLogic : MonoBehaviour {
 		yellowCollider.size = yellowColliderSize;
 		Vector3 yellowColliderCenter = new Vector3 (lightColliderHeight / 2f, yellowLightColliderLength / 2f, yellowCollider.center.z);
 		yellowCollider.center = yellowColliderCenter;
+        BoxCollider greenCollider = transform.Find ("Green").gameObject.GetComponent<BoxCollider> ();
+        Vector3 greenColliderSize = new Vector3 (lightColliderHeight, redLightColliderLength, greenCollider.size.z);
+        greenCollider.size = greenColliderSize;
+        Vector3 greenColliderCenter = new Vector3 (lightColliderHeight / 2f, -redLightColliderLength / 2f, greenCollider.center.z);
+        greenCollider.center = greenColliderCenter;
 	}
 
 

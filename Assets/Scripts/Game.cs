@@ -257,6 +257,15 @@ public class Game : MonoBehaviour, IPubSub {
             makeExplosion(24);
 		}
 
+        if (Input.GetKeyDown(KeyCode.DownArrow)) {
+            CameraHandler.ZoomToSizeAndMoveToPoint(0.7524731f, new Vector3(4.771079f,-1.98f, -30f));
+            GameObject gameObjectBus = GameObject.Find ("Vehicle (id:103)");
+            gameObjectBus.transform.rotation = Quaternion.Euler(0f,0f,-111f);
+            GameObject gameObjectCar = GameObject.Find ("Vehicle (id:102)");
+            gameObjectCar.transform.rotation = Quaternion.Euler(0f,0f,-207f);
+            StartCoroutine(scriptedZoom());
+        }
+
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
 //			currentLevel = WayTypeEnum.getLower (currentLevel);
 //			filterWays ();
@@ -1057,7 +1066,7 @@ public class Game : MonoBehaviour, IPubSub {
 					TrafficLightIndex.ApplyConfig (objectNode);
 					break;
 				case "Roof": 
-				case "Driveway": 
+				case "Driveway":
 				case "Walkway": 
 				case "Outdoors":
 				default: 
@@ -1670,7 +1679,7 @@ public class Game : MonoBehaviour, IPubSub {
 	public PROPAGATION onMessage (string message, object data) {
 		if (message == "Vehicle:emitGas") {
 			Vehicle vehicle = (Vehicle)data;
-			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, orthographicCamera.transform.position.z + 1f);
+			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, -0.1f);
 			GameObject emission = Instantiate (vehicleEmission, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
 //			DebugFn.arrow(vehicle.transform.position, emitPosition);
 			emission.GetComponent<Emission> ().Amount = vehicle.getEmissionAmount ();
@@ -1681,7 +1690,7 @@ public class Game : MonoBehaviour, IPubSub {
 			StartCoroutine (destroyEmission (particleSystem));
 		} else if (message == "Vehicle:emitVapour") {
 			Vehicle vehicle = (Vehicle)data;
-			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, orthographicCamera.transform.position.z + 1f);
+			Vector3 emitPosition = vehicle.getEmitPosition () + new Vector3 (0f, 0f, -0.1f);
 			GameObject emission = Instantiate (vehicleVapour, emitPosition, vehicle.gameObject.transform.rotation) as GameObject;
 			ParticleSystem particleSystem = emission.GetComponent<ParticleSystem> ();
 			Renderer particleRenderer = particleSystem.GetComponent<Renderer> ();
@@ -1695,7 +1704,7 @@ public class Game : MonoBehaviour, IPubSub {
 		} else if (message == "Vehicle:createDangerHalo") {
 			Vehicle vehicle = (Vehicle)data;
 			if (!dangerHalos.ContainsKey (vehicle.vehicleId)) {
-				Vector3 haloPosition = new Vector3 (vehicle.transform.position.x, vehicle.transform.position.y, -20f);
+				Vector3 haloPosition = new Vector3 (vehicle.transform.position.x, vehicle.transform.position.y, -0.1f);
 				GameObject dangerHalo = Instantiate (vehicleHalo, haloPosition, Quaternion.identity) as GameObject;
 				dangerHalos.Add (vehicle.vehicleId, dangerHalo.GetComponent<Light> ());
 				if (dangerHalos.Count == 1) {
@@ -2346,8 +2355,8 @@ public class Game : MonoBehaviour, IPubSub {
         dt = dt.AddMinutes(minutesToAdd);
         loadedLevel.dateTime = dt;
 
-//        Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
-//        Debug.Log(dt.ToString("HH:mm") + " - " + sunPosition["elevation"] + " = " + Misc.getSunIntensity (sunPosition ["elevation"]));
+        Dictionary<string, float> sunPosition = Misc.getSunPosition (loadedLevel.dateTime, loadedLevel.lon, loadedLevel.lat);
+        Debug.Log(dt.ToString("HH:mm") + " - " + sunPosition["elevation"] + " = " + Misc.getSunIntensity (sunPosition ["elevation"]) + ", rotation:" + Misc.getSunRotation (sunPosition ["azimuth"]).eulerAngles.z);
 
         setCurrentSunProperties ();
     }
@@ -2394,7 +2403,7 @@ public class Game : MonoBehaviour, IPubSub {
 	}
 
     private void turnOnAllGravity() {
-        InterfaceHelper.FindObjects<IExplodable>().ToList<IExplodable>().ForEach(i => i.turnOnExplodable());
+        ExplosionHelper.Get().ForEach(i => i.turnOnExplodable());
     }
 
     // Game over (probably with explosion or something)
@@ -2404,4 +2413,12 @@ public class Game : MonoBehaviour, IPubSub {
         HumanRandomizer.Destroy();
         paused = true;
     }
+
+	private IEnumerator scriptedZoom() {
+        yield return new WaitForSeconds(24f);
+        Vector3 startPoint = new Vector3(4.771079f, -1.98f, -30f);
+        yield return CameraHandler.ZoomWithAmount(0.002f,4f);
+        yield return new WaitForSeconds(4f);
+        yield return CameraHandler.ZoomWithAmount(0.004f,8f);
+	}
 }

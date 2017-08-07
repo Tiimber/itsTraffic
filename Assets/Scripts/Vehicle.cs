@@ -61,6 +61,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
     public bool switchingCameraInProgress = false;
 
 	public int vehicleId;
+	private TrafficLightLogic upcomingTrafficLight = null;
 
 	public static int numberOfCars = 0;
 	public static int vehicleInstanceCount = 0;
@@ -126,6 +127,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	// TODO - Carefulness (drunk level, tired, age...)
 	// Use this for initialization
 	void Start () {
+        ExplosionHelper.Add(this);
 		//debugPrint = true;
 		initInformationVehicle ();
 		initVehicleProfile ();
@@ -722,13 +724,25 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
 	private void addTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
-		HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
-		trafficLightPresence.Add (trafficLightLogic);
+		if (upcomingTrafficLight == trafficLightLogic) {
+			if (colliderName == CollisionObj.TRAFFIC_LIGHT_GREEN) {
+				upcomingTrafficLight = null;
+                RedTrafficLightPresence.Clear();
+                YellowTrafficLightPresence.Clear();
+			} else {
+				HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
+				trafficLightPresence.Add(trafficLightLogic);
+//		        Debug.Log ("Added to " + colliderName + ", length: " + trafficLightPresence.Count);
+			}
+		}
 	}
 
 	private void removeTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
 		HashSet<TrafficLightLogic> trafficLightPresence = colliderName == CollisionObj.TRAFFIC_LIGHT_YELLOW ? YellowTrafficLightPresence : RedTrafficLightPresence;
-		trafficLightPresence.Remove (trafficLightLogic);
+		if (trafficLightPresence.Contains(trafficLightLogic)) {
+			trafficLightPresence.Remove(trafficLightLogic);
+//	    	Debug.Log ("Removed from " + colliderName + ", length: " + trafficLightPresence.Count);
+		}
 	}
 
 	private bool onlyHumansInPanicCollider () {
@@ -889,6 +903,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
     void OnDestroy() {
+        ExplosionHelper.Remove(this);
         PubSub.unsubscribe ("Click", this);
     }
 
@@ -1079,5 +1094,17 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 			GUI.Label (new Rect (0, y += 20, 500, 20), "EndPos: " + EndPos.Id + "(" + NodeIndex.endPointIndex[EndPos.Id][0].Id + ")");
 		}
 	}
+
+	private void setUpcomingTrafficLight() {
+        upcomingTrafficLight = null;
+        for (int i = 1; i < currentPath.Count; i++) {
+            long currTargetId = currentPath[i].Id;
+            long prevTargetId = currentPath[i-1].Id;
+			if (TrafficLightIndex.TrafficLightsForPos.ContainsKey(currTargetId)) {
+				upcomingTrafficLight = TrafficLightIndex.TrafficLightsForPos[currTargetId].Find(trafficLight => trafficLight.getOtherPos().Id == prevTargetId);
+                break;
+			}
+		}
+    }
 }
 

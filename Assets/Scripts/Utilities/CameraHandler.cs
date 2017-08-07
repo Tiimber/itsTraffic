@@ -140,7 +140,7 @@ public class CameraHandler {
 		Singleton<SingletonInstance>.Instance.StartCoroutine (ZoomWithAmount(-amount/5f, 0.25f, centerPos));
 	}
 
-	private static IEnumerator ZoomWithAmount (float amount, float time, Vector3 zoomPoint) {
+	public static IEnumerator ZoomWithAmount (float amount, float time, Vector3? zoomPoint = null) {
 		bool hasPerspective = perspectiveCamera != null;
 		float t = 0f;
 		while (t <= 1f) {
@@ -160,7 +160,7 @@ public class CameraHandler {
 			}
 
 			// Try to zoom in towards a specific point
-			Tuple2<float, float> offsetPctFromCenter = zoomPoint == null ? new Tuple2<float, float>(0f, 0f) : Misc.getOffsetPctFromCenter (zoomPoint);
+			Tuple2<float, float> offsetPctFromCenter = Misc.getOffsetPctFromCenter (zoomPoint?? new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));
 			float xZoomRatio = Misc.GetWidthRatio();
 			float yZoomRatio = Misc.GetHeightRatio();
 			Vector3 zoomOffsetMove = new Vector3 ((zoomDelta * xZoomRatio) * offsetPctFromCenter.First, (zoomDelta * yZoomRatio) * offsetPctFromCenter.Second, 0f);

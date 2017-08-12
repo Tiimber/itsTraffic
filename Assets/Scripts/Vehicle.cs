@@ -778,18 +778,21 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
 	public void updateCurrentTarget () {
+		// TODO - Needs to work with new drive logic
 		if (CurrentTarget != null && TrafficLightIndex.TrafficLightsForPos.ContainsKey(CurrentTarget.Id)) {
 			stats[STAT_PASSED_TRAFFICLIGHT].add(1f);
 		}
 
         if (wayPointsLoop && CurrentTarget == wayPoints[0]) {
-            // We have reached our first wayPoint and should loop, place first waypoint last and recalculate route
+			// TODO - Needs to work with new drive logic
+			// We have reached our first wayPoint and should loop, place first waypoint last and recalculate route
             wayPoints.RemoveAt(0);
             wayPoints.Add(CurrentTarget);
             currentPath = Game.calculateCurrentPaths (CurrentTarget, EndPos, PreviousTarget, wayPoints, true, false);
         }
 
 		if (currentPathIsDefinite) {
+            // TODO - Needs to work with new drive logic
             while (currentPath[0] != CurrentPosition) {
                 currentPath.RemoveAt(0);
             }
@@ -798,8 +801,32 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             currentPath = Game.calculateCurrentPaths (CurrentPosition, EndPos, null, wayPoints, true);
             currentPathIsDefinite = true;
 
+/*
+			// TODO - START DEBUG
+
+			// 660826508, 686773447, 660826508
+            List<Pos> poses = new List<Pos>{
+                NodeIndex.getPosById(660826508L),
+                NodeIndex.getPosById(686773447L),
+                NodeIndex.getPosById(747255967L)
+            };
+            List<Vector3> vectors = getVectorsForPath(poses);
+            DebugFn.arrows(vectors);
+            DebugFn.square(NodeIndex.getPosById(686773447L));
+
+            // 686773447L, 747255967L
+            WayReference way = NodeIndex.getWayReference(686773447L, 747255967L);
+            Vector3 center = getCenterYOfField(way, NodeIndex.getPosById(686773447L));
+//            DebugFn.print(center);
+            DebugFn.temporaryOverride(Color.blue, 10f);
+            DebugFn.arrow(vectors[vectors.Count - 2], vectors[vectors.Count - 2] + center);
+
+            // TODO - END DEBUG
+*/
+
             // TODO Calculate total path in vector. For future use if using other driving logic.
             List<Vector3> pathVectors = getVectorsForPath(currentPath);
+            DebugFn.arrows(pathVectors);
             drivePath = DrivePath.Build(pathVectors, currentPath);
 			foreach (DrivePath dp in drivePath) {
                 DebugFn.arrow(dp.startVector, dp.endVector);
@@ -818,7 +845,14 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             if (i == 1) {
                 vectors.Add(Game.getCameraPosition(prevPos) + getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos));
             }
-            vectors.Add(Game.getCameraPosition(currPos) + getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos));
+            if (i < path.Count - 1) {
+                Pos nextPos = path[i + 1];
+                Vector3 centerOffsetCurr = getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos);
+                Vector3 centerOffsetNext = getCenterYOfField(NodeIndex.getWayReference(currPos.Id, nextPos.Id), currPos);
+                vectors.Add(Game.getCameraPosition(currPos) + (centerOffsetCurr + centerOffsetNext) / 2f);
+            } else {
+	            vectors.Add(Game.getCameraPosition(currPos) + getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos));
+            }
             prevPos = currPos;
         }
 

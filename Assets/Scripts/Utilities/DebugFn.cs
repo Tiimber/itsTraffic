@@ -91,6 +91,14 @@ public class DebugFn
 		arrow (Game.getCameraPosition (start), Game.getCameraPosition (end));
 	}
 
+    public static void arrows(List<Vector3> vectors) {
+        for (int i = 1; i < vectors.Count; i++) {
+            Vector3 prev = vectors[i-1];
+            Vector3 curr = vectors[i];
+            DebugFn.arrow(prev, curr);
+        }
+    }
+
 	public static void arrow(Vector3 start, Vector3 end) {
 		arrowFromTo (start, end);
 	}

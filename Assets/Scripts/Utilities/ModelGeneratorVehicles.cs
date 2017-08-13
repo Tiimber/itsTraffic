@@ -31,6 +31,8 @@ public class ModelGeneratorVehicles {
         	"Bus", new List<string> {""}
         }, {
         	"Truck", new List<string> {"Sconea", "Evico", "Gluse", "Marcides-Bonz"}
+        }, {
+        	"Ri-Now", new List<string> {"Captain", "Kilo", "Dasher", "Spacy", "Influence", "Colonoscopy", "Pluse"}
         }
 	};
 }

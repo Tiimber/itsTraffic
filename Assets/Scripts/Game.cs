@@ -235,6 +235,47 @@ public class Game : MonoBehaviour, IPubSub {
 			DataCollector.Add ("Elapsed Time", Time.deltaTime);
 		}
 
+        /*
+	        // XBox One Wired Controller, buttons:
+
+			Left: 7
+			Right: 8
+			Up: 5
+			Down: 6
+			Select: 10
+			Start: 9
+			X: 18
+			Y: 19
+			A: 16
+			B: 17
+			LB: 13
+			RB: 14
+			XBOX-button: 15
+			Left Stick push: 11
+			Right Stick push: 12
+
+			Left analog:
+				"Horizontal" left: -1f, right: 1f
+				"Vertical" bottom: -1f, top: 1f
+
+			Right analog:
+
+
+			Left analog trigger:
+
+
+			Right analog trigger:
+
+
+         */
+        for (int i = 0; i < 20; i++) {
+            if (Input.GetKeyDown("joystick 1 button "+i)) {
+				Debug.Log("Button pressed:" + i);
+            }
+        }
+
+        Debug.Log("Y: " + Input.GetAxis("Vertical"));
+
         // TODO - Temporary - testing sun
 		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
 			changeSunTime(15);

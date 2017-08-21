@@ -53,7 +53,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 	private string levelSetupFileName = "file:///Users/robbin/ItsTraffic/Assets/StreamingAssets/level-robbin.xml";
 
-    public static string endpointBaseUrl = "http://localhost:4004/";
+    public static string endpointBaseUrl = "http://localhost:4002/";
     public static string customLevelsRelativeUrl = "custom-levels";
     public static string getLocationRelativeUrl = "get-location";
     public static string countryMetaDataRelativeUrl = "countries";
@@ -129,7 +129,7 @@ public class Game : MonoBehaviour, IPubSub {
 
 	// Use this for initialization
 	void Start () {
-		showMenu ();
+        showMenu ();
 		paused = false;
 		initDataCollection ();
 		calculateVehicleFrequency ();
@@ -268,13 +268,13 @@ public class Game : MonoBehaviour, IPubSub {
 
 
          */
-        for (int i = 0; i < 20; i++) {
-            if (Input.GetKeyDown("joystick 1 button "+i)) {
-				Debug.Log("Button pressed:" + i);
-            }
-        }
-
-        Debug.Log("Y: " + Input.GetAxis("Vertical"));
+//        for (int i = 0; i < 20; i++) {
+//            if (Input.GetKeyDown("joystick 1 button "+i)) {
+//				Debug.Log("Button pressed:" + i);
+//            }
+//        }
+//
+//        Debug.Log("Y: " + Input.GetAxis("Vertical"));
 
         // TODO - Temporary - testing sun
 		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {

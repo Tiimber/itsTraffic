@@ -5,6 +5,7 @@ public class DrivePath {
 
     const float BEZIER_MAX_RESOLUTION = 20f;
     const float DEGREES_TO_BLINK_THRESHOLD = 30f;
+    const float DISTANCE_TO_PREPARE_FOR_TURN = 0.3f;
 
     public Vector3 startVector;
     public Vector3 endVector;
@@ -13,6 +14,7 @@ public class DrivePath {
     public float wayWidthFactor;
     public string blinkDirection = null;
     public float blinkStart = -1f;
+    public float breakStart = -1f;
 
     public static List<DrivePath> Build(List<Vector3> path, List<Pos> posObjs) {
 //        Debug.Log("NEW");
@@ -83,7 +85,7 @@ public class DrivePath {
                     bool pointOnRightSideOfLine = Math3d.PointOnRightSideOfLine(endOfPrevious, path[i - 1], path[i]);
                     blinkDirection = pointOnRightSideOfLine ? "right" : "left";
                     drivePaths[drivePaths.Count - 1].blinkDirection = blinkDirection;
-                    drivePaths[drivePaths.Count - 1].blinkStart = 0.3f;
+                    drivePaths[drivePaths.Count - 1].blinkStart = DISTANCE_TO_PREPARE_FOR_TURN;
 //                    Debug.Log("Blink: " + drivePaths[drivePaths.Count - 1].blinkDirection);
                 } else if (absRotationDiff < 1f) {
                     bezierResolution = 2f;
@@ -94,7 +96,7 @@ public class DrivePath {
                 } else if (absRotationDiff < 20f) {
                     bezierResolution = 12f;
                 }
-                float breakFactor = GetTurnBreakFactorForDegrees(rotationDiff);
+                float breakFactor = GetTurnBreakFactorForDegrees(absRotationDiff);
                 MakeBezier(drivePaths, endOfPrevious, originalStartVector - endOfPrevious, startOfCurrent, startOfCurrent - originalStartVector, breakFactor, wayReference.way.WayWidthFactor, bezierResolution, blinkDirection);
             }
 
@@ -140,6 +142,12 @@ public class DrivePath {
                     previous.fullLength = (previous.endVector - previous.startVector).magnitude;
                     current.startVector = midVector;
                     current.fullLength = (current.endVector - current.startVector).magnitude;
+                }
+            }
+            if (i < drivePaths.Count - 1 && current.breakFactor == 1f) {
+                DrivePath next = drivePaths[i+1];
+                if (next.breakFactor < 1f) {
+                    current.breakStart = DISTANCE_TO_PREPARE_FOR_TURN;
                 }
             }
             previous = current;

@@ -69,6 +69,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	private static float IMPATIENT_TRAFFIC_LIGHT_THRESHOLD = 17f;
 	private static float IMPATIENT_NON_TRAFFIC_LIGHT_THRESHOLD = 8f;
 
+    private static float TARGET_FPS = 1f/600f;
+
     public static void Reset() {
         Vehicle.numberOfCars = 0;
         Vehicle.vehicleInstanceCount = 0;
@@ -229,7 +231,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                     float currentSpeedKmH = currentSpeed * KPH_TO_LONGLAT_SPEED;
 
 					// Lowest break factor (decides how fast the car currently want to go)
-                    float breakFactor = Mathf.Min (currentDrivePath.breakFactor, AwarenessBreakFactor);
+                    float breakFactor = Mathf.Min (getBreakFactor(), AwarenessBreakFactor);
 
 					// Car target after break factor
                     float vehicleTargetSpeedAfterBreakFactorKmH = breakFactor * vehicleTargetSpeedKmH;
@@ -289,7 +291,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
                     adjustColliders ();
 
-                    float driveLengthLeft = currentSpeed * 10;
+                    float driveLengthLeft = currentSpeed * Time.deltaTime / TARGET_FPS;
 
                     while (driveLengthLeft > 0) {
 						Vector3 currentPos = new Vector3 (transform.position.x, transform.position.y, 0f);
@@ -327,7 +329,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 						}
                     }
 
-                    if (shouldBlink(currentDrivePath)) {
+                    if (shouldBlink()) {
                         if (currentDrivePath.blinkDirection == "left") {
                             startBlinkersLeft();
                         } else {
@@ -359,11 +361,20 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		}
 	}
 
-    public bool shouldBlink (DrivePath dp) {
+    public bool shouldBlink () {
+        DrivePath dp = drivePath[0];
         if (dp.blinkDirection != null && dp.blinkStart != -1f) {
             return dp.blinkStart == 0 || dp.fullLength <= dp.blinkStart;
         }
         return false;
+    }
+
+    public float getBreakFactor() {
+        DrivePath dp = drivePath[0];
+        if (dp.breakFactor < 1f || dp.breakStart == -1f) {
+            return dp.breakFactor;
+        }
+        return dp.fullLength <= dp.breakStart ? drivePath[1].breakFactor : dp.breakFactor;
     }
 
 	public bool hasSpeed () {
@@ -826,7 +837,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
             // TODO Calculate total path in vector. For future use if using other driving logic.
             List<Vector3> pathVectors = getVectorsForPath(currentPath);
-            DebugFn.arrows(pathVectors);
+//            DebugFn.arrows(pathVectors);
             drivePath = DrivePath.Build(pathVectors, currentPath);
 			foreach (DrivePath dp in drivePath) {
                 DebugFn.arrow(dp.startVector, dp.endVector);

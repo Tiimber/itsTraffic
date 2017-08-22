@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.373132, g: 0.3807496, b: 0.3587258, a: 1}
+  m_IndirectSpecularColor: {r: 0.3731316, g: 0.38074902, b: 0.3587254, a: 1}
 --- !u!157 &4
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -463,7 +463,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1156865835
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1124,6 +1124,22 @@ MonoBehaviour:
     vehicle: {fileID: 114113453827502946, guid: 7b8c2c1787adc44f497a7f996770f034,
       type: 2}
     frequency: 20
+  - brand: Faith
+    vehicle: {fileID: 114706481044293182, guid: b925506f3c07644a3a31daac99986f09,
+      type: 2}
+    frequency: 10
+  - brand: Marcides-Bonz
+    vehicle: {fileID: 114583995513482532, guid: e4bf4e6d83cb94ef4aef63971787a1f2,
+      type: 2}
+    frequency: 10
+  - brand: Po-liz
+    vehicle: {fileID: 114060698278287340, guid: cf208f20aa27642f5953fe1c29f910e4,
+      type: 2}
+    frequency: 4
+  - brand: Olga
+    vehicle: {fileID: 114946971743589910, guid: 799f4872eeb9b413f8caccc67bfb9f5e,
+      type: 2}
+    frequency: 3
   landuseObject: {fileID: 169306, guid: 44f178725bde14829aba6dac7d7b7017, type: 2}
   trafficLight: {fileID: 103856, guid: 7a52f6b8e20b54d8a8b8d6685251b302, type: 2}
   treeObject: {fileID: 181292, guid: 713652ac042ce4b8b9949c3bb51cbe5b, type: 2}

@@ -10,6 +10,7 @@ public class VehicleSounds : MonoBehaviour, IPubSub {
 	public AudioClip twoShortHonkSound;
 	public AudioClip longHonkSound;
 	public AudioClip extraLongHonkSound;
+	public AudioClip sirenSound;
 
 	public enum HonkVariant {
 		SHORT,
@@ -21,6 +22,7 @@ public class VehicleSounds : MonoBehaviour, IPubSub {
 	private Dictionary<HonkVariant, AudioClip> honks = new Dictionary<HonkVariant, AudioClip> ();
 
 	private AudioSource soundSource;
+	private AudioSource soundSourceSiren;
 	private float frustrationLevel = 0f;
 	private static float FRUSTRATION_INCREASE_ON_HONK = 1f; 
 

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class VehicleLights : MonoBehaviour {
     // TODO control by setting in graphichs mode, eg. >0.7: show one light. =1.0, show both lights
-    private static bool enableLights = false;
+    private static bool enableLights = true;
 
 	private static float headlightLowBeamIntensity = 3f;
 	private static float headlightHighBeamIntensity = 5f;
@@ -26,10 +26,17 @@ public class VehicleLights : MonoBehaviour {
 	private Light taillightLeft;
 	private Light taillightRight;
 
+    private Coroutine sirensCoroutine;
+	private GameObject sirensGroup;
+	private Light sirenLeft;
+	private Light sirenRight;
+
 	private bool warningBlinkersOn = false;
 	private bool blinkersOn = false;
 	private bool lastBlinkLeft = false;
 	private bool lastBlinkRight = false;
+
+    public bool hasSirens = false;
 
 	// Use this for initialization
 	void Start () {
@@ -54,8 +61,18 @@ public class VehicleLights : MonoBehaviour {
 				case "Taillight left":
 					taillightLeft = vehicleLight;
 					break;
+                case "Roof right":
+                	sirenRight = vehicleLight;
+                	break;
+                case "Roof left":
+                	sirenLeft = vehicleLight;
+                	break;
 			}
 		}
+
+        if (sirenRight != null) {
+            sirensGroup = sirenRight.transform.parent.gameObject;
+        }
 
 		if (headlightRight != null) {
 			headlightsGroup = headlightRight.transform.parent.gameObject;
@@ -181,9 +198,31 @@ public class VehicleLights : MonoBehaviour {
 		taillightRight.color = backlights ? backlightsColor : breaklightsColor;
 	}
 
+    public void startSirens(bool sirens) {
+        sirensGroup.SetActive(sirens && enableLights);
+        if (enableLights) {
+            if (sirens && sirensCoroutine == null) {
+                sirensCoroutine = StartCoroutine(shiftSirens());
+            } else if (!sirens && sirensCoroutine != null) {
+                StopCoroutine(sirensCoroutine);
+            }
+        }
+    }
+
+    private IEnumerator shiftSirens() {
+        sirenLeft.gameObject.SetActive(true);
+        sirenRight.gameObject.SetActive(false);
+        while (true) {
+	        yield return new WaitForSeconds(0.8f);
+            sirenLeft.gameObject.SetActive(!sirenLeft.gameObject.activeSelf);
+            sirenRight.gameObject.SetActive(!sirenRight.gameObject.activeSelf);
+        }
+    }
+
 	public void turnAllOff() {
 		StopCoroutine ("startFlashHeadlight");
 		stopWarningBlinkers ();
+        startSirens(false);
 		headlightsGroup.SetActive (false);
 		taillightsGroup.SetActive (false);
 		blinkersLeft.SetActive (false);
@@ -235,4 +274,13 @@ public class VehicleLights : MonoBehaviour {
 	private void taillightsOnFn() {toggleTaillights (true);}
 	private void taillightsBacklightsFn() {setTaillightsState (true);}
 	private void taillightsBreaklightsFn() {setTaillightsState (false);}
+
+    [InspectorButton("sirensOnFn")]
+    public bool sirensBlinkOn;
+    [InspectorButton("sirensOffFn")]
+    public bool sirensBlinkOff;
+
+    private void sirensOnFn() {startSirens(true);}
+    private void sirensOffFn() {startSirens(false);}
+
 }

@@ -28,11 +28,17 @@ public class ModelGeneratorVehicles {
 		}, {
 			"Handaj", new List<string> {"Croissant", "Innuendo", "Nontendo", "Bisou", "Citrouille", "Irusu", "Eikel"}
 		}, {
-        	"Bus", new List<string> {""}
+        	"Bus", new List<string> {"2X", "Buffalo", "Merit", "Berit", "Gitaro", "Classic", "Cub", "Flash", "Elite", "Falcon"}
         }, {
-        	"Truck", new List<string> {"Sconea", "Evico", "Gluse", "Marcides-Bonz"}
+        	"Truck", new List<string> {"Sconea", "Evico", "Gluse", "Marcides-Bonz", "Beast", "Inferno", "Muscle"}
         }, {
         	"Ri-Now", new List<string> {"Captain", "Kilo", "Dasher", "Spacy", "Influence", "Colonoscopy", "Pluse"}
+        }, {
+        	"Faith", new List<string> {"Typo", "Zuper", "Popolino", "Barista", "Zport", "Onu", "Ack", "Pundo", "Million", "Zpider", "Basta", "Piano", "Rasta"}
+        }, {
+        	"Marcides-Bonz", new List<string> {"ELK-Classe", "Mario", "Ü-Classe", "VV123", "Schulz", "Fritz", "Kraut", "SOS OMG", "ß-Classe", "CLS-Classe", "8-D Classe", "Schatzi"}
+        }, {
+        	"Po-liz", new List<string> {"Paddy", "Prowl", "Panda", "Patrol", "Bacon", "Bobby", "Bulle", "Law", "Popo", "Donut", "Popo"}
         }, {
         	"Fraud", new List<string> {"Moustache", "Vellus", "Baerder", "Pibuc", "Ficail", "Armpat", "Ack", "Star", "Lence"}
         }

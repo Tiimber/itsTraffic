@@ -62,7 +62,7 @@ GameObject:
   - component: {fileID: 114105354350143962}
   - component: {fileID: 114062601284902804}
   m_Layer: 0
-  m_Name: Fraud(ish) 1
+  m_Name: Fraud(ish)
   m_TagString: MapObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

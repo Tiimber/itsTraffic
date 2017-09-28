@@ -15,6 +15,13 @@ public class DrivePath {
     public string blinkDirection = null;
     public float blinkStart = -1f;
     public float breakStart = -1f;
+    public TrafficLightLogic upcomingTrafficLight = null;
+
+    private void setUpcomingTrafficLight(long currTargetId, long prevTargetId) {
+        if (TrafficLightIndex.TrafficLightsForPos.ContainsKey(currTargetId)) {
+            upcomingTrafficLight = TrafficLightIndex.TrafficLightsForPos[currTargetId].Find(trafficLight => trafficLight.getOtherPos().Id == prevTargetId);
+        }
+    }
 
     public static List<DrivePath> Build(List<Vector3> path, List<Pos> posObjs) {
 //        Debug.Log("NEW");
@@ -36,6 +43,8 @@ public class DrivePath {
             WayReference wayReference = NodeIndex.getWayReference(posObjs[i - 1].Id, posObjs[i].Id);
             float wayWidth = wayReference.transform.localScale.y;
             float wayLength = (currentPath.endVector - currentPath.startVector).magnitude;
+
+            currentPath.setUpcomingTrafficLight(posObjs[i].Id, posObjs[i - 1].Id);
 
             if (hadPrevious) {
                 Vector3 originalStartVector = currentPath.startVector;

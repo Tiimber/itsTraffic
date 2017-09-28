@@ -199,14 +199,16 @@ public class VehicleLights : MonoBehaviour {
 	}
 
     public void startSirens(bool sirens) {
-        sirensGroup.SetActive(sirens && enableLights);
-        if (enableLights) {
-            if (sirens && sirensCoroutine == null) {
-                sirensCoroutine = StartCoroutine(shiftSirens());
-            } else if (!sirens && sirensCoroutine != null) {
-                StopCoroutine(sirensCoroutine);
-            }
-        }
+        if (sirensGroup != null) {
+			sirensGroup.SetActive(sirens && enableLights);
+			if (enableLights) {
+				if (sirens && sirensCoroutine == null) {
+					sirensCoroutine = StartCoroutine(shiftSirens());
+				} else if (!sirens && sirensCoroutine != null) {
+					StopCoroutine(sirensCoroutine);
+				}
+			}
+		}
     }
 
     private IEnumerator shiftSirens() {

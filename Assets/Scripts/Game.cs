@@ -298,14 +298,14 @@ public class Game : MonoBehaviour, IPubSub {
             makeExplosion(24);
 		}
 
-        if (Input.GetKeyDown(KeyCode.DownArrow)) {
-            CameraHandler.ZoomToSizeAndMoveToPoint(0.7524731f, new Vector3(4.771079f,-1.98f, -30f));
-            GameObject gameObjectBus = GameObject.Find ("Vehicle (id:103)");
-            gameObjectBus.transform.rotation = Quaternion.Euler(0f,0f,-111f);
-            GameObject gameObjectCar = GameObject.Find ("Vehicle (id:102)");
-            gameObjectCar.transform.rotation = Quaternion.Euler(0f,0f,-207f);
-            StartCoroutine(scriptedZoom());
-        }
+//        if (Input.GetKeyDown(KeyCode.DownArrow)) {
+//            CameraHandler.ZoomToSizeAndMoveToPoint(0.7524731f, new Vector3(4.771079f,-1.98f, -30f));
+//            GameObject gameObjectBus = GameObject.Find ("Vehicle (id:103)");
+//            gameObjectBus.transform.rotation = Quaternion.Euler(0f,0f,-111f);
+//            GameObject gameObjectCar = GameObject.Find ("Vehicle (id:102)");
+//            gameObjectCar.transform.rotation = Quaternion.Euler(0f,0f,-207f);
+//            StartCoroutine(scriptedZoom());
+//        }
 
 //		if (Input.GetKeyDown (KeyCode.Plus) || Input.GetKeyDown (KeyCode.P)) {
 //			currentLevel = WayTypeEnum.getLower (currentLevel);

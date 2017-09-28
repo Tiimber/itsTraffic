@@ -61,7 +61,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
     public bool switchingCameraInProgress = false;
 
 	public int vehicleId;
-	private TrafficLightLogic upcomingTrafficLight = null;
 
 	public static int numberOfCars = 0;
 	public static int vehicleInstanceCount = 0;
@@ -146,6 +145,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 		numberOfCars++;
 		vehicleId = vehicleInstanceCount++;
+        stats [STAT_TOO_MANY].add (1f);
 		DataCollector.Add ("Total # of vehicles", 1f);
 
 		// Report one more car
@@ -158,8 +158,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		StartCoroutine (reportStats ());
 
 		PubSub.subscribe ("Click", this, 100);
-
-		setUpcomingTrafficLight();
     }
 
 	private void initInformationVehicle () {
@@ -342,9 +340,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 					// TODO - OLD COLLISION logic reported "statReportPossibleCrossing" - do this somewhere in new logic as well
                     // stats [STAT_PASSED_CROSSINGS].add (1f);
 
-                    // TODO - Need to flag which traffic light we consider
-//                    setUpcomingTrafficLight();
-
                 } else if (health > 0f) {
 					// TODO - We've probably reached the end of the road, what to do?
 					//			Debug.Log ("No movement");
@@ -362,11 +357,13 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
     public bool shouldBlink () {
-        DrivePath dp = drivePath[0];
-        if (dp.blinkDirection != null && dp.blinkStart != -1f) {
-            return dp.blinkStart == 0 || dp.fullLength <= dp.blinkStart;
-        }
-        return false;
+        if (drivePath.Count > 0) {
+			DrivePath dp = drivePath[0];
+			if (dp.blinkDirection != null && dp.blinkStart != -1f) {
+				return dp.blinkStart == 0 || dp.fullLength <= dp.blinkStart;
+			}
+		}
+		return false;
     }
 
     public float getBreakFactor() {
@@ -601,7 +598,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				VehicleCollisionObj vehicleCollisionObj = rawCollisionObj.typeName == VehicleCollisionObj.NAME ? (VehicleCollisionObj)rawCollisionObj : null;
 				TrafficLightCollisionObj trafficLightCollisionObj = rawCollisionObj.typeName == TrafficLightCollisionObj.NAME ? (TrafficLightCollisionObj)rawCollisionObj : null;
 				HumanCollisionObj humanCollisionObj = rawCollisionObj.typeName == HumanCollisionObj.NAME ? (HumanCollisionObj)rawCollisionObj : null;
-
 				// Logic for other vehicle awareness
 				string otherColliderName = rawCollisionObj.CollisionObjType;
 				if (vehicleCollisionObj != null) {
@@ -639,8 +635,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 							registerCollissionAmount (collissionAmount, otherVehicle);
 						}
 					}
-
-
 				} else if (trafficLightCollisionObj != null && colliderName == "CAR") {
 					TrafficLightLogic trafficLightLogic = trafficLightCollisionObj.TrafficLightLogic;
 					// Car is in either yellow or red traffic light, slow down or break hard
@@ -742,9 +736,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
 	private void addTrafficLightPresence (string colliderName, TrafficLightLogic trafficLightLogic) {
-		if (upcomingTrafficLight == trafficLightLogic) {
+		if (drivePath.Count > 0 && drivePath[0].upcomingTrafficLight == trafficLightLogic) {
 			if (colliderName == CollisionObj.TRAFFIC_LIGHT_GREEN) {
-				upcomingTrafficLight = null;
+				drivePath[0].upcomingTrafficLight = null;
                 RedTrafficLightPresence.Clear();
                 YellowTrafficLightPresence.Clear();
 			} else {
@@ -952,6 +946,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
 		fadeObject.DoneMessage = "destroy";
 		fadeObject.FadeOut (0.5f);
+
+        stats [STAT_TOO_MANY].add(-1f);
 	}
 
     void OnDestroy() {
@@ -1026,6 +1022,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	private static string STAT_MAJOR_COLLISSIONS = "Vehicle major collissions";
 	private static string STAT_TOTAL_COLLISSION_AMOUNT = "Vehicle total collission force";
 	private static string STAT_CRASHES = "Vehicle crashes";
+	private static string STAT_TOO_MANY = "Too many cars";
 	private Dictionary<string, DataCollector.InnerData> stats = new Dictionary<string, DataCollector.InnerData> {
 		{STAT_DRIVING_TIME, new DataCollector.InnerData()},
 		{STAT_WAITING_TIME, new DataCollector.InnerData()},
@@ -1036,7 +1033,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		{STAT_MINOR_COLLISSIONS, new DataCollector.InnerData()},
 		{STAT_MAJOR_COLLISSIONS, new DataCollector.InnerData()},
 		{STAT_TOTAL_COLLISSION_AMOUNT, new DataCollector.InnerData()},
-		{STAT_CRASHES, new DataCollector.InnerData()}
+		{STAT_CRASHES, new DataCollector.InnerData()},
+		{STAT_TOO_MANY, new DataCollector.InnerData()}
 	};
 	private IEnumerator reportStats () {
 		do {
@@ -1147,16 +1145,5 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		}
 	}
 
-	private void setUpcomingTrafficLight() {
-        upcomingTrafficLight = null;
-        for (int i = 1; i < currentPath.Count; i++) {
-            long currTargetId = currentPath[i].Id;
-            long prevTargetId = currentPath[i-1].Id;
-			if (TrafficLightIndex.TrafficLightsForPos.ContainsKey(currTargetId)) {
-				upcomingTrafficLight = TrafficLightIndex.TrafficLightsForPos[currTargetId].Find(trafficLight => trafficLight.getOtherPos().Id == prevTargetId);
-                break;
-			}
-		}
-    }
 }
 

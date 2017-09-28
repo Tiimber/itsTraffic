@@ -869,62 +869,61 @@ public class Game : MonoBehaviour, IPubSub {
         return calculatedPath;
     }
 
-	public static List<Pos> calculateCurrentPath (Pos source, Pos target, bool isVehicle = true, Pos previousPoint = null) {
-		List<Pos> calculatedPath = new List<Pos> ();
+    private static Dictionary<long, NodeDistance> getVisitedPaths (Pos source, Pos target, bool isVehicle, Pos previousPoint) {
+        Dictionary<long, NodeDistance> visitedPaths = new Dictionary<long, NodeDistance> ();
 
-		Dictionary<long, NodeDistance> visitedPaths = new Dictionary<long, NodeDistance> ();
+        Pos current = source;
+        visitedPaths.Add (current.Id, new NodeDistance (0, source, true));
+        while (current != target) {
+            visitedPaths[current.Id].visited = true;
+            float currentCost = visitedPaths[current.Id].cost;
 
-		bool impossible = false;
-		Pos current = source;
-		visitedPaths.Add (current.Id, new NodeDistance (0, source, true));
-		while (current != target) {
-			visitedPaths[current.Id].visited = true;
-			float currentCost = visitedPaths[current.Id].cost;
+            List<KeyValuePair<Pos, WayReference>> neighbours = current.getNeighbours(previousPoint);
+            foreach (KeyValuePair<Pos, WayReference> neighbour in neighbours) {
+// Calculate cost to node
+                Pos neighbourNode = neighbour.Key;
+                WayReference wayReference = neighbour.Value;
+                float cost = currentCost + wayReference.getTravelCost(isVehicle);
+                if (!visitedPaths.ContainsKey(neighbourNode.Id)) {
+                    visitedPaths.Add (neighbourNode.Id, new NodeDistance(cost, current));
+                } else if (!visitedPaths[neighbourNode.Id].visited) {
+                    if (cost < visitedPaths[neighbourNode.Id].cost) {
+                        visitedPaths[neighbourNode.Id].cost = cost;
+                        visitedPaths[neighbourNode.Id].source = current;
+                    }
+                } else {
+                    continue;
+                }
+            }
 
-			List<KeyValuePair<Pos, WayReference>> neighbours = current.getNeighbours(previousPoint);
-			foreach (KeyValuePair<Pos, WayReference> neighbour in neighbours) {
-				// Calculate cost to node
-				Pos neighbourNode = neighbour.Key;
-				WayReference wayReference = neighbour.Value;
-				float cost = currentCost + wayReference.getTravelCost(isVehicle);
-				if (!visitedPaths.ContainsKey(neighbourNode.Id)) {
-					visitedPaths.Add (neighbourNode.Id, new NodeDistance(cost, current));
-				} else if (!visitedPaths[neighbourNode.Id].visited) {
-					if (cost < visitedPaths[neighbourNode.Id].cost) {
-						visitedPaths[neighbourNode.Id].cost = cost;
-						visitedPaths[neighbourNode.Id].source = current;
-					}
-				} else {
-					continue;
-				}
-			}
-
-			current = getLowestUnvisitedCostNode(visitedPaths);
+            current = getLowestUnvisitedCostNode(visitedPaths);
             previousPoint = current;
-			if (current == null) {
-				impossible = true;
-				break;
-			}
+            if (current == null) {
+                throw new Exception("IMPOSSIBRU!");
+            }
+        }
+
+        return visitedPaths;
+    }
+
+	public static List<Pos> calculateCurrentPath (Pos source, Pos target, bool isVehicle = true, Pos previousPoint = null) {
+        bool impossible = false;
+		Dictionary<long, NodeDistance> visitedPaths = new Dictionary<long, NodeDistance>();
+        try {
+            visitedPaths = getVisitedPaths(source, target, isVehicle, previousPoint);
+        } catch {
+            impossible = true;
 		}
 
+		List<Pos> calculatedPath = new List<Pos> ();
 		if (!impossible) {
-//			float smallestAllowedPath = 0.25f;
-//			bool first = true;
-			current = target;
-//			Pos previous = current;
+			Pos current = target;
 			while (current != null) {
-
-//				if (!first && current != source && NodeIndex.getWayReference(previous.Id, current.Id).gameObject.transform.localScale.x < smallestAllowedPath) {
-//					Debug.Log ("Vehicle will skip wayReference: " + NodeIndex.getWayReference(previous.Id, current.Id) + ", length: " + NodeIndex.getWayReference(previous.Id, current.Id).gameObject.transform.localScale.x);
-//				} else {
-					calculatedPath.Insert (0, current);
-//				}
+                calculatedPath.Insert (0, current);
 
 				if (current == source) {
 					break;
 				}
-//				previous = current;
-//				first = false;
 
 				current = visitedPaths [current.Id].source;
 			}
@@ -932,6 +931,44 @@ public class Game : MonoBehaviour, IPubSub {
 
 		return calculatedPath;
 	}
+
+    public static bool isPathToFirstClosest (Pos start, Pos first, Pos second) {
+        bool impossible = false;
+        Dictionary<long, NodeDistance> visitedPathsFirst = new Dictionary<long, NodeDistance>();
+        Dictionary<long, NodeDistance> visitedPathsSecond = new Dictionary<long, NodeDistance>();
+        try {
+            visitedPathsFirst = getVisitedPaths(start, first, true, null);
+            visitedPathsSecond = getVisitedPaths(start, second, true, null);
+        } catch {
+            impossible = true;
+        }
+
+        List<float> firstCosts = new List<float> ();
+        List<float> secondCosts = new List<float> ();
+        if (!impossible) {
+            Pos current = first;
+            while (current != null) {
+                firstCosts.Insert (0, visitedPathsFirst[current.Id].cost);
+                if (current == start) {
+                    break;
+                }
+                current = visitedPathsFirst [current.Id].source;
+            }
+            current = second;
+            while (current != null) {
+                secondCosts.Insert (0, visitedPathsFirst[current.Id].cost);
+                if (current == start) {
+                    break;
+                }
+                current = visitedPathsSecond [current.Id].source;
+            }
+        }
+
+        float totalCostFirst = firstCosts.Sum();
+        float totalCostSecond = firstCosts.Sum();
+
+        return totalCostFirst < totalCostSecond;
+    }
 
 	private static Pos getLowestUnvisitedCostNode (Dictionary<long, NodeDistance> nodes) {
 		float lowestCost = float.PositiveInfinity;

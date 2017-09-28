@@ -30,6 +30,7 @@ public class VehicleLights : MonoBehaviour {
 	private GameObject sirensGroup;
 	private Light sirenLeft;
 	private Light sirenRight;
+    public bool areSirensOn;
 
 	private bool warningBlinkersOn = false;
 	private bool blinkersOn = false;
@@ -199,6 +200,7 @@ public class VehicleLights : MonoBehaviour {
 	}
 
     public void startSirens(bool sirens) {
+        areSirensOn = sirens;
         sirensGroup.SetActive(sirens && enableLights);
         if (enableLights) {
             if (sirens && sirensCoroutine == null) {

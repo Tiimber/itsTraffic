@@ -42,6 +42,16 @@ public class VehicleSounds : MonoBehaviour, IPubSub {
 		soundSource.spatialBlend = 1f;
 		soundSource.volume = volume;
 //		honkSoundSource.Play ();
+
+        if (sirenSound != null) {
+			// Init the audioSource for siren
+			soundSourceSiren = gameObject.AddComponent<AudioSource> ();
+			soundSourceSiren.playOnAwake = false;
+			soundSourceSiren.clip = sirenSound;
+			soundSourceSiren.spatialBlend = 1f;
+			soundSourceSiren.loop = true;
+			soundSourceSiren.volume = volume;
+        }
 	}
 
 	private void initHonkMapping () {
@@ -144,6 +154,42 @@ public class VehicleSounds : MonoBehaviour, IPubSub {
 
 		soundSource.clip = activeHonkSound;
 	}
+
+    public void playSiren(bool fadeIn = true, float time = 2f) {
+        if (!soundSourceSiren.isPlaying) {
+            if (fadeIn) {
+				StartCoroutine(fadeSirenSound(0.1f, 1f, time));
+			}
+			soundSourceSiren.Play();
+        }
+    }
+
+    public void stopSiren(bool fadeOut = true, float time = 2f) {
+        if (soundSourceSiren.isPlaying) {
+            if (fadeOut) {
+                StartCoroutine(fadeOutSirenSound(time));
+            } else {
+                soundSourceSiren.Stop();
+                soundSourceSiren.time = 0f;
+            }
+        }
+    }
+
+    private IEnumerator fadeOutSirenSound(float time = 2f) {
+        yield return fadeSirenSound(1f, 0f, time);
+        soundSourceSiren.Stop();
+        soundSourceSiren.time = 0f;
+    }
+
+    private IEnumerator fadeSirenSound(float from, float to, float time) {
+        float fullDiff = to - from;
+        soundSourceSiren.volume = from;
+
+        while (soundSourceSiren.volume < to) {
+            yield return new WaitForSecondsRealtime(1f/60f);
+            soundSourceSiren.volume += fullDiff / time * Time.deltaTime;
+        }
+    }
 
 	public void playMajorCrashSound() {
 		playCrashSound (GenericVehicleSounds.instance.majorCrashSound);

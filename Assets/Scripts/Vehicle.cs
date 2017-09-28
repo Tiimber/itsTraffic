@@ -34,6 +34,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	public float totalDrivingDistance = 0f;
 	public bool destroying = false;
     private bool paused = false;
+    public bool firstFrame = true;
 
 	private float EmissionFactor { set; get; }
 	private float CollectedEmissionAmount = 0f;
@@ -212,14 +213,24 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		}
 	}
 
+    private void doFirstFrameStuff() {
+        firstFrame = false;
+        if (characteristics.startWithSiren) {
+            startSiren(characteristics.fadeSiren);
+        }
+    }
+
 	// Update is called once per frame
 	void Update () {
+        if (firstFrame) {
+            doFirstFrameStuff();
+        }
         if (isOwningCamera && Vehicle.debugCamera != null) {
             Vehicle.debugCamera.transform.rotation = Quaternion.identity;
         }
 		if (Game.isMovementEnabled()) {
 			if (!paused && !destroying) {
-                if (drivePath.Count > 0) {
+                if (drivePath != null && drivePath.Count > 0) {
                     DrivePath currentDrivePath = drivePath[0];
 
 					// Way target speed
@@ -362,9 +373,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
     public bool shouldBlink () {
-        DrivePath dp = drivePath[0];
-        if (dp.blinkDirection != null && dp.blinkStart != -1f) {
-            return dp.blinkStart == 0 || dp.fullLength <= dp.blinkStart;
+        if (drivePath.Count > 0) {
+			DrivePath dp = drivePath[0];
+			if (dp.blinkDirection != null && dp.blinkStart != -1f) {
+				return dp.blinkStart == 0 || dp.fullLength <= dp.blinkStart;
+			}
         }
         return false;
     }
@@ -415,6 +428,25 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             DataCollector.Add("Vehicle:backing", 1.0f);
 		}
 	}
+
+    public bool areSirensOn() {
+        VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+        return lights.areSirensOn;
+    }
+
+    private void startSiren(bool fade = true) {
+        VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
+        vehicleSounds.playSiren (fade);
+        VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+        lights.startSirens (true);
+    }
+
+    private void stopSiren(bool fade = true) {
+        VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
+        vehicleSounds.stopSiren (fade);
+        VehicleLights lights = GetComponentInChildren<VehicleLights> ();
+        lights.startSirens (false);
+    }
 
     // TODO - Don't run every frame. Calculate only when necessary.
 	private void adjustColliders () {
@@ -527,7 +559,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 		YellowTrafficLightPresence = new HashSet<TrafficLightLogic> ();
 		RedTrafficLightPresence = new HashSet<TrafficLightLogic> ();
-	}
+    }
 
 	public void reportColliderExit (Collider col, string colliderName) {
 		if (!destroying) {
@@ -689,6 +721,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				// Big crash - play sound
 				VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
 				vehicleSounds.playMajorCrashSound ();
+
+                // TODO - Make sure that we can report which way we are on
+                PubSub.publish(EmergencyDispatch.REPORT_MAJOR_CRASH, this);
 			}
 		} else if (shouldPlayCrashSound) {
 			// Minor crash - play sound
@@ -787,6 +822,57 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		}
 		return null;
 	}
+
+    private DrivePath getNextDrivePathWithDifferentEndPos () {
+        if (drivePath.Count > 1) {
+            long firstEndPosId = drivePath[0].endId;
+            for (int i = 1; i < drivePath.Count; i++) {
+                if (drivePath[i].endId != firstEndPosId) {
+                    return drivePath[i];
+                }
+            }
+        }
+        return null;
+    }
+
+    private bool hasDrivePathWithDifferentEndPos () {
+        if (drivePath.Count > 1) {
+	        DrivePath next = getNextDrivePathWithDifferentEndPos();
+        	return next != null && next.endId != drivePath[0].endId;
+        }
+        return false;
+    }
+
+    private bool hasOnlyDriveWay (List<Pos> path) {
+        if (path.Count > 1) {
+            long prev = path[0].Id;
+            for (int i = 1; i < path.Count; i++) {
+                long curr = path[i].Id;
+                WayReference wayReference = NodeIndex.getWayReference(prev, curr);
+                if (!wayReference.way.CarWay) {
+                    return false;
+                }
+                prev = curr;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public bool canReroute (Vector3 targetPosition) {
+        if (hasDrivePathWithDifferentEndPos()) {
+            long currentOrigin = drivePath[0].startId;
+            long currentTarget = drivePath[0].startId == drivePath[0].endId ? getNextDrivePathWithDifferentEndPos().endId : drivePath[0].endId;
+			List<Pos> calculatedPath = Game.calculateCurrentPath(NodeIndex.getPosById(currentTarget), NodeIndex.getPosClosestTo(targetPosition), true, NodeIndex.getPosById(currentOrigin));
+            return hasOnlyDriveWay(calculatedPath) && calculatedPath.Count > 0;
+        }
+		return false;
+    }
+
+    public void dispatchTo (Vector3 targetPosition) {
+		startSiren(true);
+		// TODO - Reroute
+    }
 
 	public void updateCurrentTarget () {
 		// TODO - Needs to work with new drive logic
@@ -948,6 +1034,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         if (isOwningCamera) {
             detachCurrentCamera();
         }
+
+        VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
+        vehicleSounds.stopSiren (true, 0.5f);
 
 		FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
 		fadeObject.DoneMessage = "destroy";

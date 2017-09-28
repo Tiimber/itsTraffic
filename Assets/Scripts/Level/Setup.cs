@@ -100,7 +100,10 @@ public class Setup {
         float angrySpeed = Misc.xmlFloat(vehicleAttributes.GetNamedItem("angrySpeed"), 0.1f);
         float happySpeed = Misc.xmlFloat(vehicleAttributes.GetNamedItem("happySpeed"), 0.05f);
 
-        return new VehicleSetup (id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPointIds, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight, color, specialIcon, mood, angrySpeed, happySpeed);
+        bool startWithSiren = Misc.xmlBool(vehicleAttributes.GetNamedItem("startWithSiren"), false);
+        bool fadeSiren = Misc.xmlBool(vehicleAttributes.GetNamedItem("fadeSiren"), false);
+
+        return new VehicleSetup (id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPointIds, brand, model, type, year, distance, condition, driverId, passengerIds, speedFactor, acceleration, startSpeedFactor, impatientThresholdNonTrafficLight, impatientThresholdTrafficLight, color, specialIcon, mood, angrySpeed, happySpeed, startWithSiren, fadeSiren);
 	}
 
     private bool parseWayPoints (XmlNode instanceNode, List<long> wayPointIds) {
@@ -191,8 +194,10 @@ public class Setup {
 		public float impatientThresholdNonTrafficLight;
 		public float impatientThresholdTrafficLight;
 		public string color;
+        public bool startWithSiren;
+        public bool fadeSiren;
 
-		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight, string color, string specialIcon, List<float> mood, float angrySpeed, float happySpeed) : base(id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPoints, specialIcon, mood, angrySpeed, happySpeed) {
+		public VehicleSetup(long id, string name, float time, long startPos, long endPos, string startVector, bool rerouteOK, bool wayPointsLoop, List<long> wayPoints, string brand, string model, string type, int year, float distance, float condition, long driverId, List<long> passengerIds, float speedFactor, float acceleration, float startSpeedFactor, float impatientThresholdNonTrafficLight, float impatientThresholdTrafficLight, string color, string specialIcon, List<float> mood, float angrySpeed, float happySpeed, bool startWithSiren, bool fadeSiren) : base(id, name, time, startPos, endPos, startVector, rerouteOK, wayPointsLoop, wayPoints, specialIcon, mood, angrySpeed, happySpeed) {
 			this.brand = brand;
 			this.model = model;
 			this.type = type;
@@ -207,6 +212,8 @@ public class Setup {
 			this.impatientThresholdNonTrafficLight = impatientThresholdNonTrafficLight;
 			this.impatientThresholdTrafficLight = impatientThresholdTrafficLight;
 			this.color = color;
+            this.startWithSiren = startWithSiren;
+            this.fadeSiren = fadeSiren;
 		}
 	}
 }

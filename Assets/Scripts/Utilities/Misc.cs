@@ -12,7 +12,9 @@ using UnityEngine.UI;
 
 public class Misc {
 
-	public static System.Random random = new System.Random();
+    public static Vector3 VECTOR3_NULL = new Vector3(0, 0, -10000f);
+
+    public static System.Random random = new System.Random();
 	public static bool haveScannedInputs = false;
 	public static bool hasMouse = true;
 	public static List<Joystick> joysticks = new List<Joystick>();
@@ -99,8 +101,26 @@ public class Misc {
 		return vectors;
 	}
 
-	public static string pickRandom(List<string> strings) {
-		return strings[Misc.randomRange(0, strings.Count - 1)];
+    public static T pickRandom<T>(List<T> list) {
+		return list[Misc.randomRange(0, list.Count - 1)];
+	}
+
+//	public static string pickRandom(List<string> strings) {
+//		return strings[Misc.randomRange(0, strings.Count - 1)];
+//	}
+
+    public static V pickRandomValue<K, V>(Dictionary<K, V> dict) {
+        if (dict.Count > 0) {
+            return dict.ElementAt(Misc.randomRange(0, dict.Count)).Value;
+        }
+        return default(V);
+	}
+
+    public static K pickRandomKey<K, V>(Dictionary<K, V> dict) {
+        if (dict.Count > 0) {
+            return dict.ElementAt(Misc.randomRange(0, dict.Count)).Key;
+        }
+        return default(K);
 	}
 
 	public static Texture2D MakeTex(int width, int height, Color col) {
@@ -1081,5 +1101,17 @@ public class Misc {
 
 	public static Vector3 GetMidVector(Vector3 vec1, Vector3 vec2) {
         return vec1 + (vec2 - vec1) / 2f;
+	}
+
+	public static List<Vehicle> GetVehicles(string brand = null) {
+		// Get all Vehicle GameObjects
+        List<Vehicle> vehicles;
+        vehicles = Resources.FindObjectsOfTypeAll<Vehicle>().ToList<Vehicle>().FindAll(v => !v.firstFrame && !v.destroying);
+
+        if (brand != null) {
+            vehicles = vehicles.FindAll(v => v.GetComponent<VehicleInfo>().brand == brand);
+        }
+
+        return vehicles;
 	}
 }

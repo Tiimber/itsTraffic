@@ -10,6 +10,8 @@ public class NodeIndex
 	public static List<long> uninterestingNodeId = new List<long>();
 
 	public static Dictionary<long, List<WayReference>> nodeWayIndex = new Dictionary<long, List<WayReference>>();
+
+    private static List<WayReference> allWayReferences = new List<WayReference>();
 	
 	public static Dictionary<long, List<WayReference>> endPointIndex = new Dictionary<long, List<WayReference>>();
 	public static Dictionary<long, List<WayReference>> straightWayIndex = new Dictionary<long, List<WayReference>>();
@@ -47,6 +49,9 @@ public class NodeIndex
 			nodeWayIndex.Add(id, new List<WayReference>());
 		}
 		nodeWayIndex [id].Add (partOfWay);
+        if (!allWayReferences.Contains(partOfWay)) {
+            allWayReferences.Add(partOfWay);
+        }
 	}
 		
 	public static void addUninterestingNodeId (long id) {
@@ -108,6 +113,24 @@ public class NodeIndex
 	public static List<Pos> getPosById (List<long> ids) {
         return ids.ConvertAll<Pos>(id => getPosById(id));
 	}
+
+    public static WayReference getClosestWayReference (Vector3 point) {
+        float closestDistance = float.MaxValue;
+        WayReference closestWay = null;
+        Vector3 closestPoint = Misc.VECTOR3_NULL;
+        foreach (WayReference way in allWayReferences.FindAll(wayRef => wayRef.way.CarWay)) {
+            Vector3 wayStart = Game.getCameraPosition (way.node1);
+            Vector3 wayEnd = Game.getCameraPosition (way.node2);
+            Vector3 projectedPoint = Math3d.ProjectPointOnLineSegment (wayStart, wayEnd, point);
+            float distance = PosHelper.getVectorDistance (point, projectedPoint);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestWay = way;
+                closestPoint = projectedPoint;
+            }
+        }
+        return closestWay;
+    }
 
 	private static Tuple3<Pos, WayReference, Vector3> GetHumanSpawnInfo (long nodeId) {
 		Pos spawnPos = nodes [nodeId];

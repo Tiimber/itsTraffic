@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CustomObjectCreator {
 
-	private static CustomObjectCreator instance = null;
+	public static CustomObjectCreator instance = null;
 
 	private Setup setup;
 	private Coroutine placePeople;
@@ -12,13 +12,36 @@ public class CustomObjectCreator {
 	public CustomObjectCreator (Setup setup) {
 		this.setup = setup;
 		GameTimer.resetTime();
-		if (setup.people.Count > 0) {
-			placePeople = Singleton<Game>.Instance.StartCoroutine(placeOutPeople ());
-		}
-		if (setup.vehicles.Count > 0) {
-			placeVehicles = Singleton<Game>.Instance.StartCoroutine(placeOutVehicles ());
-		}
+        restart();
 	}
+
+    private void restart() {
+        if (setup.people.Count > 0 && placePeople == null) {
+            placePeople = Singleton<Game>.Instance.StartCoroutine(placeOutPeople ());
+        }
+        if (setup.vehicles.Count > 0 && placeVehicles == null) {
+            placeVehicles = Singleton<Game>.Instance.StartCoroutine(placeOutVehicles ());
+        }
+        // TODO - If a vehicle (or human) is inserted before the "next one", we need to restart the coroutine
+    }
+
+    public void addPerson(Setup.PersonSetup personSetup) {
+        setup.people.Add(personSetup);
+        setup.people.Sort((p1, p2) => Mathf.RoundToInt((p1.time - p2.time) * 100));
+
+        if (placePeople == null) {
+            restart();
+        }
+    }
+
+    public void addVehicle(Setup.VehicleSetup vehicleSetup) {
+        setup.vehicles.Add(vehicleSetup);
+        setup.vehicles.Sort((v1, v2) => Mathf.RoundToInt((v1.time - v2.time) * 100));
+
+        if (placeVehicles == null) {
+            restart();
+        }
+    }
 
 	public void destroy() {
         if (placePeople != null) {
@@ -44,6 +67,7 @@ public class CustomObjectCreator {
 			Game.instance.giveBirth (person);
 			setup.people.RemoveAt (0);
 		}
+        placePeople = null;
 	}
 
 	public IEnumerator placeOutVehicles() {
@@ -60,6 +84,7 @@ public class CustomObjectCreator {
 			Game.instance.createNewCar (vehicle);
 			setup.vehicles.RemoveAt (0);
 		}
+        placeVehicles = null;
 	}
 
 	public static void initWithSetup(Setup setup) {

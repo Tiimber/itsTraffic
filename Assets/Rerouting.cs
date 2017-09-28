@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Rerouting : MonoBehaviour, IPubSub {
 
-    private static Vector3 VECTOR3_NULL = new Vector3(0, 0, -10000f);
-
     private const float NUMBER_HALOS_MAX = 50f;
     private const float NUMBER_HALOS_MIN = 15f;
     private const float DISTANCE_FOR_REROUTE = 40f;
@@ -22,7 +20,7 @@ public class Rerouting : MonoBehaviour, IPubSub {
     public GameObject rerouteParentObj;
     public GameObject reroutePartObj;
 
-   	private Vector3 mouseDownPosition =  VECTOR3_NULL;
+   	private Vector3 mouseDownPosition =  Misc.VECTOR3_NULL;
    	private Pos mousePosition;
 
     void Start() {
@@ -71,7 +69,7 @@ public class Rerouting : MonoBehaviour, IPubSub {
 	public PROPAGATION onMessage(string message, object data) {
         if (message == "RClick") {
 			Vector3 position = (Vector3)data;
-            if (mouseDownPosition == VECTOR3_NULL) {
+            if (mouseDownPosition == Misc.VECTOR3_NULL) {
             	// Right click when no object is active for rerouting
 				InformationBase selectedObject = InformationBase.GetInformationBaseAtPosition(position);
 				if (selectedObject != null) {
@@ -111,7 +109,7 @@ public class Rerouting : MonoBehaviour, IPubSub {
 
                 RerouteInfo.gameObject = null;
                 RerouteInfo.iReroute = null;
-                mouseDownPosition = VECTOR3_NULL;
+                mouseDownPosition = Misc.VECTOR3_NULL;
             }
         } else if (message == "RMove") {
             if (RerouteInfo.gameObject != null) {

@@ -1,21 +1,26 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class ModelGeneratorVehicles {
 
 	public static string generate(string brand) {
 		List<string> models;
-		if (modelsForBrand.ContainsKey (brand)) {
+		if (modelsForBrand.ContainsKey (brand) && modelsForBrand [brand].Count > 0) {
 			models = modelsForBrand [brand];
 		} else {
-			models = modelsForBrand [""];
+            if (modelsForBrand.ContainsKey (brand)) Debug.Log("Did not find brand "+brand);
+            else if (modelsForBrand [brand].Count > 0) Debug.Log("No models found for "+brand);
+			models = modelsForBrand ["Sportzcar"];
 		}
 		return Misc.pickRandom (models);
 	}
 
     public static void setBusLines(List<string> busLines) {
 		List<string> busData = modelsForBrand ["Bus"];
-        busData.Clear();
-        busData.AddRange(busLines);
+		if (busLines.Count == 0) {
+        	busData.Clear();
+        	busData.AddRange(busLines);
+        }
     }
 
 	private static Dictionary<string, List<string>> modelsForBrand = new Dictionary<string, List<string>> {

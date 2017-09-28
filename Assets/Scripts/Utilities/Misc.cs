@@ -556,12 +556,18 @@ public class Misc {
 		yield return www;
 
 		XmlDocument xmlDoc = new XmlDocument();
- 		xmlDoc.LoadXml(www.text);
+//        System.IO.StringReader stringReader = new System.IO.StringReader(www.text);
+//        stringReader.Read(); // skip BOM
+//        System.Xml.XmlReader reader = System.Xml.XmlReader.Create(stringReader);
 
-		Game.instance.lat = Convert.ToSingle(xmlDoc.SelectSingleNode("/geoData/lat").InnerText);
-		Game.instance.lon = Convert.ToSingle(xmlDoc.SelectSingleNode("/geoData/lon").InnerText);
-		Game.instance.countryCode = Convert.ToString(xmlDoc.SelectSingleNode("/geoData/countryCode").InnerText);
-		Game.instance.country = Convert.ToString(xmlDoc.SelectSingleNode("/geoData/country").InnerText);
+//        string content = System.IO.File.ReadAllText( www.text );
+        if (!www.text.Contains("ECONNREFUSED")) {
+ 			xmlDoc.LoadXml(www.text);
+			Game.instance.lat = Convert.ToSingle(xmlDoc.SelectSingleNode("/geoData/lat").InnerText);
+			Game.instance.lon = Convert.ToSingle(xmlDoc.SelectSingleNode("/geoData/lon").InnerText);
+			Game.instance.countryCode = Convert.ToString(xmlDoc.SelectSingleNode("/geoData/countryCode").InnerText);
+			Game.instance.country = Convert.ToString(xmlDoc.SelectSingleNode("/geoData/country").InnerText);
+        }
 	}
 
 	public static void refreshInputMethods() {

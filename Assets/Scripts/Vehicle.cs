@@ -841,7 +841,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             for (int i = 1; i < path.Count; i++) {
                 long curr = path[i].Id;
                 WayReference wayReference = NodeIndex.getWayReference(prev, curr);
-                if (!wayReference.way.CarWay) {
+                if (wayReference.way.WayWidthFactor < WayHelper.MINIMUM_DRIVE_WAY) {
                     return false;
                 }
                 prev = curr;
@@ -855,18 +855,59 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         if (hasDrivePathWithDifferentEndPos()) {
             long currentOrigin = drivePath[0].startId;
             long currentTarget = drivePath[0].startId == drivePath[0].endId ? getNextDrivePathWithDifferentEndPos().endId : drivePath[0].endId;
-			List<Pos> calculatedPath = Game.calculateCurrentPath(NodeIndex.getPosById(currentTarget), NodeIndex.getPosClosestTo(targetPosition), true, NodeIndex.getPosById(currentOrigin));
-            return hasOnlyDriveWay(calculatedPath) && calculatedPath.Count > 0;
+            List<Pos> calculatedPath = Game.calculateCurrentPaths (NodeIndex.getPosById(currentTarget), NodeIndex.getPosClosestTo(targetPosition), NodeIndex.getPosById(currentOrigin), new List<Pos>(), true, false);
+            bool reroutePossible = hasOnlyDriveWay(calculatedPath) && calculatedPath.Count > 0;
+            if (!reroutePossible) {
+                calculatedPath.ForEach(p => Debug.Log(p.Id));
+            }
+            return reroutePossible;
         }
 		return false;
     }
 
     public void dispatchTo (Vector3 targetPosition) {
 		startSiren(true);
-		// TODO - Reroute
+		rerouteTo(targetPosition);
+        // TODO - Speed up?!
+    }
+
+    private void rerouteTo(Vector3 targetPosition) {
+        long currentOrigin = drivePath[0].startId;
+        bool currentDrivePathIsStraight = currentOrigin != drivePath[0].endId;
+        long currentTarget = !currentDrivePathIsStraight ? getNextDrivePathWithDifferentEndPos().endId : drivePath[0].endId;
+
+        // Keep the start of the drivepath, since we might already have driven some of it
+        List<DrivePath> startOfDrive = drivePath.GetRange(0, drivePath.FindIndex(dp => dp.endId != currentOrigin && dp.endId != currentTarget));
+//        DebugFn.square(startOfDrive[startOfDrive.Count - 1].endVector);
+//        DebugFn.square(drivePath[startOfDrive.Count].endVector);
+//        Debug.Log(currentOrigin + ", " + currentTarget+ ", " + startOfDrive[startOfDrive.Count - 1].endId);
+
+        // Calculate new path
+        currentPath = Game.calculateCurrentPaths (NodeIndex.getPosById(currentTarget), NodeIndex.getPosClosestTo(targetPosition), NodeIndex.getPosById(currentOrigin), new List<Pos>(), true, false);
+        List<Vector3> pathVectors = getVectorsForPath(currentPath);
+        drivePath = DrivePath.Build(pathVectors, currentPath);
+
+// Replace start of new path with the one we kept above
+//		drivePath.RemoveRange(0, drivePath.FindIndex(dp => dp.endId != currentOrigin && dp.endId != currentTarget));
+        drivePath[0].adjustStartTo(startOfDrive[startOfDrive.Count - 1]);
+        drivePath.InsertRange(0, startOfDrive);
     }
 
 	public void updateCurrentTarget () {
+        currentPath = Game.calculateCurrentPaths (CurrentPosition, EndPos, null, wayPoints, true);
+
+        List<Vector3> pathVectors = getVectorsForPath(currentPath);
+//        DebugFn.arrows(pathVectors);
+        drivePath = DrivePath.Build(pathVectors, currentPath);
+        foreach (DrivePath dp in drivePath) {
+            DebugFn.arrow(dp.startVector, dp.endVector);
+        }
+//        DebugFn.temporaryOverride(Color.magenta, 2f);
+//        DebugFn.DebugPath(pathVectors);
+
+
+
+/*
 		// TODO - Needs to work with new drive logic
 		if (CurrentTarget != null && TrafficLightIndex.TrafficLightsForPos.ContainsKey(CurrentTarget.Id)) {
 			stats[STAT_PASSED_TRAFFICLIGHT].add(1f);
@@ -890,6 +931,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             currentPath = Game.calculateCurrentPaths (CurrentPosition, EndPos, null, wayPoints, true);
             currentPathIsDefinite = true;
 
+*/
 /*
 			// TODO - START DEBUG
 
@@ -911,7 +953,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             DebugFn.arrow(vectors[vectors.Count - 2], vectors[vectors.Count - 2] + center);
 
             // TODO - END DEBUG
-*/
+*//*
+
 
             // TODO Calculate total path in vector. For future use if using other driving logic.
             List<Vector3> pathVectors = getVectorsForPath(currentPath);
@@ -923,6 +966,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 //            DebugFn.temporaryOverride(Color.magenta, 2f);
 //            DebugFn.DebugPath(pathVectors);
         }
+*/
 	}
 
     private List<Vector3> getVectorsForPath(List<Pos> path) {

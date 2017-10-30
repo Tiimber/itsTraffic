@@ -1120,4 +1120,8 @@ public class Misc {
 
         return vehicles;
 	}
+
+	public static Vector3 GetProjectedPointOnLine(Vector3 point, Vector3 linePoint1, Vector3 linePoint2) {
+        return Math3d.ProjectPointOnLineSegment(linePoint1, linePoint2, point);
+	}
 }

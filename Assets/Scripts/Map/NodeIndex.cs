@@ -117,8 +117,8 @@ public class NodeIndex
     public static WayReference getClosestWayReference (Vector3 point) {
         float closestDistance = float.MaxValue;
         WayReference closestWay = null;
-        Vector3 closestPoint = Misc.VECTOR3_NULL;
-        foreach (WayReference way in allWayReferences.FindAll(wayRef => wayRef.way.CarWay)) {
+		List<WayReference> carWays = allWayReferences.FindAll(wayRef => wayRef.way.CarWay);
+		foreach (WayReference way in carWays) {
             Vector3 wayStart = Game.getCameraPosition (way.node1);
             Vector3 wayEnd = Game.getCameraPosition (way.node2);
             Vector3 projectedPoint = Math3d.ProjectPointOnLineSegment (wayStart, wayEnd, point);
@@ -126,7 +126,6 @@ public class NodeIndex
             if (distance < closestDistance) {
                 closestDistance = distance;
                 closestWay = way;
-                closestPoint = projectedPoint;
             }
         }
         return closestWay;

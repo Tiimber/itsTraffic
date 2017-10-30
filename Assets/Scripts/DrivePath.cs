@@ -30,6 +30,11 @@ public class DrivePath {
         fullLength = (endVector - startVector).magnitude;
     }
 
+    public void shortenToPct(float pct) {
+        endVector = startVector + (endVector - startVector) * pct;
+        fullLength = (endVector - startVector).magnitude;
+    }
+
     public static List<DrivePath> Build(List<Vector3> path, List<Pos> posObjs) {
 //        Debug.Log("NEW");
         List<DrivePath> drivePaths = new List<DrivePath>();

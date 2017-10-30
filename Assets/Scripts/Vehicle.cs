@@ -62,6 +62,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
     public bool switchingCameraInProgress = false;
 
 	public int vehicleId;
+    public long emergencyId;
 
 	public static int numberOfCars = 0;
 	public static int vehicleInstanceCount = 0;
@@ -278,6 +279,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                     if (breakFactor == 0f) {
                         stats [STAT_WAITING_TIME].add (Time.deltaTime);
 
+                        if (emergencyId != -1L) {
+                            EmergencyDispatch.ReportStandingStill(emergencyId, this);
+                        }
+
+                        // TODO - Police shouldn't be impatient?!
                         if (Time.time > timeOfLastMovement + ImpatientThresholdTrafficLight) {
                             performIrritationAction ();
 							// Make sure to not honk directly again
@@ -288,6 +294,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                         timeOfLastMovement = Time.time;
                         performIrritationAction (false);
                         stats [STAT_DRIVING_TIME].add (Time.deltaTime);
+                    }
+
+                    // If crashed, don't drive at all
+                    if (health <= 0f) {
+                        currentSpeed = 0f;
                     }
 
                     if (currentSpeed != 0f) {
@@ -541,6 +552,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             gameObject.GetComponent<Mood>().init();
         }
 
+        if (characteristics.emergencyId != -1L) {
+            emergencyId = characteristics.emergencyId;
+            EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ON_THE_WAY, this, characteristics.emergencyId, true);
+        }
+
 		AwarenessBreakFactor = 1.0f;
 		timeOfLastMovement = Time.time;
 		EmissionFactor = Misc.randomRange (0.1f, 1.0f);
@@ -628,6 +644,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				VehicleCollisionObj vehicleCollisionObj = rawCollisionObj.typeName == VehicleCollisionObj.NAME ? (VehicleCollisionObj)rawCollisionObj : null;
 				TrafficLightCollisionObj trafficLightCollisionObj = rawCollisionObj.typeName == TrafficLightCollisionObj.NAME ? (TrafficLightCollisionObj)rawCollisionObj : null;
 				HumanCollisionObj humanCollisionObj = rawCollisionObj.typeName == HumanCollisionObj.NAME ? (HumanCollisionObj)rawCollisionObj : null;
+				EmergencyCollisionObj emergencyCollisionObj = rawCollisionObj.typeName == EmergencyCollisionObj.NAME ? (EmergencyCollisionObj)rawCollisionObj : null;
 				// Logic for other vehicle awareness
 				string otherColliderName = rawCollisionObj.CollisionObjType;
 				if (vehicleCollisionObj != null) {
@@ -680,7 +697,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 						addHumanInAwarenessArea (colliderName, humanCollisionObj.Human);
 						autosetAwarenessBreakFactor ();
 					}
-				}
+				} else if (emergencyCollisionObj != null) {
+                    if (colliderName == "PC" && emergencyId == emergencyCollisionObj.emergencyId) {
+                        EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ARRIVED_AT_SCENE, this, emergencyId);
+                    }
+                }
 			}
 		}
 	}
@@ -697,7 +718,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
 	private void registerCollissionAmount (float amount, Vehicle otherVehicle) {
-		bool shouldPlayCrashSound = vehicleId < otherVehicle.vehicleId;
+		bool shouldPlayCrashSound = vehicleId <= otherVehicle.vehicleId;
 		health -= amount;
 		if (health <= 0f) {
 			VehicleLights lights = GetComponentInChildren<VehicleLights> ();
@@ -714,7 +735,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
 				vehicleSounds.playMajorCrashSound ();
 
-                // TODO - Make sure that we can report which way we are on
                 PubSub.publish(EmergencyDispatch.REPORT_MAJOR_CRASH, this);
 			}
 		} else if (shouldPlayCrashSound) {
@@ -723,6 +743,11 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 			vehicleSounds.playMinorCrashSound ();
 		}
 	}
+
+    // TODO - Just for testing - remove in game
+    public void makeCrash () {
+        registerCollissionAmount(20, this);
+    }
 
 	private void createDangerHalo () {
 		PubSub.publish ("Vehicle:createDangerHalo", this);
@@ -811,7 +836,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 					return new HumanCollisionObj(colliderGameObject.GetComponentInParent<HumanLogic>(), name);
 				}
 			}
-		}
+		} else if (colliderGameObject.name.StartsWith("EmergencyCollider:")) {
+            return new EmergencyCollisionObj (colliderGameObject.name);
+        }
 		return null;
 	}
 
@@ -865,30 +892,45 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		return false;
     }
 
-    public void dispatchTo (Vector3 targetPosition) {
+    private void speedUp () {
+        // TODO - Different for Po-liz, Fajjertrack and Ambilänz
+        SpeedFactor = Misc.randomRange (1.1f, 1.5f);
+        Acceleration = Misc.randomRange (3f, 3.5f);
+    }
+
+    public void dispatchTo (Vector3 targetPosition, long emergencyId) {
+        this.emergencyId = emergencyId;
+        EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ON_THE_WAY, this, emergencyId);
 		startSiren(true);
 		rerouteTo(targetPosition);
-        // TODO - Speed up?!
+        speedUp();
     }
 
     private void rerouteTo(Vector3 targetPosition) {
+
         long currentOrigin = drivePath[0].startId;
         bool currentDrivePathIsStraight = currentOrigin != drivePath[0].endId;
         long currentTarget = !currentDrivePathIsStraight ? getNextDrivePathWithDifferentEndPos().endId : drivePath[0].endId;
 
         // Keep the start of the drivepath, since we might already have driven some of it
         List<DrivePath> startOfDrive = drivePath.GetRange(0, drivePath.FindIndex(dp => dp.endId != currentOrigin && dp.endId != currentTarget));
-//        DebugFn.square(startOfDrive[startOfDrive.Count - 1].endVector);
-//        DebugFn.square(drivePath[startOfDrive.Count].endVector);
-//        Debug.Log(currentOrigin + ", " + currentTarget+ ", " + startOfDrive[startOfDrive.Count - 1].endId);
+
+        // Get specific wayReference, that this target points to
+		WayReference closestWayReference = NodeIndex.getClosestWayReference(targetPosition);
+        Pos closestNodeToTarget = closestWayReference.getClosestNode(targetPosition);
+        Pos otherNodeToTarget = closestWayReference.getOtherNode(closestNodeToTarget);
 
         // Calculate new path
-        currentPath = Game.calculateCurrentPaths (NodeIndex.getPosById(currentTarget), NodeIndex.getPosClosestTo(targetPosition), NodeIndex.getPosById(currentOrigin), new List<Pos>(), true, false);
+		currentPath = Game.calculateCurrentPaths (NodeIndex.getPosById(currentTarget), closestNodeToTarget, NodeIndex.getPosById(currentOrigin), new List<Pos>(), true, false);
+        bool targetPointIsClosestEndPoint = true;
+        if (!currentPath.Contains(otherNodeToTarget)) {
+            currentPath.Add(otherNodeToTarget);
+            targetPointIsClosestEndPoint = false;
+        }
         List<Vector3> pathVectors = getVectorsForPath(currentPath);
         drivePath = DrivePath.Build(pathVectors, currentPath);
 
-// Replace start of new path with the one we kept above
-//		drivePath.RemoveRange(0, drivePath.FindIndex(dp => dp.endId != currentOrigin && dp.endId != currentTarget));
+		// Replace start of new path with the one we kept above
         drivePath[0].adjustStartTo(startOfDrive[startOfDrive.Count - 1]);
         drivePath.InsertRange(0, startOfDrive);
     }
@@ -902,10 +944,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         foreach (DrivePath dp in drivePath) {
             DebugFn.arrow(dp.startVector, dp.endVector);
         }
-//        DebugFn.temporaryOverride(Color.magenta, 2f);
-//        DebugFn.DebugPath(pathVectors);
-
-
 
 /*
 		// TODO - Needs to work with new drive logic
@@ -1077,6 +1115,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		FadeObjectInOut fadeObject = GetComponent<FadeObjectInOut>();
 		fadeObject.DoneMessage = "destroy";
 		fadeObject.FadeOut (0.5f);
+
+        if (emergencyId != -1L) {
+            EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ARRIVED_AT_SCENE, this, emergencyId);
+        }
 
         stats [STAT_TOO_MANY].add(-1f);
 	}

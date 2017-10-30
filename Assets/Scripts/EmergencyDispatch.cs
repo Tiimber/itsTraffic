@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EmergencyDispatch : MonoBehaviour, IPubSub {
 
+    private static EmergencyDispatch instance;
+
     public enum EMERGENCY_TYPE {
         POLICE,
         FIRE_FIGHTER,
@@ -32,16 +34,25 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
     private Dictionary<long, EmergencyInfo> emergencies = new Dictionary<long, EmergencyInfo>();
 
     void Start() {
+        EmergencyDispatch.instance = this;
         PubSub.subscribe("Report:majorCrash", this);
     }
 
     public PROPAGATION onMessage(string message, object data) {
+        bool offMap = true;
+        Vector3 targetPosition = Misc.VECTOR3_NULL;
+        Vehicle vehicleRef = null;
+        if (data != null && typeof(Vehicle) == data.GetType()) {
+            vehicleRef = (Vehicle)data;
+            targetPosition = vehicleRef.transform.position;
+        }
         emergencyId++;
         switch (message) {
             case REPORT_MAJOR_CRASH:
                 int neededPolice = 2;
-                registerEmergency(emergencyId, message);
-                grabOrSpawn(neededPolice, EMERGENCY_TYPE.POLICE, Misc.VECTOR3_NULL);
+                // TODO - When going to a specific point, "offMap" parameter need to be false
+                registerEmergency(emergencyId, message, offMap);
+                grabOrSpawn(neededPolice, EMERGENCY_TYPE.POLICE, targetPosition, vehicleRef);
                 break;
             case REPORT_FIRE:
                 break;
@@ -58,7 +69,26 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
         return availableUnits;
     }
 
-    private void grabOrSpawn(int numberOfUnits, EMERGENCY_TYPE type, Vector3 closestToPosition) {
+    private BoxCollider createCollider(Vector3 position, Vehicle potentialVehicle) {
+        // WayReference of emergency
+        WayReference closestWayReference = NodeIndex.getClosestWayReference(position);
+
+        GameObject colliderGameObject = new GameObject();
+        colliderGameObject.name = "EmergencyCollider:" + emergencyId;
+        colliderGameObject.transform.rotation = closestWayReference.transform.rotation * Quaternion.Euler(0f, 0f, 90f);
+        colliderGameObject.transform.position = Misc.GetProjectedPointOnLine(Misc.NoZ(position), Game.getCameraPosition(closestWayReference.node1), Game.getCameraPosition(closestWayReference.node2));
+        BoxCollider collider = colliderGameObject.AddComponent<BoxCollider>();
+        collider.size = new Vector3(closestWayReference.transform.localScale.y,0.1f, 3f);
+        return collider;
+    }
+
+    private void growCollider (BoxCollider collider) {
+        float growSize = 0.0025f;
+        collider.size = new Vector3(collider.size.x + growSize, collider.size.y + growSize, collider.size.z);
+    }
+
+    private void grabOrSpawn(int numberOfUnits, EMERGENCY_TYPE type, Vector3 closestToPosition, Vehicle potentialVehicle) {
+
         // TODO - Based on "type"
         string brand = "Po-liz";
         List<Vehicle> availableEmergencyUnits = Misc.GetVehicles(brand);
@@ -69,6 +99,10 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
             if (endPointNode != 0L) {
                 closestToPosition = Game.getCameraPosition(NodeIndex.getPosById(endPointNode));
             }
+        } else {
+            // Make a collider, this will grow once emergency vehicles are standing still - when dispatching vehicle sees this, it has arrived
+            BoxCollider collider = createCollider(closestToPosition, potentialVehicle);
+            registerCollider(emergencyId, collider);
         }
 
         // Filter the units that are already on the way to other emergencies - and can re-route to given position
@@ -90,6 +124,8 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
 
     [InspectorButton("callPoliceFn")]
     public bool callPolice;
+    [InspectorButton("callPoliceDjakneFn")]
+    public bool callPoliceDjakne;
     [InspectorButton("callFireFighterFn")]
     public bool callFireFighter;
     [InspectorButton("callAmbulanceFn")]
@@ -97,6 +133,12 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
 
     private void callPoliceFn() {
         PubSub.publish(REPORT_MAJOR_CRASH);
+    }
+
+    private void callPoliceDjakneFn() {
+        GameObject vehicleGameObject = GameObject.Find ("Vehicle (id:10001)");
+        Vehicle vehicle = vehicleGameObject.GetComponent<Vehicle>();
+        vehicle.makeCrash();
     }
 
     private void callFireFighterFn() {
@@ -108,15 +150,14 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
     }
 
     private void dispatchUnits(List<Vehicle> units, Vector3 targetPosition) {
-        units.ForEach(vehicle => vehicle.dispatchTo(targetPosition));
-        // TODO - Acknowledge going to emergency
+        units.ForEach(vehicle => vehicle.dispatchTo(targetPosition, emergencyId));
     }
 
     private void spawnUnits(int numberOfUnits, EMERGENCY_TYPE type, Vector3 targetPosition) {
         for (int i = 0; i < numberOfUnits; i++) {
             spawnUnit(type, targetPosition);
         }
-        // TODO - Acknowledge planning to spawn
+        EmergencyDispatch.Report(UNIT_STATUS.AWAITING_SPAWN, null, emergencyId);
     }
 
     private void spawnUnit(EMERGENCY_TYPE type, Vector3 targetPosition) {
@@ -144,6 +185,8 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
 
         // TODO - When having Ambulance or Fire Truck, change some of these
         // TODO - Which of these SHOULD be "Po-liz", and which shouldn't
+        float speedFactor = Misc.randomRange (1.1f, 1.5f);
+        float acceleration = Misc.randomRange (3f, 3.5f);
         long newId = 0L;
         string newName = "Po-liz";
         float newTime = GameTimer.elapsedTime() + Misc.randomRange(5f, 15f);
@@ -152,7 +195,8 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
         string newType = "Po-liz";
         List<long> newPassengerIds = new List<long>();
         List<float> newMood = new List<float>(){1f, 0f, 1.5f};
-        Setup.VehicleSetup vehicleSetup = new Setup.VehicleSetup(newId, newName, newTime, startPos.Id, endPos.Id, null, false, false, newWayPoints, newBrand, null, newType, 0, 0F, 1F, 0L, newPassengerIds, 0F, 0F, 0F, 0F, 0f, null, null, newMood, 0.1F, 0.05F, true, true);
+        Setup.VehicleSetup vehicleSetup = new Setup.VehicleSetup(newId, newName, newTime, startPos.Id, endPos.Id, null, false, false, newWayPoints, newBrand, null, newType, 0, 0F, 1F, 0L, newPassengerIds, speedFactor, acceleration, 0F, 0F, 0f, null, null, newMood, 0.1F, 0.05F, true, true);
+        vehicleSetup.emergencyId = emergencyId;
 
         CustomObjectCreator.instance.addVehicle(vehicleSetup);
     }
@@ -175,15 +219,71 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
         };
     }
 
-    private void registerEmergency(long emergencyId, string message) {
-        emergencies.Add(emergencyId, new EmergencyInfo(message));
+    private void registerEmergency(long emergencyId, string message, bool offMap) {
+        emergencies.Add(emergencyId, new EmergencyInfo(message, offMap));
+    }
+
+    public static void Report (UNIT_STATUS status, Vehicle vehicle, long emergencyId, bool newSpawn = false) {
+        if (EmergencyDispatch.instance.emergencies.ContainsKey(emergencyId)) {
+            EmergencyDispatch.instance.emergencies[emergencyId].register(status, vehicle, newSpawn);
+        }
+    }
+
+    public static void ReportStandingStill (long emergencyId, Vehicle vehicle) {
+        if (EmergencyDispatch.instance.emergencies.ContainsKey(emergencyId)) {
+            if (EmergencyDispatch.instance.emergencies[emergencyId].getVehicleStatus(vehicle) == UNIT_STATUS.ON_THE_WAY) {
+                EmergencyDispatch.instance.growCollider(EmergencyDispatch.instance.emergencies[emergencyId].collider);
+            }
+        }
+    }
+
+    private void registerCollider (long emergencyId, BoxCollider collider) {
+        if (emergencies.ContainsKey(emergencyId)) {
+            emergencies[emergencyId].collider = collider;
+        }
     }
 
     public class EmergencyInfo {
         private string emergencyType;
+        private bool offMap = false;
+        private bool emergencyResolved = false;
+        private int numberAwaitingSpawn = 0;
+        private Dictionary<Vehicle, UNIT_STATUS> vehicleStatus = new Dictionary<Vehicle, UNIT_STATUS>();
+        public BoxCollider collider;
 
-        public EmergencyInfo(string emergencyType) {
+        public EmergencyInfo(string emergencyType, bool offMap) {
             this.emergencyType = emergencyType;
+            this.offMap = offMap;
+        }
+
+        public void register(UNIT_STATUS status, Vehicle vehicle, bool newSpawn) {
+            if (newSpawn) {
+                numberAwaitingSpawn--;
+            }
+            if (status == UNIT_STATUS.AWAITING_SPAWN) {
+                numberAwaitingSpawn++;
+            } else if (status == UNIT_STATUS.SITUATION_RESOLVED) {
+                emergencyResolved = true;
+                vehicleStatus.Clear();
+            } else if (status == UNIT_STATUS.ARRIVED_AT_SCENE && offMap) {
+                vehicleStatus.Remove(vehicle);
+                if (vehicleStatus.Count == 0 && numberAwaitingSpawn == 0) {
+                    emergencyResolved = true;
+                }
+            } else {
+                if (!vehicleStatus.ContainsKey(vehicle)) {
+                    vehicleStatus[vehicle] = status;
+                } else {
+                    vehicleStatus.Add(vehicle, status);
+                }
+            }
+        }
+
+        public UNIT_STATUS getVehicleStatus(Vehicle vehicle) {
+            if (vehicleStatus.ContainsKey(vehicle)) {
+                return vehicleStatus[vehicle];
+            }
+            return UNIT_STATUS.ARRIVED_AT_SCENE;
         }
     }
 

@@ -73,4 +73,8 @@ public class WayReference : MonoBehaviour {
 	public bool hasNodes (Pos pos1, Pos pos2) {
 		return (node1 == pos1 && node2 == pos2) || (node1 == pos2 && node2 == pos1);
 	}
+
+	public Pos getClosestNode(Vector3 position) {
+		return (position - Game.getCameraPosition(node1)).magnitude <= (position - Game.getCameraPosition(node2)).magnitude ? node1 : node2;
+	}
 }

@@ -14,7 +14,7 @@ public class TrafficLightToggle : IPubSub {
 	}
 
 	public static void Start () {
-		PubSub.subscribe ("Click", getInstance(), 50);
+		PubSub.subscribe ("Click", getInstance(), 110);
 	}
 	
 	public static void Add (long posId, Vector2 center, float radius) {
@@ -25,14 +25,17 @@ public class TrafficLightToggle : IPubSub {
 	List<CircleTouchWithPosId> toggles = new List<CircleTouchWithPosId>();
 
 	public PROPAGATION onMessage(string message, System.Object obj) {
-		if (message == "Click") {
+        Debug.Log("Click TrafficLightToggle");
+        if (message == "Click") {
 			Vector2 clickPos = Game.instance.screenToWorldPosInBasePlane((Vector3) obj);
 			CircleTouchWithPosId touchArea = toggles.Find(i => i.isInside(clickPos));
 			if (touchArea != null) {
 				TrafficLightIndex.toggleLightsForPos(touchArea.posId);
+//                return PROPAGATION.STOP_AFTER_SAME_TYPE;
+                return PROPAGATION.DEFAULT;
 			}
 		}
-		return PROPAGATION.DEFAULT;
+        return PROPAGATION.CONTINUE_WITH_OTHER_TYPES;
 	}
 
 	private class CircleTouchWithPosId : CircleTouch {

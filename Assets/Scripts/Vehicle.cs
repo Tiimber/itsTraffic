@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,8 +53,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 	private HashSet<TrafficLightLogic> YellowTrafficLightPresence { set; get; }
 	private HashSet<TrafficLightLogic> RedTrafficLightPresence { set; get; }
-
-	private float backingCounterSeconds = 0f;
 
 	public Camera vehicleCameraObj;
 	private static Vehicle debug;
@@ -160,6 +159,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		StartCoroutine (reportStats ());
 
 		PubSub.subscribe ("Click", this, 100);
+		PubSub.subscribe ("LongPress", this, 100);
     }
 
 	private void initInformationVehicle () {
@@ -201,20 +201,15 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 //			float a = 0.001696185f, b = 0.02523364f, c = -0.000497608f, d = 0.000003406148f, e = -7.872413E-9f;
 			return a + b * x + c * Mathf.Pow (x, 2) + d * Mathf.Pow (x, 3) + e * Mathf.Pow (x, 4);
 		} else {
-			if (x >= 0) {
-				// If breaking
-				float a = 29f, b = 0.005330882f, c = -0.0005330882f;
-				return -6 * (a + b * x + c * Mathf.Pow (x, 2));
-			} else {
-				// Backing
-				return -GetAccForKmh(-x, -targetSpeed) / 15f;
-			}
+			// If breaking
+			float a = 29f, b = 0.005330882f, c = -0.0005330882f;
+			return -6 * (a + b * x + c * Mathf.Pow (x, 2));
 		}
 	}
 
     private void doFirstFrameStuff() {
         firstFrame = false;
-        if (characteristics.startWithSiren) {
+        if (characteristics != null && characteristics.startWithSiren) {
             startSiren(characteristics.fadeSiren);
         }
     }
@@ -255,25 +250,10 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 					// Car speed change for this current frame
                     float speedChangeInFrame = speedChangeInFrameKmh / KPH_TO_LONGLAT_SPEED;
 
-                    float speedChangeInFrameNoBacking;
-
-					// If in backing state, allow backing and count down the time to be backing
-                    if (backingCounterSeconds > 0f) {
-                        backingCounterSeconds -= Time.deltaTime;
-                        startBacklights ();
-                        if (backingCounterSeconds <= 0f) {
-                            stopBacklights ();
-                            autosetAwarenessBreakFactor ();
-                        }
-
-                        speedChangeInFrameNoBacking = speedChangeInFrame;
-                    } else {
-						// No backing
-                        speedChangeInFrameNoBacking = Mathf.Max (speedChangeInFrame, -currentSpeed);
-                    }
+                    speedChangeInFrame = Mathf.Max (speedChangeInFrame, -currentSpeed);
 
 					// Apply speed change
-                    currentSpeed += speedChangeInFrameNoBacking;
+                    currentSpeed += speedChangeInFrame;
 
 					// React to standing still or moving this frame
                     if (breakFactor == 0f) {
@@ -328,8 +308,21 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 							// Move car to target position
 							transform.position = Misc.WithZ(currentTargetInPath, transform.position);
 
+                            if (TrafficLightIndex.TrafficLightsForPos.ContainsKey(currentDrivePath.endId)
+                            	&& currentDrivePath.startId != currentDrivePath.endId) {
+                                stats [STAT_PASSED_TRAFFICLIGHT].add (1f);
+                            }
+                            if (NodeIndex.intersectionWayIndex.ContainsKey(currentDrivePath.endId)
+                            	&& currentDrivePath.startId != currentDrivePath.endId) {
+                                stats [STAT_PASSED_CROSSINGS].add (1f);
+                            }
+
 							// Remove current drive path
 							if (drivePath.Count > 0) {
+								if (currentDrivePath.isBacking) {
+                                    stopBacklights ();
+                                    autosetAwarenessBreakFactor ();
+                                }
 								drivePath.RemoveAt(0);
 								if (drivePath.Count > 0) {
 									// We should continue driving on next road
@@ -341,6 +334,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 							// Rotate car
 							Vector3 positionMovementVector = currentTargetInPath - currentPos;
 							Quaternion vehicleRotation = Quaternion.FromToRotation (Vector3.right, positionMovementVector);
+                            if (currentDrivePath.isBacking) {
+                                vehicleRotation *= Quaternion.Euler(0f, 0f, 180f);
+                            }
 							transform.rotation = vehicleRotation;
 							// Move car
 							transform.position = transform.position + (currentTargetInPath - currentPos).normalized * driveLengthLeft;
@@ -400,39 +396,33 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		return currentSpeed != 0f;
 	}
 
+    private void backALittle() {
+        AwarenessBreakFactor = 1f;
+        stopBreaklights ();
+        startBacklights ();
+        DataCollector.Add("Vehicle:backing", 1.0f);
+    }
+
 	private void performIrritationAction (bool startAction = true) {
 		VehicleSounds vehicleSounds = GetComponent<VehicleSounds> ();
 		float frustrationLevel = vehicleSounds.getFrustrationLevel ();
-		// TODO - This is the real level where the vehicle should back
-//		if (frustrationLevel < 8f) {
-		if (frustrationLevel < 2f || !startAction) {
-			// TODO - Maybe base honking/blinking depending on frustration level
-			if (!startAction) {
-				vehicleSounds.honk (startAction);
-			} else {
-				if (UnityEngine.Random.value < 0.5f) {
-					vehicleSounds.honk (startAction);
-                    DataCollector.Add("Vehicle:honk", 1.0f);
-				} else {
-					flashHeadlights ();
-                    DataCollector.Add("Vehicle:flash headlight", 1.0f);
-				}
-
-				// If seeing human and no other slowdown - send signal to Human
-				if (onlyHumansInPanicCollider ()) {
-					foreach (HumanLogic human in PcHumansInAwarenessArea) {
-						human.vehicleIrritationAction (this);
-					}
-				}
-				// Humans subscribing to the car, send signal to Human
-				PubSub.publish("Vehicle#" + vehicleId + ":Irritation", this);
-			}
+		// TODO - Maybe base honking/blinking depending on frustration level
+		if (!startAction || UnityEngine.Random.value < 0.5f) {
+			vehicleSounds.honk (startAction);
+			DataCollector.Add("Vehicle:honk", 1.0f);
 		} else {
-			AwarenessBreakFactor = -0.15f;
-			backingCounterSeconds = 0.8f;
-			stopBreaklights ();
-            DataCollector.Add("Vehicle:backing", 1.0f);
+			flashHeadlights ();
+			DataCollector.Add("Vehicle:flash headlight", 1.0f);
 		}
+
+		// If seeing human and no other slowdown - send signal to Human
+		if (onlyHumansInPanicCollider ()) {
+			foreach (HumanLogic human in PcHumansInAwarenessArea) {
+				human.vehicleIrritationAction (this);
+			}
+		}
+		// Humans subscribing to the car, send signal to Human
+		PubSub.publish("Vehicle#" + vehicleId + ":Irritation", this);
 	}
 
     public bool areSirensOn() {
@@ -754,7 +744,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
 	private void autosetAwarenessBreakFactor () {
-		if (backingCounterSeconds <= 0f) {
+		if (drivePath.Count == 0 || !drivePath[0].isBacking) {
 			bool hasVehicleInFac = FacVehiclesInAwarenessArea.Any (); 
 			bool hasVehicleInPc = PcVehiclesInAwarenessArea.Any (); 
 			bool hasHumanInFac = FacHumansInAwarenessArea.Any ();
@@ -947,9 +937,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
 /*
 		// TODO - Needs to work with new drive logic
-		if (CurrentTarget != null && TrafficLightIndex.TrafficLightsForPos.ContainsKey(CurrentTarget.Id)) {
-			stats[STAT_PASSED_TRAFFICLIGHT].add(1f);
-		}
+//		if (CurrentTarget != null && TrafficLightIndex.TrafficLightsForPos.ContainsKey(CurrentTarget.Id)) {
+//			stats[STAT_PASSED_TRAFFICLIGHT].add(1f);
+//		}
 
         if (wayPointsLoop && CurrentTarget == wayPoints[0]) {
 			// TODO - Needs to work with new drive logic
@@ -1158,7 +1148,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	public PROPAGATION onMessage (string message, object data) {
 		if (!destroying) {
 			if (message == "Click") {
-				if (health <= 0f) {
+                Debug.Log("Click Vehicle");
+                if (health <= 0f) {
 					// Get click position (x,y) in a plane of the objects' Z position
 					Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, transform.position.z));
 					Vector2 clickPos = Game.instance.screenToWorldPosInPlane((Vector3) data, plane);
@@ -1180,7 +1171,20 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 						return PROPAGATION.STOP_AFTER_SAME_TYPE;
 					}
 				}
-			}
+			} else if (message == "LongPress") {
+                if (drivePath.Count > 0 && !drivePath[0].isBacking && currentSpeed == 0f) {
+					// Back car
+					// Get click position (x,y) in a plane of the objects' Z position
+					Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, transform.position.z));
+					Vector2 clickPos = Game.instance.screenToWorldPosInPlane((Vector3) data, plane);
+					CircleTouch vehicleTouch = new CircleTouch(transform.position, 0.1f * 1f); // Click 0.1 (vehicle length) multiplied by one
+					if (vehicleTouch.isInside(clickPos)) {
+						DrivePath.AddBacking(drivePath, this);
+						backALittle();
+						return PROPAGATION.STOP_IMMEDIATELY;
+					}
+				}
+            }
 		}
 		return PROPAGATION.DEFAULT;
 	}

@@ -16,6 +16,10 @@
 		<state>GREEN</state>
 		<time>10</time>
 	</object>
+    <object id="246553334" type="TrafficLight">
+		<state>GREEN</state>
+		<time>10</time>
+	</object>
 	
 	<object id="34732337" type="Roof">
 		<material>4</material>

@@ -18,7 +18,8 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 	}
 
 	public PROPAGATION onMessage (string message, object data) {
-		if (message == "Click") {
+        Debug.Log("Click InformationWindow");
+        if (message == "Click") {
             // Check if a link was clicked inside of an already shown informationWindow
             Vector2 clickPosScreen = Misc.getScreenPos((Vector3) data);
             foreach (KeyValuePair<Rect, InformationBase> clickArea in clickAreas) {
@@ -45,8 +46,8 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 		scrollPosition = Vector2.zero;
 		informationObject = info;
 		information = info.getInformation();
-		scrollToInformationBase(informationObject);
-		follow = informationObject.GetType() == typeof(InformationHuman);
+//		scrollToInformationBase(informationObject);
+//		follow = informationObject.GetType() == typeof(InformationHuman);
 		show = true;
 	}
 

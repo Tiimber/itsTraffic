@@ -1,3 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
+    <object id="92777342,2727535274,246553334,304066806" type="TrafficLight">
+        <state>GREEN</state>
+        <time>10</time>
+    </object>
+    <object id="246553334" type="TrafficLight">
+        <state>GREEN</state>
+        <time>10</time>
+    </object>
+    <object id="304066806" type="TrafficLight">
+        <state>GREEN</state>
+        <time>10</time>
+    </object>
+    <object id="246553332" type="TrafficLight">
+        <state>GREEN</state>
+        <time>10</time>
+    </object>
 </config>

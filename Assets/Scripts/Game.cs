@@ -403,6 +403,12 @@ public class Game : MonoBehaviour, IPubSub {
 			} else {
 				leftClickReleaseTimer -= Time.deltaTime;
 			}
+
+            if (leftClickReleaseTimer < -1f) {
+//                Debug.Log("Trigger long press");
+                // TODO cancel if move not too much, eg. if the car selected is out of focus
+                PubSub.publish("LongPress", mouseDownPosition);
+            }
 		} else if (leftClickReleaseTimer > 0f) {
 			// Button not pressed, and was pressed < 0.2s, accept as click if not moved too much
 			if (Misc.getDistance (mouseDownPosition, prevMousePosition) < THRESHOLD_MAX_MOVE_TO_BE_CONSIDERED_CLICK) {

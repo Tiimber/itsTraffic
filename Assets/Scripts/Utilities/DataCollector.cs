@@ -8,7 +8,7 @@ using System;
 public class DataCollector : MonoBehaviour {
 
     private const string ACCUMULATED_DATA_PREFIX = "AccumulatedData:";
-	private bool output = false;
+	private bool output = true;
 
 	private static float lastDataDiff = 0f;
 	private static float dataDiffThreshold = 1f;

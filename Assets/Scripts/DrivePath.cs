@@ -43,6 +43,11 @@ public class DrivePath {
         }
     }
 
+    public void adjustStartTo(DrivePath other) {
+        startVector = other.endVector;
+        fullLength = (endVector - startVector).magnitude;
+    }
+
     public static List<DrivePath> Build(List<Vector3> path, List<Pos> posObjs) {
 //        Debug.Log("NEW");
         List<DrivePath> drivePaths = new List<DrivePath>();

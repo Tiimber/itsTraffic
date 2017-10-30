@@ -52,6 +52,21 @@ public class DebugFn
 		}
 	}
 
+    public static void print(List<DrivePath> drivePaths) {
+        if (enabled) {
+            Debug.Log("[");
+            DrivePath prev = null;
+            foreach (DrivePath curr in drivePaths) {
+                if (prev == null) {
+                    DebugFn.print(curr.startVector);
+                }
+				DebugFn.print(curr.endVector);
+                prev = curr;
+            }
+            Debug.Log("]");
+        }
+    }
+
 	public static void print(Vector2 vector) {
 		if (enabled) {
 			Debug.Log ("Vector2 (" + vector.x + ", " + vector.y + ")");

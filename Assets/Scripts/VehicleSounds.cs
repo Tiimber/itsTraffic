@@ -165,7 +165,7 @@ public class VehicleSounds : MonoBehaviour, IPubSub {
     }
 
     public void stopSiren(bool fadeOut = true, float time = 2f) {
-        if (soundSourceSiren.isPlaying) {
+        if (soundSourceSiren != null && soundSourceSiren.isPlaying) {
             if (fadeOut) {
                 StartCoroutine(fadeOutSirenSound(time));
             } else {

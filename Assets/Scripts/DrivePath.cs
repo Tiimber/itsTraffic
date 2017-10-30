@@ -18,6 +18,24 @@ public class DrivePath {
     public float blinkStart = -1f;
     public float breakStart = -1f;
     public TrafficLightLogic upcomingTrafficLight = null;
+    public bool isBacking = false;
+
+    private DrivePath() {}
+
+    private DrivePath (DrivePath drivePath) {
+        this.startVector = drivePath.startVector;
+        this.endVector = drivePath.endVector;
+        this.startId = drivePath.startId;
+        this.endId = drivePath.endId;
+        this.fullLength = drivePath.fullLength;
+        this.breakFactor = drivePath.breakFactor;
+        this.wayWidthFactor = drivePath.wayWidthFactor;
+        this.blinkDirection = drivePath.blinkDirection;
+        this.blinkStart = drivePath.blinkStart;
+        this.breakStart = drivePath.breakStart;
+        this.upcomingTrafficLight = drivePath.upcomingTrafficLight;
+        this.isBacking = drivePath.isBacking;
+    }
 
     private void setUpcomingTrafficLight(long currTargetId, long prevTargetId) {
         if (TrafficLightIndex.TrafficLightsForPos.ContainsKey(currTargetId)) {
@@ -219,5 +237,20 @@ public class DrivePath {
             straightDrivePath.blinkStart = 0f;
             drivePaths.Add(straightDrivePath);
         }
+    }
+
+    public static void AddBacking(List<DrivePath> drivePaths, Vehicle vehicle) {
+        Debug.Log("AddBacking");
+        DrivePath drivePath = new DrivePath(drivePaths[0]);
+        drivePath.upcomingTrafficLight = null;
+        drivePath.isBacking = true;
+        drivePath.wayWidthFactor /= 2f;
+        Vector3 backingVector = drivePath.startVector - Misc.NoZ(vehicle.transform.position);
+        drivePath.startVector = Misc.NoZ(vehicle.transform.position);
+        backingVector = backingVector.normalized / 4f;
+        drivePath.endVector = drivePath.startVector + backingVector;
+        drivePath.fullLength = backingVector.magnitude;
+        drivePaths[0].fullLength += drivePath.fullLength;
+        drivePaths.Insert(0, drivePath);
     }
 }

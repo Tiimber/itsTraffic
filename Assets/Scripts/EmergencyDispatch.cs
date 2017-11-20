@@ -1,10 +1,12 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class EmergencyDispatch : MonoBehaviour, IPubSub {
 
-    private static EmergencyDispatch instance;
+    public static EmergencyDispatch instance;
 
     public enum EMERGENCY_TYPE {
         POLICE,
@@ -13,6 +15,8 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
     }
 
     public enum UNIT_STATUS {
+        INVOLVED_IN_EMERGENCY,
+
         SITUATION_RESOLVED,
         ARRIVED_AT_SCENE,
         ON_THE_WAY,
@@ -30,7 +34,7 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
         EXTREME
     }
 
-    private long emergencyId = 0L;
+    public long emergencyId = 0L;
     private Dictionary<long, EmergencyInfo> emergencies = new Dictionary<long, EmergencyInfo>();
 
     void Start() {
@@ -39,7 +43,7 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
     }
 
     public PROPAGATION onMessage(string message, object data) {
-        bool offMap = true;
+        bool offMap = false;
         Vector3 targetPosition = Misc.VECTOR3_NULL;
         Vehicle vehicleRef = null;
         if (data != null && typeof(Vehicle) == data.GetType()) {
@@ -51,7 +55,8 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
             case REPORT_MAJOR_CRASH:
                 int neededPolice = 2;
                 // TODO - When going to a specific point, "offMap" parameter need to be false
-                registerEmergency(emergencyId, message, offMap);
+//                registerEmergency(emergencyId, message, offMap, 20f);
+                registerEmergency(emergencyId, message, offMap, 5f);
                 grabOrSpawn(neededPolice, EMERGENCY_TYPE.POLICE, targetPosition, vehicleRef);
                 break;
             case REPORT_FIRE:
@@ -219,14 +224,16 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
         };
     }
 
-    private void registerEmergency(long emergencyId, string message, bool offMap) {
-        emergencies.Add(emergencyId, new EmergencyInfo(message, offMap));
+    private void registerEmergency(long emergencyId, string message, bool offMap, float timeToResolve) {
+        emergencies.Add(emergencyId, new EmergencyInfo(message, offMap, timeToResolve));
     }
 
-    public static void Report (UNIT_STATUS status, Vehicle vehicle, long emergencyId, bool newSpawn = false) {
+    public static bool Report (UNIT_STATUS status, Vehicle vehicle, long emergencyId, bool newSpawn = false) {
         if (EmergencyDispatch.instance.emergencies.ContainsKey(emergencyId)) {
             EmergencyDispatch.instance.emergencies[emergencyId].register(status, vehicle, newSpawn);
+            return true;
         }
+        return false;
     }
 
     public static void ReportStandingStill (long emergencyId, Vehicle vehicle) {
@@ -237,10 +244,45 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
         }
     }
 
+    public static bool IsInvolvedInAccident (long emergencyId, Vehicle vehicle) {
+        if (EmergencyDispatch.instance.emergencies.ContainsKey(emergencyId)) {
+            return EmergencyDispatch.instance.emergencies[emergencyId].getVehicleStatus(vehicle) == UNIT_STATUS.INVOLVED_IN_EMERGENCY;
+        }
+        return false;
+    }
+
     private void registerCollider (long emergencyId, BoxCollider collider) {
         if (emergencies.ContainsKey(emergencyId)) {
             emergencies[emergencyId].collider = collider;
         }
+    }
+
+    public IEnumerator unregisterCollider(EmergencyInfo emergencyInfo) {
+        emergencyInfo.collider.size = new Vector3(0.001f, 0.001f, 0.001f);
+        emergencyInfo.collider.transform.position = new Vector3(10000f, 10000f, 10000f);
+        yield return null;
+        Destroy(emergencyInfo.collider.gameObject);
+        emergencyInfo.collider = null;
+    }
+
+    public IEnumerator clearUpDispatchUnits(EmergencyInfo emergencyInfo) {
+        yield return new WaitForSeconds(0.5f);
+        List<Vehicle> emergencyVehicles = emergencyInfo.vehicleStatus.Where(keyValuePair => keyValuePair.Value != UNIT_STATUS.INVOLVED_IN_EMERGENCY).Select(p => p.Key).ToList();
+        foreach (Vehicle emergencyVehicle in emergencyVehicles) {
+            emergencyVehicle.cancelDispatch();
+        }
+
+        emergencyInfo.vehicleStatus.Clear();
+    }
+
+    public IEnumerator countdownEmergency(EmergencyInfo emergencyInfo) {
+        float timeToSleep = 0.25f;
+        do {
+            yield return new WaitForSecondsRealtime(timeToSleep);
+            emergencyInfo.timeToResolve -= timeToSleep * emergencyInfo.numberOfArrivedUnits;
+            // TODO - Maybe some graphics to show progress (or police radio?)
+        } while (emergencyInfo.timeToResolve > 0f);
+        emergencyInfo.situationResolved();
     }
 
     public class EmergencyInfo {
@@ -248,35 +290,73 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
         private bool offMap = false;
         private bool emergencyResolved = false;
         private int numberAwaitingSpawn = 0;
-        private Dictionary<Vehicle, UNIT_STATUS> vehicleStatus = new Dictionary<Vehicle, UNIT_STATUS>();
+        public float timeToResolve = 0f;
+        public int numberOfArrivedUnits = 0;
+        public Dictionary<Vehicle, UNIT_STATUS> vehicleStatus = new Dictionary<Vehicle, UNIT_STATUS>();
         public BoxCollider collider;
 
-        public EmergencyInfo(string emergencyType, bool offMap) {
+        Coroutine countdown = null;
+
+        public EmergencyInfo(string emergencyType, bool offMap, float timeToResolve) {
             this.emergencyType = emergencyType;
             this.offMap = offMap;
+            this.timeToResolve = timeToResolve;
         }
 
         public void register(UNIT_STATUS status, Vehicle vehicle, bool newSpawn) {
-            if (newSpawn) {
-                numberAwaitingSpawn--;
-            }
-            if (status == UNIT_STATUS.AWAITING_SPAWN) {
-                numberAwaitingSpawn++;
-            } else if (status == UNIT_STATUS.SITUATION_RESOLVED) {
-                emergencyResolved = true;
-                vehicleStatus.Clear();
-            } else if (status == UNIT_STATUS.ARRIVED_AT_SCENE && offMap) {
-                vehicleStatus.Remove(vehicle);
-                if (vehicleStatus.Count == 0 && numberAwaitingSpawn == 0) {
+            if (!emergencyResolved) {
+                if (newSpawn) {
+                    numberAwaitingSpawn--;
+                }
+                if (status == UNIT_STATUS.AWAITING_SPAWN) {
+                    numberAwaitingSpawn++;
+                } else if (status == UNIT_STATUS.SITUATION_RESOLVED) {
                     emergencyResolved = true;
-                }
-            } else {
-                if (!vehicleStatus.ContainsKey(vehicle)) {
-                    vehicleStatus[vehicle] = status;
+                    vehicleStatus.Clear();
+                } else if (status == UNIT_STATUS.ARRIVED_AT_SCENE && offMap) {
+                    vehicleStatus.Remove(vehicle);
+                    if (vehicleStatus.Count == 0 && numberAwaitingSpawn == 0) {
+                        emergencyResolved = true;
+                    }
                 } else {
-                    vehicleStatus.Add(vehicle, status);
+                    if (!vehicleStatus.ContainsKey(vehicle)) {
+                        vehicleStatus.Add(vehicle, status);
+                    } else {
+                        vehicleStatus[vehicle] = status;
+                    }
+
+                    if (status == UNIT_STATUS.ARRIVED_AT_SCENE) {
+                        numberOfArrivedUnits++;
+                        if (countdown == null) {
+                            countdown = EmergencyDispatch.instance.StartCoroutine(EmergencyDispatch.instance.countdownEmergency(this));
+                        }
+                    }
                 }
             }
+//            string[] vehicleStatusString = vehicleStatus.Select(kvp => kvp.Key.name + ": " + kvp.Value.ToString()).ToArray<string>();
+//            Debug.Log(string.Join(Environment.NewLine, vehicleStatusString));
+        }
+
+        public void situationResolved () {
+            EmergencyDispatch.instance.StopCoroutine(countdown);
+            countdown = null;
+
+            emergencyResolved = true;
+
+            List<Vehicle> involvedVehicles = vehicleStatus.Where(keyValuePair => keyValuePair.Value == UNIT_STATUS.INVOLVED_IN_EMERGENCY).Select(p => p.Key).ToList();
+
+            // Fade out involved vehicles (and remove danger halo)
+            foreach (Vehicle involvedVehicle in involvedVehicles) {
+                involvedVehicle.fadeOutAndDestroy();
+                vehicleStatus.Remove(involvedVehicle);
+                PubSub.publish ("Vehicle:removeDangerHalo", involvedVehicle);
+            }
+
+            // Clear off the collider
+            EmergencyDispatch.instance.StartCoroutine(EmergencyDispatch.instance.unregisterCollider(this));
+
+            // Reset involved cars, after a delay...
+            EmergencyDispatch.instance.StartCoroutine(EmergencyDispatch.instance.clearUpDispatchUnits(this));
         }
 
         public UNIT_STATUS getVehicleStatus(Vehicle vehicle) {

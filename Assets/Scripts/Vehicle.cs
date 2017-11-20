@@ -355,9 +355,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                         stopBlinkers();
                     }
 
-					// TODO - OLD COLLISION logic reported "statReportPossibleCrossing" - do this somewhere in new logic as well
-                    // stats [STAT_PASSED_CROSSINGS].add (1f);
-
                 } else if (health > 0f) {
 					// TODO - We've probably reached the end of the road, what to do?
 					//			Debug.Log ("No movement");
@@ -409,7 +406,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		// TODO - Maybe base honking/blinking depending on frustration level
 		if (!startAction || UnityEngine.Random.value < 0.5f) {
 			vehicleSounds.honk (startAction);
-			DataCollector.Add("Vehicle:honk", 1.0f);
+            if (startAction) {
+                DataCollector.Add("Vehicle:honk", 1.0f);
+            }
 		} else {
 			flashHeadlights ();
 			DataCollector.Add("Vehicle:flash headlight", 1.0f);
@@ -544,7 +543,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
         if (characteristics.emergencyId != -1L) {
             emergencyId = characteristics.emergencyId;
-            EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ON_THE_WAY, this, characteristics.emergencyId, true);
+            if (!EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ON_THE_WAY, this, characteristics.emergencyId, true)) {
+                // TODO - Emergency already resolved, remove this vehicle instead of dispatching
+            }
         }
 
 		AwarenessBreakFactor = 1.0f;
@@ -569,6 +570,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				VehicleCollisionObj vehicleCollisionObj = rawCollisionObj.typeName == VehicleCollisionObj.NAME ? (VehicleCollisionObj)rawCollisionObj : null;
 				TrafficLightCollisionObj trafficLightCollisionObj = rawCollisionObj.typeName == TrafficLightCollisionObj.NAME ? (TrafficLightCollisionObj)rawCollisionObj : null;
 				HumanCollisionObj humanCollisionObj = rawCollisionObj.typeName == HumanCollisionObj.NAME ? (HumanCollisionObj)rawCollisionObj : null;
+				EmergencyCollisionObj emergencyCollisionObj = rawCollisionObj.typeName == EmergencyCollisionObj.NAME ? (EmergencyCollisionObj)rawCollisionObj : null;
 
 				string otherColliderName = rawCollisionObj.CollisionObjType;
 				if (vehicleCollisionObj != null) {
@@ -599,7 +601,14 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 						removeHumanInAwarenessArea (colliderName, humanCollisionObj.Human);
 						autosetAwarenessBreakFactor ();
 					}
-				}
+				} else if (emergencyCollisionObj != null) {
+                    Debug.Log(emergencyCollisionObj.emergencyId);
+                    if (colliderName == "PC" && emergencyId == emergencyCollisionObj.emergencyId) {
+                        if (drivePath.Count > 0) {
+                            drivePath[0].breakFactor = drivePath[0].originalBreakFactor;
+                        }
+                    }
+                }
 			}
 		}
 	}
@@ -688,8 +697,12 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 						autosetAwarenessBreakFactor ();
 					}
 				} else if (emergencyCollisionObj != null) {
-                    if (colliderName == "PC" && emergencyId == emergencyCollisionObj.emergencyId) {
+                    if (colliderName == "PC" && emergencyId == emergencyCollisionObj.emergencyId && !EmergencyDispatch.IsInvolvedInAccident(emergencyId, this)) {
                         EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ARRIVED_AT_SCENE, this, emergencyId);
+						// Break hard, since we reached the collider of our emergency
+             			if (drivePath.Count > 0) {
+                            drivePath[0].breakFactor = 0f;
+                        }
                     }
                 }
 			}
@@ -708,7 +721,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	}
 
 	private void registerCollissionAmount (float amount, Vehicle otherVehicle) {
-		bool shouldPlayCrashSound = vehicleId <= otherVehicle.vehicleId;
+		bool shouldPlayCrashSound = otherVehicle == null || vehicleId <= otherVehicle.vehicleId;
 		health -= amount;
 		if (health <= 0f) {
 			VehicleLights lights = GetComponentInChildren<VehicleLights> ();
@@ -726,6 +739,12 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				vehicleSounds.playMajorCrashSound ();
 
                 PubSub.publish(EmergencyDispatch.REPORT_MAJOR_CRASH, this);
+                emergencyId = EmergencyDispatch.instance.emergencyId;
+                EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.INVOLVED_IN_EMERGENCY, this, emergencyId);
+
+                if (otherVehicle != null && otherVehicle.health <= 0f) {
+                    EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.INVOLVED_IN_EMERGENCY, otherVehicle, emergencyId);
+                }
 			}
 		} else if (shouldPlayCrashSound) {
 			// Minor crash - play sound
@@ -736,7 +755,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
     // TODO - Just for testing - remove in game
     public void makeCrash () {
-        registerCollissionAmount(20, this);
+        registerCollissionAmount(20, null);
     }
 
 	private void createDangerHalo () {
@@ -845,9 +864,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
     }
 
     private bool hasDrivePathWithDifferentEndPos () {
-        if (drivePath.Count > 1) {
+        if (drivePath.Count >= 1) {
 	        DrivePath next = getNextDrivePathWithDifferentEndPos();
-        	return next != null && next.endId != drivePath[0].endId;
+        	return (next != null && next.endId != drivePath[0].endId) || (drivePath[0].startId != drivePath[0].endId);
         }
         return false;
     }
@@ -888,12 +907,30 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         Acceleration = Misc.randomRange (3f, 3.5f);
     }
 
+    private void restoreSpeed () {
+        SpeedFactor = Misc.randomRange (0.8f, 1.2f);
+        Acceleration = Misc.randomRange (2f, 3f);
+    }
+
     public void dispatchTo (Vector3 targetPosition, long emergencyId) {
         this.emergencyId = emergencyId;
         EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ON_THE_WAY, this, emergencyId);
 		startSiren(true);
 		rerouteTo(targetPosition);
         speedUp();
+    }
+
+    public void cancelDispatch () {
+        this.emergencyId = -1L;
+        stopSiren(true);
+        restoreSpeed();
+
+        Pos targetPos;
+        do {
+            targetPos = NodeIndex.getPosById(Misc.pickRandomKey(NodeIndex.endPointDriveWayIndex));
+        } while (!canReroute(Game.getCameraPosition(targetPos))); // Po-liz is special, because it might be in the last drivepath or in the middle of a turn
+
+        rerouteTo(Game.getCameraPosition(targetPos));
     }
 
     private void rerouteTo(Vector3 targetPosition) {
@@ -903,7 +940,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         long currentTarget = !currentDrivePathIsStraight ? getNextDrivePathWithDifferentEndPos().endId : drivePath[0].endId;
 
         // Keep the start of the drivepath, since we might already have driven some of it
-        List<DrivePath> startOfDrive = drivePath.GetRange(0, drivePath.FindIndex(dp => dp.endId != currentOrigin && dp.endId != currentTarget));
+		int nextDrivePathIndex = drivePath.FindIndex(dp => dp.endId != currentOrigin && dp.endId != currentTarget);
+		List<DrivePath> startOfDrive = drivePath.GetRange(0, nextDrivePathIndex != -1 ? nextDrivePathIndex : drivePath.Count);
 
         // Get specific wayReference, that this target points to
 		WayReference closestWayReference = NodeIndex.getClosestWayReference(targetPosition);
@@ -1092,9 +1130,9 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 		PubSub.unsubscribe ("Click", this);
 
 		VehicleLights lights = GetComponentInChildren<VehicleLights> ();
-		lights.turnAllOff ();
+        lights.turnAllOff (true);
 
-        // If camera attached, detatch
+        // If camera attached, detach
         if (isOwningCamera) {
             detachCurrentCamera();
         }

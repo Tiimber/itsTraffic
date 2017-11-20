@@ -32,12 +32,13 @@ public class VehicleLights : MonoBehaviour {
 	private Light sirenRight;
     public bool areSirensOn;
 
-	private bool warningBlinkersOn = false;
 	private bool blinkersOn = false;
 	private bool lastBlinkLeft = false;
 	private bool lastBlinkRight = false;
 
     public bool hasSirens = false;
+
+    private Coroutine warningBlinkersCoroutine = null;
 
 	// Use this for initialization
 	void Start () {
@@ -115,22 +116,21 @@ public class VehicleLights : MonoBehaviour {
 	}
 
 	public void startWarningBlinkers() {
-		if (!warningBlinkersOn) {
-			warningBlinkersOn = true;
-			StartCoroutine (startWarningBlinkersBlinking());
-		}
+        stopWarningBlinkers();
+		warningBlinkersCoroutine = StartCoroutine(startWarningBlinkersBlinking());
 	}
 
 	private IEnumerator startWarningBlinkersBlinking() {
-		while (warningBlinkersOn) {
+		while (true) {
 			toggleWarningBlinkers (!blinkersRight.activeSelf);
 			yield return new WaitForSeconds (0.8f);
 		}
 	}
 
 	public void stopWarningBlinkers() {
-		if (warningBlinkersOn) {
-			warningBlinkersOn = false;
+		if (warningBlinkersCoroutine != null) {
+			StopCoroutine(warningBlinkersCoroutine);
+            warningBlinkersCoroutine = null;
 		}
 	}
 
@@ -214,16 +214,17 @@ public class VehicleLights : MonoBehaviour {
     }
 
     private IEnumerator shiftSirens() {
-        sirenLeft.gameObject.SetActive(true);
-        sirenRight.gameObject.SetActive(false);
-        while (true) {
-	        yield return new WaitForSeconds(0.8f);
-            sirenLeft.gameObject.SetActive(!sirenLeft.gameObject.activeSelf);
-            sirenRight.gameObject.SetActive(!sirenRight.gameObject.activeSelf);
-        }
+		sirenLeft.gameObject.SetActive(true);
+		sirenRight.gameObject.SetActive(false);
+		while (true) {
+			yield return new WaitForSeconds(0.8f);
+			sirenLeft.gameObject.SetActive(!sirenLeft.gameObject.activeSelf);
+			sirenRight.gameObject.SetActive(!sirenRight.gameObject.activeSelf);
+		}
     }
 
-	public void turnAllOff() {
+	public void turnAllOff(bool isDestroying = false) {
+        enableLights = enableLights ? !isDestroying : enableLights;
 		StopCoroutine ("startFlashHeadlight");
 		stopWarningBlinkers ();
         startSirens(false);

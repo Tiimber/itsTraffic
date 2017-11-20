@@ -13,6 +13,7 @@ public class DrivePath {
     public long endId;
     public float fullLength;
     public float breakFactor;
+    public float originalBreakFactor;
     public float wayWidthFactor;
     public string blinkDirection = null;
     public float blinkStart = -1f;
@@ -29,6 +30,7 @@ public class DrivePath {
         this.endId = drivePath.endId;
         this.fullLength = drivePath.fullLength;
         this.breakFactor = drivePath.breakFactor;
+        this.originalBreakFactor = drivePath.originalBreakFactor;
         this.wayWidthFactor = drivePath.wayWidthFactor;
         this.blinkDirection = drivePath.blinkDirection;
         this.blinkStart = drivePath.blinkStart;
@@ -160,6 +162,7 @@ public class DrivePath {
             currentPath.fullLength = (currentPath.endVector - currentPath.startVector).magnitude;
 //            Debug.Log(currentPath.fullLength);
             currentPath.breakFactor = 1.0f;
+            currentPath.originalBreakFactor = currentPath.breakFactor;
 
             // Put the path for the "mid" way
 
@@ -226,6 +229,7 @@ public class DrivePath {
                     bezierDrivePath.endId = posId;
                     bezierDrivePath.fullLength = (curr - prev).magnitude;
                     bezierDrivePath.breakFactor = breakFactor;
+                    bezierDrivePath.originalBreakFactor = breakFactor;
                     bezierDrivePath.wayWidthFactor = wayWidthFactor;
                     bezierDrivePath.blinkDirection = blinkDirection;
                     bezierDrivePath.blinkStart = 0f;
@@ -242,6 +246,7 @@ public class DrivePath {
             straightDrivePath.endId = posId;
             straightDrivePath.fullLength = (end - start).magnitude;
             straightDrivePath.breakFactor = 1.0f;
+            straightDrivePath.originalBreakFactor = straightDrivePath.breakFactor;
             straightDrivePath.wayWidthFactor = wayWidthFactor;
             straightDrivePath.blinkDirection = blinkDirection;
             straightDrivePath.blinkStart = 0f;

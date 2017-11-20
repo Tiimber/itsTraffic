@@ -55,8 +55,7 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
             case REPORT_MAJOR_CRASH:
                 int neededPolice = 2;
                 // TODO - When going to a specific point, "offMap" parameter need to be false
-//                registerEmergency(emergencyId, message, offMap, 20f);
-                registerEmergency(emergencyId, message, offMap, 5f);
+                registerEmergency(emergencyId, message, offMap, 20f);
                 grabOrSpawn(neededPolice, EMERGENCY_TYPE.POLICE, targetPosition, vehicleRef);
                 break;
             case REPORT_FIRE:

@@ -265,7 +265,7 @@ public class EmergencyDispatch : MonoBehaviour, IPubSub {
     }
 
     public IEnumerator clearUpDispatchUnits(EmergencyInfo emergencyInfo) {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.25f);
         List<Vehicle> emergencyVehicles = emergencyInfo.vehicleStatus.Where(keyValuePair => keyValuePair.Value != UNIT_STATUS.INVOLVED_IN_EMERGENCY).Select(p => p.Key).ToList();
         foreach (Vehicle emergencyVehicle in emergencyVehicles) {
             emergencyVehicle.cancelDispatch();

@@ -168,7 +168,7 @@ public class VehicleLights : MonoBehaviour {
 	}
 
 	public void stopBlinkers() {
-		if (blinkersLeft != null) {		
+		if (blinkersLeft != null && blinkersOn) {
 			blinkersOn = false;
 			lastBlinkLeft = false;
 			lastBlinkRight = false;

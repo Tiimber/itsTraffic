@@ -570,7 +570,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 				VehicleCollisionObj vehicleCollisionObj = rawCollisionObj.typeName == VehicleCollisionObj.NAME ? (VehicleCollisionObj)rawCollisionObj : null;
 				TrafficLightCollisionObj trafficLightCollisionObj = rawCollisionObj.typeName == TrafficLightCollisionObj.NAME ? (TrafficLightCollisionObj)rawCollisionObj : null;
 				HumanCollisionObj humanCollisionObj = rawCollisionObj.typeName == HumanCollisionObj.NAME ? (HumanCollisionObj)rawCollisionObj : null;
-				EmergencyCollisionObj emergencyCollisionObj = rawCollisionObj.typeName == EmergencyCollisionObj.NAME ? (EmergencyCollisionObj)rawCollisionObj : null;
 
 				string otherColliderName = rawCollisionObj.CollisionObjType;
 				if (vehicleCollisionObj != null) {
@@ -601,13 +600,6 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 						removeHumanInAwarenessArea (colliderName, humanCollisionObj.Human);
 						autosetAwarenessBreakFactor ();
 					}
-				} else if (emergencyCollisionObj != null) {
-                    Debug.Log(emergencyCollisionObj.emergencyId);
-                    if (colliderName == "PC" && emergencyId == emergencyCollisionObj.emergencyId) {
-                        if (drivePath.Count > 0) {
-                            drivePath[0].breakFactor = drivePath[0].originalBreakFactor;
-                        }
-                    }
                 }
 			}
 		}
@@ -701,7 +693,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                         EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ARRIVED_AT_SCENE, this, emergencyId);
 						// Break hard, since we reached the collider of our emergency
              			if (drivePath.Count > 0) {
-                            drivePath[0].breakFactor = 0f;
+                            drivePath.ForEach(dp => dp.breakFactor = 0f);
                         }
                     }
                 }
@@ -924,6 +916,8 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         this.emergencyId = -1L;
         stopSiren(true);
         restoreSpeed();
+
+        drivePath.ForEach(dp => dp.breakFactor = dp.originalBreakFactor);
 
         Pos targetPos;
         do {

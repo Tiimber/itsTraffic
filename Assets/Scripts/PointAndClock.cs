@@ -41,4 +41,8 @@ public class PointAndClock : MonoBehaviour, IPubSub {
 		return PROPAGATION.DEFAULT;
 	}
 	#endregion
+
+	void OnDestroy() {
+		PubSub.unsubscribeAllForSubscriber (this);
+	}
 }

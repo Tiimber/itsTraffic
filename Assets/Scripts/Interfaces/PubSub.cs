@@ -64,10 +64,19 @@ public class PubSub {
 				}
 
 				propagation = subscriber.onMessage (message, data);
-				if (propagation == PROPAGATION.STOP_AFTER_SAME_TYPE) {
-					priorityMinLimit = priority;
-				}
-				// TODO - Propagate more types?
+                switch (propagation) {
+                    case PROPAGATION.STOP_IMMEDIATELY:
+                        return;
+                    break;
+                    case PROPAGATION.STOP_AFTER_SAME_TYPE:
+						priorityMinLimit = priority;
+                    break;
+					case PROPAGATION.CONTINUE_WITH_OTHER_TYPES:
+						// TODO - Propagate more types?
+					case PROPAGATION.DEFAULT:
+                    default:
+                    break;
+                }
 			}
 		}
 	}

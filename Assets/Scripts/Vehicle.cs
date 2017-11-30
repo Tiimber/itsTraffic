@@ -541,7 +541,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             gameObject.GetComponent<Mood>().init();
         }
 
-        if (characteristics.emergencyId != -1L) {
+        if (characteristics != null && characteristics.emergencyId != -1L) {
             emergencyId = characteristics.emergencyId;
             if (!EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ON_THE_WAY, this, characteristics.emergencyId, true)) {
                 // TODO - Emergency already resolved, remove this vehicle instead of dispatching
@@ -1147,7 +1147,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 
     void OnDestroy() {
         ExplosionHelper.Remove(this);
-        PubSub.unsubscribe ("Click", this);
+        PubSub.unsubscribeAllForSubscriber (this);
     }
 
 	public void onFadeMessage (string message) {
@@ -1180,7 +1180,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 	public PROPAGATION onMessage (string message, object data) {
 		if (!destroying) {
 			if (message == "Click") {
-                Debug.Log("Click Vehicle");
+//                Debug.Log("Click Vehicle");
                 if (health <= 0f) {
 					// Get click position (x,y) in a plane of the objects' Z position
 					Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, transform.position.z));
@@ -1211,6 +1211,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
 					Vector2 clickPos = Game.instance.screenToWorldPosInPlane((Vector3) data, plane);
 					CircleTouch vehicleTouch = new CircleTouch(transform.position, 0.1f * 1f); // Click 0.1 (vehicle length) multiplied by one
 					if (vehicleTouch.isInside(clickPos)) {
+                        // Debug.Log("Got LongPress"+this.vehicleId);
 						DrivePath.AddBacking(drivePath, this);
 						backALittle();
 						return PROPAGATION.STOP_IMMEDIATELY;

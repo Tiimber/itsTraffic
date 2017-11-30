@@ -255,7 +255,7 @@ public class DrivePath {
     }
 
     public static void AddBacking(List<DrivePath> drivePaths, Vehicle vehicle) {
-        Debug.Log("AddBacking");
+        // Debug.Log("AddBacking" + vehicle.vehicleId);
         DrivePath drivePath = new DrivePath(drivePaths[0]);
         drivePath.upcomingTrafficLight = null;
         drivePath.isBacking = true;

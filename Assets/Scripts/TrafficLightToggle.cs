@@ -25,7 +25,7 @@ public class TrafficLightToggle : IPubSub {
 	List<CircleTouchWithPosId> toggles = new List<CircleTouchWithPosId>();
 
 	public PROPAGATION onMessage(string message, System.Object obj) {
-        Debug.Log("Click TrafficLightToggle");
+//        Debug.Log("Click TrafficLightToggle");
         if (message == "Click") {
 			Vector2 clickPos = Game.instance.screenToWorldPosInBasePlane((Vector3) obj);
 			CircleTouchWithPosId touchArea = toggles.Find(i => i.isInside(clickPos));
@@ -45,5 +45,9 @@ public class TrafficLightToggle : IPubSub {
 			this.posId = posId;
 		}
 	}
+
+    public static void Clear() {
+        PubSub.unsubscribeAllForSubscriber (instance);
+    }
 
 }

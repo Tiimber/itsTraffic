@@ -234,39 +234,51 @@ public class BriefAndSummaryPopup : PopupWindowStyles, IPubSub {
             if (objectiveId == -1L) {
                 bool hasThreshold = point.threshold != -1L;
 
-                // Point label
-                GUI.Label (new Rect (5f, y, 2f * columnWidth, textStyle.fontSize + 6f), point.label, textStyle);
-
                 // Amount
                 bool hasOwnAmount = point.hasOwnAmountCalculation ();
                 float ownAmount = point.getOwnAmount ();
+                GUIStyle style = textStyle;
+                GUIStyle styleRight = textStyleRight;
+                if (hasOwnAmount && (ownAmount == 0f || ownAmount == -1f) || point.amount == 0f) {
+                    style = textNoPointsStyle;
+                    styleRight = textNoPointsStyleRight;
+                }
+
+                // Point label
+                GUI.Label (new Rect (5f, y, 2f * columnWidth, style.fontSize + 6f), point.label, style);
                 if (hasOwnAmount) {
                     if (ownAmount != -1f) {
-                        GUI.Label (new Rect (5f + 2f * columnWidth, y, columnWidth, textStyleRight.fontSize + 6f), Misc.maxDecimals (ownAmount) + "x ", textStyleRight);
+                        GUI.Label (new Rect (5f + 2f * columnWidth, y, columnWidth, styleRight.fontSize + 6f), Misc.maxDecimals (ownAmount) + "x ", styleRight);
                     }
                 } else if (hasThreshold) {
-                    GUI.Label (new Rect (5f + 2f * columnWidth, y, columnWidth, textStyleRight.fontSize + 6f), Mathf.FloorToInt (point.amount / point.threshold) + "x ", textStyleRight);
+                    GUI.Label (new Rect (5f + 2f * columnWidth, y, columnWidth, styleRight.fontSize + 6f), Mathf.FloorToInt (point.amount / point.threshold) + "x ", styleRight);
                 } else {
-                    GUI.Label (new Rect (5f + 2f * columnWidth, y, columnWidth, textStyleRight.fontSize + 6f), Misc.maxDecimals (point.amount) + "x ", textStyleRight);
+                    GUI.Label (new Rect (5f + 2f * columnWidth, y, columnWidth, styleRight.fontSize + 6f), Misc.maxDecimals (point.amount) + "x ", styleRight);
                 }
 
                 // Point per amount
                 if (ownAmount != -1f) {
-                    GUI.Label (new Rect (5f + 2f * (2 * columnWidth), y, columnWidth, textStyleRight.fontSize + 6f), "" + point.value, textStyle);
+                    GUI.Label (new Rect (5f + 2f * (2 * columnWidth), y, columnWidth, styleRight.fontSize + 6f), "" + point.value, style);
                 }
 
                 // Total points
-                GUI.Label (new Rect (windowWidth - 5f - columnWidth, y, columnWidth, textStyleRight.fontSize + 6f), "" + point.calculatedValue, textStyleRight);
+                GUI.Label (new Rect (windowWidth - 5f - columnWidth, y, columnWidth, styleRight.fontSize + 6f), "" + point.calculatedValue, styleRight);
             } else {
+                GUIStyle style = textStyle;
+                GUIStyle styleRight = textStyleRight;
+                if (point.calculatedValue == 0f && point.amount == 0f) {
+                    style = textNoPointsStyle;
+                    styleRight = textNoPointsStyleRight;
+                }
                 // Objective label
                 string objectiveLabel = point.label;
                 if (objectiveLabel == null) {
                     objectiveLabel = summary.objectives.get (objectiveId).label;
                 }
-                GUI.Label (new Rect (5f, y, 4f * columnWidth, textStyle.fontSize + 6f), objectiveLabel, textStyle);
+                GUI.Label (new Rect (5f, y, 4f * columnWidth, textStyle.fontSize + 6f), objectiveLabel, style);
 
                 // Total points
-                GUI.Label (new Rect (windowWidth - 5f - columnWidth, y, columnWidth, textStyleRight.fontSize + 6f), "" + point.calculatedValue, textStyleRight);
+                GUI.Label (new Rect (windowWidth - 5f - columnWidth, y, columnWidth, textStyleRight.fontSize + 6f), "" + point.calculatedValue, styleRight);
             }
         }
 

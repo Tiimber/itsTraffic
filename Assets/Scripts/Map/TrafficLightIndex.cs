@@ -19,6 +19,18 @@ public class TrafficLightIndex
 		TrafficLights.Remove (trafficLight);
 	}
 
+    public static void RemoveAllTrafficLights () {
+        foreach (KeyValuePair<long, List<TrafficLightLogic>> trafficLightGroup in TrafficLightsForPos) {
+            long posId = trafficLightGroup.Key;
+            foreach (TrafficLightLogic trafficLight in trafficLightGroup.Value) {
+                GameObject.Destroy(trafficLight);
+            }
+            trafficLightGroup.Value.Clear();
+        }
+        TrafficLightsForPos.Clear();
+    }
+
+
 	public static void AutoInitTrafficLights () {
 		// Set properties depending on rotation
 		AutosetTrafficLightProperties ();

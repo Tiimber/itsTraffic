@@ -18,7 +18,7 @@ public class InformationWindow : PopupWindowStyles, IPubSub {
 	}
 
 	public PROPAGATION onMessage (string message, object data) {
-        Debug.Log("Click InformationWindow");
+//        Debug.Log("Click InformationWindow");
         if (message == "Click") {
             // Check if a link was clicked inside of an already shown informationWindow
             Vector2 clickPosScreen = Misc.getScreenPos((Vector3) data);

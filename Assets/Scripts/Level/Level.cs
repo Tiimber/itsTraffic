@@ -96,8 +96,8 @@ public class Level {
             randomSeed = randomSeedStr.GetHashCode ();
             //		    DebugFn.print ("Random seed: " + randomSeedStr + ", hash: " + randomSeed);
         }
-        date = Misc.xmlString (levelAttributes.GetNamedItem ("date"));
-        timeOfDay = Misc.xmlString (levelAttributes.GetNamedItem ("timeOfDay"));
+        date = Misc.xmlString (levelAttributes.GetNamedItem ("date"), DateTime.Now.ToString("yyyy-MM-dd"));
+        timeOfDay = Misc.xmlString (levelAttributes.GetNamedItem ("timeOfDay"), "10:00");
         dateTime = Misc.parseDateTime(date, timeOfDay);
         timeProgressionFactor = Misc.xmlInt (levelAttributes.GetNamedItem ("timeProgressionFactor"), 1);
         timeDisplaySeconds = Misc.xmlBool (levelAttributes.GetNamedItem ("timeDisplaySeconds"), true);

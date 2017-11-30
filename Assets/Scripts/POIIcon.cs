@@ -227,4 +227,13 @@ public class POIIcon : MonoBehaviour, IPubSub {
     private void adjustPOIIconAfterAnimationsDone() {
         transform.position = new Vector3(transform.position.x, transform.position.y, targetZ - (BuildingRoof.bodyPositionWhileRising.z - BuildingRoof.bodyPositionAfterRising.z));
     }
+
+    void OnDestroy() {
+        PubSub.unsubscribeAllForSubscriber(this);
+    }
+
+    public static void clear(){
+        groups.Clear();
+        groupMaterials.Clear();
+    }
 }

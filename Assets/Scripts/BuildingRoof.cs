@@ -48,6 +48,13 @@ public class BuildingRoof : MapSurface, IPubSub, IExplodable {
 		}
 	}
 
+    public void RemoveAll() {
+        foreach (BuildingRoof slaveRoof in slaves) {
+            Destroy(slaveRoof);
+        }
+        slaves.Clear();
+    }
+
 	void Update () {
 		if (!hasSlaves()) {
 			if (height != constructionHeight) {

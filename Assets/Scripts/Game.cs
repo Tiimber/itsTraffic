@@ -176,11 +176,33 @@ public class Game : MonoBehaviour, IPubSub {
         foreach (GameObject mapObject in mapObjects) {
             Destroy(mapObject);
         }
-        // Destroy "POI" objects
+
+        // Destroy building roofs
+        foreach (KeyValuePair<long, Dictionary<string, string>> objectEntry in objectProperties) {
+            GameObject buildingRoofObj = GameObject.Find ("Building (" + objectEntry.Key + ")");
+            if (buildingRoofObj == null) {
+                BuildingRoof buildingRoof = buildingRoofObj.GetComponent<BuildingRoof>();
+        		buildingRoof.RemoveAll();
+                Destroy(buildingRoofObj);
+            }
+        }
+        List<GameObject> allBuildings = Misc.NameStartsWith ("Building (");
+        foreach(GameObject building in allBuildings) {
+        	Destroy(building);
+        }
+        allBuildings.Clear();
+
+		// Destroy "POI" objects
         GameObject[] poiObjects = GameObject.FindGameObjectsWithTag("POI");
         foreach (GameObject poiObject in poiObjects) {
             Destroy(poiObject);
         }
+        // POIIcon.clear();
+
+        // Destroy traffic lights
+        TrafficLightIndex.RemoveAllTrafficLights();
+
+        TrafficLightToggle.Clear();
 
         objectProperties.Clear();
 

@@ -1042,7 +1042,14 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                 Pos nextPos = path[i + 1];
                 Vector3 centerOffsetCurr = getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos);
                 Vector3 centerOffsetNext = getCenterYOfField(NodeIndex.getWayReference(currPos.Id, nextPos.Id), currPos);
-                vectors.Add(Game.getCameraPosition(currPos) + (centerOffsetCurr + centerOffsetNext) / 2f);
+
+                Vector3 intersection = Vector3.zero;
+                bool intersects = Math3d.LineLineIntersection (out intersection, Game.getCameraPosition(prevPos) + centerOffsetCurr, Game.getCameraPosition(currPos) - Game.getCameraPosition(prevPos), Game.getCameraPosition(nextPos) + centerOffsetNext, Game.getCameraPosition(currPos) - Game.getCameraPosition(nextPos));
+                if (intersects) {
+                    vectors.Add(intersection);
+                } else {
+                    vectors.Add(Game.getCameraPosition(currPos) + (centerOffsetCurr + centerOffsetNext) / 2f);
+                }
             } else {
 	            vectors.Add(Game.getCameraPosition(currPos) + getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos));
             }

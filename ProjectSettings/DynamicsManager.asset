@@ -16,3 +16,5 @@ PhysicsManager:
   m_EnableAdaptiveForce: 0
   m_EnablePCM: 1
   m_LayerCollisionMatrix: ffe0ffffffe0ffffffe0ffffffffffffffe0ffffffe0ffffffffffffffffffffc8f6ffffc8e5ffffc8e3ffffc8e0ffffc8e1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  m_AutoSimulation: 1
+  m_AutoSyncTransforms: 1

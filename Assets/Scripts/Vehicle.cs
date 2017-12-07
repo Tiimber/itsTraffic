@@ -541,7 +541,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
             gameObject.GetComponent<Mood>().init();
         }
 
-        if (characteristics.emergencyId != -1L) {
+        if (characteristics != null && characteristics.emergencyId != -1L) {
             emergencyId = characteristics.emergencyId;
             if (!EmergencyDispatch.Report(EmergencyDispatch.UNIT_STATUS.ON_THE_WAY, this, characteristics.emergencyId, true)) {
                 // TODO - Emergency already resolved, remove this vehicle instead of dispatching
@@ -1042,7 +1042,14 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
                 Pos nextPos = path[i + 1];
                 Vector3 centerOffsetCurr = getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos);
                 Vector3 centerOffsetNext = getCenterYOfField(NodeIndex.getWayReference(currPos.Id, nextPos.Id), currPos);
-                vectors.Add(Game.getCameraPosition(currPos) + (centerOffsetCurr + centerOffsetNext) / 2f);
+
+                Vector3 intersection = Vector3.zero;
+                bool intersects = Math3d.LineLineIntersection (out intersection, Game.getCameraPosition(prevPos) + centerOffsetCurr, Game.getCameraPosition(currPos) - Game.getCameraPosition(prevPos), Game.getCameraPosition(nextPos) + centerOffsetNext, Game.getCameraPosition(currPos) - Game.getCameraPosition(nextPos));
+                if (intersects) {
+                    vectors.Add(intersection);
+                } else {
+                    vectors.Add(Game.getCameraPosition(currPos) + (centerOffsetCurr + centerOffsetNext) / 2f);
+                }
             } else {
 	            vectors.Add(Game.getCameraPosition(currPos) + getCenterYOfField(NodeIndex.getWayReference(prevPos.Id, currPos.Id), prevPos));
             }

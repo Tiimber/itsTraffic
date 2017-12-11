@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -107,7 +108,13 @@ public class NodeIndex
 	}
 	
 	public static Pos getPosById (long id) {
-		return NodeIndex.nodes[id];
+        try {
+			return NodeIndex.nodes[id];
+        } catch (Exception e) {
+            Debug.Log("COULDN'T FIND Pos for id: "+id);
+            Debug.Log(e);
+        }
+        return null;
 	}
 
 	public static List<Pos> getPosById (List<long> ids) {

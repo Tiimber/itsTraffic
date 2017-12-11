@@ -397,6 +397,7 @@ public class Vehicle: MonoBehaviour, FadeInterface, IPubSub, IExplodable, IRerou
         AwarenessBreakFactor = 1f;
         stopBreaklights ();
         startBacklights ();
+        stopBlinkers();
         DataCollector.Add("Vehicle:backing", 1.0f);
     }
 

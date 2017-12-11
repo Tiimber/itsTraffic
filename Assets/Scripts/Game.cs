@@ -106,8 +106,9 @@ public class Game : MonoBehaviour, IPubSub {
 	private Vector3 rightMousePosition;
 	private Vector3 mouseDownPosition;
 	private Vector3 prevMousePosition;
+    private bool enableLongPress { get; set; }
 
-	private int debugIndex = 0;
+    private int debugIndex = 0;
 	private List<string> debugIndexNodes = new List<string> () {
 		"none", "endpoint", "straightWay", "intersections", "all"
 	};
@@ -422,13 +423,15 @@ public class Game : MonoBehaviour, IPubSub {
 			// Click logic
 			if (firstFrame) {
 				leftClickReleaseTimer = CLICK_RELEASE_TIME;
+                enableLongPress = true;
 			} else {
 				leftClickReleaseTimer -= Time.deltaTime;
 			}
 
-            if (leftClickReleaseTimer < -1f) {
-//                Debug.Log("Trigger long press");
+            if (leftClickReleaseTimer < -1f && enableLongPress) {
+				// Debug.Log("Trigger long press");
                 // TODO cancel if move not too much, eg. if the car selected is out of focus
+                enableLongPress = false;
                 PubSub.publish("LongPress", mouseDownPosition);
             }
 		} else if (leftClickReleaseTimer > 0f) {
